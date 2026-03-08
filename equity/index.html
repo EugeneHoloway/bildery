@@ -17,12 +17,27 @@
     nav a { font-size: 0.82rem; color: #555; text-decoration: none; white-space: nowrap; }
     nav a:hover { color: #111; }
     nav a.active { color: #111; }
+
     main { padding: 40px 40px 80px; }
-    .page-title { font-size: 0.82rem; font-weight: 500; color: #111; margin-bottom: 24px; }
+
+    .toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+    .page-title { font-size: 0.82rem; font-weight: 500; color: #111; }
+    .status { display: flex; align-items: center; gap: 8px; }
+    .status-dot { width: 7px; height: 7px; border-radius: 50%; background: #d1d5db; flex-shrink: 0; transition: background 0.3s; }
+    .status-dot.live { background: #16a34a; animation: pulse 2s infinite; }
+    .status-dot.error { background: #dc2626; }
+    .status-text { font-size: 0.72rem; color: #999; }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
     .card { border: 1px solid #e5e7eb; border-radius: 10px; padding: 20px; background: #fff; cursor: pointer; transition: box-shadow 0.15s ease, border-color 0.15s ease; }
     .card:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.07); border-color: #d1d5db; }
     .card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+
     .logo { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 600; color: #fff; flex-shrink: 0; }
     .logo-aapl { background: #1c1c1e; }
     .logo-msft { background: #00a4ef; }
@@ -31,14 +46,33 @@
     .logo-meta { background: #0866ff; }
     .logo-nvda { background: #76b900; }
     .logo-tsla { background: #cc0000; }
+
     .card-title { display: flex; flex-direction: column; gap: 2px; }
     .ticker { font-size: 0.82rem; font-weight: 600; color: #111; }
     .company-name { font-size: 0.72rem; color: #888; }
-    .price { font-size: 1.1rem; font-weight: 500; color: #111; letter-spacing: -0.02em; margin-bottom: 6px; }
+
+    .price { font-size: 1.1rem; font-weight: 500; color: #111; letter-spacing: -0.02em; margin-bottom: 6px; border-radius: 4px; transition: background 0.05s; }
     .change { font-size: 0.75rem; font-weight: 500; }
     .change.up { color: #16a34a; }
     .change.down { color: #dc2626; }
+    .change.flat { color: #999; }
+
+    @keyframes flash-green {
+      0%   { background: rgba(22,163,74,0.18); }
+      100% { background: transparent; }
+    }
+    @keyframes flash-red {
+      0%   { background: rgba(220,38,38,0.15); }
+      100% { background: transparent; }
+    }
+    .flash-up   { animation: flash-green 0.7s ease-out forwards; }
+    .flash-down { animation: flash-red   0.7s ease-out forwards; }
+
     .note { margin-top: 28px; font-size: 0.72rem; color: #bbb; }
+
+    /* API key banner */
+    .api-banner { background: #fefce8; border: 1px solid #fde68a; border-radius: 8px; padding: 12px 16px; margin-bottom: 24px; font-size: 0.78rem; color: #92400e; display: none; }
+    .api-banner a { color: #b45309; }
   </style>
 </head>
 <body>
@@ -50,67 +84,208 @@
     </nav>
     <nav class="right"><a href="/about">About</a></nav>
   </header>
+
   <main>
-    <p class="page-title">Magnificent Seven</p>
-    <div class="grid">
-      <div class="card">
+    <div id="api-banner" class="api-banner">
+      No Finnhub API key set. Open <code>equity/index.html</code>, find <code>FINNHUB_API_KEY</code> and replace it with your free key from
+      <a href="https://finnhub.io" target="_blank" rel="noopener">finnhub.io</a>.
+    </div>
+
+    <div class="toolbar">
+      <p class="page-title">Magnificent Seven</p>
+      <div class="status">
+        <div class="status-dot" id="status-dot"></div>
+        <span class="status-text" id="status-text">Loading…</span>
+      </div>
+    </div>
+
+    <div class="grid" id="grid">
+      <div class="card" id="card-AAPL">
         <div class="card-header">
           <div class="logo logo-aapl">AAPL</div>
           <div class="card-title"><span class="ticker">AAPL</span><span class="company-name">Apple Inc.</span></div>
         </div>
-        <div class="price">$213.49</div>
-        <div class="change up">+1.24%</div>
+        <div class="price" id="price-AAPL">—</div>
+        <div class="change flat" id="change-AAPL">—</div>
       </div>
-      <div class="card">
+      <div class="card" id="card-MSFT">
         <div class="card-header">
           <div class="logo logo-msft">MSFT</div>
           <div class="card-title"><span class="ticker">MSFT</span><span class="company-name">Microsoft Corp.</span></div>
         </div>
-        <div class="price">$388.74</div>
-        <div class="change down">−0.87%</div>
+        <div class="price" id="price-MSFT">—</div>
+        <div class="change flat" id="change-MSFT">—</div>
       </div>
-      <div class="card">
+      <div class="card" id="card-GOOGL">
         <div class="card-header">
           <div class="logo logo-googl">GOOGL</div>
           <div class="card-title"><span class="ticker">GOOGL</span><span class="company-name">Alphabet Inc.</span></div>
         </div>
-        <div class="price">$168.32</div>
-        <div class="change up">+0.56%</div>
+        <div class="price" id="price-GOOGL">—</div>
+        <div class="change flat" id="change-GOOGL">—</div>
       </div>
-      <div class="card">
+      <div class="card" id="card-AMZN">
         <div class="card-header">
           <div class="logo logo-amzn">AMZN</div>
           <div class="card-title"><span class="ticker">AMZN</span><span class="company-name">Amazon.com Inc.</span></div>
         </div>
-        <div class="price">$196.11</div>
-        <div class="change up">+2.03%</div>
+        <div class="price" id="price-AMZN">—</div>
+        <div class="change flat" id="change-AMZN">—</div>
       </div>
-      <div class="card">
+      <div class="card" id="card-META">
         <div class="card-header">
           <div class="logo logo-meta">META</div>
           <div class="card-title"><span class="ticker">META</span><span class="company-name">Meta Platforms</span></div>
         </div>
-        <div class="price">$576.84</div>
-        <div class="change up">+1.41%</div>
+        <div class="price" id="price-META">—</div>
+        <div class="change flat" id="change-META">—</div>
       </div>
-      <div class="card">
+      <div class="card" id="card-NVDA">
         <div class="card-header">
           <div class="logo logo-nvda">NVDA</div>
           <div class="card-title"><span class="ticker">NVDA</span><span class="company-name">NVIDIA Corp.</span></div>
         </div>
-        <div class="price">$118.93</div>
-        <div class="change down">−1.55%</div>
+        <div class="price" id="price-NVDA">—</div>
+        <div class="change flat" id="change-NVDA">—</div>
       </div>
-      <div class="card">
+      <div class="card" id="card-TSLA">
         <div class="card-header">
           <div class="logo logo-tsla">TSLA</div>
           <div class="card-title"><span class="ticker">TSLA</span><span class="company-name">Tesla Inc.</span></div>
         </div>
-        <div class="price">$252.07</div>
-        <div class="change down">−3.12%</div>
+        <div class="price" id="price-TSLA">—</div>
+        <div class="change flat" id="change-TSLA">—</div>
       </div>
     </div>
-    <p class="note">Prices are indicative and not updated in real time.</p>
+
+    <p class="note" id="last-updated"></p>
   </main>
+
+  <script>
+    // ── CONFIG ──────────────────────────────────────────────────────────────
+    const FINNHUB_API_KEY = 'YOUR_FINNHUB_KEY'; // ← paste your free key here
+    const SYMBOLS = ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'META', 'NVDA', 'TSLA'];
+    const REST_POLL_MS = 30_000; // REST refresh interval (backup)
+    // ────────────────────────────────────────────────────────────────────────
+
+    const prevClose = {}; // stored from initial REST fetch
+    let ws = null;
+
+    // ── DOM helpers ──────────────────────────────────────────────────────────
+    function setStatus(text, state /* 'live'|'error'|'idle' */) {
+      document.getElementById('status-text').textContent = text;
+      const dot = document.getElementById('status-dot');
+      dot.className = 'status-dot' + (state === 'live' ? ' live' : state === 'error' ? ' error' : '');
+    }
+
+    function setUpdated() {
+      const now = new Date();
+      document.getElementById('last-updated').textContent =
+        'Last updated ' + now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    }
+
+    function updateCard(symbol, price, changePercent) {
+      if (!price || price === 0) return;
+      const priceEl  = document.getElementById('price-' + symbol);
+      const changeEl = document.getElementById('change-' + symbol);
+
+      const oldPrice = parseFloat(priceEl.dataset.value) || 0;
+      priceEl.dataset.value = price;
+      priceEl.textContent = '$' + price.toFixed(2);
+
+      // flash on price change
+      if (oldPrice && oldPrice !== price) {
+        const cls = price > oldPrice ? 'flash-up' : 'flash-down';
+        priceEl.classList.remove('flash-up', 'flash-down');
+        void priceEl.offsetWidth; // reflow to restart animation
+        priceEl.classList.add(cls);
+      }
+
+      const isUp   = changePercent > 0;
+      const isDown = changePercent < 0;
+      changeEl.textContent = (isUp ? '+' : '') + changePercent.toFixed(2) + '%';
+      changeEl.className   = 'change ' + (isUp ? 'up' : isDown ? 'down' : 'flat');
+    }
+
+    // ── REST fetch ───────────────────────────────────────────────────────────
+    async function fetchQuote(symbol) {
+      const url = `https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${FINNHUB_API_KEY}`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(res.status);
+      return res.json(); // { c, d, dp, h, l, o, pc, t }
+    }
+
+    async function loadAllQuotes() {
+      const results = await Promise.allSettled(SYMBOLS.map(s => fetchQuote(s)));
+      results.forEach((r, i) => {
+        if (r.status === 'fulfilled') {
+          const q = r.value;
+          prevClose[SYMBOLS[i]] = q.pc;
+          updateCard(SYMBOLS[i], q.c, q.dp);
+        }
+      });
+      setUpdated();
+    }
+
+    // ── WebSocket ────────────────────────────────────────────────────────────
+    function connectWS() {
+      if (ws) { try { ws.close(); } catch (_) {} }
+      ws = new WebSocket(`wss://ws.finnhub.io?token=${FINNHUB_API_KEY}`);
+
+      ws.addEventListener('open', () => {
+        SYMBOLS.forEach(s => ws.send(JSON.stringify({ type: 'subscribe', symbol: s })));
+        setStatus('Live', 'live');
+      });
+
+      ws.addEventListener('message', evt => {
+        let msg;
+        try { msg = JSON.parse(evt.data); } catch (_) { return; }
+        if (msg.type !== 'trade' || !msg.data) return;
+
+        // Finnhub sends batches; take the latest trade per symbol
+        const latest = {};
+        msg.data.forEach(t => { latest[t.s] = t.p; });
+
+        Object.entries(latest).forEach(([symbol, price]) => {
+          if (!SYMBOLS.includes(symbol)) return;
+          const pc = prevClose[symbol];
+          const dp = pc ? ((price - pc) / pc) * 100 : 0;
+          updateCard(symbol, price, dp);
+        });
+        setUpdated();
+      });
+
+      ws.addEventListener('close', () => {
+        setStatus('Reconnecting…', 'idle');
+        setTimeout(connectWS, 5000);
+      });
+
+      ws.addEventListener('error', () => {
+        setStatus('Connection error', 'error');
+      });
+    }
+
+    // ── Init ─────────────────────────────────────────────────────────────────
+    async function init() {
+      if (!FINNHUB_API_KEY || FINNHUB_API_KEY === 'YOUR_FINNHUB_KEY') {
+        document.getElementById('api-banner').style.display = 'block';
+        setStatus('No API key', 'error');
+        return;
+      }
+
+      setStatus('Loading…', 'idle');
+      try {
+        await loadAllQuotes();
+        connectWS();
+        // REST backup poll every 30 s (keeps data fresh if WS drops)
+        setInterval(loadAllQuotes, REST_POLL_MS);
+      } catch (err) {
+        console.error(err);
+        setStatus('Failed to load', 'error');
+      }
+    }
+
+    init();
+  </script>
 </body>
 </html>
