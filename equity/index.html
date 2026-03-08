@@ -51,29 +51,16 @@
       background: #fff;
       transition: box-shadow 0.15s ease;
     }
-    .session-card:hover {
-      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-    }
-    .session-card.is-open {
-      border-color: #d1fae5;
-      background: #f0fdf4;
-    }
+    .session-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+    .session-card.is-open { border-color: #d1fae5; background: #f0fdf4; }
     .session-top {
       display: flex;
       align-items: center;
       justify-content: space-between;
       margin-bottom: 12px;
     }
-    .session-name {
-      font-size: 0.82rem;
-      font-weight: 600;
-      color: #111;
-    }
-    .session-city {
-      font-size: 0.72rem;
-      color: #999;
-      margin-top: 2px;
-    }
+    .session-name { font-size: 0.82rem; font-weight: 600; color: #111; }
+    .session-city { font-size: 0.72rem; color: #999; margin-top: 2px; }
     .status-badge {
       font-size: 0.68rem;
       font-weight: 600;
@@ -81,33 +68,33 @@
       padding: 3px 8px;
       border-radius: 20px;
     }
-    .status-badge.open {
-      background: #dcfce7;
-      color: #16a34a;
+    .status-badge.open   { background: #dcfce7; color: #16a34a; }
+    .status-badge.closed { background: #f3f4f6; color: #9ca3af; }
+    .status-badge.lunch  { background: #fef9c3; color: #a16207; }
+    .session-time { font-size: 0.75rem; color: #6b7280; margin-top: 4px; }
+    .session-time strong { color: #111; font-weight: 500; }
+    .local-time { font-size: 0.7rem; color: #bbb; margin-top: 6px; }
+    /* ── Magnificent Seven toolbar ── */
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
     }
-    .status-badge.closed {
-      background: #f3f4f6;
-      color: #9ca3af;
+    .toolbar .section-title { margin-bottom: 0; }
+    .live-status { display: flex; align-items: center; gap: 7px; }
+    .live-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: #d1d5db;
+      flex-shrink: 0;
+      transition: background 0.3s;
     }
-    .status-badge.lunch {
-      background: #fef9c3;
-      color: #a16207;
-    }
-    .session-time {
-      font-size: 0.75rem;
-      color: #6b7280;
-      margin-top: 4px;
-    }
-    .session-time strong {
-      color: #111;
-      font-weight: 500;
-    }
-    .local-time {
-      font-size: 0.7rem;
-      color: #bbb;
-      margin-top: 6px;
-    }
-    /* ── Magnificent Seven ── */
+    .live-dot.live  { background: #16a34a; animation: pulse 2s infinite; }
+    .live-dot.error { background: #dc2626; }
+    .live-label { font-size: 0.72rem; color: #999; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+    /* ── Stock cards ── */
     .grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -121,27 +108,13 @@
       cursor: pointer;
       transition: box-shadow 0.15s ease, border-color 0.15s ease;
     }
-    .card:hover {
-      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
-      border-color: #d1d5db;
-    }
-    .card-header {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 16px;
-    }
+    .card:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.07); border-color: #d1d5db; }
+    .card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
     .logo {
-      width: 36px;
-      height: 36px;
+      width: 36px; height: 36px;
       border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.65rem;
-      font-weight: 600;
-      color: #fff;
-      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.65rem; font-weight: 600; color: #fff; flex-shrink: 0;
     }
     .logo-aapl  { background: #1c1c1e; }
     .logo-msft  { background: #00a4ef; }
@@ -153,11 +126,20 @@
     .card-title { display: flex; flex-direction: column; gap: 2px; }
     .ticker { font-size: 0.82rem; font-weight: 600; color: #111; }
     .company-name { font-size: 0.72rem; color: #888; }
-    .price { font-size: 1.1rem; font-weight: 500; color: #111; letter-spacing: -0.02em; margin-bottom: 6px; }
+    .price {
+      font-size: 1.1rem; font-weight: 500; color: #111;
+      letter-spacing: -0.02em; margin-bottom: 6px;
+      border-radius: 4px;
+    }
     .change { font-size: 0.75rem; font-weight: 500; }
     .change.up   { color: #16a34a; }
     .change.down { color: #dc2626; }
-    .note { margin-top: 28px; font-size: 0.72rem; color: #bbb; }
+    .change.flat { color: #999; }
+    @keyframes flash-green { 0% { background: rgba(22,163,74,0.18); } 100% { background: transparent; } }
+    @keyframes flash-red   { 0% { background: rgba(220,38,38,0.15); } 100% { background: transparent; } }
+    .flash-up   { animation: flash-green 0.7s ease-out forwards; }
+    .flash-down { animation: flash-red   0.7s ease-out forwards; }
+    .note { margin-top: 20px; font-size: 0.72rem; color: #bbb; }
   </style>
 </head>
 <body>
@@ -169,145 +151,138 @@
     </nav>
     <nav class="right"><a href="/about">About</a></nav>
   </header>
+
   <main>
-    <!-- Market Sessions -->
+    <!-- ── Market Sessions ── -->
     <p class="section-title">Market Sessions</p>
-    <div class="sessions-grid" id="sessions-grid">
-      <!-- populated by JS -->
+    <div class="sessions-grid" id="sessions-grid"></div>
+
+    <!-- ── Magnificent Seven ── -->
+    <div class="toolbar">
+      <p class="section-title">Magnificent Seven</p>
+      <div class="live-status">
+        <div class="live-dot" id="live-dot"></div>
+        <span class="live-label" id="live-label">Loading…</span>
+      </div>
     </div>
-    <!-- Magnificent Seven -->
-    <p class="section-title">Magnificent Seven</p>
+
     <div class="grid">
       <div class="card">
         <div class="card-header">
           <div class="logo logo-aapl">AAPL</div>
           <div class="card-title"><span class="ticker">AAPL</span><span class="company-name">Apple Inc.</span></div>
         </div>
-        <div class="price">$213.49</div>
-        <div class="change up">+1.24%</div>
+        <div class="price" id="price-AAPL">—</div>
+        <div class="change flat" id="change-AAPL">—</div>
       </div>
       <div class="card">
         <div class="card-header">
           <div class="logo logo-msft">MSFT</div>
           <div class="card-title"><span class="ticker">MSFT</span><span class="company-name">Microsoft Corp.</span></div>
         </div>
-        <div class="price">$388.74</div>
-        <div class="change down">−0.87%</div>
+        <div class="price" id="price-MSFT">—</div>
+        <div class="change flat" id="change-MSFT">—</div>
       </div>
       <div class="card">
         <div class="card-header">
           <div class="logo logo-googl">GOOGL</div>
           <div class="card-title"><span class="ticker">GOOGL</span><span class="company-name">Alphabet Inc.</span></div>
         </div>
-        <div class="price">$168.32</div>
-        <div class="change up">+0.56%</div>
+        <div class="price" id="price-GOOGL">—</div>
+        <div class="change flat" id="change-GOOGL">—</div>
       </div>
       <div class="card">
         <div class="card-header">
           <div class="logo logo-amzn">AMZN</div>
           <div class="card-title"><span class="ticker">AMZN</span><span class="company-name">Amazon.com Inc.</span></div>
         </div>
-        <div class="price">$196.11</div>
-        <div class="change up">+2.03%</div>
+        <div class="price" id="price-AMZN">—</div>
+        <div class="change flat" id="change-AMZN">—</div>
       </div>
       <div class="card">
         <div class="card-header">
           <div class="logo logo-meta">META</div>
           <div class="card-title"><span class="ticker">META</span><span class="company-name">Meta Platforms</span></div>
         </div>
-        <div class="price">$576.84</div>
-        <div class="change up">+1.41%</div>
+        <div class="price" id="price-META">—</div>
+        <div class="change flat" id="change-META">—</div>
       </div>
       <div class="card">
         <div class="card-header">
           <div class="logo logo-nvda">NVDA</div>
           <div class="card-title"><span class="ticker">NVDA</span><span class="company-name">NVIDIA Corp.</span></div>
         </div>
-        <div class="price">$118.93</div>
-        <div class="change down">−1.55%</div>
+        <div class="price" id="price-NVDA">—</div>
+        <div class="change flat" id="change-NVDA">—</div>
       </div>
       <div class="card">
         <div class="card-header">
           <div class="logo logo-tsla">TSLA</div>
           <div class="card-title"><span class="ticker">TSLA</span><span class="company-name">Tesla Inc.</span></div>
         </div>
-        <div class="price">$252.07</div>
-        <div class="change down">−3.12%</div>
+        <div class="price" id="price-TSLA">—</div>
+        <div class="change flat" id="change-TSLA">—</div>
       </div>
     </div>
-    <p class="note">Prices are indicative and not updated in real time.</p>
+
+    <p class="note" id="last-updated"></p>
   </main>
+
   <script>
+    // ═══════════════════════════════════════════════════════
+    //  MARKET SESSIONS
+    // ═══════════════════════════════════════════════════════
     const MARKETS = [
       {
-        id:       'nyse',
-        name:     'NYSE',
-        city:     'New York',
-        timezone: 'America/New_York',
-        days:     [1, 2, 3, 4, 5],
+        id: 'nyse', name: 'NYSE', city: 'New York',
+        timezone: 'America/New_York', days: [1,2,3,4,5],
         sessions: [{ open: { h: 9, m: 30 }, close: { h: 16, m: 0 } }]
       },
       {
-        id:       'hkex',
-        name:     'HKEx',
-        city:     'Hong Kong',
-        timezone: 'Asia/Hong_Kong',
-        days:     [1, 2, 3, 4, 5],
+        id: 'hkex', name: 'HKEx', city: 'Hong Kong',
+        timezone: 'Asia/Hong_Kong', days: [1,2,3,4,5],
         sessions: [
           { open: { h: 9,  m: 30 }, close: { h: 12, m: 0 } },
           { open: { h: 13, m: 0  }, close: { h: 16, m: 0 } }
         ]
       },
       {
-        id:       'lse',
-        name:     'LSE',
-        city:     'London',
-        timezone: 'Europe/London',
-        days:     [1, 2, 3, 4, 5],
+        id: 'lse', name: 'LSE', city: 'London',
+        timezone: 'Europe/London', days: [1,2,3,4,5],
         sessions: [{ open: { h: 8, m: 0 }, close: { h: 16, m: 30 } }]
       },
       {
-        id:       'fwb',
-        name:     'XETRA',
-        city:     'Frankfurt',
-        timezone: 'Europe/Berlin',
-        days:     [1, 2, 3, 4, 5],
+        id: 'fwb', name: 'XETRA', city: 'Frankfurt',
+        timezone: 'Europe/Berlin', days: [1,2,3,4,5],
         sessions: [{ open: { h: 9, m: 0 }, close: { h: 17, m: 30 } }]
       }
     ];
-    // Get current {dayOfWeek, totalMinutes, localTimeStr} in a given timezone
+
     function getTimeInZone(timezone) {
       const now = new Date();
       const weekdayStr = new Intl.DateTimeFormat('en-US', { timeZone: timezone, weekday: 'short' }).format(now);
-      const dayMap = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
+      const dayMap = { Sun:0, Mon:1, Tue:2, Wed:3, Thu:4, Fri:5, Sat:6 };
       const dayOfWeek = dayMap[weekdayStr];
       const parts = new Intl.DateTimeFormat('en-US', {
-        timeZone: timezone,
-        hour:   '2-digit',
-        minute: '2-digit',
-        hour12: false
+        timeZone: timezone, hour: '2-digit', minute: '2-digit', hour12: false
       }).formatToParts(now);
       let h = parseInt(parts.find(p => p.type === 'hour').value);
       let m = parseInt(parts.find(p => p.type === 'minute').value);
       if (h === 24) h = 0;
       const localTimeStr = new Intl.DateTimeFormat('en-US', {
-        timeZone: timezone,
-        hour:   'numeric',
-        minute: '2-digit',
-        hour12: true
+        timeZone: timezone, hour: 'numeric', minute: '2-digit', hour12: true
       }).format(now);
       return { dayOfWeek, totalMinutes: h * 60 + m, localTimeStr };
     }
-    // Format minutes into "Xh Ym" or "Ym"
+
     function fmtDuration(mins) {
       if (mins <= 0) return '—';
-      const h = Math.floor(mins / 60);
-      const m = mins % 60;
+      const h = Math.floor(mins / 60), m = mins % 60;
       if (h === 0) return `${m}m`;
       if (m === 0) return `${h}h`;
       return `${h}h ${m}m`;
     }
-    // Find minutes until next open across days
+
     function minutesUntilNextOpen(market, currentMinutes, dayOfWeek) {
       for (let offset = 0; offset <= 7; offset++) {
         const checkDay = (dayOfWeek + offset) % 7;
@@ -315,14 +290,13 @@
         for (const s of market.sessions) {
           const openMins = s.open.h * 60 + s.open.m;
           if (offset === 0 && openMins <= currentMinutes) continue;
-          const daysInMins = offset * 24 * 60;
-          return daysInMins + openMins - currentMinutes;
+          return offset * 24 * 60 + openMins - currentMinutes;
         }
       }
       return null;
     }
-    // Determine status of a market
-    function getStatus(market) {
+
+    function getSessionStatus(market) {
       const { dayOfWeek, totalMinutes, localTimeStr } = getTimeInZone(market.timezone);
       if (!market.days.includes(dayOfWeek)) {
         const until = minutesUntilNextOpen(market, totalMinutes, dayOfWeek);
@@ -333,34 +307,22 @@
         const openMins  = s.open.h  * 60 + s.open.m;
         const closeMins = s.close.h * 60 + s.close.m;
         if (totalMinutes >= openMins && totalMinutes < closeMins) {
-          return {
-            state: 'open',
-            label: 'Open',
-            detail: `Closes in ${fmtDuration(closeMins - totalMinutes)}`,
-            localTimeStr
-          };
+          return { state: 'open', label: 'Open', detail: `Closes in ${fmtDuration(closeMins - totalMinutes)}`, localTimeStr };
         }
-        // Check if in lunch break (between sessions)
         if (i < market.sessions.length - 1) {
           const nextOpen = market.sessions[i + 1].open.h * 60 + market.sessions[i + 1].open.m;
           if (totalMinutes >= closeMins && totalMinutes < nextOpen) {
-            return {
-              state: 'lunch',
-              label: 'Lunch',
-              detail: `Reopens in ${fmtDuration(nextOpen - totalMinutes)}`,
-              localTimeStr
-            };
+            return { state: 'lunch', label: 'Lunch', detail: `Reopens in ${fmtDuration(nextOpen - totalMinutes)}`, localTimeStr };
           }
         }
       }
-      // After all sessions today
       const until = minutesUntilNextOpen(market, totalMinutes, dayOfWeek);
       return { state: 'closed', label: 'Closed', detail: `Opens in ${fmtDuration(until)}`, localTimeStr };
     }
+
     function renderSessions() {
-      const grid = document.getElementById('sessions-grid');
-      grid.innerHTML = MARKETS.map(market => {
-        const { state, label, detail, localTimeStr } = getStatus(market);
+      document.getElementById('sessions-grid').innerHTML = MARKETS.map(market => {
+        const { state, label, detail, localTimeStr } = getSessionStatus(market);
         return `
           <div class="session-card ${state === 'open' ? 'is-open' : ''}">
             <div class="session-top">
@@ -372,12 +334,123 @@
             </div>
             <div class="session-time"><strong>${detail}</strong></div>
             <div class="local-time">${localTimeStr} local</div>
-          </div>
-        `;
+          </div>`;
       }).join('');
     }
+
     renderSessions();
-    setInterval(renderSessions, 60 * 1000);
+    setInterval(renderSessions, 60_000);
+
+    // ═══════════════════════════════════════════════════════
+    //  REAL-TIME PRICES — FINNHUB
+    // ═══════════════════════════════════════════════════════
+    const FINNHUB_API_KEY = 'd6mupupr01qir35iig8gd6mupupr01qir35iig90';
+    const SYMBOLS = ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'META', 'NVDA', 'TSLA'];
+    const REST_POLL_MS = 30_000;
+
+    const prevClose = {};
+    let ws = null;
+
+    function setLiveStatus(label, state /* 'live'|'error'|'idle' */) {
+      document.getElementById('live-label').textContent = label;
+      const dot = document.getElementById('live-dot');
+      dot.className = 'live-dot' + (state === 'live' ? ' live' : state === 'error' ? ' error' : '');
+    }
+
+    function setLastUpdated() {
+      document.getElementById('last-updated').textContent =
+        'Updated ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    }
+
+    function updateCard(symbol, price, changePercent) {
+      if (!price || price === 0) return;
+      const priceEl  = document.getElementById('price-'  + symbol);
+      const changeEl = document.getElementById('change-' + symbol);
+
+      const oldPrice = parseFloat(priceEl.dataset.value) || 0;
+      priceEl.dataset.value = price;
+      priceEl.textContent = '$' + price.toFixed(2);
+
+      if (oldPrice && oldPrice !== price) {
+        const cls = price > oldPrice ? 'flash-up' : 'flash-down';
+        priceEl.classList.remove('flash-up', 'flash-down');
+        void priceEl.offsetWidth; // restart animation
+        priceEl.classList.add(cls);
+      }
+
+      const isUp = changePercent > 0, isDown = changePercent < 0;
+      changeEl.textContent = (isUp ? '+' : '') + changePercent.toFixed(2) + '%';
+      changeEl.className   = 'change ' + (isUp ? 'up' : isDown ? 'down' : 'flat');
+    }
+
+    async function fetchQuote(symbol) {
+      const res = await fetch(
+        `https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${FINNHUB_API_KEY}`
+      );
+      if (!res.ok) throw new Error(res.status);
+      return res.json(); // { c, d, dp, h, l, o, pc, t }
+    }
+
+    async function loadAllQuotes() {
+      const results = await Promise.allSettled(SYMBOLS.map(s => fetchQuote(s)));
+      results.forEach((r, i) => {
+        if (r.status === 'fulfilled') {
+          const q = r.value;
+          prevClose[SYMBOLS[i]] = q.pc;
+          updateCard(SYMBOLS[i], q.c, q.dp);
+        }
+      });
+      setLastUpdated();
+    }
+
+    function connectWS() {
+      if (ws) { try { ws.close(); } catch (_) {} }
+      ws = new WebSocket(`wss://ws.finnhub.io?token=${FINNHUB_API_KEY}`);
+
+      ws.addEventListener('open', () => {
+        SYMBOLS.forEach(s => ws.send(JSON.stringify({ type: 'subscribe', symbol: s })));
+        setLiveStatus('Live', 'live');
+      });
+
+      ws.addEventListener('message', evt => {
+        let msg;
+        try { msg = JSON.parse(evt.data); } catch (_) { return; }
+        if (msg.type !== 'trade' || !msg.data) return;
+
+        // latest trade price per symbol in this batch
+        const latest = {};
+        msg.data.forEach(t => { latest[t.s] = t.p; });
+
+        Object.entries(latest).forEach(([symbol, price]) => {
+          if (!SYMBOLS.includes(symbol)) return;
+          const pc = prevClose[symbol];
+          const dp = pc ? ((price - pc) / pc) * 100 : 0;
+          updateCard(symbol, price, dp);
+        });
+        setLastUpdated();
+      });
+
+      ws.addEventListener('close', () => {
+        setLiveStatus('Reconnecting…', 'idle');
+        setTimeout(connectWS, 5_000);
+      });
+
+      ws.addEventListener('error', () => setLiveStatus('Connection error', 'error'));
+    }
+
+    async function init() {
+      setLiveStatus('Loading…', 'idle');
+      try {
+        await loadAllQuotes();
+        connectWS();
+        setInterval(loadAllQuotes, REST_POLL_MS);
+      } catch (err) {
+        console.error(err);
+        setLiveStatus('Failed to load', 'error');
+      }
+    }
+
+    init();
   </script>
 </body>
 </html>
