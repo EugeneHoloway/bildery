@@ -223,59 +223,59 @@
           <div class="logo logo-aapl">AAPL</div>
           <div class="card-title"><span class="ticker">AAPL</span><span class="company-name">Apple Inc.</span></div>
         </div>
-        <div class="price">$213.49</div>
-        <div class="change up">+1.24%</div>
+        <div class="live-price" id="price-AAPL">—</div>
+        <div class="live-change" id="change-AAPL">—</div>
       </div>
       <div class="card">
         <div class="card-header">
           <div class="logo logo-msft">MSFT</div>
           <div class="card-title"><span class="ticker">MSFT</span><span class="company-name">Microsoft Corp.</span></div>
         </div>
-        <div class="price">$388.74</div>
-        <div class="change down">−0.87%</div>
+        <div class="live-price" id="price-MSFT">—</div>
+        <div class="live-change" id="change-MSFT">—</div>
       </div>
       <div class="card">
         <div class="card-header">
           <div class="logo logo-googl">GOOGL</div>
           <div class="card-title"><span class="ticker">GOOGL</span><span class="company-name">Alphabet Inc.</span></div>
         </div>
-        <div class="price">$168.32</div>
-        <div class="change up">+0.56%</div>
+        <div class="live-price" id="price-GOOGL">—</div>
+        <div class="live-change" id="change-GOOGL">—</div>
       </div>
       <div class="card">
         <div class="card-header">
           <div class="logo logo-amzn">AMZN</div>
           <div class="card-title"><span class="ticker">AMZN</span><span class="company-name">Amazon.com Inc.</span></div>
         </div>
-        <div class="price">$196.11</div>
-        <div class="change up">+2.03%</div>
+        <div class="live-price" id="price-AMZN">—</div>
+        <div class="live-change" id="change-AMZN">—</div>
       </div>
       <div class="card">
         <div class="card-header">
           <div class="logo logo-meta">META</div>
           <div class="card-title"><span class="ticker">META</span><span class="company-name">Meta Platforms</span></div>
         </div>
-        <div class="price">$576.84</div>
-        <div class="change up">+1.41%</div>
+        <div class="live-price" id="price-META">—</div>
+        <div class="live-change" id="change-META">—</div>
       </div>
       <div class="card">
         <div class="card-header">
           <div class="logo logo-nvda">NVDA</div>
           <div class="card-title"><span class="ticker">NVDA</span><span class="company-name">NVIDIA Corp.</span></div>
         </div>
-        <div class="price">$118.93</div>
-        <div class="change down">−1.55%</div>
+        <div class="live-price" id="price-NVDA">—</div>
+        <div class="live-change" id="change-NVDA">—</div>
       </div>
       <div class="card">
         <div class="card-header">
           <div class="logo logo-tsla">TSLA</div>
           <div class="card-title"><span class="ticker">TSLA</span><span class="company-name">Tesla Inc.</span></div>
         </div>
-        <div class="price">$252.07</div>
-        <div class="change down">−3.12%</div>
+        <div class="live-price" id="price-TSLA">—</div>
+        <div class="live-change" id="change-TSLA">—</div>
       </div>
     </div>
-    <p class="note">Prices are indicative and not updated in real time.</p>
+    <p class="note" id="last-updated"></p>
   </main>
   <script>
     const MARKETS = [
@@ -420,7 +420,7 @@
     setInterval(renderSessions, 60 * 1000);
     // ── Live Prices via Finnhub ──────────────────────────────────────
     const FINNHUB_KEY = 'd6mupupr01qir35iig8gd6mupupr01qir35iig90';
-    const ON_WATCH = ['STM'];
+    const ON_WATCH = ['STM', 'AAPL', 'MSFT', 'GOOGL', 'AMZN', 'META', 'NVDA', 'TSLA'];
     async function fetchQuote(symbol) {
       const url = `https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${FINNHUB_KEY}`;
       const res = await fetch(url);
@@ -437,7 +437,6 @@
       return `${sign}${pct.toFixed(2)}%`;
     }
     async function updateLivePrices() {
-      if (FINNHUB_KEY === 'YOUR_API_KEY') return; // skip if no key
       for (const symbol of ON_WATCH) {
         try {
           const data = await fetchQuote(symbol);
@@ -446,16 +445,18 @@
           if (!priceEl || !changeEl || !data.c) continue;
           const pct = ((data.c - data.pc) / data.pc) * 100;
           const isUp = pct >= 0;
-          priceEl.innerHTML  = `<span class="live-dot"></span>${formatPrice(data.c)}`;
+          priceEl.innerHTML    = `<span class="live-dot"></span>${formatPrice(data.c)}`;
           changeEl.textContent = formatChange(pct);
-          changeEl.className = `live-change ${isUp ? 'up' : 'down'}`;
+          changeEl.className   = `live-change ${isUp ? 'up' : 'down'}`;
         } catch (e) {
           console.warn(`Could not fetch ${symbol}:`, e);
         }
       }
+      const el = document.getElementById('last-updated');
+      if (el) el.textContent = 'Updated ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
     }
     updateLivePrices();
-    setInterval(updateLivePrices, 30 * 1000); // обновление каждые 30 сек
+    setInterval(updateLivePrices, 30 * 1000);
   </script>
 </body>
 </html>
