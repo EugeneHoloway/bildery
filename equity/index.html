@@ -206,6 +206,10 @@
     .indicator-dot.live  { background: #16a34a; animation: pulse 2s infinite; }
     .indicator-dot.error { background: #dc2626; }
     .indicator-label { font-size: 0.72rem; color: #999; }
+    /* ── Clickable card ── */
+    .card-link { display: block; text-decoration: none; color: inherit; }
+    .card-link .card:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.07); border-color: #d1d5db; }
+    .card-link .card { transition: box-shadow 0.15s ease, border-color 0.15s ease; }
   </style>
 </head>
 <body>
@@ -226,17 +230,19 @@
     <!-- On Watch -->
     <p class="section-title">On Watch</p>
     <div class="on-watch-grid" id="on-watch-grid">
-      <div class="card" id="card-STM">
-        <div class="card-header">
-          <div class="logo logo-stm">STM</div>
-          <div class="card-title">
-            <span class="ticker">STM</span>
-            <span class="company-name">STMicroelectronics</span>
+      <a href="/equity/stm" class="card-link">
+        <div class="card" id="card-STM">
+          <div class="card-header">
+            <div class="logo logo-stm">STM</div>
+            <div class="card-title">
+              <span class="ticker">STM</span>
+              <span class="company-name">STMicroelectronics</span>
+            </div>
           </div>
+          <div class="live-price" id="price-STM">—</div>
+          <div class="live-change" id="change-STM">—</div>
         </div>
-        <div class="live-price" id="price-STM">—</div>
-        <div class="live-change" id="change-STM">—</div>
-      </div>
+      </a>
     </div>
     <!-- Magnificent Seven -->
     <div class="section-toolbar">
