@@ -183,6 +183,29 @@
       50%       { opacity: 0.3; }
     }
     .logo-stm { background: #03459e; }
+    /* ── Section toolbar ── */
+    .section-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .section-toolbar .section-title { margin-bottom: 0; }
+    .live-indicator {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .indicator-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: #d1d5db;
+      flex-shrink: 0;
+      transition: background 0.4s;
+    }
+    .indicator-dot.live  { background: #16a34a; animation: pulse 2s infinite; }
+    .indicator-dot.error { background: #dc2626; }
+    .indicator-label { font-size: 0.72rem; color: #999; }
   </style>
 </head>
 <body>
@@ -216,7 +239,13 @@
       </div>
     </div>
     <!-- Magnificent Seven -->
-    <p class="section-title">Magnificent Seven</p>
+    <div class="section-toolbar">
+      <p class="section-title">Magnificent Seven</p>
+      <div class="live-indicator">
+        <div class="indicator-dot" id="indicator-dot"></div>
+        <span class="indicator-label" id="indicator-label">Loading…</span>
+      </div>
+    </div>
     <div class="grid">
       <div class="card">
         <div class="card-header">
@@ -436,7 +465,16 @@
       const sign = pct >= 0 ? '+' : '';
       return `${sign}${pct.toFixed(2)}%`;
     }
+    function setIndicator(state /* 'loading'|'live'|'error' */) {
+      const dot   = document.getElementById('indicator-dot');
+      const label = document.getElementById('indicator-label');
+      if (!dot || !label) return;
+      dot.className = 'indicator-dot' + (state === 'live' ? ' live' : state === 'error' ? ' error' : '');
+      label.textContent = state === 'live' ? 'Live' : state === 'error' ? 'Error' : 'Loading…';
+    }
+
     async function updateLivePrices() {
+      let anySuccess = false;
       for (const symbol of ON_WATCH) {
         try {
           const data = await fetchQuote(symbol);
@@ -448,13 +486,16 @@
           priceEl.innerHTML    = `<span class="live-dot"></span>${formatPrice(data.c)}`;
           changeEl.textContent = formatChange(pct);
           changeEl.className   = `live-change ${isUp ? 'up' : 'down'}`;
+          anySuccess = true;
         } catch (e) {
           console.warn(`Could not fetch ${symbol}:`, e);
         }
       }
+      setIndicator(anySuccess ? 'live' : 'error');
       const el = document.getElementById('last-updated');
       if (el) el.textContent = 'Updated ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
     }
+    setIndicator('loading');
     updateLivePrices();
     setInterval(updateLivePrices, 30 * 1000);
   </script>
