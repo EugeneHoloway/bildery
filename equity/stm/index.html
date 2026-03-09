@@ -616,10 +616,24 @@ const EUR_TO_USD   = 1.09;
 // ================================================================
 async function fetchYahoo(ticker, range) {
   const url = `https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?interval=1d&range=${range}&events=div%7Csplit`;
-  // corsproxy.io forwards requests with proper CORS headers
-  const res = await fetch(`https://corsproxy.io/?${url}`);
-  if (!res.ok) throw new Error(`API HTTP ${res.status}`);
-  return res.json();
+
+  // Try multiple CORS proxies in sequence — fallback if one is blocked or rate-limited
+  const proxies = [
+    `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+    `https://corsproxy.io/?${encodeURIComponent(url)}`,
+    `https://thingproxy.freeboard.io/fetch/${url}`,
+  ];
+
+  for (const proxyUrl of proxies) {
+    try {
+      const res = await fetch(proxyUrl);
+      if (res.ok) return res.json();
+    } catch (_) {
+      // proxy failed — try next one
+    }
+  }
+
+  throw new Error('API unavailable — all proxies failed');
 }
 
 // ================================================================
