@@ -323,7 +323,7 @@
     <!-- Price card -->
     <div class="card">
       <div style="font-size:0.68rem; font-weight:500; color:var(--muted-fg); display:flex; align-items:center; gap:6px;">
-        <span class="live-dot"></span> LIVE PRICE · NYSE: STM
+        <span class="live-dot"></span> LIVE PRICE · EURONEXT PARIS: STMPA
       </div>
       <div class="price-val" id="currentPrice">—</div>
       <div class="price-change-row">
@@ -350,7 +350,7 @@
       <div class="card-hd">
         <div>
           <div class="card-title">Price History</div>
-          <div class="card-desc">Daily closes · NYSE: STM</div>
+          <div class="card-desc">Daily closes · Euronext Paris: STMPA</div>
         </div>
         <div style="display:flex; gap:6px;">
           <button class="btn-range" onclick="setRange('1y',this)">1Y</button>
@@ -593,7 +593,7 @@
 
   <div class="disclaimer">
     ⚠️ <strong>Disclaimer</strong> — For educational and research purposes only. Not financial advice.
-    Live price data is fetched from Finnhub; accuracy may vary. Fundamental data (revenue, margins, ratios)
+    Live price data is fetched from Yahoo Finance (STMPA.PA · Euronext Paris); accuracy may vary. Fundamental data (revenue, margins, ratios)
     reflects FY2025 reported figures and may not reflect the most current period.
     All investments carry risk. Consult a qualified financial advisor before making investment decisions.
   </div>
@@ -604,63 +604,74 @@
 // ================================================================
 // CONFIG
 // ================================================================
-const FINNHUB_KEY  = 'd6mupupr01qir35iig8gd6mupupr01qir35iig90';
-const SYMBOL       = 'STM';   // NYSE listing (USD)
-const PRICE_TARGET = 30;      // EUR analyst consensus
-const REVENUE_TTM  = 11.8e9;  // FY2025 revenue in USD (approx)
+const SYMBOL       = 'STMPA.PA';  // Euronext Paris listing (EUR)
+const PRICE_TARGET = 30;           // EUR analyst consensus
+const REVENUE_TTM  = 11.8e9;       // FY2025 revenue in USD (approx)
+const SHARES_OUT   = 910e6;        // ~910M diluted shares
+// EUR/USD ≈ 1.09 for market cap conversion
+const EUR_TO_USD   = 1.09;
 
 // ================================================================
-// API HELPERS
+// YAHOO FINANCE API — no key required
 // ================================================================
-async function apiFetch(path) {
-  const res = await fetch(`https://finnhub.io/api/v1${path}&token=${FINNHUB_KEY}`);
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+async function fetchYahoo(ticker, range) {
+  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?interval=1d&range=${range}&events=div%7Csplit`;
+  // corsproxy.io forwards requests with proper CORS headers
+  const res = await fetch(`https://corsproxy.io/?${url}`);
+  if (!res.ok) throw new Error(`API HTTP ${res.status}`);
   return res.json();
 }
 
 // ================================================================
-// PRICE DISPLAY
+// PRICE DISPLAY  (prices in EUR)
 // ================================================================
-function updatePriceUI(q) {
-  const price      = q.c;
-  const pct        = ((price - q.pc) / q.pc) * 100;
-  const absChange  = price - q.pc;
-  const isUp       = pct >= 0;
+function updatePriceUI(meta, currency) {
+  const price     = meta.regularMarketPrice;
+  const prevClose = meta.regularMarketPreviousClose || meta.chartPreviousClose;
+  const pct       = ((price - prevClose) / prevClose) * 100;
+  const absChange = price - prevClose;
+  const isUp      = pct >= 0;
+  const sym       = currency === 'EUR' ? '€' : '$';
 
-  document.getElementById('currentPrice').textContent = `$${price.toFixed(2)}`;
+  document.getElementById('currentPrice').textContent = `${sym}${price.toFixed(2)}`;
 
   const badge = document.getElementById('changeBadge');
   badge.textContent = `${isUp ? '+' : ''}${pct.toFixed(2)}%`;
   badge.className   = `badge ${isUp ? 'badge-success' : 'badge-danger'}`;
 
   document.getElementById('changeAbs').textContent =
-    `${isUp ? '+' : ''}$${absChange.toFixed(2)} today`;
-  document.getElementById('priceOpen').textContent = `$${q.o.toFixed(2)}`;
-  document.getElementById('pricePrev').textContent = `$${q.pc.toFixed(2)}`;
-  document.getElementById('priceHigh').textContent = `$${q.h.toFixed(2)}`;
-  document.getElementById('priceLow').textContent  = `$${q.l.toFixed(2)}`;
+    `${isUp ? '+' : ''}${sym}${Math.abs(absChange).toFixed(2)} today`;
+  document.getElementById('priceOpen').textContent =
+    `${sym}${(meta.regularMarketOpen || price).toFixed(2)}`;
+  document.getElementById('pricePrev').textContent = `${sym}${prevClose.toFixed(2)}`;
+  document.getElementById('priceHigh').textContent =
+    `${sym}${(meta.regularMarketDayHigh || price).toFixed(2)}`;
+  document.getElementById('priceLow').textContent  =
+    `${sym}${(meta.regularMarketDayLow  || price).toFixed(2)}`;
 
-  // P/S ratio: market cap ≈ price × shares out (approx 910M shares for STM)
-  const shares   = 910e6;
-  const mktCap   = price * shares;
-  const ps       = (mktCap / REVENUE_TTM).toFixed(2);
-  document.getElementById('psVal').textContent  = `${ps}×`;
-  document.getElementById('stmPs').textContent  = `${ps}×`;
+  // P/S ratio — mktCap in EUR → convert revenue to EUR
+  const mktCapEur = price * SHARES_OUT;
+  const revEur    = REVENUE_TTM / EUR_TO_USD;
+  const ps        = (mktCapEur / revEur).toFixed(2);
+  document.getElementById('psVal').textContent = `${ps}×`;
+  document.getElementById('stmPs').textContent = `${ps}×`;
 
-  // PT upside (vs analyst €27 target — roughly maps to USD price since they track)
+  // PT upside (vs €30 consensus)
   const ptUpside = ((PRICE_TARGET - price) / price * 100);
   const ptSign   = ptUpside >= 0 ? '+' : '';
-  document.getElementById('ptUpside').textContent    = `${ptSign}${ptUpside.toFixed(1)}% implied upside to analyst PT`;
-  document.getElementById('ptUpsideRow').textContent = `${ptSign}${ptUpside.toFixed(1)}% to PT €${PRICE_TARGET}`;
+  document.getElementById('ptUpside').textContent    =
+    `${ptSign}${ptUpside.toFixed(1)}% implied upside to analyst PT`;
+  document.getElementById('ptUpsideRow').textContent =
+    `${ptSign}${ptUpside.toFixed(1)}% to PT €${PRICE_TARGET}`;
 
-  // Scenario upsides
+  // Scenario upsides (EUR targets)
   const bullMid = 42.5, bearMid = 20;
   document.getElementById('bullUpside').textContent   =
-    `~${(((bullMid - price) / price) * 100).toFixed(0)}% from $${price.toFixed(2)}`;
+    `~${(((bullMid - price) / price) * 100).toFixed(0)}% from €${price.toFixed(2)}`;
   document.getElementById('bearDownside').textContent =
-    `~${(((bearMid - price) / price) * 100).toFixed(0)}% from $${price.toFixed(2)}`;
+    `~${(((bearMid - price) / price) * 100).toFixed(0)}% from €${price.toFixed(2)}`;
   document.getElementById('baseUpside').textContent   =
-    `~0–12% from $${price.toFixed(2)}`;
+    `~0–12% from €${price.toFixed(2)}`;
 }
 
 // ================================================================
@@ -678,23 +689,33 @@ async function fetchLiveData() {
   status.textContent = 'Fetching live data…';
 
   try {
-    const [quote, candles] = await Promise.all([
-      apiFetch(`/quote?symbol=${SYMBOL}`),
-      allCandles
-        ? Promise.resolve(allCandles)
-        : apiFetch(`/stock/candle?symbol=${SYMBOL}&resolution=D&from=${Math.floor(Date.now()/1000) - 5*365*24*3600}&to=${Math.floor(Date.now()/1000)}`),
-    ]);
+    // Single call gets both quote metadata + 5y of daily candles
+    const data = await fetchYahoo(SYMBOL, '5y');
+    const result = data?.chart?.result?.[0];
 
-    if (quote && quote.c) updatePriceUI(quote);
+    if (!result) throw new Error('No data returned from Yahoo Finance');
 
-    if (candles && candles.s === 'ok' && !allCandles) {
-      allCandles = candles;
-      renderPriceChart(candles, '5y');
+    const meta      = result.meta;
+    const currency  = meta.currency || 'EUR';
+    const timestamps = result.timestamp || [];
+    const closes     = result.indicators?.quote?.[0]?.close || [];
+
+    // Update price UI
+    updatePriceUI(meta, currency);
+
+    // Store & render chart (only on first load)
+    if (!allCandles && timestamps.length > 0) {
+      // Filter out nulls
+      const pairs = timestamps
+        .map((t, i) => ({ t, c: closes[i] }))
+        .filter(p => p.c !== null && p.c !== undefined);
+      allCandles = { t: pairs.map(p => p.t), c: pairs.map(p => p.c) };
+      renderPriceChart(allCandles, '5y');
     }
 
     document.getElementById('lastUpdated').textContent =
       'Updated ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-    status.innerHTML = '<span class="live-dot" style="margin-right:4px;"></span>Live — auto-refreshes every 5 min';
+    status.innerHTML = '<span class="live-dot" style="margin-right:4px;"></span>Live · STMPA.PA — auto-refreshes every 5 min';
 
   } catch (err) {
     status.textContent = `⚠️ ${err.message}`;
@@ -765,7 +786,7 @@ function renderPriceChart(data, range) {
           bodyColor: '#09090b',
           titleFont: { size: 10, family: 'Inter' },
           bodyFont:  { size: 12, weight: '600', family: 'Inter' },
-          callbacks: { label: ctx => `$${ctx.parsed.y.toFixed(2)}` },
+          callbacks: { label: ctx => `€${ctx.parsed.y.toFixed(2)}` },
         },
       },
       scales: {
@@ -776,7 +797,7 @@ function renderPriceChart(data, range) {
         y: {
           position: 'right',
           grid: { color: '#f4f4f5', drawBorder: false },
-          ticks: { font: { size: 10, family: 'Inter' }, color: '#a1a1aa', callback: v => `$${v}` },
+          ticks: { font: { size: 10, family: 'Inter' }, color: '#a1a1aa', callback: v => `€${v}` },
         },
       },
     },
