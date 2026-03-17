@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <title>Sandbox — Bildery</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;1,14..32,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #ffffff; --fg: #09090b; --border: #e4e4e7;
+      --muted: #f4f4f5; --muted-fg: #71717a; --radius: 8px;
+      --green: #16a34a; --green-bg: #f0fdf4; --green-border: #bbf7d0;
+      --purple: #7c3aed; --purple-bg: #f5f3ff; --purple-border: #ddd6fe;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: var(--bg); color: var(--fg); font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+    header { display: grid; grid-template-columns: 1fr auto 1fr; align-items: start; padding: 32px 40px; border-bottom: 1px solid var(--border); }
+    .brand a { font-size: 0.9rem; font-weight: 500; color: var(--fg); text-decoration: none; }
+    .brand a:hover { color: var(--muted-fg); }
+    nav.main { display: flex; align-items: center; gap: 28px; padding-top: 2px; }
+    nav.right { display: flex; justify-content: flex-end; padding-top: 2px; }
+    nav a { font-size: 0.82rem; color: var(--muted-fg); text-decoration: none; white-space: nowrap; }
+    nav a:hover { color: var(--fg); }
+    nav a.active { color: var(--fg); font-weight: 500; }
+    .container { max-width: 900px; margin: 0 auto; padding: 48px 40px 80px; }
+    .page-title { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.025em; margin-bottom: 6px; }
+    .page-sub { font-size: 0.8rem; color: var(--muted-fg); margin-bottom: 40px; }
+    .card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .entry-card { border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; text-decoration: none; color: var(--fg); display: block; transition: border-color 0.15s, box-shadow 0.15s; }
+    .entry-card:hover { border-color: #a1a1aa; box-shadow: 0 1px 6px rgba(0,0,0,0.06); }
+    .entry-tag { display: inline-flex; align-items: center; font-size: 0.64rem; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; padding: 2px 8px; border-radius: 9999px; border: 1px solid var(--purple-border); background: var(--purple-bg); color: var(--purple); margin-bottom: 10px; }
+    .entry-title { font-size: 0.92rem; font-weight: 600; margin-bottom: 5px; }
+    .entry-desc { font-size: 0.76rem; color: var(--muted-fg); line-height: 1.65; }
+    .entry-meta { display: flex; align-items: center; gap: 8px; margin-top: 14px; font-size: 0.7rem; color: var(--muted-fg); }
+    .badge-sm { display: inline-flex; align-items: center; font-size: 0.64rem; font-weight: 500; padding: 1px 7px; border-radius: 9999px; border: 1px solid var(--green-border); background: var(--green-bg); color: var(--green); }
+  </style>
+</head>
+<body>
+<header>
+  <div class="brand"><a href="/">Bildery</a></div>
+  <nav class="main">
+    <a href="/equity">Equity analysis</a>
+    <a href="/pm">Product Management</a>
+    <a href="/sandbox" class="active">Sandbox</a>
+  </nav>
+  <nav class="right"><a href="/about">About</a></nav>
+</header>
+<div class="container">
+  <div class="page-title">Sandbox</div>
+  <p class="page-sub">Work-in-progress projects, test tasks, and exploratory documents.</p>
+  <div class="card-grid">
+    <a class="entry-card" href="/sandbox/liki24-test">
+      <div class="entry-tag">PM Test Task</div>
+      <div class="entry-title">Autoship &amp; Save · Liki24.de</div>
+      <div class="entry-desc">ROI-positive retention initiative for Liki24.de. Covers initiative selection, target segment, LTV hypothesis, UX flow, ROI model, risk assessment, and A/B test design.</div>
+      <div class="entry-meta">
+        <span class="badge-sm">ROI Positive</span>
+        <span>Web + App</span>
+        <span>·</span>
+        <span>8 sections</span>
+      </div>
+    </a>
+  </div>
+</div>
+</body>
+</html>
