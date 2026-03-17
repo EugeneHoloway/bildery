@@ -10,10 +10,11 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;1,14..32,400&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #ffffff; --fg: #09090b; --border: #e4e4e7;
+      --bg: #ffffff; --fg: #09090b; --card: #ffffff; --border: #e4e4e7;
       --muted: #f4f4f5; --muted-fg: #71717a; --radius: 8px;
       --green: #16a34a; --green-bg: #f0fdf4; --green-border: #bbf7d0;
       --purple: #7c3aed; --purple-bg: #f5f3ff; --purple-border: #ddd6fe;
+      --blue: #0055cc; --blue-bg: #f0f5ff; --blue-border: #c7d9ff;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { background: var(--bg); color: var(--fg); font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
@@ -36,6 +37,8 @@
     .entry-desc { font-size: 0.76rem; color: var(--muted-fg); line-height: 1.65; }
     .entry-meta { display: flex; align-items: center; gap: 8px; margin-top: 14px; font-size: 0.7rem; color: var(--muted-fg); }
     .badge-sm { display: inline-flex; align-items: center; font-size: 0.64rem; font-weight: 500; padding: 1px 7px; border-radius: 9999px; border: 1px solid var(--green-border); background: var(--green-bg); color: var(--green); }
+    .badge-sm-blue { border-color: var(--blue-border); background: var(--blue-bg); color: var(--blue); }
+    .entry-tag-blue { border-color: var(--blue-border); background: var(--blue-bg); color: var(--blue); }
   </style>
 </head>
 <body>
@@ -61,6 +64,17 @@
         <span>Web + App</span>
         <span>·</span>
         <span>8 sections</span>
+      </div>
+    </a>
+    <a class="entry-card" href="/sandbox/test-liki24">
+      <div class="entry-tag entry-tag-blue">PM Strategy Doc</div>
+      <div class="entry-title">Autoship &amp; Save · PRD Format</div>
+      <div class="entry-desc">The same Liki24.de initiative presented as a structured internal PRD — sidebar navigation, 10-section document layout, decision log, risk table, and launch plan in a Google/Apple PM format.</div>
+      <div class="entry-meta">
+        <span class="badge-sm badge-sm-blue">Approved</span>
+        <span>Web + App</span>
+        <span>·</span>
+        <span>10 sections</span>
       </div>
     </a>
   </div>
