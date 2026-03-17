@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <title>Liki24.de · Autoship &amp; Save — Bildery</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;1,14..32,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:#ffffff;--fg:#09090b;--card:#ffffff;--border:#e4e4e7;--primary:#18181b;
+      --muted:#f4f4f5;--muted-fg:#71717a;--radius:8px;
+      --green:#16a34a;--green-bg:#f0fdf4;--green-border:#bbf7d0;
+      --red:#dc2626;--red-bg:#fef2f2;--red-border:#fecaca;
+      --amber:#d97706;--amber-bg:#fffbeb;--amber-border:#fde68a;
+      --blue:#2563eb;--blue-bg:#eff6ff;--blue-border:#bfdbfe;
+      --purple:#7c3aed;--purple-bg:#f5f3ff;--purple-border:#ddd6fe;
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{background:var(--bg);color:var(--fg);font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased;}
+    header{display:grid;grid-template-columns:1fr auto 1fr;align-items:start;padding:32px 40px;border-bottom:1px solid var(--border);}
+    .brand a{font-size:.9rem;font-weight:500;color:var(--fg);text-decoration:none;}
+    .brand a:hover{color:var(--muted-fg);}
+    nav.main{display:flex;align-items:center;gap:28px;padding-top:2px;}
+    nav.right{display:flex;justify-content:flex-end;padding-top:2px;}
+    nav a{font-size:.82rem;color:var(--muted-fg);text-decoration:none;white-space:nowrap;}
+    nav a:hover{color:var(--fg);}
+    nav a.active{color:var(--fg);font-weight:500;}
+    .container{max-width:1140px;margin:0 auto;padding:32px 40px 80px;}
+    .breadcrumb{display:flex;align-items:center;gap:6px;font-size:.75rem;color:var(--muted-fg);margin-bottom:20px;}
+    .breadcrumb a{color:var(--muted-fg);text-decoration:none;}
+    .breadcrumb a:hover{color:var(--fg);}
+    .breadcrumb-sep{color:var(--border);}
+    .title-row{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;}
+    .title-left h1{font-size:1.6rem;font-weight:700;letter-spacing:-.028em;line-height:1.2;}
+    .title-badges{display:flex;align-items:center;gap:6px;margin-top:8px;flex-wrap:wrap;}
+    .page-subtitle{font-size:.8rem;color:var(--muted-fg);margin-bottom:28px;}
+    .badge{display:inline-flex;align-items:center;gap:4px;font-size:.68rem;font-weight:500;padding:2px 8px;border-radius:9999px;border:1px solid transparent;white-space:nowrap;}
+    .badge-outline{border-color:var(--border);color:var(--muted-fg);background:transparent;}
+    .badge-success{background:var(--green-bg);color:var(--green);border-color:var(--green-border);}
+    .badge-danger{background:var(--red-bg);color:var(--red);border-color:var(--red-border);}
+    .badge-warning{background:var(--amber-bg);color:var(--amber);border-color:var(--amber-border);}
+    .badge-blue{background:var(--blue-bg);color:var(--blue);border-color:var(--blue-border);}
+    .badge-purple{background:var(--purple-bg);color:var(--purple);border-color:var(--purple-border);}
+    .section-label{font-size:.68rem;font-weight:600;letter-spacing:.10em;text-transform:uppercase;color:var(--muted-fg);margin-bottom:12px;margin-top:32px;display:flex;align-items:center;gap:8px;}
+    .section-label::after{content:'';flex:1;height:1px;background:var(--border);}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px 22px;}
+    .card-hd{display:flex;align-items:flex-start;justify-content:space-between;padding-bottom:14px;margin-bottom:16px;border-bottom:1px solid var(--border);}
+    .card-title{font-size:.84rem;font-weight:600;color:var(--fg);}
+    .card-desc{font-size:.72rem;color:var(--muted-fg);margin-top:2px;}
+    .metrics-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px;}
+    .metric-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px 16px;}
+    .metric-label{font-size:.7rem;color:var(--muted-fg);font-weight:500;margin-bottom:6px;}
+    .metric-val{font-size:1.5rem;font-weight:700;letter-spacing:-.025em;}
+    .metric-sub{font-size:.68rem;color:var(--muted-fg);margin-top:4px;}
+    .up-text{color:var(--green)!important;font-weight:600;}
+    .down-text{color:var(--red)!important;font-weight:600;}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+    .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+    .mb-14{margin-bottom:14px;}
+    .sep{height:1px;background:var(--border);margin:14px 0;}
+    .data-table{width:100%;border-collapse:collapse;font-size:.78rem;}
+    .data-table th{text-align:left;font-size:.68rem;font-weight:500;color:var(--muted-fg);padding:7px 10px;border-bottom:1px solid var(--border);}
+    .data-table td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top;}
+    .data-table tr:last-child td{border-bottom:none;}
+    .data-table tr.hl td{font-weight:600;background:var(--muted);}
+    .data-table tr:hover td{background:var(--muted);}
+    .muted-cell{color:var(--muted-fg);font-size:.74rem;}
+    .formula-box{background:var(--muted);border:1px solid var(--border);border-left:3px solid var(--fg);border-radius:var(--radius);padding:14px 16px;font-family:'Courier New',monospace;font-size:.78rem;color:var(--fg);margin:12px 0;line-height:2;}
+    .why-list{display:flex;flex-direction:column;}
+    .why-item{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);}
+    .why-item:last-child{border-bottom:none;padding-bottom:0;}
+    .why-icon{font-size:1.1rem;width:22px;flex-shrink:0;text-align:center;margin-top:1px;}
+    .why-body{flex:1;}
+    .why-title{font-size:.8rem;font-weight:600;margin-bottom:3px;}
+    .why-desc{font-size:.74rem;color:var(--muted-fg);line-height:1.65;}
+    .risk-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);}
+    .risk-row:last-child{border-bottom:none;}
+    .risk-info{width:240px;flex-shrink:0;}
+    .risk-name{font-size:.78rem;font-weight:600;}
+    .risk-sub{font-size:.68rem;color:var(--muted-fg);margin-top:2px;line-height:1.4;}
+    .risk-track{flex:1;height:4px;background:var(--border);border-radius:9999px;overflow:hidden;}
+    .risk-fill{height:100%;border-radius:9999px;width:0;transition:width 1.3s cubic-bezier(.4,0,.2,1);}
+    .risk-fill.high{background:var(--red);}
+    .risk-fill.med{background:var(--amber);}
+    .risk-fill.low{background:var(--green);}
+    .risk-lvl{font-size:.62rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;width:38px;text-align:right;flex-shrink:0;}
+    .risk-lvl.high{color:var(--red);}
+    .risk-lvl.med{color:var(--amber);}
+    .risk-lvl.low{color:var(--green);}
+    .ux-step{display:flex;gap:16px;padding:14px 0;border-bottom:1px solid var(--border);}
+    .ux-step:last-child{border-bottom:none;}
+    .ux-num{width:28px;height:28px;border-radius:50%;background:var(--fg);color:#fff;font-size:.72rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+    .ux-body{flex:1;}
+    .ux-title{font-size:.82rem;font-weight:600;margin-bottom:4px;}
+    .ux-desc{font-size:.75rem;color:var(--muted-fg);line-height:1.65;}
+    .ux-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px;}
+    .scenarios-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+    .scenario{border:1px solid var(--border);border-radius:var(--radius);padding:18px;}
+    .scenario.bull{border-top:3px solid var(--green);}
+    .scenario.base{border-top:3px solid var(--amber);}
+    .scenario.bear{border-top:3px solid var(--red);}
+    .sc-label{font-size:.66rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;}
+    .bull .sc-label{color:var(--green);}
+    .base .sc-label{color:var(--amber);}
+    .bear .sc-label{color:var(--red);}
+    .sc-val{font-size:1.5rem;font-weight:700;letter-spacing:-.025em;margin:4px 0 2px;}
+    .sc-users{font-size:.72rem;color:var(--muted-fg);margin-bottom:10px;}
+    .sc-desc{font-size:.74rem;color:var(--muted-fg);line-height:1.65;}
+    .ab-group{border:1px solid var(--border);border-radius:var(--radius);padding:16px;}
+    .ab-group.control{border-top:3px solid var(--muted-fg);}
+    .ab-group.test-a{border-top:3px solid var(--blue);}
+    .ab-group.test-b{border-top:3px solid var(--green);}
+    .ab-label{font-size:.66rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px;}
+    .control .ab-label{color:var(--muted-fg);}
+    .test-a .ab-label{color:var(--blue);}
+    .test-b .ab-label{color:var(--green);}
+    .ab-title{font-size:.86rem;font-weight:600;margin-bottom:6px;}
+    .ab-desc{font-size:.74rem;color:var(--muted-fg);line-height:1.65;}
+    .ab-pct{font-size:1.2rem;font-weight:700;margin-top:10px;}
+    .criteria-item{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);align-items:flex-start;}
+    .criteria-item:last-child{border-bottom:none;}
+    .criteria-num{width:22px;height:22px;border-radius:50%;border:2px solid var(--border);font-size:.68rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--muted-fg);margin-top:1px;}
+    .criteria-body{flex:1;font-size:.76rem;color:var(--fg);line-height:1.65;}
+    .criteria-metric{font-weight:600;}
+    .callout{border-radius:var(--radius);padding:12px 14px;font-size:.76rem;line-height:1.65;}
+    .callout-green{background:var(--green-bg);border:1px solid var(--green-border);}
+    .callout-red{background:var(--red-bg);border:1px solid var(--red-border);}
+    .callout-amber{background:var(--amber-bg);border:1px solid var(--amber-border);}
+    .callout-muted{background:var(--muted);border:1px solid var(--border);color:var(--muted-fg);}
+    .author-note{background:var(--muted);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;font-size:.7rem;color:var(--muted-fg);line-height:1.7;margin-top:36px;}
+    code{font-family:'Courier New',monospace;background:var(--muted);border:1px solid var(--border);border-radius:4px;padding:1px 5px;font-size:.78em;}
+    @media(max-width:960px){header{padding:20px;grid-template-columns:1fr auto;}nav.right{display:none;}.container{padding:20px 20px 60px;}.grid-2,.grid-3,.scenarios-row,.metrics-row{grid-template-columns:1fr;}}
+  </style>
+</head>
+<body>
+<header>
+  <div class="brand"><a href="/">Bildery</a></div>
+  <nav class="main">
+    <a href="/equity">Equity analysis</a>
+    <a href="/pm">Product Management</a>
+    <a href="/sandbox" class="active">Sandbox</a>
+  </nav>
+  <nav class="right"><a href="/about">About</a></nav>
+</header>
+<div class="container">
+  <div class="breadcrumb">
+    <a href="/sandbox">Sandbox</a>
+    <span class="breadcrumb-sep">/</span>
+    <span>Liki24.de — PM Test Task</span>
+  </div>
+  <div class="title-row">
+    <div class="title-left">
+      <h1>Autoship &amp; Save · Liki24.de</h1>
+      <div class="title-badges">
+        <span class="badge badge-success">ROI Positive</span>
+        <span class="badge badge-outline">Retention Initiative</span>
+        <span class="badge badge-outline">Web + App</span>
+        <span class="badge badge-purple">PM Test Task</span>
+      </div>
+    </div>
+  </div>
+  <p class="page-subtitle">Build one ROI-positive retention initiative for Liki24.de · By Yevhenii Holovei</p>
+  <div class="metrics-row">
+    <div class="metric-card"><div class="metric-label">Incremental LTV / User</div><div class="metric-val">$103.89</div><div class="metric-sub up-text">▲ $214 → $318 total LTV</div></div>
+    <div class="metric-card"><div class="metric-label">Cohort Net ROI (Jan '26)</div><div class="metric-val">~$19.8K</div><div class="metric-sub">191 subscribers × $103.89</div></div>
+    <div class="metric-card"><div class="metric-label">Target Activation Rate</div><div class="metric-val">15%</div><div class="metric-sub">of eligible repurchase users</div></div>
+    <div class="metric-card"><div class="metric-label">Autoship Discount</div><div class="metric-val">10%</div><div class="metric-sub">$51 AOV → $45.90 per order</div></div>
+  </div>
+
+  <div class="section-label">01 &nbsp; Why This Initiative</div>
+  <div class="grid-2 mb-14">
+    <div class="card">
+      <div class="card-hd"><div><div class="card-title">Why Autoship &amp; Save</div><div class="card-desc">Four structural advantages that make this the strongest retention lever</div></div><span class="badge badge-success">Selected</span></div>
+      <div class="why-list">
+        <div class="why-item"><div class="why-icon">🔒</div><div class="why-body"><div class="why-title">Behavioural lock-in at the product level</div><div class="why-desc">Creates a predictable restocking habit tied to a specific product — not to a discount or campaign. Customers opt into a repeating behaviour. This is the strongest and most durable form of retention.</div></div></div>
+        <div class="why-item"><div class="why-icon">📱</div><div class="why-body"><div class="why-title">Widest addressable audience — web + app</div><div class="why-desc">Works across both surfaces, maximising the eligible user pool from day one. Yearly Membership (mobile-only) was immediately deprioritised for this reason alone.</div></div></div>
+        <div class="why-item"><div class="why-icon">🎯</div><div class="why-body"><div class="why-title">Self-selecting mechanic</div><div class="why-desc">Only products with genuine repeating demand qualify — filtered via <code>Product repurchase %</code> from Bestsellers data. This avoids cannibalising one-off category buyers and targets the highest-intent users.</div></div></div>
+        <div class="why-item"><div class="why-icon">📊</div><div class="why-body"><div class="why-title">Measurable, experiment-ready, attributable</div><div class="why-desc">Unlike Personalised UX, every key metric — frequency delta, subscription churn, LTV uplift, cannibalization — has a clean formula and maps directly to an A/B test cell.</div></div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><div><div class="card-title">Alternatives Considered &amp; Rejected</div><div class="card-desc">Why the other three directions were deprioritised</div></div></div>
+      <table class="data-table">
+        <thead><tr><th style="width:38%">Initiative</th><th>Decisive Weakness</th><th>Verdict</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Yearly Membership</strong><br><span style="font-size:.7rem;color:var(--muted-fg)">7% discount · app-only</span></td><td>Mobile-only caps TAM. Annual commitment is a high entry barrier.</td><td><span class="badge badge-danger">Rejected</span></td></tr>
+          <tr><td><strong>Personalised UX</strong><br><span style="font-size:.7rem;color:var(--muted-fg)">Top-category experience</span></td><td>Improves experience but creates no obligation. Impact is indirect and hard to isolate.</td><td><span class="badge badge-danger">Rejected</span></td></tr>
+          <tr><td><strong>Smart Re-purchase Triggers</strong><br><span style="font-size:.7rem;color:var(--muted-fg)">Behavioural push/email</span></td><td>No customer commitment. Notifications decay in effectiveness over time.</td><td><span class="badge badge-danger">Rejected</span></td></tr>
+          <tr class="hl"><td><strong>Autoship &amp; Save</strong><br><span style="font-size:.7rem;color:var(--muted-fg)">10% off · web + app</span></td><td>Cannibalization risk — manageable via A/B test with proper control group.</td><td><span class="badge badge-success">Selected ✓</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="section-label">02 &nbsp; Target Segment</div>
+  <div class="card mb-14">
+    <div class="card-hd"><div><div class="card-title">Segment Definition: Product Repurchase ≥ 20%</div><div class="card-desc">Why product-level repurchase rate is the right filter — not category volume</div></div><span class="badge badge-outline">Bestsellers data</span></div>
+    <div class="grid-2" style="gap:24px;">
+      <div>
+        <p style="font-size:.78rem;line-height:1.75;margin-bottom:12px;">The <strong>Bestsellers</strong> file contains a <code>Product repurchase %</code> column — the only signal that directly measures repeat buying behaviour at the SKU level. Customers with repurchase ≥ 20% are already self-returning; Autoship formalises and accelerates that pattern.</p>
+        <div class="callout callout-red" style="margin-bottom:12px;"><strong>Why NOT category rank alone:</strong> Antiparasitic is #1 by order volume (1,824 orders) but repurchase is only 1–7%. Offering Autoship there is a pure margin discount with zero behavioural additionality.</div>
+        <p style="font-size:.78rem;line-height:1.75;">Category becomes a <em>secondary filter</em> — used only to validate sufficient revenue volume in qualifying SKUs before scaling.</p>
+        <div style="margin-top:14px;padding:14px;background:var(--muted);border:1px solid var(--border);border-radius:var(--radius);font-size:.74rem;line-height:1.7;"><strong>Cohort sizing — Jan 2026:</strong><br>4,247 total → ~30% eligible (~1,274) → 15% activation → <strong style="color:var(--green);">~191 autoship subscribers</strong></div>
+      </div>
+      <div>
+        <table class="data-table">
+          <thead><tr><th>Product</th><th>Repurchase %</th><th>Autoship Fit</th></tr></thead>
+          <tbody>
+            <tr><td>Maraton Forte</td><td class="up-text">54%</td><td><span class="badge badge-success">Strong</span></td></tr>
+            <tr><td>Power V8</td><td class="up-text">41%</td><td><span class="badge badge-success">Strong</span></td></tr>
+            <tr><td>Minus 30</td><td class="up-text">33%</td><td><span class="badge badge-success">Good</span></td></tr>
+            <tr><td>Magiun afrodisiac</td><td class="up-text">27%</td><td><span class="badge badge-success">Good</span></td></tr>
+            <tr><td>Pharmatex</td><td class="up-text">22%</td><td><span class="badge badge-warning">Marginal</span></td></tr>
+            <tr><td>Antiparasitic category</td><td class="down-text">1–7%</td><td><span class="badge badge-danger">Exclude</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label">03 &nbsp; Core Hypothesis</div>
+  <div class="card mb-14">
+    <div class="card-hd"><div><div class="card-title">LTV Uplift Hypothesis &amp; Model</div><div class="card-desc">If users with repurchase ≥ 20% switch to Autoship at 10% off, frequency + retention gains will outweigh the discount cost</div></div></div>
+    <div class="grid-2" style="gap:24px;">
+      <div>
+        <div style="font-size:.7rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted-fg);margin-bottom:8px;">Formula</div>
+        <div class="formula-box">Incremental LTV =<br>&nbsp;&nbsp;AOV × (1 − 0.10) × freq × 1.10 × retention_autoship<br>&nbsp;&nbsp;− AOV × freq × retention_baseline</div>
+        <div style="font-size:.7rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted-fg);margin-top:18px;margin-bottom:8px;">Model Inputs</div>
+        <table class="data-table">
+          <thead><tr><th>Variable</th><th>Value</th><th>Basis</th></tr></thead>
+          <tbody>
+            <tr><td>AOV</td><td><strong>$51</strong></td><td>Average across cohorts</td></tr>
+            <tr><td>freq_baseline</td><td><strong>1.05 /month</strong></td><td>Jan 2026 cohort actuals</td></tr>
+            <tr><td>retention_baseline</td><td><strong>4 months</strong></td><td>Historical baseline</td></tr>
+            <tr><td>retention_autoship</td><td><strong>6 months</strong></td><td>Target (Amazon analogue)</td></tr>
+            <tr><td>Discount</td><td><strong>10%</strong></td><td>Activation optimisation</td></tr>
+            <tr><td>Frequency uplift</td><td><strong>+10%</strong></td><td>Monthly order rate target</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <div style="font-size:.7rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted-fg);margin-bottom:8px;">Result</div>
+        <div class="callout callout-green" style="margin-bottom:14px;">
+          <div style="font-size:.68rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--green);margin-bottom:4px;">Incremental LTV per user</div>
+          <div style="font-size:2.2rem;font-weight:700;letter-spacing:-.03em;color:var(--green);">+$103.89</div>
+          <div style="font-size:.7rem;color:var(--muted-fg);margin-top:6px;font-family:'Courier New',monospace;">= (51 × 0.90 × 1.05 × 1.10 × 6) − (51 × 1.05 × 4)</div>
+        </div>
+        <div style="padding:14px;background:var(--muted);border:1px solid var(--border);border-radius:var(--radius);">
+          <div style="font-size:.7rem;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted-fg);margin-bottom:8px;">Interpretation</div>
+          <p style="font-size:.76rem;line-height:1.75;color:var(--fg);">LTV grows from <strong>$214 → $318</strong> per customer. The 10% discount is fully recouped through higher frequency (+10%) and extended platform life (4 → 6 months).</p>
+          <div class="sep"></div>
+          <p style="font-size:.7rem;line-height:1.65;color:var(--muted-fg);">* 4→6 month retention jump is aggressive. Amazon observed comparable step-changes on subscription adoption, but Liki24.de's category mix differs. The A/B test is the instrument to validate or falsify this assumption.<br><br>** Revenue LTV, not Profit LTV. Margin impact of the 10% discount must be evaluated separately.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label">04 &nbsp; Success Metrics</div>
+  <div class="grid-2 mb-14">
+    <div class="card">
+      <div class="card-hd"><div><div class="card-title">Northstar Metric</div><div class="card-desc">The single metric that determines go / no-go</div></div></div>
+      <div style="padding:16px;background:var(--muted);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:14px;">
+        <div style="font-size:.68rem;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted-fg);margin-bottom:5px;">Primary</div>
+        <div style="font-size:.92rem;font-weight:600;line-height:1.5;">LTV uplift &gt; Discount cost + Cannibalization</div>
+        <div style="font-size:.72rem;color:var(--muted-fg);margin-top:6px;">Measured via A/B test. Large cannibalization will destroy gross margin even if subscription LTV looks positive on paper.</div>
+      </div>
+      <div style="font-size:.7rem;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted-fg);margin-bottom:8px;">Early Stop Condition</div>
+      <div class="callout callout-red">⛔ <strong>Stop test immediately</strong> if gross margin in the test group drops &gt;3% vs baseline. This indicates the discount is consuming margin without incremental behavioural uplift.</div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><div><div class="card-title">Supporting Metrics</div><div class="card-desc">Layered measurement framework across the funnel</div></div></div>
+      <table class="data-table">
+        <thead><tr><th>Metric</th><th>Target</th><th>What it signals</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Autoship Adoption Rate</strong></td><td>≥15%</td><td>Offer resonance</td></tr>
+          <tr><td>Autoship vs non-Autoship LTV</td><td>+15–25% benchmark</td><td>Incremental value</td></tr>
+          <tr><td>Active at 1 / 3 / 6 months</td><td>Monitor churn curve</td><td>Retention quality</td></tr>
+          <tr><td>Orders/user (test vs control)</td><td>+10% vs baseline</td><td>Frequency uplift</td></tr>
+          <tr><td>Cannibalization Rate</td><td>&lt;30%</td><td>Margin protection</td></tr>
+          <tr><td>Subscription Cancellation Rate</td><td>&lt;35–40%</td><td>Product-market fit</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="section-label">05 &nbsp; UX Flow &amp; Product Design</div>
+  <div class="grid-2 mb-14">
+    <div class="card">
+      <div class="card-hd"><div><div class="card-title">Purchase &amp; Subscription Flow</div><div class="card-desc">End-to-end user journey across 6 core states</div></div></div>
+      <div class="ux-step"><div class="ux-num">1</div><div class="ux-body"><div class="ux-title">Entry Point — Product Page</div><div class="ux-desc">Two purchase options side-by-side: One-time ($51) and Autoship &amp; Save 10% ($45.90). Recommended delivery interval pre-populated. Cancel / Skip anytime surfaced prominently to reduce commitment anxiety.</div><div class="ux-tags"><span class="badge badge-outline">Web + App</span><span class="badge badge-blue">Frequency dropdown</span><span class="badge badge-outline">Cancel anytime</span></div></div></div>
+      <div class="ux-step"><div class="ux-num">2</div><div class="ux-body"><div class="ux-title">Add to Cart</div><div class="ux-desc">Cart treats Autoship as a standard line item. Savings surfaced as a concrete number: "You save $5.10 every delivery." UX principle: looks and feels like a regular purchase.</div></div></div>
+      <div class="ux-step"><div class="ux-num">3</div><div class="ux-body"><div class="ux-title">Checkout</div><div class="ux-desc">Identical to standard checkout. A compact "Subscription summary" block is appended: cadence, next date, discount. No separate subscription checkout — eliminating friction is paramount.</div></div></div>
+      <div class="ux-step"><div class="ux-num">4</div><div class="ux-body"><div class="ux-title">Order Confirmation</div><div class="ux-desc">Confirms both the order and subscription creation. Next delivery date surfaced immediately. CTA: "Manage subscription" — anchoring the expected next step from day zero.</div></div></div>
+      <div class="ux-step"><div class="ux-num">5</div><div class="ux-body"><div class="ux-title">Subscription Management</div><div class="ux-desc">New "Subscriptions" section in account. All actions in 1–2 clicks: Skip next / Change frequency / Change quantity / Cancel. Frictionless control builds trust and reduces reactive cancellation.</div><div class="ux-tags"><span class="badge badge-outline">1–2 click rule</span><span class="badge badge-outline">Full self-serve</span></div></div></div>
+      <div class="ux-step"><div class="ux-num">6</div><div class="ux-body"><div class="ux-title">Automated Delivery Cycle</div><div class="ux-desc">Order auto-creates → charges → ships on schedule. Zero customer action required — this is the core value proposition.</div></div></div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><div><div class="card-title">Communication Layer &amp; Edge Cases</div><div class="card-desc">Proactive lifecycle messaging and failure recovery</div></div></div>
+      <div style="font-size:.7rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted-fg);margin-bottom:8px;">Lifecycle Communication</div>
+      <table class="data-table" style="margin-bottom:18px;">
+        <thead><tr><th>Trigger</th><th>Channel</th><th>Message intent</th></tr></thead>
+        <tbody>
+          <tr><td>Subscription created</td><td>Email</td><td>"First delivery [date]"</td></tr>
+          <tr><td>3–5 days before delivery</td><td>Email + Push</td><td>Skip / change frequency inline</td></tr>
+          <tr><td>After delivery</td><td>Email</td><td>"Delivered. Next: [date]"</td></tr>
+          <tr><td>2 consecutive skips</td><td>Email</td><td>"Paused — resume in 1 click"</td></tr>
+          <tr><td>30 days post-cancellation</td><td>Email</td><td>Win-back: "Settings saved for you"</td></tr>
+        </tbody>
+      </table>
+      <div style="font-size:.7rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted-fg);margin-bottom:8px;">Edge Case Handling</div>
+      <table class="data-table">
+        <thead><tr><th>Edge Case</th><th>Recovery Protocol</th></tr></thead>
+        <tbody>
+          <tr><td>Product OOS on delivery day</td><td>Email 5 days prior: "Skip or substitute?"</td></tr>
+          <tr><td>Card declined</td><td>Push + Email. 3-day resolution window before auto-pause.</td></tr>
+          <tr><td>Price change</td><td>Email 7 days prior: "Price will change from $X to $Y"</td></tr>
+          <tr><td>Insufficient balance</td><td>Push + Email: "Check payment method or switch card"</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="section-label">06 &nbsp; ROI Logic</div>
+  <div class="card mb-14">
+    <div class="card-hd"><div><div class="card-title">Revenue ROI Model — Jan 2026 Cohort</div><div class="card-desc">Bottom-up from cohort sizing to net incremental value across three activation scenarios</div></div></div>
+    <div class="scenarios-row" style="margin-bottom:16px;">
+      <div class="scenario bear"><div class="sc-label">Conservative Case</div><div class="sc-val">~$9.9K</div><div class="sc-users">10% activation · 96 subscribers</div><div class="sc-desc">Below activation target. Initiative is still ROI-positive but signals the offer needs iteration — likely on discount size, placement, or SKU selection.</div></div>
+      <div class="scenario base"><div class="sc-label">Base Case</div><div class="sc-val">~$19.8K</div><div class="sc-users">15% activation · 191 subscribers</div><div class="sc-desc">4,247 cohort → ~1,274 eligible (30%) → 191 subscribers. Net ROI per user $103.89 → cohort total <strong>$19,826</strong>.</div></div>
+      <div class="scenario bull"><div class="sc-label">Upside Case</div><div class="sc-val">~$33K</div><div class="sc-users">20% activation · 255 subscribers</div><div class="sc-desc">Strong product-market fit. Validates scaling Autoship to a broader SKU catalogue and potentially increasing the discount in A/B iteration.</div></div>
+    </div>
+    <div class="callout callout-muted">⚠️ All figures are <strong>Revenue LTV</strong>, not Profit LTV. Margin impact of the 10% discount and cannibalization must be modelled against actual category gross margin data before final go/no-go.</div>
+  </div>
+
+  <div class="section-label">07 &nbsp; Key Risks</div>
+  <div class="card mb-14">
+    <div class="card-hd"><div><div class="card-title">Risk Assessment</div><div class="card-desc">Five key risks ranked by combined probability × impact — with mitigation strategies</div></div></div>
+    <div id="riskBars" style="margin-bottom:16px;"></div>
+    <div class="sep"></div>
+    <div class="grid-2" style="gap:12px;margin-top:14px;">
+      <div class="callout callout-red"><div style="font-size:.68rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--red);margin-bottom:6px;">Highest Priority: Cannibalization</div><p style="font-size:.75rem;line-height:1.7;">Customers who would have purchased anyway receive a 10% discount — pure margin destruction. Must be isolated via A/B test with a clean control group. Treat incremental orders, not total subscriber orders, as the numerator.</p></div>
+      <div class="callout callout-amber"><div style="font-size:.68rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--amber);margin-bottom:6px;">Watch Closely: High Cancellation Rate</div><p style="font-size:.75rem;line-height:1.7;">Even eligible products (repurchase 20–54%) still have 46–80% of customers who don't return regularly. Track cancellation rate by delivery cycle — a spike at cycle #2 signals frequency mismatch.</p></div>
+    </div>
+    <div class="grid-3" style="gap:12px;margin-top:12px;">
+      <div style="padding:12px;border:1px solid var(--border);border-radius:var(--radius);"><div style="font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted-fg);margin-bottom:5px;">Low Activation Risk</div><p style="font-size:.74rem;line-height:1.65;color:var(--muted-fg);">10% may be insufficient if users distrust auto-billing. Mitigate with: prominent "Cancel/Skip anytime" copy, A/B test on discount size (0% vs 5% vs 10%).</p></div>
+      <div style="padding:12px;border:1px solid var(--border);border-radius:var(--radius);"><div style="font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted-fg);margin-bottom:5px;">OOS on Delivery Day</div><p style="font-size:.74rem;line-height:1.65;color:var(--muted-fg);">Autoship creates predictable demand but requires predictable supply. Mitigate with proactive email 5 days before if SKU is at risk of OOS.</p></div>
+      <div style="padding:12px;border:1px solid var(--border);border-radius:var(--radius);"><div style="font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted-fg);margin-bottom:5px;">DE Regulatory (Low prob.)</div><p style="font-size:.74rem;line-height:1.65;color:var(--muted-fg);">German law may restrict auto-billing for certain near-prescription categories. Mitigate with legal review before launch; start with clearly non-regulated SKUs.</p></div>
+    </div>
+  </div>
+
+  <div class="section-label">08 &nbsp; Experiment Design</div>
+  <div class="card mb-14">
+    <div class="card-hd"><div><div class="card-title">A/B Test Structure</div><div class="card-desc">Three-cell design to isolate the mechanism effect from the discount effect</div></div><span class="badge badge-outline">Min. 8 weeks · 2 delivery cycles</span></div>
+    <div class="grid-3" style="gap:12px;margin-bottom:20px;">
+      <div class="ab-group control"><div class="ab-label">Control · 34%</div><div class="ab-title">Standard Checkout</div><div class="ab-desc">No Autoship option shown. Establishes the true repeat-purchase baseline without any intervention. All uplift in test cells is measured relative to this group.</div><div class="ab-pct" style="color:var(--muted-fg);">34%</div></div>
+      <div class="ab-group test-a"><div class="ab-label">Test A · 33%</div><div class="ab-title">Autoship — 0% Discount</div><div class="ab-desc">Autoship mechanic with no financial incentive. Tests whether <em>convenience alone</em> drives subscription adoption and what frequency uplift it produces.</div><div class="ab-pct" style="color:var(--blue);">33%</div></div>
+      <div class="ab-group test-b"><div class="ab-label">Test B · 33%</div><div class="ab-title">Autoship — 10% Discount</div><div class="ab-desc">Full offer: convenience + 10% discount. Tests whether the financial incentive provides incremental activation lift above convenience alone.</div><div class="ab-pct" style="color:var(--green);">33%</div></div>
+    </div>
+    <div class="sep"></div>
+    <div class="grid-2" style="gap:24px;margin-top:16px;">
+      <div>
+        <div style="font-size:.7rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted-fg);margin-bottom:10px;">Test Parameters</div>
+        <table class="data-table">
+          <tbody>
+            <tr><td class="muted-cell">Population</td><td>Repeat buyers of qualifying SKUs, ≥2 orders in last 90 days</td></tr>
+            <tr><td class="muted-cell">Randomisation unit</td><td>User ID — prevents cross-group contamination</td></tr>
+            <tr><td class="muted-cell">Duration</td><td>8 weeks minimum (covers 2 full delivery cycles)</td></tr>
+            <tr><td class="muted-cell">Traffic split</td><td>34% / 33% / 33%</td></tr>
+            <tr><td class="muted-cell">Expected cohort</td><td>~2,000–4,000 new eligible users/month</td></tr>
+            <tr><td class="muted-cell">Significance threshold</td><td>p &lt; 0.05 for primary metrics</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <div style="font-size:.7rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted-fg);margin-bottom:10px;">Success Criteria — All 3 Must Be Met</div>
+        <div class="criteria-item"><div class="criteria-num">1</div><div class="criteria-body"><span class="criteria-metric">Activation ≥ 15%</span> of eligible users activate Autoship within 90 days. Below this, the offer doesn't resonate.</div></div>
+        <div class="criteria-item"><div class="criteria-num">2</div><div class="criteria-body"><span class="criteria-metric">Purchase frequency</span> in test group is statistically higher than control (p &lt; 0.05). Confirms Autoship changes behaviour.</div></div>
+        <div class="criteria-item"><div class="criteria-num">3</div><div class="criteria-body"><span class="criteria-metric">Retention at day 90</span> in test group is statistically higher than control (p &lt; 0.05). Confirms customers stay longer.</div></div>
+        <div class="callout callout-muted" style="margin-top:8px;font-size:.72rem;">Secondary: LTV at day 90 &gt; control. Cancellation rate &lt;35–40%.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="author-note">📋 <strong>Document:</strong> PM Test Task — Retention Initiative for Liki24.de &nbsp;·&nbsp; <strong>Author:</strong> Yevhenii Holovei &nbsp;·&nbsp; <strong>Initiative:</strong> Autoship &amp; Save &nbsp;·&nbsp; <strong>Scope:</strong> Web + Mobile App &nbsp;·&nbsp; Financial projections are based on provided cohort data. All LTV figures represent Revenue LTV.</div>
+</div>
+<script>
+const risks=[{name:'Cannibalization',sub:"Discount goes to buyers who would've purchased anyway — pure margin cost, zero incremental LTV",level:'high',pct:84},{name:'High Cancellation Rate',sub:"46–80% of even eligible users don't return regularly — some activations will be impulse",level:'high',pct:72},{name:'Low Activation Rate',sub:'10% discount may be insufficient if users distrust automatic billing',level:'med',pct:58},{name:'Out-of-Stock on Delivery Day',sub:'Autoship creates predictable demand but requires equally predictable supply',level:'med',pct:50},{name:'DE Regulatory Constraints',sub:'Auto-billing laws may restrict certain near-prescription categories',level:'low',pct:26}];
+document.getElementById('riskBars').innerHTML=risks.map(r=>'<div class="risk-row"><div class="risk-info"><div class="risk-name">'+r.name+'</div><div class="risk-sub">'+r.sub+'</div></div><div class="risk-track"><div class="risk-fill '+r.level+'" data-pct="'+r.pct+'"></div></div><span class="risk-lvl '+r.level+'">'+r.level.toUpperCase()+'</span></div>').join('');
+setTimeout(()=>{document.querySelectorAll('.risk-fill').forEach(el=>{el.style.width=el.dataset.pct+'%';});},300);
+</script>
+</body>
+</html>
