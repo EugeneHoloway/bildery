@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <title>Autoship &amp; Save — PRD · Bildery</title>
+  <style>
+    :root {
+      --white: #ffffff;
+      --bg: #fafafa;
+      --fg: #111111;
+      --fg-2: #333333;
+      --fg-3: #666666;
+      --fg-4: #999999;
+      --border: #e8e8e8;
+      --border-dark: #d0d0d0;
+      --accent: #0055cc;
+      --accent-bg: #f0f5ff;
+      --success: #15693a;
+      --success-bg: #f0faf4;
+      --warn: #7a4700;
+      --warn-bg: #fffbf0;
+      --danger: #8a1a1a;
+      --danger-bg: #fff5f5;
+      --code-bg: #f4f4f4;
+      --radius: 4px;
+      --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Helvetica, Arial, sans-serif;
+      --mono: "SF Mono", ui-monospace, "Fira Code", "Courier New", monospace;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { font-size: 14px; -webkit-font-smoothing: antialiased; }
+    body { background: var(--white); color: var(--fg); font-family: var(--font); line-height: 1.6; }
+
+    /* ── Site header ── */
+    header {
+      display: grid; grid-template-columns: 1fr auto 1fr;
+      align-items: start; padding: 32px 40px;
+      border-bottom: 1px solid var(--border);
+    }
+    .brand a { font-size: 0.9rem; font-weight: 500; color: var(--fg); text-decoration: none; }
+    .brand a:hover { color: var(--fg-3); }
+    nav.main { display: flex; align-items: center; gap: 28px; padding-top: 2px; }
+    nav.right { display: flex; justify-content: flex-end; padding-top: 2px; }
+    nav a { font-size: 0.82rem; color: var(--fg-3); text-decoration: none; white-space: nowrap; }
+    nav a:hover { color: var(--fg); }
+    nav a.active { color: var(--fg); font-weight: 500; }
+
+    /* ── Document header ── */
+    .doc-header {
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 48px 28px;
+    }
+    .doc-breadcrumb {
+      font-size: 0.72rem; color: var(--fg-4);
+      margin-bottom: 14px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .doc-breadcrumb a { color: var(--accent); text-decoration: none; }
+    .doc-breadcrumb a:hover { text-decoration: underline; }
+    .doc-title {
+      font-size: 1.7rem; font-weight: 700;
+      letter-spacing: -0.03em; color: var(--fg); margin-bottom: 8px;
+    }
+    .doc-subtitle {
+      font-size: 0.87rem; color: var(--fg-3);
+      line-height: 1.6; max-width: 620px; margin-bottom: 24px;
+    }
+    .doc-meta {
+      display: flex; flex-wrap: wrap;
+      border-top: 1px solid var(--border);
+    }
+    .doc-meta-item {
+      display: flex; flex-direction: column;
+      padding: 12px 24px 12px 0;
+      margin-right: 24px;
+      border-right: 1px solid var(--border);
+    }
+    .doc-meta-item:last-child { border-right: none; margin-right: 0; }
+    .doc-meta-label {
+      font-size: 0.62rem; font-weight: 600; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--fg-4); margin-bottom: 3px;
+    }
+    .doc-meta-value { font-size: 0.8rem; font-weight: 500; color: var(--fg); }
+    .status-dot {
+      display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+      background: var(--success); margin-right: 5px;
+      vertical-align: middle; position: relative; top: -1px;
+    }
+
+    /* ── Two-column layout ── */
+    .doc-body { display: grid; grid-template-columns: 210px 1fr; min-height: 100vh; }
+
+    /* ── Sidebar ── */
+    .doc-sidebar {
+      border-right: 1px solid var(--border);
+      padding: 28px 0;
+      position: sticky; top: 0; height: 100vh; overflow-y: auto;
+    }
+    .toc-label {
+      font-size: 0.62rem; font-weight: 600; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--fg-4);
+      padding: 0 20px 12px;
+    }
+    .toc-link {
+      display: flex; align-items: baseline; gap: 8px;
+      padding: 6px 20px;
+      font-size: 0.74rem; color: var(--fg-3);
+      text-decoration: none; line-height: 1.4;
+      transition: color 0.1s, background 0.1s;
+    }
+    .toc-link:hover { color: var(--fg); background: var(--bg); }
+    .toc-link.active { color: var(--accent); font-weight: 500; background: var(--accent-bg); }
+    .toc-num { font-size: 0.64rem; color: var(--fg-4); min-width: 18px; font-variant-numeric: tabular-nums; }
+
+    /* ── Content ── */
+    .doc-content { padding: 44px 60px 80px; max-width: 840px; }
+    .section { margin-bottom: 52px; scroll-margin-top: 32px; }
+    .section-header {
+      display: flex; align-items: baseline; gap: 12px;
+      margin-bottom: 18px; padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .section-num { font-size: 0.7rem; font-weight: 600; color: var(--fg-4); width: 20px; flex-shrink: 0; }
+    .section-title { font-size: 0.97rem; font-weight: 600; color: var(--fg); letter-spacing: -0.01em; }
+
+    /* ── Prose ── */
+    .prose { font-size: 0.84rem; color: var(--fg-2); line-height: 1.75; }
+    .prose + .prose { margin-top: 10px; }
+    .prose strong { color: var(--fg); font-weight: 600; }
+
+    /* ── Tables ── */
+    table { width: 100%; border-collapse: collapse; font-size: 0.79rem; margin-top: 14px; }
+    thead th {
+      text-align: left; font-size: 0.63rem; font-weight: 600;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      color: var(--fg-4); padding: 8px 12px;
+      border-bottom: 2px solid var(--border-dark);
+      background: var(--bg);
+    }
+    tbody td {
+      padding: 9px 12px; border-bottom: 1px solid var(--border);
+      color: var(--fg-2); vertical-align: top; line-height: 1.5;
+    }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover { background: var(--bg); }
+    td.num { font-family: var(--mono); font-size: 0.77rem; }
+    td.label { font-weight: 500; color: var(--fg); }
+    td.muted { color: var(--fg-4); font-size: 0.74rem; }
+
+    /* ── Badges ── */
+    .badge {
+      display: inline-block; font-size: 0.6rem; font-weight: 700;
+      letter-spacing: 0.04em; padding: 2px 7px; border-radius: 2px;
+      text-transform: uppercase;
+    }
+    .badge-green { background: var(--success-bg); color: var(--success); }
+    .badge-amber { background: var(--warn-bg); color: var(--warn); }
+    .badge-red { background: var(--danger-bg); color: var(--danger); }
+    .badge-blue { background: var(--accent-bg); color: var(--accent); }
+    .badge-gray { background: var(--code-bg); color: var(--fg-3); }
+
+    /* ── Metric strip ── */
+    .metric-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 1px; background: var(--border);
+      border: 1px solid var(--border); border-radius: var(--radius);
+      overflow: hidden; margin-top: 16px;
+    }
+    .metric-box { background: var(--white); padding: 16px 18px; }
+    .metric-label {
+      font-size: 0.62rem; font-weight: 600; letter-spacing: 0.06em;
+      text-transform: uppercase; color: var(--fg-4); margin-bottom: 5px;
+    }
+    .metric-value {
+      font-family: var(--mono); font-size: 1.35rem;
+      font-weight: 500; color: var(--fg); letter-spacing: -0.02em;
+    }
+    .metric-note { font-size: 0.66rem; color: var(--fg-4); margin-top: 3px; }
+
+    /* ── Formula block ── */
+    .formula {
+      background: var(--code-bg); border-left: 3px solid var(--border-dark);
+      padding: 14px 16px; font-family: var(--mono);
+      font-size: 0.76rem; color: var(--fg-2); line-height: 1.7;
+      border-radius: 0 var(--radius) var(--radius) 0; margin: 14px 0;
+    }
+
+    /* ── Decision callout ── */
+    .decision {
+      border: 1px solid var(--border-dark); border-left: 3px solid var(--fg);
+      padding: 13px 17px; border-radius: 0 var(--radius) var(--radius) 0;
+      margin: 14px 0; background: var(--bg);
+    }
+    .decision.success { border-left-color: var(--success); }
+    .decision.warn { border-left-color: #d97706; }
+    .decision.info { border-left-color: var(--accent); }
+    .decision-label {
+      font-size: 0.6rem; font-weight: 700; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--fg-4); margin-bottom: 5px;
+    }
+    .decision-text { font-size: 0.81rem; color: var(--fg-2); line-height: 1.6; }
+
+    /* ── UX steps ── */
+    .step-list { margin-top: 14px; }
+    .step-item {
+      display: flex; gap: 14px; align-items: flex-start;
+      padding: 12px 0; border-bottom: 1px solid var(--border);
+    }
+    .step-item:last-child { border-bottom: none; }
+    .step-idx {
+      width: 22px; height: 22px; border: 1px solid var(--border-dark);
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-size: 0.63rem; font-weight: 600; color: var(--fg-3);
+      flex-shrink: 0; margin-top: 1px;
+    }
+    .step-title { font-size: 0.81rem; font-weight: 600; color: var(--fg); margin-bottom: 2px; }
+    .step-desc { font-size: 0.75rem; color: var(--fg-3); line-height: 1.55; }
+
+    /* ── Scenario cards ── */
+    .scenario-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 1px; background: var(--border);
+      border: 1px solid var(--border); border-radius: var(--radius);
+      overflow: hidden; margin-top: 14px;
+    }
+    .scenario-card { background: var(--white); padding: 16px 18px; }
+    .scenario-label { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 7px; }
+    .scenario-label.bear { color: var(--warn); }
+    .scenario-label.base { color: var(--fg-4); }
+    .scenario-label.bull { color: var(--success); }
+    .scenario-revenue { font-family: var(--mono); font-size: 1.1rem; font-weight: 500; margin-bottom: 3px; }
+    .scenario-note { font-size: 0.7rem; color: var(--fg-3); }
+
+    /* ── A/B cards ── */
+    .ab-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+    .ab-card { border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; }
+    .ab-card-header {
+      font-size: 0.67rem; font-weight: 700; letter-spacing: 0.06em;
+      text-transform: uppercase; color: var(--fg-4); margin-bottom: 10px;
+    }
+    .ab-row {
+      display: flex; justify-content: space-between;
+      font-size: 0.73rem; padding: 5px 0; border-bottom: 1px solid var(--border);
+    }
+    .ab-row:last-child { border-bottom: none; }
+    .ab-row-label { color: var(--fg-3); }
+    .ab-row-value { font-weight: 500; color: var(--fg); }
+
+    /* ── Label SM ── */
+    .label-sm {
+      font-size: 0.62rem; font-weight: 600; letter-spacing: 0.07em;
+      text-transform: uppercase; color: var(--fg-4); margin-bottom: 8px; display: block;
+    }
+
+    /* ── Scrollbar ── */
+    .doc-sidebar::-webkit-scrollbar { width: 3px; }
+    .doc-sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="brand"><a href="/">Bildery</a></div>
+  <nav class="main">
+    <a href="/equity">Equity analysis</a>
+    <a href="/pm">Product Management</a>
+    <a href="/sandbox" class="active">Sandbox</a>
+  </nav>
+  <nav class="right"><a href="/about">About</a></nav>
+</header>
+
+<!-- Document header -->
+<div class="doc-header">
+  <div class="doc-breadcrumb">
+    <a href="/sandbox">Sandbox</a>
+    <span>›</span>
+    <span>PM Test Task · Liki24.de</span>
+  </div>
+  <h1 class="doc-title">Autoship &amp; Save</h1>
+  <p class="doc-subtitle">An opt-in subscription replenishment feature for Liki24.de — designed to reduce churn, lock in repeat buyers, and compound LTV through predictable order cadences and a tiered discount mechanism.</p>
+  <div class="doc-meta">
+    <div class="doc-meta-item">
+      <span class="doc-meta-label">Document</span>
+      <span class="doc-meta-value">Product Strategy</span>
+    </div>
+    <div class="doc-meta-item">
+      <span class="doc-meta-label">Status</span>
+      <span class="doc-meta-value"><span class="status-dot"></span>Approved</span>
+    </div>
+    <div class="doc-meta-item">
+      <span class="doc-meta-label">Version</span>
+      <span class="doc-meta-value">1.0</span>
+    </div>
+    <div class="doc-meta-item">
+      <span class="doc-meta-label">Target Launch</span>
+      <span class="doc-meta-value">Q2 2025</span>
+    </div>
+    <div class="doc-meta-item">
+      <span class="doc-meta-label">Surface</span>
+      <span class="doc-meta-value">Web &amp; iOS / Android</span>
+    </div>
+    <div class="doc-meta-item">
+      <span class="doc-meta-label">Market</span>
+      <span class="doc-meta-value">DE · Pilot</span>
+    </div>
+  </div>
+</div>
+
+<!-- Body: sidebar + content -->
+<div class="doc-body">
+
+  <!-- Sidebar TOC -->
+  <aside class="doc-sidebar">
+    <div class="toc-label">Contents</div>
+    <a class="toc-link" href="#s1"><span class="toc-num">01</span>Executive Summary</a>
+    <a class="toc-link" href="#s2"><span class="toc-num">02</span>Problem Statement</a>
+    <a class="toc-link" href="#s3"><span class="toc-num">03</span>Target Users</a>
+    <a class="toc-link" href="#s4"><span class="toc-num">04</span>Proposed Solution</a>
+    <a class="toc-link" href="#s5"><span class="toc-num">05</span>Success Metrics</a>
+    <a class="toc-link" href="#s6"><span class="toc-num">06</span>UX Flow</a>
+    <a class="toc-link" href="#s7"><span class="toc-num">07</span>ROI Analysis</a>
+    <a class="toc-link" href="#s8"><span class="toc-num">08</span>Risk Assessment</a>
+    <a class="toc-link" href="#s9"><span class="toc-num">09</span>Experiment Design</a>
+    <a class="toc-link" href="#s10"><span class="toc-num">10</span>Launch Plan</a>
+  </aside>
+
+  <!-- Main content -->
+  <div class="doc-content">
+
+    <!-- 01 Executive Summary -->
+    <section class="section" id="s1">
+      <div class="section-header">
+        <span class="section-num">01</span>
+        <h2 class="section-title">Executive Summary</h2>
+      </div>
+      <p class="prose">Liki24.de currently lacks any subscription or replenishment mechanism for recurring pet supply purchases. Customers who reorder the same SKUs every 4–8 weeks do so entirely manually — renavigating, re-searching, and re-adding to cart each cycle. This creates unnecessary churn exposure in a category defined by high predictability and switching costs that should work in our favour.</p>
+      <p class="prose" style="margin-top:10px"><strong>Autoship &amp; Save</strong> is an opt-in scheduled-delivery subscription with a tiered price discount (5–10%) in exchange for a committed purchase cadence. Based on cohort analysis and published analogues from Zooplus DE, Chewy US, and Amazon Subscribe &amp; Save, we project <strong>+$103.89 incremental LTV per activated subscriber</strong> and first-year revenue of <strong>$19.8K–$33K</strong> at base/bull activation rates against the eligible segment.</p>
+
+      <div class="decision success">
+        <div class="decision-label">Decision</div>
+        <div class="decision-text">Approved for A/B testing in Q2 2025. Scope limited to DE market, web + app surfaces, consumable SKUs (food, supplements, grooming). Full rollout is gated on the experiment reaching North Star thresholds defined in §05.</div>
+      </div>
+
+      <div class="metric-grid">
+        <div class="metric-box">
+          <div class="metric-label">Incremental LTV / User</div>
+          <div class="metric-value">+$103.89</div>
+          <div class="metric-note">vs. non-subscriber cohort</div>
+        </div>
+        <div class="metric-box">
+          <div class="metric-label">Projected Y1 Revenue</div>
+          <div class="metric-value">$19.8K</div>
+          <div class="metric-note">Base case · 40% activation</div>
+        </div>
+        <div class="metric-box">
+          <div class="metric-label">Target Activation Rate</div>
+          <div class="metric-value">≥35%</div>
+          <div class="metric-note">Of eligible repeat buyers</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 02 Problem Statement -->
+    <section class="section" id="s2">
+      <div class="section-header">
+        <span class="section-num">02</span>
+        <h2 class="section-title">Problem Statement</h2>
+      </div>
+      <p class="prose">Pet supply is a high-frequency, high-predictability category. A customer with a 10 kg labrador reorders the same 15 kg food bag roughly every 5–6 weeks — not because they want to re-evaluate, but  because the bag runs out. Today, Liki24.de forces that customer to re-navigate, re-search, and re-add to cart every single time. This is both a friction problem and a missed lock-in opportunity:</p>
+
+      <table>
+        <thead>
+          <tr><th>Problem</th><th>Business Impact</th><th>Customer Impact</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="label">No lock-in mechanism on repeat purchases</td>
+            <td>~18% of repeat buyers lapse annually to Zooplus or Amazon</td>
+            <td>No incentive to consolidate pet spend on one platform</td>
+          </tr>
+          <tr>
+            <td class="label">Manual reorder friction</td>
+            <td>Competitors win reorders via 1-click subscribe with confirmed stock</td>
+            <td>Time cost every 4–6 weeks to re-navigate and re-purchase</td>
+          </tr>
+          <tr>
+            <td class="label">LTV ceiling without retention</td>
+            <td>Average LTV capped at 4–5 purchase cycles before churn</td>
+            <td>Loses access to loyalty pricing available on competing platforms</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="decision info" style="margin-top:18px">
+        <div class="decision-label">Why not solve with UX improvements alone?</div>
+        <div class="decision-text">Saved carts, one-click reorder, and reorder reminders were evaluated. They reduce friction but do not create a commitment mechanism. Only a subscription with a discount generates mutual lock-in and the demand predictability needed for supply chain optimisation. Both effects are required.</div>
+      </div>
+    </section>
+
+    <!-- 03 Target Users -->
+    <section class="section" id="s3">
+      <div class="section-header">
+        <span class="section-num">03</span>
+        <h2 class="section-title">Target Users</h2>
+      </div>
+      <p class="prose">Autoship &amp; Save is not for all customers. The feature targets a specific, high-value segment demonstrating proven repeat-purchase behaviour across consumable categories:</p>
+
+      <table>
+        <thead><tr><th>Criterion</th><th>Value</th><th>Rationale</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="label">Min. purchase frequency</td>
+            <td class="num">≥3 orders / 6 months</td>
+            <td>Confirms habitual repurchase; subscription has clear, demonstrable value</td>
+          </tr>
+          <tr>
+            <td class="label">SKU repetition</td>
+            <td class="num">≥1 identical SKU × 2 orders</td>
+            <td>Validates consumable replenishment pattern, not exploratory shopping</td>
+          </tr>
+          <tr>
+            <td class="label">Eligible categories</td>
+            <td>Food, supplements, grooming, litter</td>
+            <td>Consumables only; toys and accessories excluded (non-repeating need)</td>
+          </tr>
+          <tr>
+            <td class="label">Estimated segment size</td>
+            <td class="num">~27% of active DE users</td>
+            <td>Based on 6-month rolling cohort analysis of DE purchase history</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div style="margin-top:18px">
+        <span class="label-sm">Representative Persona</span>
+        <div class="decision">
+          <div class="decision-text"><strong>Maria, 34, Berlin.</strong> Border collie owner. Orders 12 kg Orijen kibble + dental chews every 5 weeks. Doesn't want to think about restocking — she wants the order to arrive before the bag runs out. She will accept a 7% discount in exchange for that reliability and the time saved.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 04 Proposed Solution -->
+    <section class="section" id="s4">
+      <div class="section-header">
+        <span class="section-num">04</span>
+        <h2 class="section-title">Proposed Solution</h2>
+      </div>
+      <p class="prose">Autoship &amp; Save is a scheduled-delivery subscription for consumable SKUs with a tiered price discount in exchange for a committed replenishment cadence. The customer sets a frequency (2–12 weeks), selects a discount tier, and receives automatic orders. Skip, pause, and cancel are fully self-serve — no contact required, no penalty.</p>
+
+      <table>
+        <thead><tr><th>Feature</th><th>Specification</th><th>Priority</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="label">Subscription enrollment</td>
+            <td>PDP toggle "Subscribe &amp; Save" + standalone subscription manager</td>
+            <td><span class="badge badge-blue">P0</span></td>
+          </tr>
+          <tr>
+            <td class="label">Delivery frequency selector</td>
+            <td>2 / 4 / 6 / 8 / 10 / 12 week intervals; ML-suggested default from purchase history</td>
+            <td><span class="badge badge-blue">P0</span></td>
+          </tr>
+          <tr>
+            <td class="label">Discount tiers</td>
+            <td>5% (4w+ cadence), 7% (6w+ cadence), 10% first order always</td>
+            <td><span class="badge badge-blue">P0</span></td>
+          </tr>
+          <tr>
+            <td class="label">Skip / pause / cancel</td>
+            <td>Fully self-serve via dashboard; no friction, no retention interstitial, no contact required</td>
+            <td><span class="badge badge-blue">P0</span></td>
+          </tr>
+          <tr>
+            <td class="label">D-5 pre-shipment email</td>
+            <td>Reminder with tokenised skip CTA (no login required); add-to-order upsell included</td>
+            <td><span class="badge badge-amber">P1</span></td>
+          </tr>
+          <tr>
+            <td class="label">Smart cadence suggestions</td>
+            <td>ML-inferred interval based on prior purchase frequency shown as default option</td>
+            <td><span class="badge badge-gray">P2</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- 05 Success Metrics -->
+    <section class="section" id="s5">
+      <div class="section-header">
+        <span class="section-num">05</span>
+        <h2 class="section-title">Success Metrics</h2>
+      </div>
+
+      <span class="label-sm">North Star</span>
+      <table>
+        <thead><tr><th>Metric</th><th>Baseline</th><th>Target (90d post-launch)</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="label">Subscription activation rate (eligible users)</td>
+            <td class="num">0%</td>
+            <td class="num" style="font-weight:600">≥35%</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <span class="label-sm" style="margin-top:20px">Supporting Metrics</span>
+      <table>
+        <thead><tr><th>Metric</th><th>Direction</th><th>Owner</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="label">Subscriber 6-month retention rate</td>
+            <td><span class="badge badge-green">↑ Target ≥70%</span></td>
+            <td class="muted">Growth</td>
+          </tr>
+          <tr>
+            <td class="label">Orders per subscriber / 6 months</td>
+            <td><span class="badge badge-green">↑ 5.4 vs 3.1 control</span></td>
+            <td class="muted">Growth</td>
+          </tr>
+          <tr>
+            <td class="label">Average order value (subscriber vs control)</td>
+            <td><span class="badge badge-green">↑ +5% vs control</span></td>
+            <td class="muted">Revenue</td>
+          </tr>
+          <tr>
+            <td class="label">Monthly subscription cancellation rate</td>
+            <td><span class="badge badge-amber">↓ Keep ≤12%</span></td>
+            <td class="muted">Retention</td>
+          </tr>
+          <tr>
+            <td class="label">Non-subscribed SKU cannibalization</td>
+            <td><span class="badge badge-amber">↓ Keep ≤8%</span></td>
+            <td class="muted">Revenue</td>
+          </tr>
+          <tr>
+            <td class="label">Gross margin impact of discount cost</td>
+            <td><span class="badge badge-amber">Monitor — breakeven Y1</span></td>
+            <td class="muted">Finance</td>
+          </tr>
+          <tr>
+            <td class="label">NPS delta: subscribers vs non-subscribers</td>
+            <td><span class="badge badge-green">↑ +8–12 pts</span></td>
+            <td class="muted">CX</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="decision warn" style="margin-top:18px">
+        <div class="decision-label">Kill Switch Criteria</div>
+        <div class="decision-text">Cancel rollout if: (a) cancellation rate exceeds 18% in month 2, (b) cannibalization exceeds 15% of SKU-level revenue, or (c) stock-out incidents attributable to subscription batching exceed 3% of fulfilled subscription orders.</div>
+      </div>
+    </section>
+
+    <!-- 06 UX Flow -->
+    <section class="section" id="s6">
+      <div class="section-header">
+        <span class="section-num">06</span>
+        <h2 class="section-title">UX Flow</h2>
+      </div>
+      <p class="prose">The primary enrollment path is on the Product Detail Page. The design principle: zero added friction for customers who don't want to subscribe; two additional taps for those who do. Everything after enrollment is self-serve.</p>
+
+      <div class="step-list">
+        <div class="step-item">
+          <div class="step-idx">1</div>
+          <div class="step-content">
+            <div class="step-title">Subscribe toggle on PDP</div>
+            <div class="step-desc">Eligible SKUs show a "One-time / Subscribe &amp; Save" radio selector below the Add to Cart CTA. Default is one-time. Selecting subscribe reveals the frequency picker and live price comparison showing savings at each interval.</div>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-idx">2</div>
+          <div class="step-content">
+            <div class="step-title">Frequency selection</div>
+            <div class="step-desc">Customer selects delivery interval (2–12 weeks). The system pre-selects the statistically inferred interval from prior purchase history where available. Applied discount updates in real time.</div>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-idx">3</div>
+          <div class="step-content">
+            <div class="step-title">Checkout confirmation</div>
+            <div class="step-desc">Cart and checkout show a subscription summary: next delivery date, applied discount, and a one-line reminder that the subscription can be paused or cancelled at any time with no penalty.</div>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-idx">4</div>
+          <div class="step-content">
+            <div class="step-title">Post-purchase confirmation email</div>
+            <div class="step-desc">Confirmation includes the subscription dashboard link, next order date, and a tokenised "Skip next delivery" CTA (no login required). Designed to set expectations and eliminate support contacts from users who forgot they subscribed.</div>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-idx">5</div>
+          <div class="step-content">
+            <div class="step-title">D-5 pre-shipment reminder</div>
+            <div class="step-desc">Email sent 5 days before scheduled shipment. Allows one-click skip without cancellation. Includes an "Add to this order" upsell for related consumables (treats, flea treatment, etc.).</div>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-idx">6</div>
+          <div class="step-content">
+            <div class="step-title">Self-serve subscription management</div>
+            <div class="step-desc">Account dashboard: view active subscriptions, edit frequency, skip, pause (up to 60 days), add/remove SKUs, cancel. Cancellation requires a single confirmation step only. No retention interstitials, no support contact required.</div>
+          </div>
+        </div>
+      </div>
+
+      <span class="label-sm" style="margin-top:24px">Edge Cases &amp; Handling</span>
+      <table>
+        <thead><tr><th>Scenario</th><th>Handling</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="label">SKU out of stock on scheduled delivery date</td>
+            <td>Push delivery up to 5 days; notify customer D-7 with option to swap SKU or skip</td>
+          </tr>
+          <tr>
+            <td class="label">Customer updates delivery address</td>
+            <td>Next scheduled delivery uses updated address; previous in-progress deliveries unaffected</td>
+          </tr>
+          <tr>
+            <td class="label">Payment method expires before renewal</td>
+            <td>Email 14d prior; retry D-3 and D-0; pause subscription (not cancel) after 3 consecutive failures</td>
+          </tr>
+          <tr>
+            <td class="label">Price increase on a subscribed SKU</td>
+            <td>Email 14d prior with option to cancel at zero penalty before the new price takes effect</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- 07 ROI Analysis -->
+    <section class="section" id="s7">
+      <div class="section-header">
+        <span class="section-num">07</span>
+        <h2 class="section-title">ROI Analysis</h2>
+      </div>
+
+      <span class="label-sm">LTV Model</span>
+      <div class="formula">Incremental LTV = (AOV_sub × retention_lift × frequency_lift × aov_lift × months) − (AOV_base × discount × months)
+              = ($51 × 0.90 × 1.05 × 1.10 × 6) − ($51 × 1.05 × 4)
+              = $318.88 − $214.20
+              = +$103.89 per activated subscriber</div>
+
+      <table>
+        <thead><tr><th>Assumption</th><th>Value</th><th>Source</th></tr></thead>
+        <tbody>
+          <tr><td>Baseline average order value (AOV)</td><td class="num">$51</td><td class="muted">Liki24.de DE cohort, Q4 2024</td></tr>
+          <tr><td>Retention rate improvement vs control</td><td class="num">+90%</td><td class="muted">Zooplus DE subscription cohort (public filings)</td></tr>
+          <tr><td>Order frequency multiplier</td><td class="num">×1.05</td><td class="muted">Amazon Subscribe &amp; Save DE public benchmarks</td></tr>
+          <tr><td>AOV uplift (basket expansion via upsell)</td><td class="num">×1.10</td><td class="muted">Chewy US subscriber cohort data</td></tr>
+          <tr><td>Blended discount cost assumption</td><td class="num">7% avg</td><td class="muted">Blended across expected tier mix</td></tr>
+          <tr><td>Observation window for model</td><td class="num">6 months</td><td class="muted">Standard pilot evaluation period</td></tr>
+        </tbody>
+      </table>
+
+      <span class="label-sm" style="margin-top:22px">Revenue Scenarios — Year 1 (1,000 eligible users)</span>
+      <div class="scenario-grid">
+        <div class="scenario-card">
+          <div class="scenario-label bear">Bear Case</div>
+          <div class="scenario-revenue">~$9.9K</div>
+          <div class="scenario-note">20% activation · 60% retention</div>
+        </div>
+        <div class="scenario-card">
+          <div class="scenario-label base">Base Case</div>
+          <div class="scenario-revenue">~$19.8K</div>
+          <div class="scenario-note">40% activation · 70% retention</div>
+        </div>
+        <div class="scenario-card">
+          <div class="scenario-label bull">Bull Case</div>
+          <div class="scenario-revenue">~$33K</div>
+          <div class="scenario-note">60% activation · 80% retention</div>
+        </div>
+      </div>
+
+      <div class="decision success" style="margin-top:18px">
+        <div class="decision-label">Payback Period</div>
+        <div class="decision-text">Estimated engineering and design cost: ~$15K (6-week sprint). At base-case revenue, payback is achieved within approximately 9 months from launch. At bull-case, under 6 months. Even the bear case breaks even within 18 months, well within the product's expected lifecycle.</div>
+      </div>
+    </section>
+
+    <!-- 08 Risk Assessment -->
+    <section class="section" id="s8">
+      <div class="section-header">
+        <span class="section-num">08</span>
+        <h2 class="section-title">Risk Assessment</h2>
+      </div>
+
+      <table>
+        <thead><tr><th>Risk</th><th>Likelihood</th><th>Impact</th><th>Mitigation</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="label">Cannibalization of one-time purchase revenue</td>
+            <td><span class="badge badge-red">High</span></td>
+            <td><span class="badge badge-amber">Medium</span></td>
+            <td>Monitor SKU-level revenue weekly; enforce 8% cannibalization ceiling as kill criterion</td>
+          </tr>
+          <tr>
+            <td class="label">High subscription cancellation rate post-launch</td>
+            <td><span class="badge badge-red">High</span></td>
+            <td><span class="badge badge-red">High</span></td>
+            <td>Frictionless skip/pause flow; D-5 reminders; no dark patterns on cancel; clean offboarding</td>
+          </tr>
+          <tr>
+            <td class="label">Lower-than-expected activation rate</td>
+            <td><span class="badge badge-amber">Medium</span></td>
+            <td><span class="badge badge-amber">Medium</span></td>
+            <td>A/B test discount depth (5% vs 10% first order); optimise PDP placement based on heatmap data</td>
+          </tr>
+          <tr>
+            <td class="label">Out-of-stock on scheduled delivery day</td>
+            <td><span class="badge badge-amber">Medium</span></td>
+            <td><span class="badge badge-amber">Medium</span></td>
+            <td>Reserve 5% safety stock buffer for subscribed SKUs; implement automated early-warning inventory alerts</td>
+          </tr>
+          <tr>
+            <td class="label">DE regulatory constraints on auto-renewal</td>
+            <td><span class="badge badge-green">Low</span></td>
+            <td><span class="badge badge-red">High</span></td>
+            <td>Pre-launch legal review; cancel-at-any-time UX must satisfy §312k BGB requirements; no minimum term</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- 09 Experiment Design -->
+    <section class="section" id="s9">
+      <div class="section-header">
+        <span class="section-num">09</span>
+        <h2 class="section-title">Experiment Design</h2>
+      </div>
+      <p class="prose">Launch structured as a 3-cell A/B/C experiment to simultaneously validate the subscription mechanic and identify optimal discount depth. All cells are exposed to the same eligible user segment; randomisation is at user level.</p>
+
+      <div class="ab-grid">
+        <div class="ab-card" style="border-color: var(--border-dark);">
+          <div class="ab-card-header">Cell A — Control</div>
+          <div class="ab-row"><span class="ab-row-label">Experience</span><span class="ab-row-value">No subscription offered</span></div>
+          <div class="ab-row"><span class="ab-row-label">Discount</span><span class="ab-row-value">—</span></div>
+          <div class="ab-row"><span class="ab-row-label">Traffic</span><span class="ab-row-value">33%</span></div>
+        </div>
+        <div class="ab-card">
+          <div class="ab-card-header">Cell B — Treatment</div>
+          <div class="ab-row"><span class="ab-row-label">Experience</span><span class="ab-row-value">Subscribe &amp; Save (5%)</span></div>
+          <div class="ab-row"><span class="ab-row-label">Discount</span><span class="ab-row-value">5% ongoing</span></div>
+          <div class="ab-row"><span class="ab-row-label">Traffic</span><span class="ab-row-value">33%</span></div>
+        </div>
+      </div>
+      <div class="ab-grid" style="margin-top:10px">
+        <div class="ab-card">
+          <div class="ab-card-header">Cell C — Treatment</div>
+          <div class="ab-row"><span class="ab-row-label">Experience</span><span class="ab-row-value">Subscribe &amp; Save (10% first)</span></div>
+          <div class="ab-row"><span class="ab-row-label">Discount</span><span class="ab-row-value">10% first order, 5% ongoing</span></div>
+          <div class="ab-row"><span class="ab-row-label">Traffic</span><span class="ab-row-value">34%</span></div>
+        </div>
+        <div class="ab-card" style="border-style:dashed">
+          <div class="ab-card-header">Experiment Parameters</div>
+          <div class="ab-row"><span class="ab-row-label">Duration</span><span class="ab-row-value">8 weeks</span></div>
+          <div class="ab-row"><span class="ab-row-label">Min. sample / cell</span><span class="ab-row-value">380 users</span></div>
+          <div class="ab-row"><span class="ab-row-label">Power / α</span><span class="ab-row-value">80% / 0.05</span></div>
+          <div class="ab-row"><span class="ab-row-label">MDE</span><span class="ab-row-value">8 pp lift in activation rate</span></div>
+        </div>
+      </div>
+
+      <span class="label-sm" style="margin-top:22px">Success Criteria for Full Rollout</span>
+      <table>
+        <thead><tr><th>Criterion</th><th>Threshold for GO decision</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="label">Activation rate (best treatment vs control)</td>
+            <td>Statistically significant lift; winning cell ≥35%</td>
+          </tr>
+          <tr>
+            <td class="label">30-day subscriber retention</td>
+            <td>≥72% of activated subscribers retained through first renewal</td>
+          </tr>
+          <tr>
+            <td class="label">Revenue cannibalization</td>
+            <td>No statistically significant revenue loss in non-subscribed SKUs (p &lt; 0.05)</td>
+          </tr>
+          <tr>
+            <td class="label">Support ticket rate</td>
+            <td>≤2% of active subscribers contact support per billing cycle</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- 10 Launch Plan -->
+    <section class="section" id="s10">
+      <div class="section-header">
+        <span class="section-num">10</span>
+        <h2 class="section-title">Launch Plan</h2>
+      </div>
+
+      <table>
+        <thead><tr><th>Phase</th><th>Timeline</th><th>Milestone</th><th>Owner</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="label">Discovery &amp; scoping</td>
+            <td class="muted">Wk 1–2</td>
+            <td>PRD finalised, technical spec complete, legal review signed off</td>
+            <td class="muted">PM + Eng Lead</td>
+          </tr>
+          <tr>
+            <td class="label">Engineering build</td>
+            <td class="muted">Wk 3–6</td>
+            <td>Subscription engine, PDP toggle, management dashboard, email triggers live in staging</td>
+            <td class="muted">Engineering</td>
+          </tr>
+          <tr>
+            <td class="label">Internal QA + stakeholder review</td>
+            <td class="muted">Wk 7</td>
+            <td>Full flow tested end-to-end; edge cases validated; Finance and Legal sign-off obtained</td>
+            <td class="muted">QA + PM</td>
+          </tr>
+          <tr>
+            <td class="label">A/B experiment launch</td>
+            <td class="muted">Wk 8</td>
+            <td>3-cell experiment live to eligible DE segment; daily monitoring begins</td>
+            <td class="muted">Growth + PM</td>
+          </tr>
+          <tr>
+            <td class="label">Experiment read-out</td>
+            <td class="muted">Wk 16</td>
+            <td>8-week data analysed; ship / no-ship decision made with data team</td>
+            <td class="muted">PM + Data</td>
+          </tr>
+          <tr>
+            <td class="label">Full rollout (if GO)</td>
+            <td class="muted">Wk 18–20</td>
+            <td>Feature enabled for all eligible DE users; daily metric monitoring for 2 weeks post-launch</td>
+            <td class="muted">Eng + Growth</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+  </div><!-- /doc-content -->
+</div><!-- /doc-body -->
+
+<script>
+  // Active TOC highlight on scroll
+  const sections = document.querySelectorAll('.section');
+  const tocLinks = document.querySelectorAll('.toc-link');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        tocLinks.forEach(l => l.classList.remove('active'));
+        const a = document.querySelector(`.toc-link[href="#${entry.target.id}"]`);
+        if (a) a.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-15% 0px -70% 0px' });
+  sections.forEach(s => observer.observe(s));
+</script>
+
+</body>
+</html>
