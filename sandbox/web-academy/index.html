@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Web Academy â Eugene Holoway</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --surface2: #21262d;
+      --border: #30363d;
+      --accent: #58a6ff;
+      --accent2: #3fb950;
+      --accent3: #f78166;
+      --accent4: #d2a8ff;
+      --text: #c9d1d9;
+      --text-muted: #8b949e;
+      --lesson: #388bfd26;
+      --lesson-border: #388bfd;
+      --hw: #3fb95026;
+      --hw-border: #3fb950;
+      --practice: #d2a8ff26;
+      --practice-border: #d2a8ff;
+      --inactive: #30363d;
+      --active: #3fb95040;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* ââ HEADER ââ */
+    .site-header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 20px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .site-header .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .site-header .brand svg { width: 28px; height: 28px; fill: var(--text); }
+    .site-header h1 { font-size: 1.2rem; font-weight: 600; color: var(--text); }
+    .site-header h1 span { color: var(--accent); }
+    .github-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      text-decoration: none;
+      padding: 7px 16px;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .github-btn:hover { background: var(--border); border-color: var(--text-muted); }
+    .github-btn svg { width: 16px; height: 16px; fill: var(--text); }
+
+    /* ââ HERO ââ */
+    .hero {
+      padding: 56px 32px 40px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .hero__badge {
+      display: inline-block;
+      background: var(--accent)20;
+      border: 1px solid var(--accent)50;
+      color: var(--accent);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-bottom: 16px;
+    }
+    .hero h2 {
+      font-size: 2.4rem;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.2;
+      margin-bottom: 12px;
+    }
+    .hero p {
+      color: var(--text-muted);
+      font-size: 1.05rem;
+      max-width: 680px;
+      margin-bottom: 28px;
+    }
+    .hero__stats {
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+    .stat {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .stat__val {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    .stat__label { font-size: 0.8rem; color: var(--text-muted); }
+    .lang-bar {
+      display: flex;
+      height: 8px;
+      border-radius: 4px;
+      overflow: hidden;
+      width: 320px;
+      gap: 2px;
+      margin-top: 20px;
+    }
+    .lang-bar span { border-radius: 2px; }
+    .lang-html { background: #e34c26; flex: 41.9; }
+    .lang-css  { background: #264de4; flex: 41.5; }
+    .lang-js   { background: #f0db4f; flex: 16.6; }
+    .lang-legend { display: flex; gap: 16px; margin-top: 8px; font-size: 0.78rem; color: var(--text-muted); }
+    .lang-legend span { display: flex; align-items: center; gap: 5px; }
+    .lang-legend span::before { content: ''; width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+    .html-dot::before { background: #e34c26; }
+    .css-dot::before  { background: #264de4; }
+    .js-dot::before   { background: #f0db4f; }
+
+    /* ââ LAYOUT ââ */
+    .main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 32px 64px;
+    }
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-title .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+    }
+
+    /* ââ SCOREBOARD ââ */
+    .scoreboard {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+      margin-bottom: 48px;
+    }
+    .scoreboard thead tr {
+      background: var(--surface2);
+    }
+    .scoreboard th {
+      padding: 10px 14px;
+      text-align: left;
+      font-weight: 600;
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--border);
+    }
+    .scoreboard td {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border)80;
+      vertical-align: middle;
+    }
+    .scoreboard tr:hover td { background: var(--surface2)60; }
+    .scoreboard tr.section-row th {
+      background: var(--bg);
+      color: var(--accent4);
+      font-size: 0.72rem;
+      padding: 6px 14px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 9px;
+      border-radius: 20px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+    }
+    .badge-lesson   { background: var(--lesson);   border: 1px solid var(--lesson-border);   color: var(--accent); }
+    .badge-homework { background: var(--hw);        border: 1px solid var(--hw-border);        color: var(--accent2); }
+    .badge-practice { background: var(--practice);  border: 1px solid var(--practice-border);  color: var(--accent4); }
+    .tag-active   { background: var(--active);   color: var(--accent2); border-radius: 20px; padding: 2px 9px; font-size: 0.72rem; font-weight: 600; }
+    .tag-inactive { background: var(--inactive); color: var(--text-muted); border-radius: 20px; padding: 2px 9px; font-size: 0.72rem; }
+
+    .num { color: var(--text-muted); font-variant-numeric: tabular-nums; }
+    .id-col { font-weight: 600; color: var(--text); }
+    .date-col { color: var(--text-muted); font-size: 0.8rem; }
+    .activity-link { color: var(--accent); text-decoration: none; }
+    .activity-link:hover { text-decoration: underline; }
+
+    /* ââ PROJECTS GRID ââ */
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+      margin-bottom: 48px;
+    }
+    .project-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+      transition: border-color 0.15s;
+    }
+    .project-card:hover { border-color: var(--accent)80; }
+    .project-card__tag {
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .project-card__title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+    .project-card__title a { color: var(--accent); text-decoration: none; }
+    .project-card__title a:hover { text-decoration: underline; }
+    .project-card__desc { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px; }
+
+    /* ââ CODE EXPLORER ââ */
+    .code-explorer { margin-bottom: 48px; }
+    .file-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-bottom: 0;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0;
+    }
+    .file-tab {
+      background: none;
+      border: 1px solid transparent;
+      border-bottom: none;
+      color: var(--text-muted);
+      padding: 8px 16px;
+      font-size: 0.82rem;
+      cursor: pointer;
+      border-radius: 6px 6px 0 0;
+      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+      transition: color 0.15s, background 0.15s;
+    }
+    .file-tab:hover { color: var(--text); background: var(--surface2); }
+    .file-tab.active {
+      color: var(--text);
+      background: var(--surface);
+      border-color: var(--border);
+      border-bottom-color: var(--surface);
+      margin-bottom: -1px;
+    }
+    .file-tab .lang-dot {
+      display: inline-block;
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      margin-right: 5px;
+    }
+    .lang-dot.html { background: #e34c26; }
+    .lang-dot.js   { background: #f0db4f; }
+    .lang-dot.json { background: #40a9ff; }
+
+    .code-panel {
+      display: none;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-top: none;
+      border-radius: 0 0 8px 8px;
+      overflow: hidden;
+    }
+    .code-panel.active { display: block; }
+    .code-panel__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 16px;
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+    }
+    .code-panel__path {
+      font-family: 'SFMono-Regular', Consolas, monospace;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+    .code-panel__path span { color: var(--text); }
+    .copy-btn {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 4px 10px;
+      border-radius: 5px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .copy-btn:hover { color: var(--text); border-color: var(--text-muted); }
+
+    .code-panel pre {
+      margin: 0 !important;
+      border-radius: 0 !important;
+      max-height: 480px;
+      overflow: auto;
+      font-size: 0.82rem !important;
+    }
+    .code-panel pre code { padding: 20px !important; }
+
+    /* ââ STRUCTURE TREE ââ */
+    .tree { font-family: 'SFMono-Regular', Consolas, monospace; font-size: 0.82rem; }
+    .tree-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px 24px;
+      margin-bottom: 48px;
+    }
+    .tree ul { list-style: none; padding-left: 20px; }
+    .tree > ul { padding-left: 0; }
+    .tree li { padding: 2px 0; color: var(--text-muted); }
+    .tree li.dir { color: var(--accent); font-weight: 600; }
+    .tree li.dir::before { content: 'ð '; }
+    .tree li.file::before { content: '  '; }
+    .tree li .ext-html { color: #e34c26; }
+    .tree li .ext-js   { color: #f0db4f; }
+    .tree li .ext-scss { color: #c6538c; }
+    .tree li .ext-json { color: #40a9ff; }
+    .tree li .ext-md   { color: var(--accent2); }
+    .tree li .ext-other{ color: var(--text-muted); }
+    .tree-connector { color: var(--border); }
+
+    /* ââ FOOTER ââ */
+    .site-footer {
+      border-top: 1px solid var(--border);
+      padding: 24px 32px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.82rem;
+    }
+    .site-footer a { color: var(--accent); text-decoration: none; }
+
+    @media (max-width: 640px) {
+      .site-header { padding: 14px 16px; }
+      .hero { padding: 32px 16px 24px; }
+      .main { padding: 0 16px 48px; }
+      .hero h2 { font-size: 1.6rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- âââ HEADER âââ -->
+<header class="site-header">
+  <div class="brand">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/>
+    </svg>
+    <h1>bildery<span>.com</span> / sandbox / web-academy</h1>
+  </div>
+  <a class="github-btn" href="https://github.com/EugeneHoloway/web-academy" target="_blank" rel="noopener">
+    <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+      <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+    </svg>
+    View on GitHub
+  </a>
+</header>
+
+<!-- âââ HERO âââ -->
+<section class="hero">
+  <div class="hero__badge">Open Source Â· 2018</div>
+  <h2>Web Academy<br>by Eugene Holoway</h2>
+  <p>A Webpack + LESS + Babel starter project documenting a complete front-end learning journey â from raw HTML through CSS, Flexbox, SCSS, JavaScript, and React. Teacher: Ilya Litvinov Â· School: <a href="https://web-academy.com.ua" style="color:var(--accent)">web-academy.com.ua</a></p>
+  <div class="hero__stats">
+    <div class="stat"><div class="stat__val">28</div><div class="stat__label">Items tracked</div></div>
+    <div class="stat"><div class="stat__val">17</div><div class="stat__label">Lessons</div></div>
+    <div class="stat"><div class="stat__val">15</div><div class="stat__label">Homeworks</div></div>
+    <div class="stat"><div class="stat__val">3</div><div class="stat__label">Projects</div></div>
+  </div>
+  <div class="lang-bar">
+    <span class="lang-html"></span>
+    <span class="lang-css"></span>
+    <span class="lang-js"></span>
+  </div>
+  <div class="lang-legend">
+    <span class="html-dot">HTML 41.9%</span>
+    <span class="css-dot">CSS/SCSS 41.5%</span>
+    <span class="js-dot">JavaScript 16.6%</span>
+  </div>
+</section>
+
+<!-- âââ MAIN âââ -->
+<main class="main">
+
+  <!-- âââ SCOREBOARD âââ -->
+  <h2 class="section-title"><span class="dot" style="background:#58a6ff"></span>Scoreboard</h2>
+  <table class="scoreboard">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>ID</th>
+        <th>Activity</th>
+        <th>Date</th>
+        <th>Label</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td class="num">1</td><td class="id-col">Lesson 1</td><td>Intro. HTML.</td><td class="date-col">Aug 10, 2018</td><td><span class="badge badge-lesson">lesson</span></td><td><span class="tag-inactive">#inactive</span></td></tr>
+      <tr><td class="num">2</td><td class="id-col">Homework 1</td><td>HTML (Recipe page)</td><td class="date-col">â</td><td><span class="badge badge-homework">homework</span></td><td><span class="tag-inactive">#inactive</span></td></tr>
+      <tr><td class="num">3</td><td class="id-col">Lesson 4</td><td>â</td><td class="date-col">â</td><td><span class="badge badge-lesson">lesson</span></td><td><span class="tag-inactive">#inactive</span></td></tr>
+      <tr><td class="num">4</td><td class="id-col">Homework 4</td><td>â</td><td class="date-col">â</td><td><span class="badge badge-homework">homework</span></td><td><span class="tag-inactive">#inactive</span></td></tr>
+      <tr><td class="num">5</td><td class="id-col">Lesson 5</td><td>Flexbox</td><td class="date-col">â</td><td><span class="badge badge-lesson">lesson</span></td><td><span class="tag-inactive">#inactive</span></td></tr>
+      <tr><td class="num">6</td><td class="id-col">Homework 5</td><td>Flexbox</td><td class="date-col">â</td><td><span class="badge badge-homework">homework</span></td><td><span class="tag-inactive">#inactive</span></td></tr>
+      <tr><td class="num">7</td><td class="id-col">Homework 6</td><td>THEMOVIEBOX (Landing)</td><td class="date-col">â</td><td><span class="badge badge-homework">homework</span></td><td><span class="tag-active">#active</span></td></tr>
+      <tr><td class="num">8</td><td class="id-col">Lesson 7</td><td>Git Setup</td><td class="date-col">â</td><td><span class="badge badge-lesson">lesson</span></td><td><span class="tag-active">#active</span></td></tr>
+      <tr><td class="num">9</td><td class="id-col">Homework 7</td><td>Add Homework-6 to Webpack Seed</td><td class="date-col">â</td><td><span class="badge badge-homework">homework</span></td><td><span class="tag-active">#active</span></td></tr>
+      <tr><td class="num">10</td><td class="id-col">Lesson 8</td><td>.scss variables, mixins â THEMOVIEBOX (Landing)</td><td class="date-col">â</td><td><span class="badge badge-lesson">lesson</span></td><td><span class="tag-active">#active</span></td></tr>
+      <tr><td class="num">11</td><td class="id-col">Homework 8</td><td>TVshowCritic (Landing)</td><td class="date-col">â</td><td><span class="badge badge-homework">homework</span></td><td><span class="tag-active">#active</span></td></tr>
+      <tr><td class="num">12</td><td class="id-col">Lesson 9</td><td>Apple menu</td><td class="date-col">â</td><td><span class="badge badge-lesson">lesson</span></td><td><span class="tag-active">#active</span></td></tr>
+      <tr><td class="num">13</td><td class="id-col">Lesson 10</td><td>Intro â Theory about Javascript</td><td class="date-col">â</td><td><span class="badge badge-lesson">lesson</span></td><td><span class="tag-active">#active</span></td></tr>
+      <tr><td class="num">14</td><td class="id-col">Lesson 11</td><td>Javascript. Log in form</td><td class="date-col">Sept 15, 2018</td><td><span class="badge badge-lesson">lesson</span></td><td><span class="tag-active">#active</span></td></tr>
+      <tr><td class="num">15</td><td class="id-col">Homework 11</td><td>Javascript. Submenu</td><td class="date-col">Sept 15, 2018</td><td><span class="badge badge-homework">homework</span></td><td><span class="tag-active">#active</span></td></tr>
+      <tr><td class="num">16</td><td class="id-col">Lesson 12</td><td>Javascript. Submenu</td><td class="date-col">Sept 16, 2018</td><td><span class="badge badge-lesson">lesson</span></td><td><span class="tag-active">#active</span></td></tr>
+      <tr><td class="num">17</td><td class="id-col">Lesson 12a</td><td>Javascript. Traffic light</td><td class="date-col">Sept 16, 2018</td><td><span class="badge badge-lesson">lesson</span></td><td><span class="tag-active">#active</span></td></tr>
+      <tr><td class="num">18</td><td class="id-col">Homework 12a</td><td>Javascript. Tabs</td><td class="date-col">Sept 17â21, 2018</td><td><span class="badge badge-homework">homework</span></td><td><span class="tag-active">#active</span></td></tr>
+      <tr><td class="num">19</td><td class="id-col">Homework 12b</td><td>Javascript. Tabs accordion</td><td class="date-col">Sept 17â21, 2018</td><td><span class="badge badge-homework">homework</span></td><td><span class="tag-active">#active</span></td></tr>
+      <tr><td class="num">20</td><td class="id-col">Lesson 13</td><td>Javascript. One function to different elements + Click â Action</td><td class="date-col">Sept 22, 2018</td><td><span class="badge badge-lesson">lesson</span></td><td><span class="tag-active">#active</span></td></tr>
+      <tr><td class="num">21</td><td class="id-col">Homework 13</td><td>Javascript. Click â Action</td><td class="date-col">Sept 22, 2018</td><td><span class="badge badge-homework">homework</span></td><td><span class="tag-active">#active</span></td></tr>
+      <tr><td class="num">22</td><td class="id-col">Lesson 14</td><td>Javascript. Traffic Lighter: Autoswitch + Mouseover</td><td class="date-col">Sept 23, 2018</td><td><span class="badge badge-lesson">lesson</span></td><td><span class="tag-active">#active</span></td></tr>
+      <tr><td class="num">23</td><td class="id-col">Homework 14</td><td>Javascript. Toggle On/Off &amp; Lamp Blink</td><td class="date-col">Sept 23â27, 2018</td><td><span class="badge badge-homework">homework</span></td><td><span class="tag-active">#active</span></td></tr>
+      <tr><td class="num">24</td><td class="id-col">Lesson 15</td><td>Javascript.</td><td class="date-col">Sept 29, 2018</td><td><span class="badge badge-lesson">lesson</span></td><td><span class="tag-active">#active</span></td></tr>
+      <tr><td class="num">25</td><td class="id-col">Homework 15</td><td>React. Traffic Lighter</td><td class="date-col">Sept 30 â Oct 5, 2018</td><td><span class="badge badge-homework">homework</span></td><td><span class="tag-active">#active</span></td></tr>
+      <tr><td class="num">26</td><td class="id-col">Homework 15a</td><td>React. Video Intro</td><td class="date-col">Oct 5, 2018</td><td><span class="badge badge-homework">homework</span></td><td><span class="tag-active">#active</span></td></tr>
+      <tr><td class="num">27</td><td class="id-col">Lesson 17</td><td>Javascript.</td><td class="date-col">Oct 6, 2018</td><td><span class="badge badge-lesson">lesson</span></td><td><span class="tag-active">#active</span></td></tr>
+      <tr><td class="num">28</td><td class="id-col">Practice</td><td>Pure CSS Carousel</td><td class="date-col">Oct 28, 2018</td><td><span class="badge badge-practice">practice</span></td><td><span class="tag-active">#active</span></td></tr>
+      <tr><td class="num">29</td><td class="id-col">Practice</td><td>Carousel JS</td><td class="date-col">Oct 30, 2018</td><td><span class="badge badge-practice">practice</span></td><td><span class="tag-active">#active</span></td></tr>
+    </tbody>
+  </table>
+
+  <!-- âââ PROJECTS âââ -->
+  <h2 class="section-title"><span class="dot" style="background:#3fb950"></span>Special Projects</h2>
+  <div class="projects-grid">
+    <div class="project-card">
+      <div class="project-card__tag">Web Academy Â· Final Project</div>
+      <div class="project-card__title"><a href="https://github.com/EugeneHoloway/web-academy/tree/master/src/london" target="_blank">London</a></div>
+      <div class="project-card__desc">Tourist landing page for London. Features a responsive nav, carousel of city articles, attraction tabs, and newsletter footer.</div>
+      <div class="project-card__desc" style="margin-top:8px;color:var(--accent4)">Date: 04.11.2018</div>
+    </div>
+    <div class="project-card">
+      <div class="project-card__tag">Personal Project</div>
+      <div class="project-card__title"><a href="https://github.com/EugeneHoloway/web-academy/tree/master/src/svoboda-slova-styles" target="_blank">Ð¡Ð²Ð¾Ð±Ð¾Ð´Ð° Ð¡Ð»Ð¾Ð²Ð°</a></div>
+      <div class="project-card__desc">Multi-part personal project: global styles, header, carousel menu (Ð¿ÑÐ¾Ð¼ÐµÐ¶ÑÑÐ¾ÑÐ½ÑÐ¹), and search bar components.</div>
+      <div class="project-card__desc" style="margin-top:8px;color:var(--accent4)">Started: Oct 30, 2018</div>
+    </div>
+    <div class="project-card">
+      <div class="project-card__tag">Build Config</div>
+      <div class="project-card__title"><a href="https://github.com/EugeneHoloway/web-academy/blob/master/webpack.config.js" target="_blank">Webpack Seed</a></div>
+      <div class="project-card__desc">Multi-entry Webpack 3 config with Babel, SCSS/LESS, HtmlWebpackPlugin, asset loading, and separate dev/prod/publish modes.</div>
+      <div class="project-card__desc" style="margin-top:8px;color:var(--accent4)">30 entry points configured</div>
+    </div>
+  </div>
+
+  <!-- âââ CODE EXPLORER âââ -->
+  <h2 class="section-title"><span class="dot" style="background:#f78166"></span>Code Explorer</h2>
+  <div class="code-explorer">
+    <div class="file-tabs" role="tablist">
+      <button class="file-tab active" role="tab" onclick="showTab('index-html')" id="tab-index-html">
+        <span class="lang-dot html"></span>index/index.html
+      </button>
+      <button class="file-tab" role="tab" onclick="showTab('lesson-7-html')" id="tab-lesson-7-html">
+        <span class="lang-dot html"></span>lesson-7/lesson-7.html
+      </button>
+      <button class="file-tab" role="tab" onclick="showTab('lesson-12a-html')" id="tab-lesson-12a-html">
+        <span class="lang-dot html"></span>lesson-12a/lesson-12a.html
+      </button>
+      <button class="file-tab" role="tab" onclick="showTab('hw11-html')" id="tab-hw11-html">
+        <span class="lang-dot html"></span>homework-11/homework-11.html
+      </button>
+      <button class="file-tab" role="tab" onclick="showTab('hw12a-html')" id="tab-hw12a-html">
+        <span class="lang-dot html"></span>homework-12a/homework-12a.html
+      </button>
+      <button class="file-tab" role="tab" onclick="showTab('hw11-js')" id="tab-hw11-js">
+        <span class="lang-dot js"></span>homework-11/homework-11.js
+      </button>
+      <button class="file-tab" role="tab" onclick="showTab('lesson-12a-js')" id="tab-lesson-12a-js">
+        <span class="lang-dot js"></span>lesson-12a/lesson-12a.js
+      </button>
+      <button class="file-tab" role="tab" onclick="showTab('hw12a-js')" id="tab-hw12a-js">
+        <span class="lang-dot js"></span>homework-12a/homework-12a.js
+      </button>
+      <button class="file-tab" role="tab" onclick="showTab('base-js')" id="tab-base-js">
+        <span class="lang-dot js"></span>config/base.js
+      </button>
+      <button class="file-tab" role="tab" onclick="showTab('webpack-js')" id="tab-webpack-js">
+        <span class="lang-dot js"></span>webpack.config.js
+      </button>
+    </div>
+
+    <!-- index.html -->
+    <div class="code-panel active" id="panel-index-html">
+      <div class="code-panel__header">
+        <span class="code-panel__path">src/<span>index/index.html</span></span>
+        <button class="copy-btn" onclick="copyCode('panel-index-html')">Copy</button>
+      </div>
+      <pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+  &lt;meta charset="UTF-8"&gt;
+  &lt;title&gt;Lessons and Homeworks&lt;/title&gt;
+  &lt;meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0"&gt;
+  &lt;link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;div class="header"&gt;
+    &lt;div class="header_items"&gt;
+ `    &lt;div class="logo"&gt;&lt;h2&gt;SCOREBOARD&lt;/h2&gt;&lt;/div&gt;
+      &lt;button class="btn btn__create"&gt;&lt;a href="#"&gt;Create&lt;/a&gt;&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="content"&gt;
+    &lt;div class="content__left-side"&gt;
+      &lt;div class="label"&gt;
+        &lt;div class="label__title tooltip"&gt;Labels:
+          &lt;span class="tooltiptext"&gt;Tooltip text&lt;/span&gt;
+        &lt;/div&gt;
+        &lt;ul class="btn_label"&gt;
+          &lt;li class="btn button__lesson"&gt;&lt;a href="#"&gt;lesson&lt;/a&gt;&lt;/li&gt;
+          &lt;li class="btn button__homework"&gt;&lt;a href="#"&gt;homework&lt;/a&gt;&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/div&gt;
+      &lt;table class="customers"&gt;
+        &lt;tr&gt;
+          &lt;th&gt;#&lt;/th&gt;&lt;th&gt;ID&lt;/th&gt;&lt;th&gt;Activity&lt;/th&gt;
+          &lt;th&gt;Date&lt;/th&gt;&lt;th&gt;Label&lt;/th&gt;&lt;th&gt;#tag&lt;/th&gt;
+        &lt;/tr&gt;
+        &lt;tr&gt;
+          &lt;td&gt;7&lt;/td&gt;
+          &lt;td&gt;Homework 6&lt;/td&gt;
+          &lt;td&gt;&lt;a href="./homework-6.html"&gt;THEMOVIEBOX (Landing)&lt;/a&gt;&lt;/td&gt;
+          &lt;td&gt;---&lt;/td&gt;
+          &lt;td&gt;&lt;span class="label__homework"&gt;homework&lt;/span&gt;&lt;/td&gt;
+          &lt;td&gt;&lt;span class="tag__active"&gt;#active&lt;/span&gt;&lt;/td&gt;
+        &lt;/tr&gt;
+        &lt;!-- ...28 rows total... --&gt;
+      &lt;/table&gt;
+    &lt;/div&gt;
+    &lt;div class="content__center-main"&gt;
+      &lt;div class="content__center"&gt;
+        &lt;div class="project"&gt;Web Academy&lt;/div&gt;
+        &lt;div class="project__title"&gt;&lt;a href="./london.html"&gt;London&lt;/a&gt;&lt;/div&gt;
+        &lt;div class="project__description"&gt;Landing page | Date: 04.11.2018&lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="content__right-side"&gt;
+      &lt;blockquote&gt;
+        &lt;b&gt;If you're going through hell, keep going.&lt;/b&gt;&lt;br&gt;
+        â Misattributed quote to Winston Churchill
+      &lt;/blockquote&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="footer"&gt;
+    &lt;div class="footer__text"&gt;
+      &lt;a href="https://web-academy.com.ua"&gt;Web-Academy&lt;/a&gt;, 2018&lt;br&gt;
+      Teacher: Ilya Litvinov&lt;br&gt;
+      Student: Eugene Holoway
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+    </div>
+
+    <!-- lesson-7.html -->
+    <div class="code-panel" id="panel-lesson-7-html">
+      <div class="code-panel__header">
+        <span class="code-panel__path">src/<span>lesson-7/lesson-7.html</span></span>
+        <button class="copy-btn" onclick="copyCode('panel-lesson-7-html')">Copy</button>
+      </div>
+      <pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+  &lt;meta charset="UTF-8"&gt;
+  &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+  &lt;meta http-equiv="X-UA-Compatible" content="ie=edge"&gt;
+  &lt;title&gt;Lesson 7&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;Git Setup&lt;/h1&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+    </div>
+
+    <!-- lesson-12a.html -->
+    <div class="code-panel" id="panel-lesson-12a-html">
+      <div class="code-panel__header">
+        <span class="code-panel__path">src/<span>lesson-12a/lesson-12a.html</span> â Traffic Light</span>
+        <button class="copy-btn" onclick="copyCode('panel-lesson-12a-html')">Copy</button>
+      </div>
+      <pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+  &lt;meta charset="UTF-8"&gt;
+  &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+  &lt;meta http-equiv="X-UA-Compatible" content="ie=edge"&gt;
+  &lt;title&gt;Lesson 12a&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;ul class="lighter"&gt;
+    &lt;a href="#red"&gt;
+      &lt;div id="red" class="lighter__item on"&gt;&lt;/div&gt;
+    &lt;/a&gt;
+    &lt;a href="#yellow"&gt;
+      &lt;div id="yellow" class="lighter__item"&gt;&lt;/div&gt;
+    &lt;/a&gt;
+    &lt;a href="#green"&gt;
+      &lt;div id="green" class="lighter__item"&gt;&lt;/div&gt;
+    &lt;/a&gt;
+  &lt;/ul&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+    </div>
+
+    <!-- homework-11.html -->
+    <div class="code-panel" id="panel-hw11-html">
+      <div class="code-panel__header">
+        <span class="code-panel__path">src/<span>homework-11/homework-11.html</span> â Dropdown Submenu</span>
+        <button class="copy-btn" onclick="copyCode('panel-hw11-html')">Copy</button>
+      </div>
+      <pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+  &lt;meta charset="UTF-8"&gt;
+  &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+  &lt;link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"&gt;
+  &lt;title&gt;Homework-11&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;section id="nav" class="nav-menu"&gt;
+    &lt;div class="nav-item"&gt;
+      &lt;button id="btnToggle" class="global-nav__button"&gt;
+        &lt;div class="button"&gt;SORT BY&lt;/div&gt;
+        &lt;div id="arrow"&gt;&lt;i class="fas fa-angle-down"&gt;&lt;/i&gt;&lt;/div&gt;
+      &lt;/button&gt;
+      &lt;div class="submenu"&gt;
+        &lt;a href="#"&gt;Name&lt;/a&gt;
+        &lt;a href="#"&gt;Date&lt;/a&gt;
+        &lt;a href="#"&gt;Place&lt;/a&gt;
+        &lt;a href="#"&gt;Size&lt;/a&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/section&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+    </div>
+
+    <!-- homework-12a.html -->
+    <div class="code-panel" id="panel-hw12a-html">
+      <div class="code-panel__header">
+        <span class="code-panel__path">src/<span>homework-12a/homework-12a.html</span> â Tabs</span>
+        <button class="copy-btn" onclick="copyCode('panel-hw12a-html')">Copy</button>
+      </div>
+      <pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+  &lt;meta charset="UTF-8"&gt;
+  &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+  &lt;title&gt;Homework 12a&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;div class="container"&gt;
+    &lt;div id="tabs"&gt;
+      &lt;div class="tab__item active"&gt;&lt;p&gt;Article 1&lt;/p&gt;&lt;/div&gt;
+      &lt;div class="tab__item"&gt;&lt;p&gt;Article 2&lt;/p&gt;&lt;/div&gt;
+      &lt;div class="tab__item"&gt;&lt;p&gt;Article 3&lt;/p&gt;&lt;/div&gt;
+      &lt;div class="tab__content"&gt;
+        Lorem ipsum dolor sit amet, consectetur adipisicing elit,
+        sed do eiusmod tempor incididunt ut labore et dolore magna
+        aliqua. Ut enim ad minim veniam...
+      &lt;/div&gt;
+      &lt;div class="tab__content"&gt;Content for tab 2...&lt;/div&gt;
+      &lt;div class="tab__content"&gt;Content for tab 3...&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+    </div>
+
+    <!-- homework-11.js -->
+    <div class="code-panel" id="panel-hw11-js">
+      <div class="code-panel__header">
+        <span class="code-panel__path">src/<span>homework-11/homework-11.js</span> â Toggle submenu</span>
+        <button class="copy-btn" onclick="copyCode('panel-hw11-js')">Copy</button>
+      </div>
+      <pre><code class="language-javascript">import './homework-11.scss';
+
+const openedClassName = 'submenu__open';
+let isOpened = false;
+const btnToggle = document.querySelector('#btnToggle');
+const nav = document.querySelector('#nav');
+
+function toggle() {
+  if (isOpened) {
+    nav.classList.remove(openedClassName);
+    isOpened = false;
+  } else {
+    nav.classList.add(openedClassName);
+    isOpened = true;
+  }
+}
+
+btnToggle.onclick = toggle;</code></pre>
+    </div>
+
+    <!-- lesson-12a.js -->
+    <div class="code-panel" id="panel-lesson-12a-js">
+      <div class="code-panel__header">
+        <span class="code-panel__path">src/<span>lesson-12a/lesson-12a.js</span> â Traffic light tab switcher</span>
+        <button class="copy-btn" onclick="copyCode('panel-lesson-12a-js')">Copy</button>
+      </div>
+      <pre><code class="language-javascript">import './lesson-12a.scss';
+
+var tabs = document.querySelectorAll('a');
+var content = document.querySelectorAll('.lighter__item');
+
+function changeTab(event) {
+  var currentLink = event.target;
+
+  for (var j = 0; j &lt; tabs.length; j++) {
+    console.log(tabs[j]);
+    tabs[j].parentNode.classList.remove('on');
+    content[j].classList.remove('on');
+  }
+
+  currentLink.parentNode.classList.add('on');
+  var link = currentLink.getAttribute('href');
+  document.querySelector(link).classList.add('on');
+}
+
+for (var i = 0; i &lt; tabs.length; i++) {
+  tabs[i].addEventListener('click', changeTab);
+}</code></pre>
+    </div>
+
+    <!-- homework-12a.js -->
+    <div class="code-panel" id="panel-hw12a-js">
+      <div class="code-panel__header">
+        <span class="code-panel__path">src/<span>homework-12a/homework-12a.js</span> â Tab switcher with show/hide</span>
+        <button class="copy-btn" onclick="copyCode('panel-hw12a-js')">Copy</button>
+      </div>
+      <pre><code class="language-javascript">import './homework-12a.scss';
+
+var tab;
+var tabContent;
+
+window.onload = function() {
+  tabContent = document.getElementsByClassName('tab__content');
+  tab = document.getElementsByClassName('tab__item');
+  hideTabsContent(1);
+};
+
+function hideTabsContent(a) {
+  for (var i = a; i &lt; tabContent.length; i++) {
+    tabContent[i].classList.remove('show');
+    tabContent[i].classList.add('hide');
+    tab[i].classList.remove('active');
+  }
+}
+
+document.getElementById('tabs').onclick = function(event) {
+  var target = event.target;
+  if (target.className == 'tab__item') {
+    for (var i = 0; i &lt; tab.length; i++) {
+      if (target == tab[i]) {
+        showTabsContent(i);
+        break;
+      }
+    }
+  }
+};
+
+function showTabsContent(b) {
+  if (tabContent[b].classList.contains('hide')) {
+    hideTabsContent(0);
+    tab[b].classList.add('active');
+    tabContent[b].classList.remove('hide');
+    tabContent[b].classList.add('show');
+  }
+}</code></pre>
+    </div>
+
+    <!-- config/base.js -->
+    <div class="code-panel" id="panel-base-js">
+      <div class="code-panel__header">
+        <span class="code-panel__path">config/<span>base.js</span> â Webpack base config with all 30 entry points</span>
+        <button class="copy-btn" onclick="copyCode('panel-base-js')">Copy</button>
+      </div>
+      <pre><code class="language-javascript">const HtmlWebpackPlugin = require('html-webpack-plugin');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const webpack = require('webpack');
+const path = require('path');
+
+const baseConf = (_path) => {
+  const VENDORS_NAME = 'vendors';
+  const entry = {
+    index:               ['babel-polyfill', './src/index/index.js'],
+    'lesson-7':          ['./src/lesson-7/lesson-7.js'],
+    'homework-7':        ['./src/homework-7/homework-7.js'],
+    'lesson-8':          ['./src/lesson-8/lesson-8.js'],
+    'homework-6':        ['./src/homework-6/homework-6.js'],
+    'homework-8':        ['./src/homework-8/homework-8.js'],
+    'lesson-9':          ['./src/lesson-9/lesson-9.js'],
+    'lesson-10':         ['./src/lesson-10/lesson-10.js'],
+    'lesson-11':         ['./src/lesson-11/lesson-11.js'],
+    'homework-11':       ['./src/homework-11/homework-11.js'],
+    'lesson-12':         ['./src/lesson-12/lesson-12.js'],
+    'lesson-12a':        ['./src/lesson-12a/lesson-12a.js'],
+    'homework-12a':      ['./src/homework-12a/homework-12a.js'],
+    'homework-12b':      ['./src/homework-12b/homework-12b.js'],
+    'lesson-13':         ['./src/lesson-13/lesson-13.js'],
+    'homework-13':       ['./src/homework-13/homework-13.js'],
+    'lesson-14':         ['./src/lesson-14/lesson-14.js'],
+    'homework-14':       ['./src/homework-14/homework-14.js'],
+    'homework-14a':      ['./src/homework-14a/homework-14a.js'],
+    'lesson-15':         ['./src/lesson-15/lesson-15.js'],
+    'homework-15':       ['./src/homework-15/homework-15.js'],
+    'homework-15b':      ['./src/homework-15b/homework-15b.js'],
+    'lesson-17':         ['./src/lesson-17/lesson-17.js'],
+    'london':            ['./src/london/london.js'],
+    'homework-111':      ['./src/homework-111/homework-111.js'],
+    'homework-112':      ['./src/homework-112/homework-112.js'],
+    'svoboda-slova-styles':  ['./src/svoboda-slova-styles/svoboda-slova-styles.js'],
+    'svoboda-slova-header':  ['./src/svoboda-slova-header/svoboda-slova-header.js'],
+    's-s-menu-temp':         ['./src/s-s-menu-temp/s-s-menu-temp.js'],
+    'svoboda-slova-search':  ['./src/svoboda-slova-search/svoboda-slova-search.js'],
+  };
+
+  const plugins = Object.keys(entry).reduce((acc, name) => {
+    acc.push(new HtmlWebpackPlugin({
+      chunksSortMode: 'manual',
+      title: `${name}`,
+      template: `./src/${name}/${name}.html`,
+      chunks: [VENDORS_NAME, name],
+      filename: `./${name}.html`,
+    }));
+    acc.push(new ExtractTextPlugin({
+      filename: `[name].css`,
+      allChunks: false
+    }));
+    return acc;
+  }, []);
+
+  entry.vendors = `./src/common/scripts/${VENDORS_NAME}.js`;
+
+  return {
+    entry,
+    output: { filename: '[name].js' },
+    module: {
+      rules: [
+        { test: /\.html$/, use: [{ loader: 'html-loader' }] },
+        {
+          test: /\.js/,
+          exclude: /(node_modules)/,
+          use: [{ loader: 'babel-loader', options: { presets: ['env'] } }]
+        },
+        {
+          test: /\.scss/,
+          loader: ExtractTextPlugin.extract({
+            fallback: 'style-loader',
+            use: ['css-loader', 'autoprefixer-loader?browsers=last 5 version', 'sass-loader']
+          })
+        },
+        {
+          test: /\.(png|jpg|jpeg|gif|svg)$/,
+          loader: 'file-loader?publicPath=./&name=assets/images/[name].[ext]'
+        },
+        {
+          test: /\.(eot|ttf|woff|woff2)$/,
+          loader: 'file-loader?publicPath=./&name=assets/fonts/[name].[ext]'
+        }
+      ]
+    },
+    plugins
+  };
+};
+
+module.exports = baseConf;</code></pre>
+    </div>
+
+    <!-- webpack.config.js -->
+    <div class="code-panel" id="panel-webpack-js">
+      <div class="code-panel__header">
+        <span class="code-panel__path"><span>webpack.config.js</span> â Environment switcher</span>
+        <button class="copy-btn" onclick="copyCode('panel-webpack-js')">Copy</button>
+      </div>
+      <pre><code class="language-javascript">const path = require('path');
+const baseConfig = require('./config/base');
+const devConfig  = require('./config/dev');
+const prodConfig = require('./config/prod');
+
+process.env.NODE_ENV = process.env.NODE_ENV || 'production';
+
+const env   = process.env.NODE_ENV;
+const _path = __dirname;
+
+let config = baseConfig(_path);
+
+if (env === 'development') {
+  config = devConfig(config, path.normalize(path.join(_path, '/build')));
+}
+
+if (env === 'production') {
+  config = prodConfig(config, path.normalize(path.join(_path + '/build')));
+}
+
+if (env === 'publish') {
+  config = prodConfig(config, _path + '/docs');
+}
+
+module.exports = config;</code></pre>
+    </div>
+  </div><!-- /code-explorer -->
+
+  <!-- âââ FILE TREE âââ -->
+  <h2 class="section-title"><span class="dot" style="background:#d2a8ff"></span>Repository Structure</h2>
+  <div class="tree-wrap">
+    <div class="tree">
+      <ul>
+        <li class="dir">web-academy/</li>
+        <ul>
+          <li class="file"><span class="ext-json">package.json</span> â npm scripts &amp; dependencies</li>
+          <li class="file"><span class="ext-js">webpack.config.js</span> â env switcher (dev / prod / publish)</li>
+          <li class="file"><span class="ext-other">.babelrc</span> â Babel ES6 config</li>
+          <li class="file"><span class="ext-md">README.md</span></li>
+          <li class="dir">config/</li>
+          <ul>
+            <li class="file"><span class="ext-js">base.js</span> â 30 entry points, loaders, plugins</li>
+            <li class="file"><span class="ext-js">dev.js</span> â dev server config</li>
+            <li class="file"><span class="ext-js">prod.js</span> â production build config</li>
+          </ul>
+          <li class="dir">src/</li>
+          <ul>
+            <li class="dir">index/ &nbsp;<span style="color:var(--text-muted);font-weight:400">â Scoreboard homepage</span></li>
+            <li class="dir">common/ &nbsp;<span style="color:var(--text-muted);font-weight:400">â Shared scripts &amp; styles</span></li>
+            <li class="dir">lesson-7/ &nbsp;<span style="color:var(--text-muted);font-weight:400">â Git Setup</span></li>
+            <li class="dir">lesson-8/ &nbsp;<span style="color:var(--text-muted);font-weight:400">â SCSS variables &amp; mixins</span></li>
+            <li class="dir">lesson-9/ &nbsp;<span style="color:var(--text-muted);font-weight:400">â Apple menu</span></li>
+            <li class="dir">lesson-10/ &nbsp;<span style="color:var(--text-muted);font-weight:400">â JS Intro</span></li>
+            <li class="dir">lesson-11/ &nbsp;<span style="color:var(--text-muted);font-weight:400">â JS Log in form</span></li>
+            <li class="dir">lesson-12/ &nbsp;<span style="color:var(--text-muted);font-weight:400">â JS Submenu</span></li>
+            <li class="dir">lesson-12a/ &nbsp;<span style="color:var(--text-muted);font-weight:400">â JS Traffic light</span></li>
+            <li class="dir">lesson-13/ &nbsp;<span style="color:var(--text-muted);font-weight:400">â One fn â multiple elements</span></li>
+            <li class="dir">lesson-14/ &nbsp;<span style="color:var(--text-muted);font-weight:400">â Traffic lighter + mouseover</span></li>
+            <li class="dir">lesson-15/ &nbsp;<span style="color:var(--text-muted);font-weight:400">â JS advanced</span></li>
+            <li class="dir">lesson-17/ &nbsp;<span style="color:var(--text-muted);font-weight:400">â JS advanced</span></li>
+            <li class="dir">homework-6/ &nbsp;<span style="color:var(--text-muted);font-weight:400">â THEMOVIEBOX landing</span></li>
+            <li class="dir">homework-8/ &nbsp;<span style="color:var(--text-muted);font-weight:400">â TVshowCritic landing</span></li>
+            <li class="dir">homework-11/ &nbsp;<span style="color:var(--text-muted);font-weight:400">â JS Submenu toggle</span></li>
+            <li class="dir">homework-12a/ &nbsp;<span style="color:var(--text-muted);font-weight:400">â JS Tabs</span></li>
+            <li class="dir">homework-12b/ &nbsp;<span style="color:var(--text-muted);font-weight:400">â JS Tabs accordion</span></li>
+            <li class="dir">homework-13/ &nbsp;<span style="color:var(--text-muted);font-weight:400">â JS Click â Action</span></li>
+            <li class="dir">homework-14/ &nbsp;<span style="color:var(--text-muted);font-weight:400">â Toggle On/Off</span></li>
+            <li class="dir">homework-14a/ &nbsp;<span style="color:var(--text-muted);font-weight:400">â Toggle + Lamp Blink</span></li>
+            <li class="dir">homework-15/ &nbsp;<span style="color:var(--text-muted);font-weight:400">â React Traffic Lighter</span></li>
+            <li class="dir">homework-15b/ &nbsp;<span style="color:var(--text-muted);font-weight:400">â React Video Intro</span></li>
+            <li class="dir">homework-111/ &nbsp;<span style="color:var(--text-muted);font-weight:400">â Pure CSS Carousel</span></li>
+            <li class="dir">homework-112/ &nbsp;<span style="color:var(--text-muted);font-weight:400">â Carousel JS</span></li>
+            <li class="dir">london/ &nbsp;<span style="color:var(--text-muted);font-weight:400">â Final project: London landing</span></li>
+            <li class="dir">svoboda-slova-styles/ &nbsp;<span style="color:var(--text-muted);font-weight:400">â Personal project: global styles</span></li>
+            <li class="dir">svoboda-slova-header/ &nbsp;<span style="color:var(--text-muted);font-weight:400">â Personal project: header</span></li>
+            <li class="dir">svoboda-slova-search/ &nbsp;<span style="color:var(--text-muted);font-weight:400">â Personal project: search bar</span></li>
+            <li class="dir">s-s-menu-temp/ &nbsp;<span style="color:var(--text-muted);font-weight:400">â Personal project: carousel menu</span></li>
+          </ul>
+          <li class="dir">assets/ &nbsp;<span style="color:var(--text-muted);font-weight:400">â Fonts &amp; images</span></li>
+        </ul>
+      </ul>
+    </div>
+  </div>
+
+</main>
+
+<!-- âââ FOOTER âââ -->
+<footer class="site-footer">
+  <p>Sandbox visualization of <a href="https://github.com/EugeneHoloway/web-academy" target="_blank">github.com/EugeneHoloway/web-academy</a> Â· Web Academy 2018 Â· Teacher: Ilya Litvinov Â· Student: Eugene Holoway</p>
+</footer>
+
+<script>
+  // ââ Syntax highlighting
+  hljs.highlightAll();
+
+  // ââ Tab switcher
+  function showTab(id) {
+    document.querySelectorAll('.file-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.code-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('tab-' + id).classList.add('active');
+    document.getElementById('panel-' + id).classList.add('active');
+  }
+
+  // ââ Copy button
+  function copyCode(panelId) {
+    const panel = document.getElementById(panelId);
+    const code = panel.querySelector('code').innerText;
+    navigator.clipboard.writeText(code).then(() => {
+      const btn = panel.querySelector('.copy-btn');
+      btn.textContent = 'Copied!';
+      setTimeout(() => btn.textContent = 'Copy', 2000);
+    });
+  }
+</script>
+</body>
+</html>
