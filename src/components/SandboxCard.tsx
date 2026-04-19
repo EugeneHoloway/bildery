@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
+import { Badge } from '@/components/ui/badge'
 
 export interface SandboxCardData {
   id: string
@@ -30,16 +31,12 @@ export function SandboxCard({ card }: { card: SandboxCardData }) {
     >
       {/* Top */}
       <div className="flex flex-col gap-[10px]">
-        <span
-          className={cn(
-            'inline-flex self-start',
-            'px-[10px] py-[3px] rounded-full',
-            'border border-border bg-[rgba(99,102,241,0.06)]',
-            'text-[#6366f1] text-[0.7rem] font-bold tracking-[0.08em] uppercase',
-          )}
+        <Badge
+          variant="outline"
+          className="self-start bg-[rgba(99,102,241,0.06)] text-[#6366f1] border-[rgba(99,102,241,0.2)]"
         >
           {card.tag}
-        </span>
+        </Badge>
 
         <h2 className="text-base font-bold leading-[1.3] tracking-[-0.02em] text-foreground">
           {card.title}
@@ -52,15 +49,12 @@ export function SandboxCard({ card }: { card: SandboxCardData }) {
 
       {/* Footer */}
       <div className="flex flex-wrap items-center gap-3">
-        <span
-          className={cn(
-            'inline-flex px-[10px] py-[3px] rounded-full',
-            'border border-[#86efac] text-[#16a34a]',
-            'text-xs font-semibold',
-          )}
+        <Badge
+          variant="outline"
+          className="bg-[#f0fdf4] text-[#16a34a] border-[#86efac]"
         >
           {card.status}
-        </span>
+        </Badge>
         <span className="text-[0.8rem] text-muted-foreground">
           {card.platform} · {card.sections} sections
         </span>

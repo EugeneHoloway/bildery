@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
+import { Badge } from '@/components/ui/badge'
 import {
   DndContext,
   closestCenter,
@@ -367,13 +368,13 @@ export function TodoList() {
           <div className="flex items-center gap-3">
             <h2 className="text-xl font-bold tracking-[-0.02em]">To-Dos</h2>
             <div className="flex gap-[6px]">
-              <span className="text-xs font-semibold px-2 py-[2px] rounded-full bg-[#f3f4f6] text-foreground">
+              <Badge variant="secondary">
                 {open.length} open
-              </span>
+              </Badge>
               {done.length > 0 && (
-                <span className="text-xs font-semibold px-2 py-[2px] rounded-full bg-[#dcfce7] text-[#16a34a]">
+                <Badge variant="outline" className="bg-[#f0fdf4] text-[#16a34a] border-[#86efac]">
                   {done.length} done
-                </span>
+                </Badge>
               )}
             </div>
           </div>
