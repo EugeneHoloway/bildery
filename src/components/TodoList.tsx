@@ -355,7 +355,7 @@ export function TodoList() {
   }
 
   // Reusable input class
-  const inputCls = 'px-3 py-2 border border-border rounded-lg text-sm outline-none transition-colors duration-150 focus:border-[#6366f1] bg-background'
+  const inputCls = 'px-3 py-2 border border-border rounded-lg text-[16px] tablet:text-sm outline-none transition-colors duration-150 focus:border-[#6366f1] bg-background'
   const btnCls   = 'px-4 py-2 bg-foreground text-background rounded-lg text-sm font-semibold cursor-pointer transition-opacity hover:opacity-85'
 
   return (
