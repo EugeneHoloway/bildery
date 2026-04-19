@@ -119,7 +119,7 @@
 /* ── Shared sandbox / doc layout classes ──────────────────────────────────── */
 /* Used by sandbox sub-pages (static content) — kept as regular CSS */
 
-.container { max-width: 1120px; margin-left: auto; margin-right: auto; padding-left: 1rem; padding-right: 1rem; }
+.container { max-width: 1240px; margin-left: auto; margin-right: auto; padding-left: 1rem; padding-right: 1rem; }
 @media (min-width: 768px) { .container { padding-left: 1.5rem; padding-right: 1.5rem; } }
 
 .sandbox-page    { padding: 48px 0 80px; }
