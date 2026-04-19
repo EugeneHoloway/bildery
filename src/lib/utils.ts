@@ -1,7 +1,6 @@
-import { clsx, type ClassValue } from 'clsx'
-import { twMerge } from 'tailwind-merge'
+import { clsx, type ClassValue } from "clsx"
+import { twMerge } from "tailwind-merge"
 
-/** shadcn/ui utility — merges Tailwind classes safely */
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
