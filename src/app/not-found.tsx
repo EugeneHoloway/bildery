@@ -12,7 +12,7 @@ export default function NotFound() {
             Page not found.
           </p>
           <p className="mt-3 text-sm leading-[1.7] text-muted-foreground">
-            <Link href="/" className="text-[#6366f1] underline underline-offset-2">
+            <Link href="/" className="text-brand underline underline-offset-2">
               Go home
             </Link>
           </p>

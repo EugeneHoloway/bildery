@@ -150,9 +150,9 @@ function SortableTodoItem({
       <button
         className={cn(
           'shrink-0 w-5 h-5 rounded-full border-[1.5px] border-border bg-transparent cursor-pointer',
-          'flex items-center justify-center text-[0.65rem] text-[#16a34a]',
-          'transition-colors duration-150 hover:border-[#6366f1]',
-          todo.is_done && 'bg-[#dcfce7] border-[#86efac]',
+          'flex items-center justify-center text-[0.65rem] text-success',
+          'transition-colors duration-150 hover:border-brand',
+          todo.is_done && 'bg-success-bg border-success-border',
         )}
         onClick={() => onToggle(todo)}
         aria-label={todo.is_done ? 'Mark as undone' : 'Mark as done'}
@@ -165,7 +165,7 @@ function SortableTodoItem({
         {isEditing ? (
           <>
             <input
-              className="flex-1 px-[6px] py-[2px] border border-[#6366f1] rounded bg-[#f5f5ff] text-[0.9rem] outline-none"
+              className="flex-1 px-[6px] py-[2px] border border-brand rounded bg-brand-bg text-[0.9rem] outline-none"
               value={editText}
               onChange={(e) => setEditText(e.target.value)}
               onKeyDown={(e) => {
@@ -175,7 +175,7 @@ function SortableTodoItem({
               autoFocus
             />
             <input
-              className="flex-1 min-w-[80px] px-[6px] py-[2px] border border-[#6366f1] rounded bg-[#f5f5ff] text-[0.9rem] outline-none"
+              className="flex-1 min-w-[80px] px-[6px] py-[2px] border border-brand rounded bg-brand-bg text-[0.9rem] outline-none"
               value={editProject}
               onChange={(e) => setEditProject(e.target.value)}
               onKeyDown={(e) => {
@@ -208,14 +208,14 @@ function SortableTodoItem({
       {isUnlocked && !isEditing && (
         <div className="flex gap-1 shrink-0">
           <button
-            className={cn(actionBtn, 'hover:bg-[#eff6ff] hover:text-[#3b82f6]')}
+            className={cn(actionBtn, 'hover:bg-blue-50 hover:text-blue-500')}
             onClick={() => onEdit(todo)}
             aria-label="Edit"
           >
             <EditIcon />
           </button>
           <button
-            className={cn(actionBtn, 'hover:bg-[#fee2e2] hover:text-[#dc2626]')}
+            className={cn(actionBtn, 'hover:bg-destructive-bg hover:text-destructive')}
             onClick={() => onDelete(todo.id)}
             aria-label="Delete"
           >
@@ -227,7 +227,7 @@ function SortableTodoItem({
       {isUnlocked && isEditing && (
         <div className="flex gap-1 shrink-0">
           <button
-            className={cn(actionBtn, 'hover:bg-[#dcfce7] hover:text-[#16a34a]')}
+            className={cn(actionBtn, 'hover:bg-success-bg hover:text-success')}
             onClick={() => onSaveEdit(todo.id)}
             aria-label="Save"
           >
@@ -356,7 +356,7 @@ export function TodoList() {
   }
 
   // Reusable input class
-  const inputCls = 'px-3 py-2 border border-border rounded-lg text-[16px] tablet:text-sm outline-none transition-colors duration-150 focus:border-[#6366f1] bg-background'
+  const inputCls = 'px-3 py-2 border border-border rounded-lg text-[16px] tablet:text-sm outline-none transition-colors duration-150 focus:border-brand bg-background'
   const btnCls   = 'px-4 py-2 bg-foreground text-background rounded-lg text-sm font-semibold cursor-pointer transition-opacity hover:opacity-85'
 
   return (
@@ -368,11 +368,11 @@ export function TodoList() {
           <div className="flex items-center gap-3">
             <h2 className="text-xl font-bold tracking-[-0.02em]">To-Dos</h2>
             <div className="flex gap-[6px]">
-              <Badge variant="outline" className="bg-[#f3f4f6] text-[#6b7280] border-[#d1d5db]">
+              <Badge variant="outline" className="bg-subtle text-muted-foreground border-subtle-border">
                 {open.length} open
               </Badge>
               {done.length > 0 && (
-                <Badge variant="outline" className="bg-[#f0fdf4] text-[#16a34a] border-[#86efac]">
+                <Badge variant="outline" className="bg-success-bg text-success border-success-border">
                   {done.length} done
                 </Badge>
               )}

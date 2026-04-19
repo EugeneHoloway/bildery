@@ -40,6 +40,20 @@ const config: Config = {
         destructive: {
           DEFAULT: 'hsl(var(--destructive))',
           foreground: 'hsl(var(--destructive-foreground))',
+          bg: 'hsl(var(--destructive-bg))',
+        },
+        brand: {
+          DEFAULT: 'hsl(var(--brand) / <alpha-value>)',
+          bg: 'hsl(var(--brand-bg))',
+        },
+        success: {
+          DEFAULT: 'hsl(var(--success))',
+          bg: 'hsl(var(--success-bg))',
+          border: 'hsl(var(--success-border))',
+        },
+        subtle: {
+          DEFAULT: 'hsl(var(--subtle))',
+          border: 'hsl(var(--subtle-border))',
         },
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',

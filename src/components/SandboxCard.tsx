@@ -26,14 +26,14 @@ export function SandboxCard({ card }: { card: SandboxCardData }) {
         'shadow-[0_1px_2px_rgba(16,24,40,0.04)]',
         // Interaction
         'cursor-pointer transition-[border-color,box-shadow] duration-200',
-        'hover:border-[#c0c7d0] hover:shadow-[0_4px_16px_rgba(16,24,40,0.08)]',
+        'hover:border-subtle-border hover:shadow-[0_4px_16px_rgba(16,24,40,0.08)]',
       )}
     >
       {/* Top */}
       <div className="flex flex-col gap-[10px]">
         <Badge
           variant="outline"
-          className="self-start bg-[rgba(99,102,241,0.06)] text-[#6366f1] border-[rgba(99,102,241,0.2)]"
+          className="self-start bg-brand/6 text-brand border-brand/20"
         >
           {card.tag}
         </Badge>
@@ -51,7 +51,7 @@ export function SandboxCard({ card }: { card: SandboxCardData }) {
       <div className="flex flex-wrap items-center gap-3">
         <Badge
           variant="outline"
-          className="bg-[#f0fdf4] text-[#16a34a] border-[#86efac]"
+          className="bg-success-bg text-success border-success-border"
         >
           {card.status}
         </Badge>

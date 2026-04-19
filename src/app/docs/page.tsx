@@ -131,7 +131,7 @@ export default function DocsPage() {
     if (!error) fetchDocs()
   }
 
-  const inputCls = 'px-3 py-2 border border-border rounded-lg text-[16px] tablet:text-sm outline-none transition-colors duration-150 focus:border-[#6366f1] bg-background'
+  const inputCls = 'px-3 py-2 border border-border rounded-lg text-[16px] tablet:text-sm outline-none transition-colors duration-150 focus:border-brand bg-background'
   const btnCls   = 'px-4 py-2 bg-foreground text-background rounded-lg text-sm font-semibold cursor-pointer transition-opacity hover:opacity-85'
 
   return (
@@ -161,7 +161,7 @@ export default function DocsPage() {
         {showPassword && !isUnlocked && (
           <div className="flex gap-2 mb-6">
             <input
-              className={cn(inputCls, 'flex-1 min-w-0', passwordError && 'border-[#dc2626]')}
+              className={cn(inputCls, 'flex-1 min-w-0', passwordError && 'border-destructive')}
               type="password"
               placeholder="Enter password to create documents"
               value={passwordInput}
@@ -186,7 +186,7 @@ export default function DocsPage() {
                 'p-5 rounded-2xl min-h-[120px]',
                 'border-[1.5px] border-dashed border-border bg-transparent',
                 'cursor-pointer transition-colors duration-200',
-                'hover:border-[#6366f1] hover:bg-[#f5f5ff]',
+                'hover:border-brand hover:bg-brand-bg',
               )}
               onClick={handleNewDocClick}
               aria-label="Create new document"
@@ -207,11 +207,11 @@ export default function DocsPage() {
                   'bg-card border border-border',
                   'shadow-[0_1px_2px_rgba(16,24,40,0.04)]',
                   'transition-[border-color,box-shadow] duration-200',
-                  'hover:border-[#c0c7d0] hover:shadow-[0_4px_16px_rgba(16,24,40,0.08)]',
+                  'hover:border-subtle-border hover:shadow-[0_4px_16px_rgba(16,24,40,0.08)]',
                 )}
               >
                 <div className="flex flex-col gap-[10px]">
-                  <Badge variant="outline" className="self-start bg-[rgba(99,102,241,0.06)] text-[#6366f1] border-[rgba(99,102,241,0.2)]">
+                  <Badge variant="outline" className="self-start bg-brand/6 text-brand border-brand/20">
                     Document
                   </Badge>
                   <h2 className="text-base font-bold leading-[1.3] tracking-[-0.02em]">
@@ -224,7 +224,7 @@ export default function DocsPage() {
                   </span>
                   {isUnlocked && (
                     <button
-                      className="ml-auto w-7 h-7 rounded-md flex items-center justify-center text-muted-foreground hover:bg-[#fee2e2] hover:text-[#dc2626] transition-colors cursor-pointer"
+                      className="ml-auto w-7 h-7 rounded-md flex items-center justify-center text-muted-foreground hover:bg-destructive-bg hover:text-destructive transition-colors cursor-pointer"
                       onClick={(e) => handleDeleteDoc(e, doc.id)}
                       aria-label="Delete document"
                     >
@@ -256,8 +256,8 @@ export default function DocsPage() {
               className={cn(
                 'w-full px-3 py-[10px] border border-border rounded-lg text-[0.9rem]',
                 'outline-none transition-colors mb-2 bg-background',
-                'focus:border-[#6366f1]',
-                titleError && 'border-[#dc2626]',
+                'focus:border-brand',
+                titleError && 'border-destructive',
               )}
               type="text"
               placeholder="Document title"
@@ -269,7 +269,7 @@ export default function DocsPage() {
             />
 
             {titleError && (
-              <p className="text-[0.8rem] text-[#dc2626] mb-2">{titleError}</p>
+              <p className="text-[0.8rem] text-destructive mb-2">{titleError}</p>
             )}
 
             <p className="text-xs text-muted-foreground mb-5">

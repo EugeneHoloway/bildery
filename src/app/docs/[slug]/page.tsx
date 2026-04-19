@@ -153,7 +153,7 @@ export default function DocEditorPage() {
 
   // ── Render states ─────────────────────────────────────────────────────────
 
-  const inputCls = 'px-3 py-2 border border-border rounded-lg text-sm outline-none transition-colors duration-150 focus:border-[#6366f1] bg-background'
+  const inputCls = 'px-3 py-2 border border-border rounded-lg text-sm outline-none transition-colors duration-150 focus:border-brand bg-background'
   const btnCls   = 'px-4 py-2 bg-foreground text-background rounded-lg text-sm font-semibold cursor-pointer transition-opacity hover:opacity-85'
 
   if (loading) return (
@@ -169,7 +169,7 @@ export default function DocEditorPage() {
       <div className="mx-auto max-w-[1240px] px-4 tablet:px-4">
         <p className="text-sm text-muted-foreground py-4">
           Document not found.{' '}
-          <Link href="/docs" className="text-[#6366f1] underline">
+          <Link href="/docs" className="text-brand underline">
             Back to documents
           </Link>
         </p>
@@ -216,7 +216,7 @@ export default function DocEditorPage() {
         {showPassword && !isUnlocked && (
           <div className="flex gap-2 mb-6">
             <input
-              className={cn(inputCls, 'flex-1', passwordError && 'border-[#dc2626]')}
+              className={cn(inputCls, 'flex-1', passwordError && 'border-destructive')}
               type="password"
               placeholder="Enter password to edit"
               value={passwordInput}
@@ -265,7 +265,7 @@ export default function DocEditorPage() {
         <div
           className={cn(
             'border border-border rounded-xl p-6 min-h-[400px] bg-card',
-            isUnlocked && 'border-[#6366f1]',
+            isUnlocked && 'border-brand',
           )}
         >
           <EditorContent editor={editor} />
