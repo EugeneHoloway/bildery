@@ -395,7 +395,7 @@ export function TodoList() {
         {showPassword && !isUnlocked && (
           <div className="flex gap-2 mb-4">
             <input
-              className={cn(inputCls, 'flex-1', passwordError && 'border-[#dc2626]')}
+              className={cn(inputCls, 'flex-1 min-w-0', passwordError && 'border-[#dc2626]')}
               type="password"
               placeholder="Enter password"
               value={passwordInput}
@@ -403,7 +403,7 @@ export function TodoList() {
               onKeyDown={(e) => e.key === 'Enter' && handleUnlock()}
               autoFocus
             />
-            <button className={btnCls} onClick={handleUnlock}>Unlock</button>
+            <button className={cn(btnCls, 'shrink-0')} onClick={handleUnlock}>Unlock</button>
           </div>
         )}
 
