@@ -368,7 +368,7 @@ export function TodoList() {
           <div className="flex items-center gap-3">
             <h2 className="text-xl font-bold tracking-[-0.02em]">To-Dos</h2>
             <div className="flex gap-[6px]">
-              <Badge variant="secondary">
+              <Badge variant="outline" className="bg-[#f3f4f6] text-[#6b7280] border-[#d1d5db]">
                 {open.length} open
               </Badge>
               {done.length > 0 && (
