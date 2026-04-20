@@ -1,5 +1,6 @@
 interface Risk {
   level: 'high' | 'watch' | 'low'
+  badge?: string
   title: string
   text: string
 }
@@ -16,7 +17,7 @@ export function DocRisks({ items }: { items: Risk[] }) {
       {items.map((r) => (
         <div key={r.title} className={`doc-risk doc-risk--${r.level}`}>
           <div className="doc-risk__header">
-            <span className={`doc-risk__badge doc-risk__badge--${r.level}`}>{levelLabel[r.level]}</span>
+            <span className={`doc-risk__badge doc-risk__badge--${r.level}`}>{r.badge ?? levelLabel[r.level]}</span>
             <strong className="doc-risk__title">{r.title}</strong>
           </div>
           <p className="doc-risk__text">{r.text}</p>

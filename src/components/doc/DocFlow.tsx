@@ -1,6 +1,6 @@
 interface FlowStep {
   num: string
-  title: string
+  title?: string
   text: string
   tags?: string[]
 }
@@ -12,7 +12,7 @@ export function DocFlow({ steps }: { steps: FlowStep[] }) {
         <div key={step.num} className="doc-flow__step">
           <span className="doc-flow__num">{step.num}</span>
           <div className="doc-flow__content">
-            <strong className="doc-flow__title">{step.title}</strong>
+            {step.title && <strong className="doc-flow__title">{step.title}</strong>}
             <p className="doc-flow__text">{step.text}</p>
             {step.tags && step.tags.length > 0 && (
               <div className="doc-flow__tags">
