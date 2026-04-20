@@ -1,10 +1,13 @@
 import type { NextConfig } from 'next'
+import createMDX from '@next/mdx'
+
+const withMDX = createMDX({})
 
 const nextConfig: NextConfig = {
-  // Images from external sources can be added here
+  pageExtensions: ['ts', 'tsx', 'md', 'mdx'],
   images: {
     remotePatterns: [],
   },
 }
 
-export default nextConfig
+export default withMDX(nextConfig)
