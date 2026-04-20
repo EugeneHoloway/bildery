@@ -114,6 +114,17 @@ const mockupCards: SandboxCardData[] = [
     sections: 4,
     href: '/sandbox/analytics',
   },
+  {
+    id: 'revenue-intelligence',
+    tag: 'iGaming (AI prototype)',
+    title: 'AI Revenue Intelligence · Depo44',
+    description:
+      'Enter 9 operator KPIs — FTD rate, churn, bonus ROI, payment success — and get AI-generated revenue health scores, risk assessment, and prioritized actions.',
+    status: 'AI Prototype',
+    platform: 'Web',
+    sections: 1,
+    href: '/sandbox/revenue-intelligence',
+  },
 ]
 
 // ─── Sections helper ─────────────────────────────────────────────────────────
