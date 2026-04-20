@@ -204,24 +204,24 @@ SCORE = Confidence × ROI_raw`}</code>
       <span className="doc-flow__num">1</span>
       <div className="doc-flow__content">
         <strong className="doc-flow__title">Виявлення пізньої ставки</strong>
-        <p className="doc-flow__text">
+        <div className="doc-flow__text">
           <strong>GIVEN:</strong> Cron-задача запустила pipeline підготовки даних<br />
           <strong>WHEN:</strong> published_at ≥ match_datetime відповідного матчу<br />
           <strong>THEN:</strong> запис відхиляється → rejection_log (expert_id, prediction_id, reason='late_bet', detected_at=NOW())<br />
           <strong>AND:</strong> кількість late_bet флагів ≥ 5 за 30 днів → moderation_flags severity='high'
-        </p>
+        </div>
       </div>
     </div>
     <div className="doc-flow__step">
       <span className="doc-flow__num">2</span>
       <div className="doc-flow__content">
         <strong className="doc-flow__title">Виявлення дубліката</strong>
-        <p className="doc-flow__text">
+        <div className="doc-flow__text">
           <strong>GIVEN:</strong> Pipeline обробляє прогноз expert_id=X, match_id=M<br />
           <strong>WHEN:</strong> вже є валідний прогноз з тим самим expert_id та match_id<br />
           <strong>THEN:</strong> новий запис відхиляється → rejection_log reason='duplicate', reference_pred_id<br />
           <strong>AND:</strong> кількість duplicate ≥ 3 за 7 днів → moderation_flags severity='medium'
-        </p>
+        </div>
       </div>
     </div>
   </div>
