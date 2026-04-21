@@ -145,8 +145,10 @@ function scoreColor(n: number, invert = false) {
 // ── Scoped CSS — only for what inline styles can't do ────────────────────────
 
 const LOCAL_CSS = `
-  .ri-grid       { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+  .ri-grid           { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+  .ri-method-grid    { display:grid; grid-template-columns:repeat(2,1fr); gap:16px; }
   @media(max-width:640px){ .ri-grid{ grid-template-columns:repeat(2,1fr); } }
+  @media(max-width:768px){ .ri-method-grid{ grid-template-columns:1fr; } }
 
   @keyframes ri-spin { to{ transform:rotate(360deg); } }
   .ri-spin       { animation:ri-spin .8s linear infinite; }
@@ -336,7 +338,7 @@ export default function RevenueIntelligencePage() {
                 Each score is a weighted average of normalized metrics. Every metric is mapped to a 0–100 scale using its realistic min/max range, then multiplied by its weight. <strong style={{ fontWeight: 600, color: 'var(--color-foreground)' }}>v</strong> = the value you entered for that metric.
               </p>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16 }}>
+              <div className="ri-method-grid">
                 {METHODOLOGY.map(m => (
                   <div key={m.score} className="bg-card border border-border rounded-2xl" style={{ padding: '20px 24px' }}>
                     <div style={{ fontSize: '0.85rem', fontWeight: 700, marginBottom: 4 }}>{m.score}</div>
