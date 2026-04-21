@@ -1,0 +1,317 @@
+import { DocLayout }    from '@/components/doc/DocLayout'
+import { DocSection }   from '@/components/doc/DocSection'
+import { DocBlock }     from '@/components/doc/DocBlock'
+import { KpiRow }       from '@/components/doc/KpiRow'
+import { FeatureGrid }  from '@/components/doc/FeatureGrid'
+import { Callout }      from '@/components/doc/Callout'
+import { DocFlow }      from '@/components/doc/DocFlow'
+import { DocScenarios } from '@/components/doc/DocScenarios'
+import { DocRisks }     from '@/components/doc/DocRisks'
+import { DocAbGrid }    from '@/components/doc/DocAbGrid'
+
+export default function Page({ children }) {
+  return (
+    <DocLayout
+      title="Shopify Growth Loop | Enable3"
+      breadcrumbLabel="Sandbox"
+      breadcrumbHref="/sandbox"
+      tags={[
+        { label: 'Mission-Driven', type: 'status' },
+        { label: 'Loyalty Template', type: 'tag' },
+        { label: 'Shopify',         type: 'tag' },
+        { label: 'PM Test Task',    type: 'tag' },
+      ]}
+      description="Mission-driven loyalty template for Shopify merchants · Replacing closed-loop points with blockchain-tokenized rewards and behavioral engagement missions · By Yevhenii Holovei"
+      footnote="📋 PM Test Task — Enable3 x Shopify · Author: Yevhenii Holovei · Initiative: Shopify Growth Loop · Scope: Loyalty Template, Behavioral Segmentation, Web3 Tokenization · April 2026"
+    >
+      {children}
+    </DocLayout>
+  )
+}
+
+<KpiRow items={[
+  { value: '72%',        label: 'First-time Buyers Lost',         note: 'never return after 1st order' },
+  { value: '54%',        label: 'Probability of 3rd Purchase',    note: 'after a customer makes their 2nd' },
+  { value: '21% → 44%', label: 'Loyal Customers Drive Revenue',  note: '21% of base generates 44% of revenue' },
+  { value: '5 Segments', label: 'Auto-RFM Engine',                note: 'zero manual merchant action required' },
+]} />
+
+<DocSection num="01" title="Shopify Ecosystem: Key Challenges">
+
+<DocBlock title="Why Existing Loyalty Programs Fail" subtitle="Four structural problems that the Shopify App Store has not solved">
+  <FeatureGrid items={[
+    { icon: '🔒', title: 'Loyalty Rewards Locked in Closed Systems',  text: 'Points are locked inside merchant-controlled programs and can only be used in narrowly defined reward scenarios. Customers do not truly own these rewards, which limits perceived value and weakens long-term retention.' },
+    { icon: '📉', title: 'One-Time Buyers Dominate the Base',          text: 'Only 27–28% of Shopify customers ever make a second purchase. The 30-day post-purchase window — when propensity to return is highest — is consistently wasted: no visible goal, no mission, no reason to act.' },
+    { icon: '💸', title: 'Discount Dependency Erodes Margin',          text: 'The most popular retention mechanic is the promo code. The structural problem: discounts train customers to wait for the next offer rather than return out of genuine preference.' },
+    { icon: '📬', title: 'No Behavioral Layer',                        text: 'A first-time buyer, a lapsed VIP, and a brand advocate all receive the same communication. Without behavioral segmentation, mass discounts become the only lever — simultaneously eroding margin and reinforcing dependency.' },
+  ]} />
+</DocBlock>
+
+<DocBlock title="The Opportunity at Scale">
+  <Callout>
+    **The second purchase is the highest-leverage moment in the customer lifecycle.**
+
+    Loyal customers are just 21% of a typical base, yet they generate 44% of revenue and 46% of orders. A customer who makes a second purchase has a **54% probability of returning for a third** — nearly double the 27% baseline. Most Shopify merchants have no specific mechanic designed to capture it.
+  </Callout>
+</DocBlock>
+
+</DocSection>
+
+<DocSection num="02" title="Loyalty Template: Shopify Growth Loop">
+
+<DocBlock title="Core Architecture" subtitle="Enable3 Features Used in the Template">
+  <div className="doc-table-wrap">
+    <table className="doc-table">
+      <thead><tr><th>Feature</th><th>Role in the Program</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Missions</strong></td><td>Structured tasks shown to customers before they act; guide specific behaviors</td></tr>
+        <tr><td><strong>Points and Rewards</strong></td><td>Earn/burn system with merchant-controlled conversion rate; margin-safe by design</td></tr>
+        <tr><td><strong>Web3 Tokenization</strong></td><td>A more modern approach — increases ownership, perceived value, and long-term engagement</td></tr>
+        <tr><td><strong>Tiers (Levels)</strong></td><td>Bronze → Silver → Gold → Platinum with escalating privileges and multipliers</td></tr>
+        <tr><td><strong>Behavioral Segments</strong></td><td>Automatic RFM-based grouping with distinct mission feeds per segment</td></tr>
+        <tr><td><strong>Referral Module</strong></td><td>Unique links auto-generated; conversions tracked automatically; two-way rewards</td></tr>
+        <tr><td><strong>Analytics Dashboard</strong></td><td>Mission completion rates, redemption rates, segment transitions in real time</td></tr>
+      </tbody>
+    </table>
+  </div>
+</DocBlock>
+
+<DocBlock title="What Makes This Architecturally Different" subtitle="Three behavioral mechanics that no closed-loop Shopify competitor replicates">
+  <FeatureGrid items={[
+    { icon: '📊', title: 'Endowed Progress Effect',    text: 'Customers always see their current points balance and distance to the next tier. "300 points left to Silver" is a more effective return trigger than any discount code. Partial progress creates a compulsion to complete.' },
+    { icon: '🎲', title: 'Variable Reward Schedule',   text: 'Not every mission yields the same points. Bonus multipliers, time-limited challenges, and surprise rewards sustain engagement through unpredictability — the same mechanism behind high-retention consumer apps.' },
+    { icon: '⚠️', title: 'Status Loss Aversion',       text: 'After 90 days of inactivity, instead of an immediate downgrade, a triggered notification fires: "Your Gold status is at risk. Complete any mission to keep it." Loss aversion is a consistently stronger motivator than equivalent gain.' },
+  ]} />
+</DocBlock>
+
+<DocBlock title="How the Program Solves Merchant Problems">
+  <div className="doc-table-wrap">
+    <table className="doc-table">
+      <thead><tr><th>Merchant Problem</th><th>Solution</th><th>Mechanic</th></tr></thead>
+      <tbody>
+        <tr><td>72% of buyers never return</td><td>Visible missions give a reason to return without a promotion</td><td>Second Chance mission with countdown timer</td></tr>
+        <tr><td>Discount dependency erodes margin</td><td>Rewards include status and access — not just discounts</td><td>Experiential and Status reward tiers</td></tr>
+        <tr><td>Zero engagement between purchases</td><td>Non-transactional missions keep brand visible</td><td>Review, referral, and sharing missions</td></tr>
+        <tr><td>No customer personalization</td><td>Behavioral segmentation: different mission feeds per segment</td><td>Auto-RFM segmentation engine</td></tr>
+        <tr><td>Rising CAC, no organic growth</td><td>Loyalty converts into a referral acquisition channel</td><td>Ambassador mission track</td></tr>
+      </tbody>
+    </table>
+  </div>
+</DocBlock>
+
+</DocSection>
+
+<DocSection num="03" title="Missions, Rewards & Customer Progression">
+
+<DocBlock title="Mission Categories" subtitle="Four behavioral categories — displayed to the customer before they act, not awarded silently after">
+  <DocFlow steps={[
+    {
+      num: '1',
+      title: 'Transactional Missions — stimulate purchasing behavior',
+      text: 'Second Chance (2nd purchase within 30 days, 300 pts + 1.5x multiplier), Big Basket ($100+ order, 150 pts), All-Season (3 months, 500 pts), Collector (3 categories, 250 pts), Replenishment (reorder within 60 days, 200 pts + early access).',
+      tags: ['Second Chance: highest-leverage', 'Countdown timer, no discount'],
+    },
+    {
+      num: '2',
+      title: 'Engagement Missions — build brand interaction between purchases',
+      text: 'Leave a Trace (product review, 100 pts), Star (photo review, 200 pts), Subscriber (email newsletter, 50 pts), Social (purchase share, 150 pts), Curious (5 products in one session, 30 pts). Generates UGC, grows email list, keeps brand visible between cycles.',
+      tags: ['Solves the silent customer problem'],
+    },
+    {
+      num: '3',
+      title: 'Referral Missions — convert loyalty into organic acquisition',
+      text: "Bring a Friend (friend registers: 200 pts sender + 100 pts friend), Friend's First Purchase (400 pts to sender), Ambassador (3 referred friends each purchase: 1,000 pts + exclusive badge). Auto-generated unique links, conversions tracked automatically.",
+      tags: ['Zero ad spend', 'Trust signal from referrer'],
+    },
+    {
+      num: '4',
+      title: 'Onboarding Missions — activate new members within 7 days',
+      text: 'Welcome Aboard (register, 100 pts), Tell Us About Yourself (complete profile, 75 pts), First Step (any mission in 7 days, 150 pts). Closes the activation gap where members join but never complete a single action.',
+      tags: ['Habit formation', 'First-party data for personalization'],
+    },
+  ]} />
+</DocBlock>
+
+<DocBlock title="Reward Structure" subtitle="Four reward types — the balance determines whether the program builds relationships or bargain hunters">
+  <div className="doc-table-wrap">
+    <table className="doc-table">
+      <thead><tr><th>Type</th><th>Category</th><th>Examples</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Monetary</strong></td><td>Direct financial value</td><td>Order discount (500 pts = $5 off), free shipping, gift card</td></tr>
+        <tr><td><strong>Experiential</strong></td><td>Access and privilege</td><td>Early collection access, priority support, exclusive products unavailable publicly</td></tr>
+        <tr><td><strong>Status-based</strong></td><td>Intangible but high-retention</td><td>Mission badges, leaderboard position, personalized tier addressing ("Gold Member")</td></tr>
+        <tr><td><strong>Web3 Token</strong></td><td>True digital ownership</td><td>Blockchain tokens in customer wallet; cross-merchant redemption via Enable3/Merchant partner network</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <Callout>
+    **Breakage advantage:** Industry redemption rates average 20–30%. 70–80% of issued points are never redeemed — a dynamic that makes well-designed loyalty programs structurally more margin-friendly than flat discounts.
+
+    **Web3 tokenization extends this further:** tokens that can appreciate in value give customers a financial incentive to hold rather than immediately redeem, deepening engagement while extending the deferred liability window for the merchant.
+  </Callout>
+</DocBlock>
+
+<DocBlock title="Tiered Progression System">
+  <div className="doc-table-wrap">
+    <table className="doc-table">
+      <thead><tr><th>Tier</th><th>Points</th><th>Key Benefits</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Bronze</strong></td><td>0 – 499</td><td>Base point earning, access to onboarding missions</td></tr>
+        <tr><td><strong>Silver</strong></td><td>500 – 1,499</td><td>1.25x point multiplier, free shipping from $50</td></tr>
+        <tr><td><strong>Gold</strong></td><td>1,500 – 3,999</td><td>1.5x multiplier, early collection access, priority support</td></tr>
+        <tr><td><strong>Platinum</strong></td><td>&gt;4,000</td><td>2x multiplier, exclusive products, dedicated manager, surprise gifts</td></tr>
+      </tbody>
+    </table>
+  </div>
+</DocBlock>
+
+<DocBlock title="Customer Lifecycle Map">
+  <div className="doc-table-wrap">
+    <table className="doc-table">
+      <thead><tr><th>Timepoint</th><th>Event</th><th>System Action</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Day 0</strong></td><td>First purchase</td><td>Onboarding mission sequence auto-launches</td></tr>
+        <tr><td><strong>Days 1–7</strong></td><td>Onboarding window</td><td>3 quick missions; habit formation phase</td></tr>
+        <tr><td><strong>Days 7–30</strong></td><td>Second Chance window</td><td>Timer mission active; progress bar to Silver displayed</td></tr>
+        <tr><td><strong>Days 30–90</strong></td><td>Active engagement phase</td><td>Engagement missions unlock; bonus multipliers active</td></tr>
+        <tr><td><strong>Day 90</strong></td><td>Activity checkpoint</td><td>If inactive: status-risk notification triggered automatically</td></tr>
+        <tr><td><strong>Day &gt;120</strong></td><td>Churn threshold</td><td>Win-back sequence: max bonus & 14-day expiring reward</td></tr>
+      </tbody>
+    </table>
+  </div>
+</DocBlock>
+
+<DocBlock title="Launch Approach: Phase 1 vs Phase 2" subtitle="Phased rollout reduces merchant setup friction and accelerates time to first meaningful data signal">
+  <DocAbGrid cells={[
+    {
+      label: 'Phase 1',
+      pct: 'Week 1',
+      title: 'MVP',
+      text: 'Second Chance, Leave a Trace, Welcome Aboard missions. Bronze and Silver tiers only. New & At-Risk segments. Core widget & points engine. Goal: prove repeat purchase lift within 60 days.',
+    },
+    {
+      label: 'Phase 2',
+      pct: 'Month 2+',
+      title: 'Full Program',
+      text: 'Full library — all 4 mission categories. Gold and Platinum tiers added. Complete 5-segment RFM model. Referral module, advanced personalization. Goal: maximize LTV across full customer base.',
+    },
+  ]} />
+</DocBlock>
+
+</DocSection>
+
+<DocSection num="04" title="Segmentation & Engagement Mechanics">
+
+<DocBlock title="Auto-RFM Segmentation" subtitle="Five segments — each with a distinct mission feed and trigger logic, activated without any manual merchant action">
+  <div className="doc-table-wrap">
+    <table className="doc-table">
+      <thead><tr><th>Segment</th><th>Trigger</th><th>Primary Mechanic</th><th>Success Metric</th></tr></thead>
+      <tbody>
+        <tr><td><strong>New</strong></td><td>1 purchase, joined &lt;30 days</td><td>Onboarding & timer mission</td><td>2nd purchase within 30 days</td></tr>
+        <tr><td><strong>Promising</strong></td><td>2–3 purchases, moderate engagement</td><td>Personalized missions & multipliers</td><td>Purchase frequency increase</td></tr>
+        <tr><td><strong>Loyal</strong></td><td>&gt;4 purchases, Gold/Platinum</td><td>Referrals & VIP-only access</td><td>Referrals generated</td></tr>
+        <tr><td><strong>At-Risk</strong></td><td>60–90 days inactive</td><td>Status-loss threat & points reminder</td><td>Reactivation rate</td></tr>
+        <tr><td><strong>Churned</strong></td><td>&gt;120 days inactive</td><td>One-time win-back offer (14-day expiry)</td><td>Win-back % or clean offboarding</td></tr>
+      </tbody>
+    </table>
+  </div>
+</DocBlock>
+
+<DocBlock title="Segment Detail: Critical Moments">
+  <DocRisks risks={[
+    {
+      level: 'high',
+      badge: 'Priority',
+      title: 'New Customers — The Second Purchase Window',
+      text: 'Onboarding sequence auto-launches immediately after the first order. "Second Chance" mission with a visible countdown timer activates. Progress bar showing distance to Silver creates an immediate incentive. This is the single highest-leverage moment in the lifecycle.',
+    },
+    {
+      level: 'watch',
+      badge: 'Watch Closely',
+      title: 'At-Risk — Status Loss Trigger',
+      text: '"Your Gold status is at risk. Come back and keep it." A single low-friction mission (product view, review) with an elevated reward reduces the return barrier. Points reminder surfaces unused balance: "You have $12 waiting — don\'t let it expire."',
+    },
+    {
+      level: 'low',
+      badge: 'Opportunity',
+      title: 'Loyal — Ambassador Track',
+      text: 'Ambassador referral track with elevated rewards. Exclusive early-access missions unavailable to lower tiers. Surprise and delight bonuses fire at irregular intervals. VIP-only missions: "Be the first to try our new product." All communications reference name and tier.',
+    },
+  ]} />
+</DocBlock>
+
+</DocSection>
+
+<DocSection num="05" title="Value Communication & Metrics">
+
+<DocBlock title="Three Arguments for Shopify Merchants" subtitle="Rational + Emotional + Practical — removing all three merchant objection barriers">
+  <DocScenarios scenarios={[
+    {
+      label: 'Rational',
+      value: 'Economics',
+      sub: 'Deferred cost · Breakage advantage · LTV compounding',
+      note: 'Points are future liability, not immediate cost. The merchant pays only when the customer returns and spends. Industry redemption rates of 20–30% mean 70–80% of issued points are never redeemed — structurally more margin-friendly than flat discounts.',
+    },
+    {
+      label: 'Emotional',
+      value: 'Identity',
+      sub: 'From expense line to revenue asset',
+      note: '"Your best customers already exist — you\'re just not activating them." Loyal customers are 21% of the base but drive 44% of revenue. The referral module converts loyalty into an acquisition channel — a direct counter to rising CPCs on Meta and Google.',
+      highlight: true,
+    },
+    {
+      label: 'Practical',
+      value: 'No-code',
+      sub: 'Zero setup barrier · 30 min to launch',
+      note: 'Visual dashboard: merchant selects missions from a library, sets point values, and launches — no engineering required. Shopify-ready template with all e-commerce defaults pre-configured. Engagement data visible right after launch.',
+    },
+  ]} />
+</DocBlock>
+
+<DocBlock title="Measuring Success: B2C North Star Metrics" subtitle="North Star: Repeat Purchase Rate — enrolled cohort vs. pre-program baseline. Target: from 27% toward 35–40% at 6 months">
+  <div className="doc-table-wrap">
+    <table className="doc-table">
+      <thead><tr><th>Timeframe</th><th>Metric</th><th>Target</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Week 2–3</strong></td><td>Activation rate: buyers who register in the loyalty program</td><td>&gt;30% of first-time buyers</td></tr>
+        <tr><td><strong>Month 1</strong></td><td>Completion rate: members who complete at least 1 mission</td><td>&gt;60% of registered members</td></tr>
+        <tr><td><strong>Month 3</strong></td><td>Second-purchase conversion rate</td><td>&gt;35% (vs. 27% baseline)</td></tr>
+        <tr><td><strong>Month 6</strong></td><td>Repeat purchase rate, enrolled cohort vs. control</td><td>35–40% (vs. 27% baseline)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</DocBlock>
+
+<DocBlock title="Key Risks">
+  <DocRisks risks={[
+    {
+      level: 'high',
+      badge: 'Highest Priority',
+      title: 'Merchant Activation Gap',
+      text: "The most common B2B SaaS failure mode: merchant installs but never launches. Fix: reduce Time to First Value to minimum. Onboarding should bring the merchant to their first customer mission completion within 48 hours. Signal metric: % of merchants who haven't completed setup within 7 days of install.",
+    },
+    {
+      level: 'watch',
+      badge: 'Watch Closely',
+      title: 'Loyalty Programs Show Results on 60–90 Day Horizon',
+      text: 'Merchant launches, sees no results, churns. Fix: set expectations during sales and onboarding, and surface interim signals early — first mission completions, growth in registered buyer base. Health score metric: composite of widget DAU, active missions, and completion rate.',
+    },
+  ]} />
+</DocBlock>
+
+<DocBlock title="Communication Channels">
+  <div className="doc-table-wrap">
+    <table className="doc-table">
+      <thead><tr><th>Channel</th><th>Format</th><th>Core Message</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Shopify App Store</strong></td><td>Listing with case studies and ROI examples</td><td>"Launch a loyalty program in 30 minutes"</td></tr>
+        <tr><td><strong>Content Marketing</strong></td><td>Articles: "Why discounts kill your margin and what to do instead"</td><td>Market education via SEO</td></tr>
+        <tr><td><strong>Email Onboarding</strong></td><td>Post-install sequence with early result benchmarks</td><td>Step-by-step activation guide</td></tr>
+        <tr><td><strong>Webinars</strong></td><td>"How Shopify merchants double repeat purchases without discounts"</td><td>Social proof through real merchant cases</td></tr>
+        <tr><td><strong>Ecosystem Partnerships</strong></td><td>Integrations: Klaviyo, Shopify Email, Gorgias</td><td>Amplified value through loyalty × CRM stack</td></tr>
+      </tbody>
+    </table>
+  </div>
+</DocBlock>
+
+</DocSection>
