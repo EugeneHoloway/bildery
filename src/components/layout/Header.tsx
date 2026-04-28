@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useTheme } from 'next-themes'
+import { Sun, Moon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const navItems = [
@@ -11,6 +13,25 @@ const navItems = [
   { label: 'Sandbox', href: '/sandbox' },
   { label: 'About', href: '/about' },
 ]
+
+function ThemeToggle() {
+  const { resolvedTheme, setTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => setMounted(true), [])
+
+  if (!mounted) return <div className="h-8 w-8" />
+
+  return (
+    <button
+      className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-subtle hover:text-foreground"
+      onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
+      aria-label="Toggle theme"
+    >
+      {resolvedTheme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+    </button>
+  )
+}
 
 export function Header() {
   const [menuOpen, setMenuOpen] = useState(false)
@@ -46,7 +67,7 @@ export function Header() {
           'fixed inset-x-0 top-0 z-[100]',
           'h-16 desktop:h-[72px]',
           'border-b border-border',
-          'bg-[rgba(250,250,250,0.86)] backdrop-blur-md',
+          'bg-background/85 backdrop-blur-md',
         )}
       >
         {/* Inner: container + flex row */}
@@ -78,33 +99,38 @@ export function Header() {
             ))}
           </nav>
 
-          {/* Burger — mobile only, hidden on tablet+ */}
-          <button
-            className="flex h-9 w-9 shrink-0 flex-col items-center justify-center gap-[5px] p-1 tablet:hidden"
-            aria-label={menuOpen ? 'Close menu' : 'Open menu'}
-            aria-expanded={menuOpen}
-            aria-controls="mobile-menu"
-            onClick={() => setMenuOpen((v) => !v)}
-          >
-            <span
-              className={cn(
-                'block h-[1.5px] w-full origin-center rounded-[2px] bg-foreground transition-all duration-[250ms] ease-[ease]',
-                menuOpen && 'translate-y-[6.5px] rotate-45',
-              )}
-            />
-            <span
-              className={cn(
-                'block h-[1.5px] w-full origin-center rounded-[2px] bg-foreground transition-all duration-200',
-                menuOpen && 'scale-x-0 opacity-0',
-              )}
-            />
-            <span
-              className={cn(
-                'block h-[1.5px] w-full origin-center rounded-[2px] bg-foreground transition-all duration-[250ms] ease-[ease]',
-                menuOpen && '-translate-y-[6.5px] -rotate-45',
-              )}
-            />
-          </button>
+          {/* Right side: theme toggle + burger */}
+          <div className="flex items-center gap-1">
+            <ThemeToggle />
+
+            {/* Burger — mobile only, hidden on tablet+ */}
+            <button
+              className="flex h-9 w-9 shrink-0 flex-col items-center justify-center gap-[5px] p-1 tablet:hidden"
+              aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+              aria-expanded={menuOpen}
+              aria-controls="mobile-menu"
+              onClick={() => setMenuOpen((v) => !v)}
+            >
+              <span
+                className={cn(
+                  'block h-[1.5px] w-full origin-center rounded-[2px] bg-foreground transition-all duration-[250ms] ease-[ease]',
+                  menuOpen && 'translate-y-[6.5px] rotate-45',
+                )}
+              />
+              <span
+                className={cn(
+                  'block h-[1.5px] w-full origin-center rounded-[2px] bg-foreground transition-all duration-200',
+                  menuOpen && 'scale-x-0 opacity-0',
+                )}
+              />
+              <span
+                className={cn(
+                  'block h-[1.5px] w-full origin-center rounded-[2px] bg-foreground transition-all duration-[250ms] ease-[ease]',
+                  menuOpen && '-translate-y-[6.5px] -rotate-45',
+                )}
+              />
+            </button>
+          </div>
         </div>
       </header>
 
@@ -114,7 +140,7 @@ export function Header() {
         aria-hidden={!menuOpen}
         className={cn(
           'fixed inset-x-0 bottom-0 top-16 z-[90]',
-          'flex flex-col bg-white px-6 pt-8',
+          'flex flex-col bg-background px-6 pt-8',
           'transition-[opacity,transform] duration-[220ms] ease-[ease]',
           menuOpen
             ? 'pointer-events-auto translate-y-0 opacity-100'

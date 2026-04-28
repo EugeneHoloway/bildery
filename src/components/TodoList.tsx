@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { Badge } from '@/components/ui/badge'
+import { Checkbox } from '@/components/ui/checkbox'
 import {
   DndContext,
   closestCenter,
@@ -146,19 +147,13 @@ function SortableTodoItem({
         </button>
       )}
 
-      {/* Done circle */}
-      <button
-        className={cn(
-          'shrink-0 w-5 h-5 rounded-full border-[1.5px] border-border bg-transparent cursor-pointer',
-          'flex items-center justify-center text-[0.65rem] text-success',
-          'transition-colors duration-150 hover:border-brand',
-          todo.is_done && 'bg-success-bg border-success-border',
-        )}
-        onClick={() => onToggle(todo)}
+      {/* Checkbox */}
+      <Checkbox
+        checked={todo.is_done}
+        onCheckedChange={() => onToggle(todo)}
         aria-label={todo.is_done ? 'Mark as undone' : 'Mark as done'}
-      >
-        {todo.is_done ? '✓' : ''}
-      </button>
+        className="shrink-0"
+      />
 
       {/* Body: text / edit inputs */}
       <div className="flex-1 flex items-center gap-2 flex-wrap">

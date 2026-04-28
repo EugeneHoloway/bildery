@@ -29,8 +29,7 @@ export default function AboutPage() {
               <p className="max-w-[60ch] text-sm leading-[1.7] text-muted-foreground">
                 Hi there. My name is Eugene Holoway, I&apos;m a Head of Product, and this is
                 my corner of the web. Bildery is my personal operating system: a place to
-                manage work, run experiments, and document thinking in progress. I work
-                across the full product cycle: discovery, prioritization, roadmap, and delivery.
+                manage work, run experiments, and document thinking in progress.
               </p>
               <p className="max-w-[60ch] text-sm leading-[1.7] text-muted-foreground">
                 In my private time I like reading, traveling and discovering financial market.

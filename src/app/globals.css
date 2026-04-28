@@ -1,89 +1,102 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
+@theme {
+  /* === Fonts === */
+  --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
+
+  /* === Border radius === */
+  --radius-sm: 0.25rem;   /* 4px */
+  --radius-md: 0.375rem;  /* 6px */
+  --radius-lg: 0.625rem;  /* 10px */
+  --radius-xl: 0.875rem;  /* 14px */
+
+  /* === Breakpoints === */
+  --breakpoint-tablet: 768px;
+  --breakpoint-desktop: 1024px;
+  --breakpoint-wide: 1440px;
+
+  /* === Spacing === */
+  --spacing-header-mobile: 64px;
+  --spacing-header-desktop: 72px;
+  --spacing-bottom-nav: 60px;
+
+  /* === Colors (light — defaults) === */
+  --color-background: hsl(0 0% 98%);
+  --color-foreground: hsl(0 0% 7%);
+
+  --color-card: hsl(0 0% 100%);
+  --color-card-foreground: hsl(0 0% 7%);
+
+  --color-popover: hsl(0 0% 100%);
+  --color-popover-foreground: hsl(0 0% 7%);
+
+  --color-primary: hsl(0 0% 13%);
+  --color-primary-foreground: hsl(0 0% 98%);
+
+  --color-secondary: hsl(0 0% 97%);
+  --color-secondary-foreground: hsl(0 0% 13%);
+
+  --color-muted: hsl(0 0% 97%);
+  --color-muted-foreground: hsl(220 9% 44%);
+
+  --color-accent: hsl(0 0% 97%);
+  --color-accent-foreground: hsl(0 0% 13%);
+
+  --color-destructive: hsl(0 84% 60%);
+  --color-destructive-foreground: hsl(0 0% 98%);
+  --color-destructive-bg: hsl(0 93% 94%);
+
+  --color-border: hsl(220 13% 91%);
+  --color-input: hsl(220 13% 91%);
+  --color-ring: hsl(0 0% 70%);
+
+  /* === Extended tokens === */
+  --color-brand: hsl(239 84% 67%);
+  --color-brand-bg: hsl(240 100% 97%);
+
+  --color-success: hsl(142 71% 45%);
+  --color-success-bg: hsl(138 76% 97%);
+  --color-success-border: hsl(141 69% 75%);
+
+  --color-subtle: hsl(220 14% 96%);
+  --color-subtle-border: hsl(220 9% 84%);
+}
+
+/* === Dark theme === */
+.dark {
+  --color-background: hsl(0 0% 9%);
+  --color-foreground: hsl(0 0% 98%);
+
+  --color-card: hsl(0 0% 13%);
+  --color-card-foreground: hsl(0 0% 98%);
+
+  --color-popover: hsl(0 0% 13%);
+  --color-popover-foreground: hsl(0 0% 98%);
+
+  --color-primary: hsl(0 0% 90%);
+  --color-primary-foreground: hsl(0 0% 13%);
+
+  --color-secondary: hsl(0 0% 17%);
+  --color-secondary-foreground: hsl(0 0% 98%);
+
+  --color-muted: hsl(0 0% 17%);
+  --color-muted-foreground: hsl(0 0% 70%);
+
+  --color-accent: hsl(0 0% 17%);
+  --color-accent-foreground: hsl(0 0% 98%);
+
+  --color-destructive: hsl(0 72% 51%);
+  --color-destructive-foreground: hsl(0 0% 98%);
+
+  --color-border: hsl(0 0% 20%);
+  --color-input: hsl(0 0% 20%);
+  --color-ring: hsl(0 0% 44%);
+}
+
+/* === Base styles === */
 @layer base {
-  :root {
-    /* === Bildery palette === */
-    --background: 0 0% 98%;          /* #fafafa */
-    --foreground: 0 0% 7%;           /* #111 */
-
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 7%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 7%;
-
-    --primary: 0 0% 13%;
-    --primary-foreground: 0 0% 98%;
-
-    --secondary: 0 0% 97%;
-    --secondary-foreground: 0 0% 13%;
-
-    --muted: 0 0% 97%;
-    --muted-foreground: 220 9% 44%;  /* #6b7280 */
-
-    --accent: 0 0% 97%;
-    --accent-foreground: 0 0% 13%;
-
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 98%;
-
-    --border: 220 13% 91%;           /* #e5e7eb */
-    --input: 220 13% 91%;
-    --ring: 0 0% 70%;
-
-    --radius: 0.625rem;
-
-    /* === Extended color tokens === */
-    --brand: 239 84% 67%;          /* #6366f1 */
-    --brand-bg: 240 100% 97%;      /* #f5f5ff */
-    --success: 142 71% 45%;        /* #16a34a */
-    --success-bg: 138 76% 97%;     /* #f0fdf4 */
-    --success-border: 141 69% 75%; /* #86efac */
-    --destructive-bg: 0 93% 94%;   /* #fee2e2 */
-    --subtle: 220 14% 96%;         /* #f3f4f6 */
-    --subtle-border: 220 9% 84%;   /* #d1d5db */
-
-    --chart-1: 0 0% 87%;
-    --chart-2: 220 9% 44%;
-    --chart-3: 0 0% 43%;
-    --chart-4: 0 0% 37%;
-    --chart-5: 0 0% 27%;
-  }
-
-  .dark {
-    --background: 0 0% 9%;
-    --foreground: 0 0% 98%;
-
-    --card: 0 0% 13%;
-    --card-foreground: 0 0% 98%;
-
-    --popover: 0 0% 13%;
-    --popover-foreground: 0 0% 98%;
-
-    --primary: 0 0% 90%;
-    --primary-foreground: 0 0% 13%;
-
-    --secondary: 0 0% 17%;
-    --secondary-foreground: 0 0% 98%;
-
-    --muted: 0 0% 17%;
-    --muted-foreground: 0 0% 70%;
-
-    --accent: 0 0% 17%;
-    --accent-foreground: 0 0% 98%;
-
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 0 0% 98%;
-
-    --border: 0 0% 20%;
-    --input: 0 0% 20%;
-    --ring: 0 0% 44%;
-  }
-
   * {
-    @apply border-border;
+    border-color: var(--color-border);
   }
 
   html {
@@ -91,7 +104,9 @@
   }
 
   body {
-    @apply bg-background text-foreground font-sans;
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -102,7 +117,7 @@
   outline: none;
   font-size: 0.95rem;
   line-height: 1.75;
-  color: hsl(var(--foreground));
+  color: var(--color-foreground);
 }
 .ProseMirror h1 { font-size: 1.75rem; font-weight: 700; letter-spacing: -0.03em; margin: 1.2em 0 0.4em; }
 .ProseMirror h2 { font-size: 1.35rem; font-weight: 700; letter-spacing: -0.02em; margin: 1em 0 0.4em; }
@@ -111,9 +126,9 @@
 .ProseMirror ol { padding-left: 1.4em; margin: 0 0 0.75em; }
 .ProseMirror li { margin: 0.25em 0; }
 .ProseMirror blockquote {
-  border-left: 3px solid hsl(var(--border));
+  border-left: 3px solid var(--color-border);
   padding-left: 1em;
-  color: hsl(var(--muted-foreground));
+  color: var(--color-muted-foreground);
   margin: 0.75em 0;
 }
 .ProseMirror strong { font-weight: 700; }
@@ -121,9 +136,7 @@
 .ProseMirror p.is-editor-empty:first-child::before {
   content: attr(data-placeholder);
   float: left;
-  color: hsl(var(--muted-foreground));
+  color: var(--color-muted-foreground);
   pointer-events: none;
   height: 0;
 }
-
-
