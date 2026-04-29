@@ -3,10 +3,12 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { Lock, LockOpen, Trash2, Plus } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { SandboxCard, type SandboxCardData } from '@/components/SandboxCard'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 
 const PASSWORD = process.env.NEXT_PUBLIC_TODO_PASSWORD
 
@@ -33,27 +35,6 @@ function formatDate(dateStr: string) {
   })
 }
 
-// Lock / Unlock icons
-const LockIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="3" y="11" width="18" height="11" rx="2"/>
-    <path d="M7 11V7a5 5 0 0 1 9.9-1"/>
-  </svg>
-)
-const UnlockIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="3" y="11" width="18" height="11" rx="2"/>
-    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-  </svg>
-)
-const TrashIcon = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="3 6 5 6 21 6"/>
-    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-    <path d="M10 11v6M14 11v6"/>
-    <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
-  </svg>
-)
 
 export default function DocsPage() {
   const router = useRouter()
@@ -148,13 +129,15 @@ export default function DocsPage() {
           </div>
 
           {/* Lock / Unlock */}
-          <button
-            className="mt-1 p-1 rounded-md transition-colors hover:bg-border cursor-pointer shrink-0"
+          <Button
+            variant="outline"
+            size="icon-sm"
+            className="mt-1 shrink-0"
             onClick={() => isUnlocked ? setIsUnlocked(false) : setShowPassword((v) => !v)}
             aria-label={isUnlocked ? 'Lock' : 'Unlock'}
           >
-            {isUnlocked ? <UnlockIcon /> : <LockIcon />}
-          </button>
+            {isUnlocked ? <LockOpen className="size-4" /> : <Lock className="size-4" />}
+          </Button>
         </div>
 
         {/* Password input */}
@@ -191,7 +174,9 @@ export default function DocsPage() {
               onClick={handleNewDocClick}
               aria-label="Create new document"
             >
-              <span className="text-2xl text-muted-foreground leading-none">+</span>
+              <span className="flex items-center justify-center w-9 h-9 rounded-xl bg-muted text-muted-foreground">
+                <Plus className="size-4" />
+              </span>
               <span className="text-[0.8rem] font-semibold text-muted-foreground tracking-[0.04em]">
                 New document
               </span>
@@ -228,7 +213,7 @@ export default function DocsPage() {
                       onClick={(e) => handleDeleteDoc(e, doc.id)}
                       aria-label="Delete document"
                     >
-                      <TrashIcon />
+                      <Trash2 className="size-3.5" />
                     </button>
                   )}
                 </div>
