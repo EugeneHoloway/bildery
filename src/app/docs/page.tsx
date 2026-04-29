@@ -5,7 +5,6 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Lock, LockOpen, Trash2, Plus } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
-import { SandboxCard, type SandboxCardData } from '@/components/SandboxCard'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -34,7 +33,6 @@ function formatDate(dateStr: string) {
     day: 'numeric', month: 'short', year: 'numeric',
   })
 }
-
 
 export default function DocsPage() {
   const router = useRouter()
@@ -117,7 +115,7 @@ export default function DocsPage() {
 
   return (
     <div className="py-12 pb-20">
-      <div className="mx-auto max-w-[1240px] px-4 tablet:px-4">
+      <div className="mx-auto max-w-[1240px] px-4">
 
         {/* Page header */}
         <div className="mb-10 flex items-start justify-between gap-4">
@@ -166,7 +164,7 @@ export default function DocsPage() {
             <button
               className={cn(
                 'flex flex-col items-center justify-center gap-2',
-                'p-5 rounded-2xl min-h-[120px]',
+                'min-h-72 p-4 rounded-2xl',
                 'border-[1.5px] border-dashed border-border bg-transparent',
                 'cursor-pointer transition-colors duration-200',
                 'hover:border-brand hover:bg-brand-bg',
@@ -188,34 +186,53 @@ export default function DocsPage() {
                 key={doc.id}
                 href={`/docs/${doc.slug}`}
                 className={cn(
-                  'relative flex flex-col justify-between gap-6 p-5 rounded-2xl',
+                  'flex flex-col justify-between gap-4',
+                  'min-h-72 p-4 rounded-2xl',
                   'bg-card border border-border',
                   'shadow-[0_1px_2px_rgba(16,24,40,0.04)]',
                   'transition-[border-color,box-shadow] duration-200',
                   'hover:border-subtle-border hover:shadow-[0_4px_16px_rgba(16,24,40,0.08)]',
                 )}
               >
-                <div className="flex flex-col gap-[10px]">
-                  <Badge variant="outline" className="self-start bg-brand/6 text-brand border-brand/20">
-                    Document
-                  </Badge>
-                  <h2 className="text-base font-bold leading-[1.3] tracking-[-0.02em]">
-                    {doc.title}
-                  </h2>
-                </div>
-                <div className="flex flex-wrap items-center gap-3">
-                  <span className="text-[0.8rem] text-muted-foreground">
-                    {formatDate(doc.created_at)}
-                  </span>
-                  {isUnlocked && (
-                    <button
-                      className="ml-auto w-7 h-7 rounded-md flex items-center justify-center text-muted-foreground hover:bg-destructive-bg hover:text-destructive transition-colors cursor-pointer"
-                      onClick={(e) => handleDeleteDoc(e, doc.id)}
-                      aria-label="Delete document"
+                {/* Top */}
+                <div className="flex flex-col gap-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex flex-col gap-0.5">
+                      <h2 className="text-sm font-bold leading-[1.35] tracking-[-0.02em] text-foreground">
+                        {doc.title}
+                      </h2>
+                      <span className="text-[0.72rem] text-muted-foreground">
+                        {formatDate(doc.created_at)}
+                      </span>
+                    </div>
+                    <Badge
+                      variant="secondary"
+                      className="shrink-0 text-[0.65rem] font-semibold px-2 py-0.5"
                     >
-                      <Trash2 className="size-3.5" />
-                    </button>
-                  )}
+                      Document
+                    </Badge>
+                  </div>
+                </div>
+
+                {/* Footer */}
+                <div className="-mx-4 -mb-4 flex items-center justify-between gap-3 rounded-b-2xl border-t border-border bg-subtle px-4 py-4">
+                  <Badge variant="outline" className="text-muted-foreground border-border bg-transparent">
+                    Note
+                  </Badge>
+                  <div className="flex items-center gap-2">
+                    {isUnlocked && (
+                      <button
+                        className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-muted-foreground hover:bg-destructive-bg hover:text-destructive transition-colors cursor-pointer"
+                        onClick={(e) => handleDeleteDoc(e, doc.id)}
+                        aria-label="Delete document"
+                      >
+                        <Trash2 className="size-3.5" />
+                      </button>
+                    )}
+                    <span className="shrink-0 inline-flex items-center rounded-lg bg-foreground px-3 h-8 text-sm font-medium text-background">
+                      Open
+                    </span>
+                  </div>
                 </div>
               </Link>
             ))}
@@ -263,7 +280,7 @@ export default function DocsPage() {
 
             <div className="flex gap-2 justify-end">
               <button
-                className="px-4 py-2 border border-border rounded-lg text-sm cursor-pointer hover:bg-background transition-colors"
+                className="px-4 py-2 border border-border rounded-lg text-sm cursor-pointer hover:bg-muted transition-colors"
                 onClick={() => setShowModal(false)}
               >
                 Cancel

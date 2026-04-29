@@ -214,6 +214,10 @@ export function ForceGraph({ maxSize = 450 }: { maxSize?: number }) {
       })
 
       // Pass 2 — labels always on top
+      const isDark = document.documentElement.classList.contains('dark')
+      const labelBg   = isDark ? 'rgba(255,255,255,0.93)' : 'rgba(0,0,0,0.92)'
+      const labelText = isDark ? 'rgba(17,24,39,0.95)'    : 'rgba(249,250,251,0.92)'
+
       ctx.textBaseline = 'middle'
       ctx.textAlign = 'left'
       proj.filter(n => n.label).forEach(n => {
@@ -228,11 +232,11 @@ export function ForceGraph({ maxSize = 450 }: { maxSize?: number }) {
         if (lx + bw > width - 6) lx = n.sx - r - 5 - bw
         const ly = n.sy - bh / 2
 
-        ctx.fillStyle = 'rgba(17,24,39,0.92)'
+        ctx.fillStyle = labelBg
         roundRect(ctx, lx, ly, bw, bh, 3)
         ctx.fill()
 
-        ctx.fillStyle = 'rgba(249,250,251,0.92)'
+        ctx.fillStyle = labelText
         ctx.fillText(n.label!, lx + padX, n.sy)
       })
 
