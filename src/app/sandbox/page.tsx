@@ -16,7 +16,7 @@ const techCards: SandboxCardData[] = [
     description:
       'ROI-positive retention initiative for a marketplace. Covers initiative selection, target segment, LTV hypothesis, UX flow, ROI model, risk assessment, and A/B test design.',
     status: 'Liki24',
-    platform: '',
+
     sections: 8,
     href: '/sandbox/liki24',
   },
@@ -27,7 +27,7 @@ const techCards: SandboxCardData[] = [
     description:
       'Expert Rating System for sports portal. Rating algorythm approach, Baessyan model calc, exceptions and edge cases.',
     status: 'Tips',
-    platform: '',
+
     sections: 8,
     href: '/sandbox/tips',
   },
@@ -38,7 +38,7 @@ const techCards: SandboxCardData[] = [
     description:
       'Mission-driven loyalty template for Shopify merchants. Covers ecosystem challenges, behavioral mechanics, mission categories, RFM segmentation, reward structure, and merchant value communication.',
     status: 'Enable3',
-    platform: '',
+
     sections: 5,
     href: '/sandbox/enable3',
   },
@@ -49,7 +49,7 @@ const techCards: SandboxCardData[] = [
     description:
       'Growth PM diagnosis and 90-day plan for SubSub: a YouTube creator monetization platform. Covers funnel analysis, activation gap, hypothesis prioritization, unit economics, and experiment roadmap.',
     status: 'SubSub',
-    platform: '',
+
     sections: 6,
     href: '/sandbox/subsub',
   },
@@ -63,7 +63,7 @@ const marketCards: SandboxCardData[] = [
     description:
       'Gross margin, performance, EBITDA, Revenue, rating summary and price target scenarios.',
     status: 'Feb. 2026',
-    platform: '',
+
     sections: 9,
     href: '/sandbox/stm',
   },
@@ -77,7 +77,7 @@ const mockupCards: SandboxCardData[] = [
     description:
       'Create, hide and delete custom pages. Includes Game Providers page with logo grid, layout toggle and per-page settings.',
     status: 'BetUp',
-    platform: '',
+
     sections: 2,
     href: '/sandbox/mockup-pages',
   },
@@ -88,7 +88,7 @@ const mockupCards: SandboxCardData[] = [
     description:
       'Page section manager for iGaming operator backoffice. Banner slider, game sections (auto/manual), providers row, live bets feed and SEO text.',
     status: 'BetUp',
-    platform: '',
+
     sections: 3,
     href: '/sandbox/mockup-homepage',
   },
@@ -99,7 +99,7 @@ const mockupCards: SandboxCardData[] = [
     description:
       'Per-page SEO tab: H1, title tag, meta description with live SERP preview, Open Graph, advanced settings and audit checklist.',
     status: 'BetUp',
-    platform: '',
+
     sections: 4,
     href: '/sandbox/mockup-seo',
   },
@@ -110,7 +110,7 @@ const mockupCards: SandboxCardData[] = [
     description:
       'Operator analytics prototype with live Supabase data. Revenue GGR/NGR, deposits & withdrawals, top games by hold %, and player segmentation by VIP tier.',
     status: 'BetUp',
-    platform: '',
+
     sections: 4,
     href: '/sandbox/analytics',
   },
@@ -121,7 +121,7 @@ const mockupCards: SandboxCardData[] = [
     description:
       'Enter 9 operator KPIs - FTD rate, churn, bonus ROI, payment success - and get AI-generated revenue health scores, risk assessment, and prioritized actions.',
     status: 'Depo44',
-    platform: '',
+
     sections: 1,
     href: '/sandbox/revenue-intelligence',
   },
@@ -155,7 +155,7 @@ function SandboxSection({
 export default function SandboxPage() {
   return (
     <div className="py-12 pb-20">
-      <div className="mx-auto max-w-[1240px] px-4 tablet:px-4">
+      <div className="mx-auto max-w-[1240px] px-4">
 
         {/* Page header */}
         <div className="mb-10">

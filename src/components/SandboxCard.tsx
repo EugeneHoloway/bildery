@@ -1,7 +1,6 @@
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 
 export interface SandboxCardData {
   id: string
@@ -9,7 +8,6 @@ export interface SandboxCardData {
   title: string
   description: string
   status: string
-  platform: string
   sections: number
   href: string
 }
@@ -59,9 +57,9 @@ export function SandboxCard({ card }: { card: SandboxCardData }) {
         <Badge variant="outline" className="text-muted-foreground border-border bg-transparent">
           {card.status}
         </Badge>
-        <Button size="default" className="shrink-0 bg-foreground text-background hover:bg-foreground/90">
+        <span className="shrink-0 inline-flex items-center rounded-lg bg-foreground px-3 h-8 text-sm font-medium text-background">
           View details
-        </Button>
+        </span>
       </div>
     </Link>
   )
