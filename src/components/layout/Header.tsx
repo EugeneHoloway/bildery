@@ -5,13 +5,14 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useTheme } from 'next-themes'
 import { Sun, Moon } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
 const navItems = [
-  { label: 'Tasks', href: '/tasks' },
-  { label: 'Docs', href: '/docs' },
+  { label: 'Tasks',   href: '/tasks' },
+  { label: 'Docs',    href: '/docs' },
   { label: 'Sandbox', href: '/sandbox' },
-  { label: 'About', href: '/about' },
+  { label: 'About',   href: '/about' },
 ]
 
 function ThemeToggle() {
@@ -20,16 +21,20 @@ function ThemeToggle() {
 
   useEffect(() => setMounted(true), [])
 
-  if (!mounted) return <div className="h-8 w-8" />
+  if (!mounted) return <div className="size-8" />
 
   return (
-    <button
-      className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-subtle hover:text-foreground"
+    <Button
+      variant="ghost"
+      size="icon"
       onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
       aria-label="Toggle theme"
     >
-      {resolvedTheme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-    </button>
+      {resolvedTheme === 'dark'
+        ? <Sun className="size-4" />
+        : <Moon className="size-4" />
+      }
+    </Button>
   )
 }
 
@@ -70,8 +75,7 @@ export function Header() {
           'bg-background/85 backdrop-blur-md',
         )}
       >
-        {/* Inner: container + flex row */}
-        <div className="mx-auto flex h-full max-w-[1240px] items-center justify-between gap-6 px-4 tablet:px-4">
+        <div className="mx-auto flex h-full max-w-[1240px] items-center justify-between gap-6 px-4">
 
           {/* Logo */}
           <Link
@@ -81,7 +85,7 @@ export function Header() {
             Bildery
           </Link>
 
-          {/* Desktop nav — hidden on mobile, flex on tablet+ */}
+          {/* Desktop nav */}
           <nav className="hidden items-center gap-8 tablet:flex" aria-label="Primary navigation">
             {navItems.map((item) => (
               <Link
@@ -103,7 +107,7 @@ export function Header() {
           <div className="flex items-center gap-1">
             <ThemeToggle />
 
-            {/* Burger — mobile only, hidden on tablet+ */}
+            {/* Burger — mobile only */}
             <button
               className="flex h-9 w-9 shrink-0 flex-col items-center justify-center gap-[5px] p-1 tablet:hidden"
               aria-label={menuOpen ? 'Close menu' : 'Open menu'}
@@ -134,7 +138,7 @@ export function Header() {
         </div>
       </header>
 
-      {/* Mobile menu drawer — sibling of header, outside its stacking context */}
+      {/* Mobile menu drawer */}
       <div
         id="mobile-menu"
         aria-hidden={!menuOpen}

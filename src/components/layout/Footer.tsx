@@ -13,7 +13,7 @@ const navItems = [
 export function Footer() {
   return (
     <footer className="border-t border-border bg-background">
-      <div className="mx-auto flex max-w-[1240px] flex-col gap-4 px-4 py-8 tablet:flex-row tablet:items-center tablet:justify-between tablet:px-4">
+      <div className="mx-auto flex max-w-[1240px] flex-col gap-4 px-4 py-8 tablet:flex-row tablet:items-center tablet:justify-between">
 
         <nav className="flex flex-wrap gap-x-6 gap-y-2" aria-label="Footer navigation">
           {navItems.map((item) => (
