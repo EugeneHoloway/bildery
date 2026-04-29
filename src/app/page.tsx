@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 export default function HomePage() {
   return (
     <div className="py-12 pb-20">
-      <div className="mx-auto max-w-[1240px] px-4 tablet:px-4">
+      <div className="mx-auto max-w-[1240px] px-4">
         <div className="mb-10">
           <h1 className="mb-2 text-[2rem] font-bold tracking-[-0.03em]">
             A product lab.

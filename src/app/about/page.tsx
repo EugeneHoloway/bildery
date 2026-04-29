@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <div className="py-12 pb-20">
-      <div className="mx-auto max-w-[1240px] px-4 tablet:px-4">
+      <div className="mx-auto max-w-[1240px] px-4">
 
         {/* Two-column layout: text left, graph right */}
         <div className="flex flex-col items-start gap-10 desktop:flex-row desktop:gap-12">
