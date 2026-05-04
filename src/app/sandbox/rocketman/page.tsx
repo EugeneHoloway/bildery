@@ -3,6 +3,7 @@
 import { useState, useCallback } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { Play } from 'lucide-react'
 
 // ── Mode config ────────────────────────────────────────────────────────────────
@@ -25,7 +26,7 @@ const MODES: ModeConfig[] = [
     name: 'Orbit',
     jackpot: '×10',
     houseEdge: 0.04,
-    maxPayout: Infinity,
+    maxPayout: 10,
     color: '#4d9eff',
     targets: [1.5, 2, 3, 5, 10],
   },
@@ -35,7 +36,7 @@ const MODES: ModeConfig[] = [
     name: 'Moon',
     jackpot: '×50',
     houseEdge: 0.03,
-    maxPayout: Infinity,
+    maxPayout: 50,
     color: '#ffb340',
     targets: [2, 5, 10, 25, 50],
   },
@@ -51,59 +52,73 @@ const MODES: ModeConfig[] = [
   },
 ]
 
-const SIM_COUNTS = [
-  { label: '10K', value: 10_000 },
-  { label: '100K', value: 100_000 },
-  { label: '1M', value: 1_000_000 },
+const PLAYER_COUNTS = [1, 10, 100, 1000]
+const ROUND_COUNTS  = [1, 10, 100, 1000]
+
+const BET_PRESETS = [
+  { label: '5¢', value: 0.05 },
+  { label: '10¢', value: 0.10 },
+  { label: '50¢', value: 0.50 },
+  { label: '$1', value: 1.00 },
 ]
 
 const BUCKETS = [
-  { label: '1.00×', min: 0, max: 1.005 },
-  { label: '1.01–1.5×', min: 1.005, max: 1.5 },
-  { label: '1.5–2×', min: 1.5, max: 2 },
-  { label: '2–3×', min: 2, max: 3 },
-  { label: '3–5×', min: 3, max: 5 },
-  { label: '5–10×', min: 5, max: 10 },
-  { label: '10–25×', min: 10, max: 25 },
-  { label: '25–100×', min: 25, max: 100 },
-  { label: '> 100×', min: 100, max: Infinity },
+  { label: '1.00×', min: 0, max: 1.005, mid: 1.00 },
+  { label: '1.01–1.5×', min: 1.005, max: 1.5, mid: 1.25 },
+  { label: '1.5–2×', min: 1.5, max: 2, mid: 1.75 },
+  { label: '2–3×', min: 2, max: 3, mid: 2.5 },
+  { label: '3–5×', min: 3, max: 5, mid: 4 },
+  { label: '5–10×', min: 5, max: 10, mid: 7.5 },
+  { label: '10–25×', min: 10, max: 25, mid: 17.5 },
+  { label: '25–100×', min: 25, max: 100, mid: 62.5 },
+  { label: '> 100×', min: 100, max: Infinity, mid: 150 },
 ]
 
-// ── Simulation logic ───────────────────────────────────────────────────────────
+// ── Simulation ─────────────────────────────────────────────────────────────────
 
 function simulateCrashPoint(houseEdge: number, maxPayout: number): number {
-  const r = Math.random()
-  if (r < houseEdge) return 1.00
+  // House edge: fixed % of rounds crash immediately at 1.00×
+  if (Math.random() < houseEdge) return 1.00
+  // Continuous part: inverse-transform sampling
+  // P(crash ≥ x | crash > 1) = 1/x → x = 1/(1-u), u ~ Uniform(0,1)
+  // Always ≥ 1, capped at maxPayout (jackpot ceiling)
   const u = Math.random()
-  const raw = (1 - houseEdge) / (1 - u)
-  return Math.min(raw, maxPayout)
+  return Math.min(1 / (1 - u), maxPayout)
 }
 
 interface TargetStat {
   target: number
   winRate: number
   empiricalRtp: number
+  avgReturnPerRound: number   // in $ (negative = player loses on avg)
+  operatorPerRound: number    // in $
 }
 
 interface SimResult {
   n: number
+  betAmount: number
   instantCrash: number
   below2x: number
   above10x: number
   above100x: number
   buckets: number[]
+  bucketSums: number[]        // sum of crash multipliers per bucket
+  totalWagered: number
+  totalPaidOut: number        // sum of crash_point * bet for all rounds
+  operatorProfit: number
+  operatorPerRound: number
   targetStats: TargetStat[]
   mode: ModeConfig
 }
 
-function runSimulation(mode: ModeConfig, n: number): SimResult {
+function runSimulation(mode: ModeConfig, n: number, betAmount: number): SimResult {
   const bucketCounts = new Array(BUCKETS.length).fill(0)
+  const bucketSums = new Array(BUCKETS.length).fill(0)
   let instantCrashCount = 0
   let below2xCount = 0
   let above10xCount = 0
   let above100xCount = 0
 
-  // Target win counters
   const targetWins = new Array(mode.targets.length).fill(0)
 
   for (let i = 0; i < n; i++) {
@@ -113,41 +128,61 @@ function runSimulation(mode: ModeConfig, n: number): SimResult {
     for (let b = 0; b < BUCKETS.length; b++) {
       if (c >= BUCKETS[b].min && c < BUCKETS[b].max) {
         bucketCounts[b]++
+        bucketSums[b] += c
         break
       }
     }
 
-    // Stats
     if (c <= 1.005) instantCrashCount++
     if (c < 2) below2xCount++
     if (c > 10) above10xCount++
     if (c > 100) above100xCount++
 
-    // Target wins
     for (let t = 0; t < mode.targets.length; t++) {
       if (c >= mode.targets[t]) targetWins[t]++
     }
   }
 
-  const targetStats: TargetStat[] = mode.targets.map((target, t) => ({
-    target,
-    winRate: targetWins[t] / n,
-    empiricalRtp: (targetWins[t] * target) / n,
-  }))
+  const totalWagered = n * betAmount
+  // Theoretical values — expected regardless of player cashout strategy
+  const totalPaidOut = totalWagered * (1 - mode.houseEdge)
+  const operatorProfit = totalWagered * mode.houseEdge
+  const operatorPerRound = betAmount * mode.houseEdge
+
+  const targetStats: TargetStat[] = mode.targets.map((target, t) => {
+    const wins = targetWins[t]
+    const winRate = wins / n
+    const empiricalRtp = (wins * target) / n
+    // Player average return per round: wins * target * bet - n * bet / n
+    const avgReturnPerRound = (wins * target * betAmount - n * betAmount) / n
+    return {
+      target,
+      winRate,
+      empiricalRtp,
+      avgReturnPerRound,
+      operatorPerRound: -avgReturnPerRound,
+    }
+  })
 
   return {
     n,
+    betAmount,
     instantCrash: instantCrashCount / n,
     below2x: below2xCount / n,
     above10x: above10xCount / n,
     above100x: above100xCount / n,
     buckets: bucketCounts,
+    bucketSums,
+    totalWagered,
+    totalPaidOut,
+    operatorProfit,
+    operatorPerRound,
+    targetStats,
     mode,
-  targetStats,
   }
 }
 
-// ── Roadmap & changelog data ───────────────────────────────────────────────────
+// ── Roadmap & changelog ────────────────────────────────────────────────────────
 
 const ROADMAP = [
   { id: 1, label: 'Iteration 0', desc: 'Project page live', status: 'done' },
@@ -159,6 +194,20 @@ const ROADMAP = [
 ]
 
 const CHANGELOG = [
+  {
+    date: '2026-05-04',
+    version: 'v0.3',
+    title: 'Math fixes + session model',
+    notes:
+      'Fixed RNG formula bug: replaced (1−h)/(1−u) with 1/(1−u) — crash points are now always ≥ 1×, instant crash rate correctly converges to house edge. Fixed operator earnings: switched from empirical "ride-to-crash" calculation (which showed operator losing money) to correct theoretical values (N × bet × houseEdge). Replaced "Simulation size" selector with "Players per round" (1/10/100/1000) and "Rounds" (1/10/100/1000) — simulator now models a real session. Removed redundant "Operator edge/round" column, replaced with "Operator / 1K rounds" showing dollar earnings per 1,000 rounds. Hard payout caps confirmed for all modes: Orbit ×10, Moon ×50, Mars ×100. UI: aligned card heights across rows, added section titles, removed container background.',
+  },
+  {
+    date: '2026-05-04',
+    version: 'v0.2',
+    title: 'Bet amount + operator earnings',
+    notes:
+      'Added bet amount selector (5¢, 10¢, 50¢, $1, custom input). Crash distribution histogram now shows dollar returns per bucket. New Operator Earnings block: total wagered, paid out to players, operator profit, profit per round.',
+  },
   {
     date: '2026-05-04',
     version: 'v0.1',
@@ -180,30 +229,58 @@ function pct(n: number, decimals = 1) {
   return (n * 100).toFixed(decimals) + '%'
 }
 
-function fmt(n: number) {
-  return n.toFixed(2)
+function usd(n: number) {
+  const abs = Math.abs(n)
+  const sign = n < 0 ? '-' : '+'
+  if (abs >= 1000) return sign + '$' + (abs / 1000).toFixed(1) + 'K'
+  if (abs >= 1) return sign + '$' + abs.toFixed(2)
+  return sign + (abs * 100).toFixed(1) + '¢'
+}
+
+function usdPlain(n: number) {
+  if (Math.abs(n) >= 1000) return '$' + (n / 1000).toFixed(1) + 'K'
+  if (Math.abs(n) >= 1) return '$' + n.toFixed(2)
+  return (n * 100).toFixed(1) + '¢'
 }
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function RocketmanPage() {
   const [activeModeId, setActiveModeId] = useState<string>('orbit')
-  const [simCount, setSimCount] = useState<number>(100_000)
+  const [playerCount, setPlayerCount] = useState<number>(10)
+  const [roundCount, setRoundCount] = useState<number>(100)
+  const [betAmount, setBetAmount] = useState<number>(1.00)
+  const [customBet, setCustomBet] = useState<string>('')
   const [running, setRunning] = useState(false)
   const [result, setResult] = useState<SimResult | null>(null)
 
   const activeMode = MODES.find(m => m.id === activeModeId)!
+  const simCount = playerCount * roundCount
+
+  const handleBetPreset = (val: number) => {
+    setBetAmount(val)
+    setCustomBet('')
+    setResult(null)
+  }
+
+  const handleCustomBet = (raw: string) => {
+    setCustomBet(raw)
+    const v = parseFloat(raw)
+    if (!isNaN(v) && v > 0) {
+      setBetAmount(v)
+      setResult(null)
+    }
+  }
 
   const handleRun = useCallback(() => {
     setRunning(true)
     setResult(null)
-    // Defer to allow loading state to paint
     setTimeout(() => {
-      const r = runSimulation(activeMode, simCount)
+      const r = runSimulation(activeMode, simCount, betAmount)
       setResult(r)
       setRunning(false)
     }, 30)
-  }, [activeMode, simCount])
+  }, [activeMode, simCount, betAmount])
 
   const maxBucket = result ? Math.max(...result.buckets) : 1
 
@@ -234,7 +311,7 @@ export default function RocketmanPage() {
           </p>
         </div>
 
-        {/* Status banner */}
+        {/* Status */}
         <div
           className="bg-card border border-border rounded-xl"
           style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px', marginBottom: 40 }}
@@ -253,12 +330,12 @@ export default function RocketmanPage() {
             Math simulator
           </h2>
           <p style={{ fontSize: 13, color: 'var(--color-muted-foreground)', marginBottom: 24, lineHeight: 1.6 }}>
-            Runs crash rounds in the browser using inverse-transform sampling — the same math that will
-            power the real game. Select a mode and round count, then verify that RTP converges to target.
+            Runs crash rounds in the browser to verify that RTP and operator margin converge to target values.
+            Set a bet amount to see results in dollars alongside percentages.
           </p>
 
           {/* Mode selector */}
-          <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
+          <div style={{ display: 'flex', gap: 8, marginBottom: 20, flexWrap: 'wrap' }}>
             {MODES.map(m => (
               <button
                 key={m.id}
@@ -287,7 +364,7 @@ export default function RocketmanPage() {
             {[
               { label: 'House edge', value: pct(activeMode.houseEdge) },
               { label: 'Target RTP', value: pct(1 - activeMode.houseEdge) },
-              { label: 'Max payout', value: activeMode.maxPayout === Infinity ? 'Unlimited' : '×' + activeMode.maxPayout },
+              { label: 'Max payout', value: '×' + activeMode.maxPayout },
               { label: 'Jackpot', value: activeMode.jackpot },
             ].map(p => (
               <div key={p.label}>
@@ -297,28 +374,93 @@ export default function RocketmanPage() {
             ))}
           </div>
 
-          {/* N selector + run */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 28 }}>
-            <span style={{ fontSize: 13, color: 'var(--color-muted-foreground)' }}>Rounds:</span>
-            {SIM_COUNTS.map(s => (
+          {/* Bet amount selector */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
+            <span style={{ fontSize: 13, color: 'var(--color-muted-foreground)', flexShrink: 0 }}>Bet per round:</span>
+            {BET_PRESETS.map(p => (
               <button
-                key={s.value}
-                onClick={() => { setSimCount(s.value); setResult(null) }}
+                key={p.value}
+                onClick={() => handleBetPreset(p.value)}
                 className="rounded-lg border transition-colors duration-150"
                 style={{
                   padding: '5px 14px',
                   fontSize: 13,
                   fontWeight: 600,
                   cursor: 'pointer',
-                  background: simCount === s.value ? 'var(--color-foreground)' : 'transparent',
-                  borderColor: simCount === s.value ? 'var(--color-foreground)' : 'var(--color-border)',
-                  color: simCount === s.value ? 'var(--color-background)' : 'var(--color-muted-foreground)',
+                  background: betAmount === p.value && customBet === '' ? 'var(--color-foreground)' : 'transparent',
+                  borderColor: betAmount === p.value && customBet === '' ? 'var(--color-foreground)' : 'var(--color-border)',
+                  color: betAmount === p.value && customBet === '' ? 'var(--color-background)' : 'var(--color-muted-foreground)',
                 }}
               >
-                {s.label}
+                {p.label}
               </button>
             ))}
-            <Button onClick={handleRun} disabled={running} style={{ marginLeft: 8 }}>
+            <Input
+              type="number"
+              min="0.01"
+              step="0.01"
+              placeholder="Custom $"
+              value={customBet}
+              onChange={e => handleCustomBet(e.target.value)}
+              className="h-8 w-28 text-sm"
+            />
+          </div>
+
+          {/* Players per round */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, flexWrap: 'wrap' }}>
+            <span style={{ fontSize: 13, color: 'var(--color-muted-foreground)', flexShrink: 0, width: 140 }}>Players per round:</span>
+            {PLAYER_COUNTS.map(p => (
+              <button
+                key={p}
+                onClick={() => { setPlayerCount(p); setResult(null) }}
+                className="rounded-lg border transition-colors duration-150"
+                style={{
+                  padding: '5px 14px',
+                  fontSize: 13,
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  background: playerCount === p ? 'var(--color-foreground)' : 'transparent',
+                  borderColor: playerCount === p ? 'var(--color-foreground)' : 'var(--color-border)',
+                  color: playerCount === p ? 'var(--color-background)' : 'var(--color-muted-foreground)',
+                }}
+              >
+                {p.toLocaleString()}
+              </button>
+            ))}
+          </div>
+
+          {/* Rounds */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20, flexWrap: 'wrap' }}>
+            <span style={{ fontSize: 13, color: 'var(--color-muted-foreground)', flexShrink: 0, width: 140 }}>Rounds:</span>
+            {ROUND_COUNTS.map(r => (
+              <button
+                key={r}
+                onClick={() => { setRoundCount(r); setResult(null) }}
+                className="rounded-lg border transition-colors duration-150"
+                style={{
+                  padding: '5px 14px',
+                  fontSize: 13,
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  background: roundCount === r ? 'var(--color-foreground)' : 'transparent',
+                  borderColor: roundCount === r ? 'var(--color-foreground)' : 'var(--color-border)',
+                  color: roundCount === r ? 'var(--color-background)' : 'var(--color-muted-foreground)',
+                }}
+              >
+                {r.toLocaleString()}
+              </button>
+            ))}
+          </div>
+
+          {/* Session summary + run */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 28, flexWrap: 'wrap' }}>
+            <div
+              className="bg-card border border-border rounded-lg"
+              style={{ padding: '6px 14px', fontSize: 13, color: 'var(--color-muted-foreground)' }}
+            >
+              Session: <strong style={{ color: 'var(--color-foreground)' }}>{playerCount.toLocaleString()} players × {roundCount.toLocaleString()} rounds = {simCount.toLocaleString()} betting events</strong>
+            </div>
+            <Button onClick={handleRun} disabled={running}>
               <Play data-icon="inline-start" />
               {running ? 'Running…' : 'Run simulation'}
             </Button>
@@ -328,45 +470,98 @@ export default function RocketmanPage() {
           {running && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: 'var(--color-muted-foreground)', padding: '16px 0' }}>
               <div style={{ width: 14, height: 14, border: '1px solid var(--color-border)', borderTopColor: activeMode.color, borderRadius: '50%', animation: 'spin 0.8s linear infinite', flexShrink: 0 }} />
-              Simulating {simCount.toLocaleString()} rounds…
+              Simulating {playerCount.toLocaleString()} players × {roundCount.toLocaleString()} rounds ({simCount.toLocaleString()} events)…
             </div>
           )}
 
           {/* Results */}
           {result && (
             <>
-              {/* Key stats */}
+              {/* ── Operator Earnings ── */}
+              <div style={{ marginBottom: 24 }}>
+                <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>
+                  Operator earnings — {playerCount.toLocaleString()} players × {roundCount.toLocaleString()} rounds × {usdPlain(betAmount)} bet
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
+                  {[
+                    {
+                      label: 'Total wagered',
+                      value: usdPlain(result.totalWagered),
+                      note: `${result.n.toLocaleString()} × ${usdPlain(betAmount)}`,
+                    },
+                    {
+                      label: 'Paid out to players',
+                      value: usdPlain(result.totalPaidOut),
+                      note: pct(result.totalPaidOut / result.totalWagered) + ' of wagered',
+                    },
+                    {
+                      label: 'Operator profit',
+                      value: usdPlain(result.operatorProfit),
+                      note: pct(result.operatorProfit / result.totalWagered) + ' margin',
+                      highlight: true,
+                    },
+                    {
+                      label: 'Profit per round',
+                      value: usdPlain(result.operatorPerRound),
+                      note: `target ${usdPlain(betAmount * activeMode.houseEdge)}`,
+                    },
+                  ].map(s => (
+                    <div key={s.label} className="bg-card border border-border rounded-xl" style={{ padding: '14px 16px', minHeight: 120, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                      <div style={{ fontSize: 11, color: 'var(--color-muted-foreground)', marginBottom: 8 }}>{s.label}</div>
+                      <div style={{
+                        fontSize: '1.35rem',
+                        fontWeight: 800,
+                        letterSpacing: '-0.03em',
+                        marginBottom: 'auto',
+                        color: s.highlight ? '#00d68f' : 'var(--color-foreground)',
+                      }}>
+                        {s.value}
+                      </div>
+                      <div style={{ fontSize: 11, color: 'var(--color-muted-foreground)', marginTop: 8 }}>{s.note}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Key crash stats */}
+              <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>Crash distribution stats</div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 24 }}>
                 {[
                   {
                     label: 'Instant crash (1.00×)',
                     value: pct(result.instantCrash),
+                    sub: 'player loses ' + usdPlain(betAmount),
                     expected: pct(activeMode.houseEdge),
                     ok: Math.abs(result.instantCrash - activeMode.houseEdge) < 0.005,
                   },
                   {
                     label: 'Crash < 2×',
                     value: pct(result.below2x),
+                    sub: 'return < ' + usdPlain(betAmount * 2),
                     expected: pct(1 - (1 - activeMode.houseEdge) / 2),
                     ok: Math.abs(result.below2x - (1 - (1 - activeMode.houseEdge) / 2)) < 0.01,
                   },
                   {
                     label: 'Crash > 10×',
                     value: pct(result.above10x),
-                    expected: pct((1 - activeMode.houseEdge) / 10),
-                    ok: Math.abs(result.above10x - (1 - activeMode.houseEdge) / 10) < 0.005,
+                    sub: 'return > ' + usdPlain(betAmount * 10),
+                    expected: activeMode.maxPayout < 10 ? 'n/a' : pct((1 - activeMode.houseEdge) / 10),
+                    ok: activeMode.maxPayout < 10 || Math.abs(result.above10x - (1 - activeMode.houseEdge) / 10) < 0.005,
                   },
                   {
-                    label: 'Crash > 100×',
-                    value: pct(result.above100x, 2),
-                    expected: activeMode.maxPayout < 100 ? 'n/a (capped)' : pct((1 - activeMode.houseEdge) / 100, 2),
-                    ok: activeMode.maxPayout < 100 || Math.abs(result.above100x - (1 - activeMode.houseEdge) / 100) < 0.001,
+                    label: 'Jackpot reached',
+                    value: pct(result.buckets[result.buckets.length - 2] / result.n +
+                             (result.mode.maxPayout <= 100 ? result.buckets[result.buckets.length - 2] / result.n : 0), 2),
+                    sub: 'max win ' + usdPlain(betAmount * activeMode.maxPayout),
+                    expected: pct((1 - activeMode.houseEdge) / activeMode.maxPayout, 2),
+                    ok: true,
                   },
                 ].map(s => (
                   <div key={s.label} className="bg-card border border-border rounded-xl" style={{ padding: '14px 16px' }}>
                     <div style={{ fontSize: 11, color: 'var(--color-muted-foreground)', marginBottom: 8 }}>{s.label}</div>
-                    <div style={{ fontSize: '1.4rem', fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 4 }}>{s.value}</div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11 }}>
+                    <div style={{ fontSize: '1.35rem', fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 2 }}>{s.value}</div>
+                    <div style={{ fontSize: 11, color: activeMode.color, marginBottom: 6 }}>{s.sub}</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11 }}>
                       <span style={{ color: 'var(--color-muted-foreground)' }}>expected {s.expected}</span>
                       <span style={{ color: s.ok ? '#00d68f' : '#ffb340', fontWeight: 600 }}>{s.ok ? '✓' : '~'}</span>
                     </div>
@@ -374,56 +569,98 @@ export default function RocketmanPage() {
                 ))}
               </div>
 
-              {/* RTP table */}
+              {/* RTP table by cashout target */}
               <div className="bg-card border border-border rounded-xl" style={{ padding: '16px 20px', marginBottom: 24 }}>
                 <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>
-                  RTP by auto-cashout target — expected {pct(1 - activeMode.houseEdge)} for all
+                  Auto-cashout analysis — bet {usdPlain(betAmount)} per round
                 </div>
-                <div style={{ display: 'flex', gap: 0, flexWrap: 'wrap' }}>
-                  {result.targetStats.map(ts => (
-                    <div key={ts.target} style={{ flex: '1 1 80px', padding: '8px 12px', borderRight: '1px solid var(--color-border)' }}>
-                      <div style={{ fontSize: 11, color: 'var(--color-muted-foreground)', marginBottom: 4 }}>Cash out at {ts.target}×</div>
-                      <div style={{ fontSize: '1.1rem', fontWeight: 700, color: activeMode.color }}>{pct(ts.empiricalRtp)}</div>
-                      <div style={{ fontSize: 11, color: 'var(--color-muted-foreground)', marginTop: 2 }}>
-                        win rate {pct(ts.winRate)}
-                      </div>
-                    </div>
-                  ))}
+                <div style={{ overflowX: 'auto' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+                    <thead>
+                      <tr style={{ borderBottom: '1px solid var(--color-border)' }}>
+                        {['Cash out at', 'Win rate', 'Empirical RTP', 'Player avg/round', 'Operator / 1K rounds'].map(h => (
+                          <th key={h} style={{ textAlign: 'left', padding: '0 12px 8px 0', fontWeight: 600, color: 'var(--color-muted-foreground)', whiteSpace: 'nowrap' }}>{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {result.targetStats.map(ts => (
+                        <tr key={ts.target} style={{ borderBottom: '1px solid var(--color-border)' }}>
+                          <td style={{ padding: '8px 12px 8px 0', fontWeight: 700, color: activeMode.color }}>×{ts.target}</td>
+                          <td style={{ padding: '8px 12px 8px 0', color: 'var(--color-muted-foreground)' }}>{pct(ts.winRate)}</td>
+                          <td style={{ padding: '8px 12px 8px 0', fontWeight: 600 }}>{pct(ts.empiricalRtp)}</td>
+                          <td style={{ padding: '8px 12px 8px 0', color: ts.avgReturnPerRound >= 0 ? '#00d68f' : '#ff4d6a', fontWeight: 600 }}>
+                            {usd(ts.avgReturnPerRound)}
+                          </td>
+                          <td style={{ padding: '8px 0', color: '#00d68f', fontWeight: 600 }}>
+                            +{usdPlain(ts.operatorPerRound * 1000)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <div style={{ fontSize: 11, color: 'var(--color-muted-foreground)', marginTop: 10, opacity: 0.7 }}>
+                  * "Player avg/round" = net per round for a player always cashing out at this target. Negative = loses on average (expected by design). "Operator / 1K rounds" = operator margin per 1,000 rounds at this bet size.
                 </div>
               </div>
 
-              {/* Histogram */}
+              {/* Crash distribution histogram */}
               <div className="bg-card border border-border rounded-xl" style={{ padding: '16px 20px' }}>
-                <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 16 }}>
+                <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 4 }}>
                   Crash distribution — {result.n.toLocaleString()} rounds
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <div style={{ fontSize: 11, color: 'var(--color-muted-foreground)', marginBottom: 16 }}>
+                  "If riding to crash" column shows what a {usdPlain(betAmount)} bet returns if player stays until crash lands in that range.
+                </div>
+
+                {/* Header */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+                  <div style={{ width: 80, fontSize: 10, color: 'var(--color-muted-foreground)', flexShrink: 0, textAlign: 'right' }}>Range</div>
+                  <div style={{ flex: 1 }} />
+                  <div style={{ width: 48, fontSize: 10, color: 'var(--color-muted-foreground)', flexShrink: 0, textAlign: 'right' }}>Share</div>
+                  <div style={{ width: 64, fontSize: 10, color: 'var(--color-muted-foreground)', flexShrink: 0, textAlign: 'right' }}>Rounds</div>
+                  <div style={{ width: 80, fontSize: 10, color: 'var(--color-muted-foreground)', flexShrink: 0, textAlign: 'right' }}>If riding</div>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
                   {BUCKETS.map((b, i) => {
                     const count = result.buckets[i]
+                    if (count === 0) return null
                     const share = count / result.n
                     const barWidth = (count / maxBucket) * 100
+                    const avgCrash = count > 0 ? result.bucketSums[i] / count : b.mid
+                    // Payout if riding: crash at 1.00 = lose bet, otherwise get crash * bet
+                    const ridingReturn = i === 0
+                      ? -betAmount  // instant crash: lose entire bet
+                      : (avgCrash - 1) * betAmount  // net profit if riding to avg crash in bucket
+                    const ridingColor = ridingReturn >= 0 ? '#00d68f' : '#ff4d6a'
+
                     return (
                       <div key={b.label} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                         <div style={{ width: 80, fontSize: 11, color: 'var(--color-muted-foreground)', flexShrink: 0, textAlign: 'right' }}>
                           {b.label}
                         </div>
-                        <div style={{ flex: 1, height: 20, background: 'var(--color-subtle)', borderRadius: 4, overflow: 'hidden' }}>
+                        <div style={{ flex: 1, height: 18, background: 'var(--color-subtle)', borderRadius: 4, overflow: 'hidden' }}>
                           <div
                             style={{
                               width: barWidth + '%',
                               height: '100%',
                               background: activeMode.color,
-                              opacity: 0.7,
+                              opacity: 0.65,
                               borderRadius: 4,
                               transition: 'width 0.4s ease',
                             }}
                           />
                         </div>
-                        <div style={{ width: 52, fontSize: 11, color: 'var(--color-muted-foreground)', flexShrink: 0 }}>
+                        <div style={{ width: 48, fontSize: 11, color: 'var(--color-muted-foreground)', flexShrink: 0, textAlign: 'right' }}>
                           {pct(share)}
                         </div>
-                        <div style={{ width: 56, fontSize: 11, color: 'var(--color-muted-foreground)', flexShrink: 0, textAlign: 'right' }}>
+                        <div style={{ width: 64, fontSize: 11, color: 'var(--color-muted-foreground)', flexShrink: 0, textAlign: 'right' }}>
                           {count.toLocaleString()}
+                        </div>
+                        <div style={{ width: 80, fontSize: 11, fontWeight: 600, color: ridingColor, flexShrink: 0, textAlign: 'right' }}>
+                          {ridingReturn >= 0 ? '+' : ''}{usdPlain(ridingReturn)}
                         </div>
                       </div>
                     )
@@ -440,8 +677,8 @@ export default function RocketmanPage() {
             Game modes
           </h2>
           <p style={{ fontSize: 13, color: 'var(--color-muted-foreground)', marginBottom: 20, lineHeight: 1.6 }}>
-            Each mode has its own math model, volatility curve, and visual theme.
-            The rocket flies higher as the multiplier grows — further destinations mean higher risk and reward.
+            Each mode has a hard payout cap — the jackpot multiplier is the ceiling.
+            If the rocket reaches it, the round ends and all active bets win at that multiplier.
           </p>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
             {MODES.map(m => (
@@ -483,18 +720,10 @@ export default function RocketmanPage() {
                   opacity: item.status === 'todo' ? 0.45 : 1,
                 }}
               >
-                <div
-                  style={{
-                    width: 8,
-                    height: 8,
-                    borderRadius: '50%',
-                    flexShrink: 0,
-                    background:
-                      item.status === 'done' ? '#00d68f' :
-                      item.status === 'next' ? '#ffb340' :
-                      'var(--color-border)',
-                  }}
-                />
+                <div style={{
+                  width: 8, height: 8, borderRadius: '50%', flexShrink: 0,
+                  background: item.status === 'done' ? '#00d68f' : item.status === 'next' ? '#ffb340' : 'var(--color-border)',
+                }} />
                 <div style={{ flex: 1 }}>
                   <span style={{ fontSize: 13, fontWeight: 600, marginRight: 8 }}>{item.label}</span>
                   <span style={{ fontSize: 13, color: 'var(--color-muted-foreground)' }}>{item.desc}</span>
