@@ -187,13 +187,21 @@ function runSimulation(mode: ModeConfig, n: number, betAmount: number): SimResul
 const ROADMAP = [
   { id: 1, label: 'Iteration 0', desc: 'Project page live', status: 'done' },
   { id: 2, label: 'Iteration 1', desc: 'Math simulator — RNG, RTP, crash distribution', status: 'done' },
-  { id: 3, label: 'Iteration 2', desc: 'Visual UI — rocket animation, multiplier curve', status: 'next' },
-  { id: 4, label: 'Iteration 3', desc: 'Single-player demo — Supabase, virtual balance', status: 'todo' },
-  { id: 5, label: 'Iteration 4', desc: 'Multiplayer prototype — Supabase Realtime', status: 'todo' },
-  { id: 6, label: 'Iteration 5', desc: 'Developer handoff — production architecture', status: 'todo' },
+  { id: 3, label: 'Iteration 2', desc: 'Visual UI — static prototype, SVG curve, space theme', status: 'done' },
+  { id: 4, label: 'Iteration 3', desc: 'Animated demo — live multiplier, cash out button, sound', status: 'next' },
+  { id: 5, label: 'Iteration 4', desc: 'Single-player — Supabase, virtual balance', status: 'todo' },
+  { id: 6, label: 'Iteration 5', desc: 'Multiplayer prototype — Supabase Realtime', status: 'todo' },
+  { id: 7, label: 'Iteration 6', desc: 'Developer handoff — production architecture', status: 'todo' },
 ]
 
 const CHANGELOG = [
+  {
+    date: '2026-05-04',
+    version: 'v0.4',
+    title: 'Visual prototype — Orbit mode',
+    notes:
+      'Iteration 2: static visual mockup of the Orbit game screen at /sandbox/rocketman/demo. SVG canvas (720×420) with space theme: dark background, star field, exponential multiplier curve (10^(t/10)) with gradient fill and glow stroke. Rocket emoji at curve tip, large 4.20× multiplier display. Left panel with mock player list (User/Bet/Win). Bottom controls: current bet, live win amount, CASH OUT button. No animation yet — pure static snapshot at ×4.20.',
+  },
   {
     date: '2026-05-04',
     version: 'v0.3',
@@ -319,9 +327,41 @@ export default function RocketmanPage() {
           <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#ffb340', flexShrink: 0 }} />
           <span style={{ fontSize: 13, color: 'var(--color-muted-foreground)' }}>
             Status: <strong style={{ color: 'var(--color-foreground)' }}>In development</strong>
-            &nbsp;·&nbsp; Current: Iteration 1 — math simulator
-            &nbsp;·&nbsp; Demo: coming in Iteration 3
+            &nbsp;·&nbsp; Current: Iteration 2 done — visual prototype live
+            &nbsp;·&nbsp; Next: Iteration 3 — animation
           </span>
+        </div>
+
+        {/* Visual Demo banner */}
+        <div
+          className="bg-card border border-border rounded-xl"
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, padding: '14px 20px', marginBottom: 32, flexWrap: 'wrap' }}
+        >
+          <div>
+            <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 2 }}>Iteration 2 — Visual prototype</div>
+            <div style={{ fontSize: 13, color: 'var(--color-muted-foreground)' }}>
+              Static mockup of the Orbit game screen: SVG curve, rocket, player list, cash out button.
+            </div>
+          </div>
+          <Link
+            href="/sandbox/rocketman/demo"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              padding: '8px 18px',
+              background: '#4d9eff',
+              color: 'white',
+              borderRadius: 10,
+              fontSize: 13,
+              fontWeight: 700,
+              textDecoration: 'none',
+              whiteSpace: 'nowrap',
+              flexShrink: 0,
+            }}
+          >
+            🚀 Open demo
+          </Link>
         </div>
 
         {/* ── MATH SIMULATOR ─────────────────────────────────────────────────── */}
