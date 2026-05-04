@@ -125,6 +125,17 @@ const mockupCards: SandboxCardData[] = [
     sections: 1,
     href: '/sandbox/revenue-intelligence',
   },
+  {
+    id: 'rocketman',
+    tag: 'Game',
+    title: 'Rocketman',
+    description:
+      'A crash game with a space theme. Rocket flies higher — multiplier grows. Cash out before it explodes. Three modes: Orbit (×10), Moon (×50), Mars (×100). Built with provably fair RNG.',
+    status: 'Bildery',
+
+    sections: 1,
+    href: '/sandbox/rocketman',
+  },
 ]
 
 // ─── Sections helper ─────────────────────────────────────────────────────────
