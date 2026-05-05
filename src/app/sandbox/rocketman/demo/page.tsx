@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -12,22 +13,19 @@ import {
   TableRow,
 } from '@/components/ui/table'
 
-// ── Canvas geometry ────────────────────────────────────────────────────────────
+// ── Canvas constants ───────────────────────────────────────────────────────────
 
-const W = 720
-const H = 420
-const MAX_MULT = 10
-const DEMO_MULT = 4.20  // static snapshot — rocket mid-flight
+const W            = 720
+const H            = 420
+const MAX_MULT     = 10
+const LAUNCH_X     = 80
+const X_RANGE      = W - LAUNCH_X - 50
+const GROWTH_RATE  = Math.log(MAX_MULT) / 10_000   // ×10 in exactly 10 s
+const COUNTDOWN_S  = 5
+const CRASH_HOLD   = 1800                            // ms to show crash before countdown
 
-// Vertical launch with arc:
-//   Y = primary axis — multiplier maps to height (bottom=×1, top=×10)
-//   X = secondary axis — quadratic: nearly vertical at takeoff, arcs right at altitude
-const LAUNCH_X = 80
-const X_RANGE  = W - LAUNCH_X - 50  // 590px total horizontal sweep
+// ── Non-linear Y scale (fibonacci-style zones) ────────────────────────────────
 
-// Non-linear Y: zone heights shrink as multiplier grows (Fibonacci-style)
-// 20px top padding, then zones: ×1→×2=30% ×2→×4=25% ×4→×6=20% ×6→×8=15% ×8→×10=10%
-// All scaled to fit H-20px so ×10 lands ~20px from the top edge
 const Y_ZONES = [
   { m: 1,  t: 1.000 },
   { m: 2,  t: 0.714 },
@@ -44,43 +42,46 @@ function multToY(m: number): number {
       return (Y_ZONES[i].t + frac * (Y_ZONES[i + 1].t - Y_ZONES[i].t)) * H
     }
   }
-  return 0
-}
-function multToX(m: number) {
-  const p = (m - 1) / (MAX_MULT - 1)  // 0 → 1
-  return LAUNCH_X + p * p * X_RANGE    // quadratic easing: starts vertical, arcs right
+  return Y_ZONES[Y_ZONES.length - 1].t * H
 }
 
-const ROCKET_X = multToX(DEMO_MULT)
-const ROCKET_Y = multToY(DEMO_MULT)
+function multToX(m: number): number {
+  const p = (m - 1) / (MAX_MULT - 1)
+  return LAUNCH_X + p * p * X_RANGE
+}
 
-// Curve path (filled area below the arc)
-function buildPath() {
+function buildPath(mult: number): string {
+  if (mult <= 1.01) return `M ${LAUNCH_X} ${H}`
+  const rx = multToX(mult)
   const pts: string[] = [`M ${LAUNCH_X} ${H}`]
-  const steps = 120
-  for (let i = 0; i <= steps; i++) {
-    const m = 1 + ((DEMO_MULT - 1) / steps) * i
+  for (let i = 0; i <= 80; i++) {
+    const m = 1 + ((mult - 1) / 80) * i
     pts.push(`L ${multToX(m).toFixed(1)} ${multToY(m).toFixed(1)}`)
   }
-  pts.push(`L ${ROCKET_X.toFixed(1)} ${H} Z`)
+  pts.push(`L ${rx.toFixed(1)} ${H} Z`)
   return pts.join(' ')
 }
 
-// Curve stroke only (no fill)
-function buildStroke() {
+function buildStroke(mult: number): string {
+  if (mult <= 1.01) return `M ${LAUNCH_X} ${H}`
   const pts: string[] = []
-  const steps = 120
-  for (let i = 0; i <= steps; i++) {
-    const m = 1 + ((DEMO_MULT - 1) / steps) * i
-    const cmd = i === 0 ? 'M' : 'L'
-    pts.push(`${cmd} ${multToX(m).toFixed(1)} ${multToY(m).toFixed(1)}`)
+  for (let i = 0; i <= 80; i++) {
+    const m = 1 + ((mult - 1) / 80) * i
+    pts.push(`${i === 0 ? 'M' : 'L'} ${multToX(m).toFixed(1)} ${multToY(m).toFixed(1)}`)
   }
   return pts.join(' ')
 }
 
-const GRID_MULTS = [2, 4, 6, 8, 10]
+// ── RNG ───────────────────────────────────────────────────────────────────────
 
-// ── Mock stars ─────────────────────────────────────────────────────────────────
+function simulateCrash(): number {
+  if (Math.random() < 0.04) return 1.00
+  return Math.min(1 / (1 - Math.random()), MAX_MULT)
+}
+
+// ── Static data ───────────────────────────────────────────────────────────────
+
+const GRID_MULTS = [2, 4, 6, 8, 10]
 
 const STARS = [
   [60, 30], [140, 80], [220, 20], [310, 60], [400, 35], [490, 90],
@@ -92,24 +93,133 @@ const STARS = [
   [600, 340], [680, 380],
 ]
 
-// ── Mock players ───────────────────────────────────────────────────────────────
-
 const PLAYERS = [
-  { name: 'u***5', bet: 1.00, coeff: 1.63, win: 1.63,  done: true  },
-  { name: 'p***e', bet: 0.50, coeff: null,  win: null,  done: false },
-  { name: 'a***i', bet: 2.00, coeff: 2.10,  win: 4.20,  done: true  },
-  { name: 'm***o', bet: 1.00, coeff: null,  win: null,  done: false },
-  { name: 'g***7', bet: 0.50, coeff: 1.90,  win: 0.95,  done: true  },
-  { name: 's***5', bet: 1.50, coeff: null,  win: null,  done: false },
-  { name: 'r***k', bet: 0.10, coeff: 3.40,  win: 0.34,  done: true  },
-  { name: 'k***a', bet: 0.50, coeff: null,  win: null,  done: false },
+  { name: 'u***5', bet: 1.00, win: 1.63, done: true  },
+  { name: 'p***e', bet: 0.50, win: null, done: false },
+  { name: 'a***i', bet: 2.00, win: 4.20, done: true  },
+  { name: 'm***o', bet: 1.00, win: null, done: false },
+  { name: 'g***7', bet: 0.50, win: 0.95, done: true  },
+  { name: 's***5', bet: 1.50, win: null, done: false },
+  { name: 'r***k', bet: 0.10, win: 0.34, done: true  },
+  { name: 'k***a', bet: 0.50, win: null, done: false },
 ]
+
+// ── Types ─────────────────────────────────────────────────────────────────────
+
+type Phase = 'idle' | 'countdown' | 'flying' | 'cashed_out' | 'crashed'
+
+const BET = 1.00
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function RocketmanDemoPage() {
-  const curvePath  = buildPath()
-  const strokePath = buildStroke()
+  const [phase,      setPhase]      = useState<Phase>('idle')
+  const [mult,       setMult]       = useState(1.00)
+  const [countdown,  setCountdown]  = useState(COUNTDOWN_S)
+  const [cashedAt,   setCashedAt]   = useState<number | null>(null)
+
+  // Refs: mutable values read inside animation loops
+  const multRef  = useRef(1.00)
+  const phaseRef = useRef<Phase>('idle')
+
+  // All game-loop actions defined once in useEffect, exposed via this ref
+  const actions = useRef({ launch: () => {}, cashOut: () => {} })
+
+  useEffect(() => {
+    let rafId: number | null = null
+    let timerId: ReturnType<typeof setTimeout> | null = null
+
+    function cancel() {
+      if (rafId   !== null) { cancelAnimationFrame(rafId); rafId = null }
+      if (timerId !== null) { clearTimeout(timerId);       timerId = null }
+    }
+
+    function transition(p: Phase) {
+      phaseRef.current = p
+      setPhase(p)
+    }
+
+    // ── Flying ──────────────────────────────────────────────────────────────
+    function startFlying() {
+      cancel()
+      const crashAt = simulateCrash()
+      multRef.current = 1.00
+      setCashedAt(null)
+      setMult(1.00)
+      transition('flying')
+
+      let t0 = 0
+      function tick(now: number) {
+        if (t0 === 0) t0 = now
+        const m = Math.exp((now - t0) * GROWTH_RATE)
+        if (m >= crashAt) {
+          multRef.current = crashAt
+          setMult(crashAt)
+          transition('crashed')
+          timerId = setTimeout(startCountdown, CRASH_HOLD)
+          return
+        }
+        multRef.current = m
+        setMult(m)
+        rafId = requestAnimationFrame(tick)
+      }
+      rafId = requestAnimationFrame(tick)
+    }
+
+    // ── Countdown ───────────────────────────────────────────────────────────
+    function startCountdown() {
+      cancel()
+      setMult(1.00)
+      setCountdown(COUNTDOWN_S)
+      transition('countdown')
+
+      let t0 = 0
+      function tickCd(now: number) {
+        if (t0 === 0) t0 = now
+        const remaining = Math.max(0, COUNTDOWN_S - (now - t0) / 1000)
+        setCountdown(remaining)
+        if (remaining <= 0) { startFlying(); return }
+        rafId = requestAnimationFrame(tickCd)
+      }
+      rafId = requestAnimationFrame(tickCd)
+    }
+
+    // ── Cash out ────────────────────────────────────────────────────────────
+    function cashOut() {
+      if (phaseRef.current !== 'flying') return
+      cancel()
+      const m = multRef.current
+      setCashedAt(m)
+      setMult(m)
+      transition('cashed_out')
+      // Wait for "round to end", then kick off next countdown
+      timerId = setTimeout(startCountdown, 2000)
+    }
+
+    actions.current = { launch: startCountdown, cashOut }
+    return cancel
+  }, [])
+
+  // ── Derived display ────────────────────────────────────────────────────────
+
+  const dm         = Math.max(mult, 1.001)
+  const rocketX    = multToX(dm)
+  const rocketY    = multToY(dm)
+  const showCurve  = phase === 'flying' || phase === 'cashed_out' || phase === 'crashed'
+  const curvePath  = showCurve ? buildPath(dm)  : ''
+  const strokePath = showCurve ? buildStroke(dm) : ''
+
+  const isCrashed   = phase === 'crashed'
+  const isCashedOut = phase === 'cashed_out'
+  const isFlying    = phase === 'flying'
+  const isIdle      = phase === 'idle'
+  const isCountdown = phase === 'countdown'
+
+  const curveColor  = isCrashed ? '#ef4444' : isCashedOut ? '#22c55e' : '#4d9eff'
+  const multColor   = isCrashed ? '#ef4444' : isCashedOut ? 'var(--color-success)' : 'var(--color-foreground)'
+  const fillGrad    = isCrashed ? 'url(#gradCrash)' : isCashedOut ? 'url(#gradWin)' : 'url(#gradFly)'
+
+  const win = (BET * mult).toFixed(2)
 
   return (
     <div className="doc-page">
@@ -124,30 +234,31 @@ export default function RocketmanDemoPage() {
           <span className="doc-breadcrumb__current">Demo</span>
         </nav>
 
-        {/* Title row */}
+        {/* Title */}
         <div className="mb-6 flex items-center gap-3">
           <h1 className="text-2xl font-extrabold tracking-tight">
-            Rocketman — Visual prototype
+            Rocketman — Live demo
           </h1>
-          <Badge variant="outline" className="text-[0.65rem] font-semibold text-brand border-brand/30 bg-brand-bg">
-            🛸 Orbit · ×10 jackpot · Static mockup
+          <Badge
+            variant="outline"
+            className="border-brand/30 bg-brand-bg text-[0.65rem] font-semibold text-brand"
+          >
+            🛸 Orbit · ×10 jackpot
           </Badge>
         </div>
 
-        {/* ── Game panel ─────────────────────────────────────────────────────── */}
-        <div className="mb-6 flex overflow-hidden rounded-2xl border border-border bg-card">
+        {/* ── Game panel ──────────────────────────────────────────────────────── */}
+        <div className={`mb-6 flex overflow-hidden rounded-2xl border bg-card transition-colors duration-500 ${
+          isCrashed ? 'border-destructive/40' : 'border-border'
+        }`}>
 
           {/* Left — player list */}
           <div className="w-52 shrink-0 border-r border-border">
-
-            {/* Header */}
             <div className="border-b border-border px-3 py-2.5">
               <p className="text-[0.65rem] font-bold uppercase tracking-widest text-muted-foreground">
                 Total bets: {PLAYERS.length}
               </p>
             </div>
-
-            {/* Table */}
             <Table>
               <TableHeader>
                 <TableRow className="hover:bg-transparent">
@@ -178,28 +289,33 @@ export default function RocketmanDemoPage() {
             </Table>
           </div>
 
-          {/* Center — game canvas */}
+          {/* Right — canvas */}
           <div className="relative flex-1">
 
-            {/* Mode badge top-right */}
+            {/* Mode badge */}
             <div className="absolute right-3 top-3 z-10">
-              <Badge variant="secondary" className="text-[0.6rem] font-semibold uppercase tracking-wider text-muted-foreground">
+              <Badge
+                variant="secondary"
+                className="text-[0.6rem] font-semibold uppercase tracking-wider text-muted-foreground"
+              >
                 Orbit target ×10
               </Badge>
             </div>
 
-            <svg
-              viewBox={`0 0 ${W} ${H}`}
-              className="block w-full h-auto"
-              xmlns="http://www.w3.org/2000/svg"
-            >
+            <svg viewBox={`0 0 ${W} ${H}`} className="block h-auto w-full">
               <defs>
-                {/* Curve gradient fill */}
-                <linearGradient id="curveGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#4d9eff" stopOpacity="0.35" />
+                <linearGradient id="gradFly" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%"   stopColor="#4d9eff" stopOpacity="0.35" />
                   <stop offset="100%" stopColor="#4d9eff" stopOpacity="0.04" />
                 </linearGradient>
-                {/* Glow for rocket */}
+                <linearGradient id="gradCrash" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%"   stopColor="#ef4444" stopOpacity="0.35" />
+                  <stop offset="100%" stopColor="#ef4444" stopOpacity="0.04" />
+                </linearGradient>
+                <linearGradient id="gradWin" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%"   stopColor="#22c55e" stopOpacity="0.35" />
+                  <stop offset="100%" stopColor="#22c55e" stopOpacity="0.04" />
+                </linearGradient>
                 <filter id="glow">
                   <feGaussianBlur stdDeviation="3" result="blur" />
                   <feMerge>
@@ -212,7 +328,7 @@ export default function RocketmanDemoPage() {
               {/* Background */}
               <rect width={W} height={H} style={{ fill: 'var(--color-card)' }} />
 
-              {/* Stars — subtle in light mode, visible in dark */}
+              {/* Stars */}
               {STARS.map(([sx, sy], i) => (
                 <circle
                   key={i}
@@ -223,7 +339,7 @@ export default function RocketmanDemoPage() {
                 />
               ))}
 
-              {/* Grid lines + labels */}
+              {/* Grid */}
               {GRID_MULTS.map(m => {
                 const gy = multToY(m)
                 const isJackpot = m === MAX_MULT
@@ -249,89 +365,209 @@ export default function RocketmanDemoPage() {
                 )
               })}
 
-              {/* Curve fill */}
-              <path d={curvePath} fill="url(#curveGrad)" />
+              {/* Animated curve + rocket */}
+              {showCurve && (
+                <>
+                  <path d={curvePath} fill={fillGrad} />
+                  <path
+                    d={strokePath}
+                    fill="none"
+                    stroke={curveColor}
+                    strokeWidth={2.5}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    filter="url(#glow)"
+                  />
+                  <circle cx={rocketX} cy={rocketY} r={18} fill={curveColor} opacity={0.12} />
+                  <text
+                    x={rocketX} y={rocketY + 6}
+                    textAnchor="middle"
+                    fontSize={isCrashed ? 20 : 22}
+                    className="select-none"
+                  >
+                    {isCrashed ? '💥' : '🚀'}
+                  </text>
+                </>
+              )}
 
-              {/* Curve stroke */}
-              <path
-                d={strokePath}
-                fill="none"
-                stroke="#4d9eff"
-                strokeWidth={2.5}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                filter="url(#glow)"
-              />
+              {/* Multiplier */}
+              {(isFlying || isCrashed || isCashedOut) && (
+                <text
+                  x={W * 0.67} y={H * 0.42}
+                  textAnchor="middle"
+                  fontSize={72}
+                  fontWeight={800}
+                  style={{ fill: multColor }}
+                  opacity={0.92}
+                  fontFamily="system-ui, sans-serif"
+                  letterSpacing="-3"
+                >
+                  {mult.toFixed(2)}×
+                </text>
+              )}
 
-              {/* Rocket glow circle */}
-              <circle
-                cx={ROCKET_X} cy={ROCKET_Y}
-                r={18}
-                fill="#4d9eff"
-                opacity={0.12}
-              />
-
-              {/* Rocket emoji */}
-              <text
-                x={ROCKET_X}
-                y={ROCKET_Y + 6}
-                textAnchor="middle"
-                fontSize={22}
-                className="select-none"
-              >
-                🚀
-              </text>
-
-              {/* Multiplier display — upper-right open space */}
-              <text
-                x={W * 0.67} y={H * 0.42}
-                textAnchor="middle"
-                fontSize={72}
-                fontWeight={800}
-                style={{ fill: 'var(--color-foreground)' }}
-                opacity={0.92}
-                fontFamily="system-ui, sans-serif"
-                letterSpacing="-3"
-              >
-                {DEMO_MULT.toFixed(2)}×
-              </text>
-
+              {/* Countdown overlay */}
+              {isCountdown && (
+                <g>
+                  <text
+                    x={W / 2} y={H / 2 - 16}
+                    textAnchor="middle"
+                    fontSize={11}
+                    fontWeight={600}
+                    letterSpacing="0.1em"
+                    style={{ fill: 'var(--color-muted-foreground)' }}
+                    fontFamily="system-ui, sans-serif"
+                  >
+                    NEXT ROUND IN
+                  </text>
+                  <text
+                    x={W / 2} y={H / 2 + 52}
+                    textAnchor="middle"
+                    fontSize={80}
+                    fontWeight={800}
+                    style={{ fill: 'var(--color-foreground)' }}
+                    opacity={0.88}
+                    fontFamily="system-ui, sans-serif"
+                    letterSpacing="-4"
+                  >
+                    {countdown.toFixed(1)}
+                  </text>
+                </g>
+              )}
             </svg>
           </div>
         </div>
 
-        {/* ── Bottom controls ────────────────────────────────────────────────── */}
-        <div className="mb-10 flex items-center gap-4 rounded-2xl border border-border bg-card px-5 py-4">
+        {/* ── Bottom controls ──────────────────────────────────────────────────── */}
+        <div className={`mb-10 flex items-center gap-4 rounded-2xl border bg-card px-5 py-4 transition-colors duration-300 ${
+          isCrashed ? 'border-destructive/40' : 'border-border'
+        }`}>
 
-          {/* Bet info */}
-          <div className="flex-1">
-            <p className="mb-1 text-[0.65rem] font-semibold uppercase tracking-widest text-muted-foreground">
-              Your bet
-            </p>
-            <p className="text-2xl font-extrabold tracking-tight text-foreground">
-              $1.00
-            </p>
-          </div>
+          {/* IDLE */}
+          {isIdle && (
+            <>
+              <div className="flex-1">
+                <p className="mb-1 text-[0.65rem] font-semibold uppercase tracking-widest text-muted-foreground">
+                  Your bet
+                </p>
+                <p className="text-2xl font-extrabold tracking-tight text-foreground">
+                  ${BET.toFixed(2)}
+                </p>
+              </div>
+              <p className="flex-1 text-sm text-muted-foreground">
+                Cash out before the rocket crashes to win.
+              </p>
+              <Button
+                size="lg"
+                className="h-11 px-10 font-extrabold tracking-tight"
+                onClick={() => actions.current.launch()}
+              >
+                🚀 Launch
+              </Button>
+            </>
+          )}
 
-          {/* Current win */}
-          <div className="flex-1">
-            <p className="mb-1 text-[0.65rem] font-semibold uppercase tracking-widest text-muted-foreground">
-              Current win
-            </p>
-            <p className="text-2xl font-extrabold tracking-tight text-brand">
-              ${(1.00 * DEMO_MULT).toFixed(2)}
-            </p>
-          </div>
+          {/* COUNTDOWN */}
+          {isCountdown && (
+            <>
+              <div className="flex-1">
+                <p className="mb-1 text-[0.65rem] font-semibold uppercase tracking-widest text-muted-foreground">
+                  Your bet
+                </p>
+                <p className="text-2xl font-extrabold tracking-tight text-foreground">
+                  ${BET.toFixed(2)}
+                </p>
+              </div>
+              <div className="flex-1">
+                <p className="mb-1 text-[0.65rem] font-semibold uppercase tracking-widest text-muted-foreground">
+                  Starting in
+                </p>
+                <p className="text-2xl font-extrabold tracking-tight text-foreground">
+                  {countdown.toFixed(1)}s
+                </p>
+              </div>
+              <p className="text-sm text-muted-foreground">Placing bets…</p>
+            </>
+          )}
 
-          {/* Cash out button */}
-          <Button size="lg" className="h-11 px-8 text-sm font-extrabold tracking-tight">
-            Cash out ${(1.00 * DEMO_MULT).toFixed(2)}
-          </Button>
+          {/* FLYING */}
+          {isFlying && (
+            <>
+              <div className="flex-1">
+                <p className="mb-1 text-[0.65rem] font-semibold uppercase tracking-widest text-muted-foreground">
+                  Your bet
+                </p>
+                <p className="text-2xl font-extrabold tracking-tight text-foreground">
+                  ${BET.toFixed(2)}
+                </p>
+              </div>
+              <div className="flex-1">
+                <p className="mb-1 text-[0.65rem] font-semibold uppercase tracking-widest text-muted-foreground">
+                  Current win
+                </p>
+                <p className="text-2xl font-extrabold tracking-tight text-brand">
+                  ${win}
+                </p>
+              </div>
+              <Button
+                size="lg"
+                className="h-11 animate-pulse px-8 font-extrabold tracking-tight"
+                onClick={() => actions.current.cashOut()}
+              >
+                Cash out ${win}
+              </Button>
+            </>
+          )}
+
+          {/* CASHED OUT */}
+          {isCashedOut && (
+            <>
+              <div className="flex-1">
+                <p className="mb-1 text-[0.65rem] font-semibold uppercase tracking-widest text-muted-foreground">
+                  Cashed out at
+                </p>
+                <p className="text-2xl font-extrabold tracking-tight text-foreground">
+                  ×{cashedAt?.toFixed(2)}
+                </p>
+              </div>
+              <div className="flex-1">
+                <p className="mb-1 text-[0.65rem] font-semibold uppercase tracking-widest text-muted-foreground">
+                  You won
+                </p>
+                <p className="text-2xl font-extrabold tracking-tight text-success">
+                  +${(BET * (cashedAt ?? 1)).toFixed(2)}
+                </p>
+              </div>
+              <p className="text-sm text-muted-foreground">Waiting for next round…</p>
+            </>
+          )}
+
+          {/* CRASHED */}
+          {isCrashed && (
+            <>
+              <div className="flex-1">
+                <p className="mb-1 text-[0.65rem] font-semibold uppercase tracking-widest text-muted-foreground">
+                  Crashed at
+                </p>
+                <p className="text-2xl font-extrabold tracking-tight text-destructive">
+                  ×{mult.toFixed(2)}
+                </p>
+              </div>
+              <div className="flex-1">
+                <p className="mb-1 text-[0.65rem] font-semibold uppercase tracking-widest text-muted-foreground">
+                  You lost
+                </p>
+                <p className="text-2xl font-extrabold tracking-tight text-destructive">
+                  −${BET.toFixed(2)}
+                </p>
+              </div>
+              <p className="text-sm text-muted-foreground">New round starting…</p>
+            </>
+          )}
         </div>
 
-        {/* Note */}
         <div className="doc-footnote">
-          🚀 Static mockup — Iteration 2 · No animation yet · Real game loop coming in Iteration 3
+          🚀 Iteration 3 — Animated demo · Orbit mode · Virtual bet $1 · No backend yet
         </div>
 
       </div>

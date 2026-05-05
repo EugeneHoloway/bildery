@@ -188,13 +188,20 @@ const ROADMAP = [
   { id: 1, label: 'Iteration 0', desc: 'Project page live', status: 'done' },
   { id: 2, label: 'Iteration 1', desc: 'Math simulator — RNG, RTP, crash distribution', status: 'done' },
   { id: 3, label: 'Iteration 2', desc: 'Visual UI — static prototype, SVG curve, space theme', status: 'done' },
-  { id: 4, label: 'Iteration 3', desc: 'Animated demo — live multiplier, cash out button, sound', status: 'next' },
-  { id: 5, label: 'Iteration 4', desc: 'Single-player — Supabase, virtual balance', status: 'todo' },
+  { id: 4, label: 'Iteration 3', desc: 'Animated demo — live multiplier, cash out button, auto-restart', status: 'done' },
+  { id: 5, label: 'Iteration 4', desc: 'Single-player — Supabase, virtual balance', status: 'next' },
   { id: 6, label: 'Iteration 5', desc: 'Multiplayer prototype — Supabase Realtime', status: 'todo' },
   { id: 7, label: 'Iteration 6', desc: 'Developer handoff — production architecture', status: 'todo' },
 ]
 
 const CHANGELOG = [
+  {
+    date: '2026-05-04',
+    version: 'v0.5',
+    title: 'Animated game loop — Iteration 3',
+    notes:
+      'Full game animation at /sandbox/rocketman/demo. 5-phase state machine: idle → countdown (5 s RAF timer) → flying → cashed_out | crashed → countdown loop. Multiplier grows at e^(t × ln(10)/10000) — reaches ×10 in exactly 10 seconds. Crash RNG: 1/(1−u) capped at ×10, 4% instant-crash probability. RAF-based animation with stale-closure prevention via useRef. Visual phase feedback: blue curve (flying), green (cashed out), red (crashed). Rocket emoji → 💥 on crash. Bottom control bar adapts to each phase. Auto-restart: 1.8 s delay after crash, 2 s after cash out, then 5 s countdown.',
+  },
   {
     date: '2026-05-04',
     version: 'v0.4',
@@ -327,8 +334,8 @@ export default function RocketmanPage() {
           <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#ffb340', flexShrink: 0 }} />
           <span style={{ fontSize: 13, color: 'var(--color-muted-foreground)' }}>
             Status: <strong style={{ color: 'var(--color-foreground)' }}>In development</strong>
-            &nbsp;·&nbsp; Current: Iteration 2 done — visual prototype live
-            &nbsp;·&nbsp; Next: Iteration 3 — animation
+            &nbsp;·&nbsp; Current: Iteration 3 done — animated game loop live
+            &nbsp;·&nbsp; Next: Iteration 4 — single-player with Supabase
           </span>
         </div>
 
@@ -338,9 +345,9 @@ export default function RocketmanPage() {
           style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, padding: '14px 20px', marginBottom: 32, flexWrap: 'wrap' }}
         >
           <div>
-            <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 2 }}>Iteration 2 — Visual prototype</div>
+            <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 2 }}>Iteration 3 — Animated game loop</div>
             <div style={{ fontSize: 13, color: 'var(--color-muted-foreground)' }}>
-              Static mockup of the Orbit game screen: SVG curve, rocket, player list, cash out button.
+              Live multiplier, cash out button, 5-phase state machine, auto-restart with 5s countdown.
             </div>
           </div>
           <Link
