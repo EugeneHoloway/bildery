@@ -27,31 +27,80 @@ const COUNTDOWN_S = 5
 const RESULTS_MS  = 5000
 const CRASH_HOLD  = 1500
 
-// ── Smooth quadratic bezier arc ────────────────────────────────────────────────
-// Control points: P0 = (LAUNCH_X, H), P1 = (LAUNCH_X, TOP_Y), P2 = (END_X, TOP_Y)
-// x(t) = LAUNCH_X + t²·(END_X − LAUNCH_X)
-// y(t) = H − (H − TOP_Y)·(2t − t²)
+// ── Trajectory: quarter-ellipse, arc-length parameterized ────────────────────
+//
+// Shape: A=(LAUNCH_X, H) → B=(END_X, TOP_Y)
+//   x(φ) = LAUNCH_X + RX · (1 − cos φ)^X_POWER   — X_POWER > 1 = вертикальный старт
+//   y(φ) = H − RY · sin φ
+//   Tangent at φ=0: вертикаль; at φ=π/2: горизонталь
+//
+// X_POWER:  1.0 = чистый эллипс  |  2.0 = долгий вертикальный разгон  |  3.0 = ещё дольше
+// Constant visual speed via arc-length LUT + log(mult) mapping.
 
-function multToT(m: number): number {
-  return Math.min(Math.max((m - 1) / (MAX_MULT - 1), 0), 1)
+const ELLIPSE_RX = END_X - LAUNCH_X   // 590 px — горизонтальный размах
+const ELLIPSE_RY = H   - TOP_Y        // 400 px — вертикальный размах
+const X_POWER    = 1.6                 // ← крутить сюда: >1 = вертикальнее старт
+const ARC_N      = 500
+
+// Arc-length LUT с учётом X_POWER
+// dx/dφ = RX · X_POWER · (1−cos φ)^(X_POWER−1) · sin φ
+// dy/dφ = −RY · cos φ
+const arcLut: { phi: number; cumFrac: number }[] = (() => {
+  const dPhi = (Math.PI / 2) / ARC_N
+  const ds: number[] = Array.from({ length: ARC_N + 1 }, (_, i) => {
+    const phi = i * dPhi
+    const base = phi > 0 ? Math.pow(1 - Math.cos(phi), X_POWER - 1) : 0
+    const dxdphi = ELLIPSE_RX * X_POWER * base * Math.sin(phi)
+    const dydphi = ELLIPSE_RY * Math.cos(phi)
+    return Math.sqrt(dxdphi ** 2 + dydphi ** 2)
+  })
+  let total = 0
+  const cum: number[] = [0]
+  for (let i = 1; i <= ARC_N; i++) {
+    total += (ds[i] + ds[i - 1]) / 2 * dPhi
+    cum.push(total)
+  }
+  return cum.map((c, i) => ({ phi: i * dPhi, cumFrac: c / total }))
+})()
+
+// arc fraction [0,1] → φ (бинарный поиск)
+function arcFracToTheta(frac: number): number {
+  const f = Math.min(Math.max(frac, 0), 1)
+  let lo = 0, hi = ARC_N
+  while (hi - lo > 1) {
+    const mid = (lo + hi) >> 1
+    if (arcLut[mid].cumFrac <= f) lo = mid; else hi = mid
+  }
+  const a = arcLut[lo], b = arcLut[hi]
+  const interp = b.cumFrac > a.cumFrac ? (f - a.cumFrac) / (b.cumFrac - a.cumFrac) : 0
+  return a.phi + interp * (b.phi - a.phi)
+}
+
+// mult → φ: log-маппинг = равномерная скорость несмотря на экспоненциальный рост
+function multToPhi(m: number): number {
+  if (m <= 1) return 0
+  if (m >= MAX_MULT) return Math.PI / 2
+  return arcFracToTheta(Math.log(m) / Math.log(MAX_MULT))
 }
 
 function multToX(m: number): number {
-  const t = multToT(m)
-  return LAUNCH_X + t * t * (END_X - LAUNCH_X)
+  return LAUNCH_X + ELLIPSE_RX * Math.pow(1 - Math.cos(multToPhi(m)), X_POWER)
 }
 
-function multToY(m: number): number {
-  const t = multToT(m)
-  return H - (H - TOP_Y) * (2 * t - t * t)
+function multToVisualY(m: number): number {
+  return H - ELLIPSE_RY * Math.sin(multToPhi(m))
 }
 
-// Tangent angle from "up" (0,−1) clockwise → SVG rotation degrees
+// Tangent angle с учётом X_POWER:
+// dx/dφ = RX · X_POWER · (1−cos φ)^(X_POWER−1) · sin φ
+// dy/dφ = −RY · cos φ
+// atan2(dx, −dy) → 0° at A (вверх), 90° at B (вправо)
 function multToAngle(m: number): number {
-  const t = multToT(m)
-  const dx = 2 * t * (END_X - LAUNCH_X)
-  const dy = -2 * (H - TOP_Y) * (1 - t)   // negative = upward in SVG coords
-  return Math.atan2(dx, -dy) * 180 / Math.PI
+  const phi = multToPhi(m)
+  const base = phi > 0 ? Math.pow(1 - Math.cos(phi), X_POWER - 1) : 0
+  const dxdphi = ELLIPSE_RX * X_POWER * base * Math.sin(phi)
+  const dydphi = ELLIPSE_RY * Math.cos(phi)
+  return Math.atan2(dxdphi, dydphi) * 180 / Math.PI
 }
 
 function buildPath(mult: number): string {
@@ -59,7 +108,7 @@ function buildPath(mult: number): string {
   const pts = [`M ${LAUNCH_X} ${H}`]
   for (let i = 0; i <= 80; i++) {
     const m = 1 + ((mult - 1) / 80) * i
-    pts.push(`L ${multToX(m).toFixed(1)} ${multToY(m).toFixed(1)}`)
+    pts.push(`L ${multToX(m).toFixed(1)} ${multToVisualY(m).toFixed(1)}`)
   }
   pts.push(`L ${multToX(mult).toFixed(1)} ${H} Z`)
   return pts.join(' ')
@@ -70,7 +119,7 @@ function buildStroke(mult: number): string {
   const pts: string[] = []
   for (let i = 0; i <= 80; i++) {
     const m = 1 + ((mult - 1) / 80) * i
-    pts.push(`${i === 0 ? 'M' : 'L'} ${multToX(m).toFixed(1)} ${multToY(m).toFixed(1)}`)
+    pts.push(`${i === 0 ? 'M' : 'L'} ${multToX(m).toFixed(1)} ${multToVisualY(m).toFixed(1)}`)
   }
   return pts.join(' ')
 }
@@ -80,6 +129,14 @@ function buildStroke(mult: number): string {
 function simulateCrash(): number {
   if (Math.random() < 0.04) return 1.00
   return Math.min(1 / (1 - Math.random()), MAX_MULT)
+}
+
+// ── Grid lines — фиксированные позиции, не зависит от траектории ─────────────
+// ×2=36%, ×4=61%, ×6=79%, ×8=91%, ×10=100% (от верха экрана)
+const GRID_Y_PCT: Record<number, number> = { 2: 0.36, 4: 0.61, 6: 0.79, 8: 0.91, 10: 1.0 }
+function gridLineY(m: number): number {
+  const pct = GRID_Y_PCT[m] ?? (m / MAX_MULT)
+  return TOP_Y + (1 - pct) * (H - TOP_Y)
 }
 
 // ── Static data ───────────────────────────────────────────────────────────────
@@ -129,6 +186,7 @@ interface HistoryRow {
   bank: number
   paidToWinners: number   // gross return to all winners
   providerEarned: number  // bank − paidToWinners
+  myProfit: number        // user's net profit/loss this round
 }
 
 const SESSION_SIZE = 10
@@ -222,6 +280,7 @@ export default function RocketmanDemoPage() {
         bank: +totalBank.toFixed(2),
         paidToWinners: +totalPaid.toFixed(2),
         providerEarned: providerProfit,
+        myProfit,
       }
       const nextHistory = [...roundHistoryRef.current, row]
       roundHistoryRef.current = nextHistory
@@ -370,7 +429,7 @@ export default function RocketmanDemoPage() {
 
   const dm         = Math.max(mult, 1.001)
   const rocketX    = multToX(dm)
-  const rocketY    = multToY(dm)
+  const rocketY    = multToVisualY(dm)
   const rocketAng  = multToAngle(dm)
 
   const showCurve  = ['flying', 'cashed_out', 'crashed', 'results'].includes(phase)
@@ -548,10 +607,12 @@ export default function RocketmanDemoPage() {
                 />
               ))}
 
-              {/* Grid */}
+              {/* Grid — высотные метки */}
               {GRID_MULTS.map(m => {
-                const gy = multToY(m)
+                const gy = gridLineY(m)
                 const isJackpot = m === MAX_MULT
+                const altLabel: Record<number, string> = { 2: '36km', 4: '61km', 6: '79km', 8: '91km', 10: '100km' }
+                const label = altLabel[m] ?? `${m * 10}km`
                 return (
                   <g key={m}>
                     <line
@@ -563,13 +624,13 @@ export default function RocketmanDemoPage() {
                     />
                     <text
                       x={10}
-                      y={isJackpot ? gy + 13 : gy - 5}
+                      y={gy - 5}
                       fontSize={10}
                       style={{ fill: isJackpot ? '#4d9eff' : 'var(--color-foreground)' }}
                       fontWeight={isJackpot ? 700 : 500}
                       fontFamily="system-ui, sans-serif"
                     >
-                      ×{m}{isJackpot ? ' — Orbit is reached' : ''}
+                      {label}{isJackpot ? ' — Orbit is reached' : ''}
                     </text>
                   </g>
                 )
@@ -588,18 +649,55 @@ export default function RocketmanDemoPage() {
                     strokeLinejoin="round"
                     filter="url(#glow)"
                   />
-                  <circle cx={rocketX} cy={rocketY} r={18} fill={curveColor} opacity={0.12} />
-                  {/* Rocket rotated along trajectory tangent */}
-                  <g transform={`rotate(${isCrashed ? rocketAng : rocketAng}, ${rocketX}, ${rocketY})`}>
+                  <circle cx={rocketX} cy={rocketY} r={22} fill={curveColor} opacity={0.10} />
+                  {/* Rocket / crash / jackpot icon */}
+                  {(isCrashed || isResults) ? (
                     <text
-                      x={rocketX} y={rocketY + 7}
-                      textAnchor="middle"
-                      fontSize={isCrashed ? 20 : 22}
+                      x={isResults ? multToX(roundResult?.crashPoint ?? MAX_MULT) : rocketX}
+                      y={(isResults ? multToVisualY(roundResult?.crashPoint ?? MAX_MULT) : rocketY) + 8}
+                      textAnchor="middle" fontSize={26}
                       className="select-none"
-                    >
-                      {isCrashed ? '💥' : '🚀'}
-                    </text>
-                  </g>
+                    >{(roundResult?.crashPoint ?? mult) >= MAX_MULT ? '🏆' : '💥'}</text>
+                  ) : (
+                    <g transform={`translate(${rocketX}, ${rocketY}) rotate(${rocketAng}) translate(0, -32)`}>
+                      {/* ── Depo Rocketman — custom rocket silhouette ── */}
+                      {/* Nose cone */}
+                      <path d="M0,-52 C-2,-52 -10,-42 -10,-28 L10,-28 C10,-42 2,-52 0,-52 Z" fill="#4d9eff" />
+                      {/* Nose collar stripe */}
+                      <rect x="-10" y="-30" width="20" height="4" rx="1" fill="#4d9eff" />
+                      {/* Main body */}
+                      <rect x="-10" y="-26" width="20" height="36" rx="1.5" fill="#4d9eff" />
+                      {/* Panel right edge stripe */}
+                      <rect x="4" y="-24" width="4" height="28" rx="0.5" fill="#4d9eff" />
+                      {/* Left booster nose */}
+                      <path d="M-19,-20 C-21,-20 -24,-16 -24,-10 L-13,-10 C-13,-16 -17,-20 -19,-20 Z" fill="#4d9eff" />
+                      {/* Left booster body */}
+                      <rect x="-24" y="-10" width="11" height="24" rx="1" fill="#4d9eff" />
+                      {/* Left connector strut */}
+                      <rect x="-13" y="-6" width="3" height="14" fill="#4d9eff" />
+                      {/* Left booster diagonal stripe (decorative) */}
+                      <path d="M-24,4 L-20,4 L-24,10 Z" fill="#4d9eff" />
+                      {/* Right booster nose */}
+                      <path d="M19,-20 C21,-20 24,-16 24,-10 L13,-10 C13,-16 17,-20 19,-20 Z" fill="#4d9eff" />
+                      {/* Right booster body */}
+                      <rect x="13" y="-10" width="11" height="24" rx="1" fill="#4d9eff" />
+                      {/* Right connector strut */}
+                      <rect x="10" y="-6" width="3" height="14" fill="#4d9eff" />
+                      {/* Right booster diagonal stripe */}
+                      <path d="M24,4 L20,4 L24,10 Z" fill="#4d9eff" />
+                      {/* Central nozzle shroud */}
+                      <path d="M-10,10 L-13,24 L13,24 L10,10 Z" fill="#4d9eff" />
+                      {/* Left booster nozzle */}
+                      <path d="M-24,14 L-26,24 L-15,24 L-13,14 Z" fill="#4d9eff" />
+                      {/* Right booster nozzle */}
+                      <path d="M24,14 L26,24 L15,24 L13,14 Z" fill="#4d9eff" />
+                      {/* Legs */}
+                      <path d="M-13,24 L-17,32 L-7,32 L-10,24 Z" fill="#4d9eff" />
+                      <path d="M10,24 L14,32 L4,32 L7,24 Z" fill="#4d9eff" />
+                      <path d="M-26,24 L-29,32 L-21,32 L-24,24 Z" fill="#4d9eff" />
+                      <path d="M26,24 L29,32 L21,32 L24,24 Z" fill="#4d9eff" />
+                    </g>
+                  )}
                 </>
               )}
 
@@ -691,9 +789,8 @@ export default function RocketmanDemoPage() {
               {BET_OPTS.map(v => (
                 <button
                   key={v}
-                  disabled={isCountdown}
                   onClick={() => handleBetPreset(v)}
-                  className={`rounded-lg border px-3 py-1 text-xs font-bold transition-colors disabled:opacity-40 ${
+                  className={`rounded-lg border px-3 py-1 text-xs font-bold transition-colors ${
                     betAmount === v && customBet === ''
                       ? 'border-brand bg-brand-bg text-brand'
                       : 'border-border text-muted-foreground hover:border-brand/40 hover:text-foreground'
@@ -706,8 +803,7 @@ export default function RocketmanDemoPage() {
                 type="number" min="0.01" step="0.01" placeholder="Custom $"
                 value={customBet}
                 onChange={e => handleCustomBet(e.target.value)}
-                disabled={isCountdown}
-                className="h-7 w-28 text-xs disabled:opacity-40"
+                className="h-7 w-28 text-xs"
               />
             </div>
           )}
@@ -746,7 +842,7 @@ export default function RocketmanDemoPage() {
               <>
                 <div className="flex-1">
                   <p className="mb-1 text-[0.65rem] font-semibold uppercase tracking-widest text-muted-foreground">
-                    Bet locked
+                    Your bet
                   </p>
                   <p className="text-2xl font-extrabold tracking-tight text-foreground">
                     ${betAmount.toFixed(2)}
@@ -942,9 +1038,10 @@ export default function RocketmanDemoPage() {
 
         {/* ── Session history table ────────────────────────────────────────────── */}
         {roundHistory.length > 0 && (() => {
-          const gtBank    = roundHistory.reduce((s, r) => s + r.bank, 0)
-          const gtPaid    = roundHistory.reduce((s, r) => s + r.paidToWinners, 0)
-          const gtProvider = roundHistory.reduce((s, r) => s + r.providerEarned, 0)
+          const gtBank      = roundHistory.reduce((s, r) => s + r.bank, 0)
+          const gtPaid      = roundHistory.reduce((s, r) => s + r.paidToWinners, 0)
+          const gtProvider  = roundHistory.reduce((s, r) => s + r.providerEarned, 0)
+          const gtMyProfit  = +roundHistory.reduce((s, r) => s + r.myProfit, 0).toFixed(2)
           return (
             <div className="mb-10 overflow-hidden rounded-2xl border border-border bg-card">
               {/* Header */}
@@ -973,6 +1070,7 @@ export default function RocketmanDemoPage() {
                     <TableHead className="text-right text-[0.6rem]">Bank</TableHead>
                     <TableHead className="text-right text-[0.6rem]">Paid to winners</TableHead>
                     <TableHead className="text-right text-[0.6rem]">Provider</TableHead>
+                    <TableHead className="text-right text-[0.6rem]">You</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -991,6 +1089,9 @@ export default function RocketmanDemoPage() {
                       <TableCell className={`text-right text-xs font-bold ${r.providerEarned >= 0 ? 'text-success' : 'text-destructive'}`}>
                         {r.providerEarned >= 0 ? '+' : ''}${r.providerEarned.toFixed(2)}
                       </TableCell>
+                      <TableCell className={`text-right text-xs font-bold ${r.myProfit >= 0 ? 'text-success' : 'text-destructive'}`}>
+                        {r.myProfit >= 0 ? '+' : ''}${r.myProfit.toFixed(2)}
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -1008,6 +1109,9 @@ export default function RocketmanDemoPage() {
                       </td>
                       <td className={`px-3 py-3 text-right text-xs font-bold ${gtProvider >= 0 ? 'text-success' : 'text-destructive'}`}>
                         {gtProvider >= 0 ? '+' : ''}${gtProvider.toFixed(2)}
+                      </td>
+                      <td className={`px-3 py-3 text-right text-xs font-bold ${gtMyProfit >= 0 ? 'text-success' : 'text-destructive'}`}>
+                        {gtMyProfit >= 0 ? '+' : ''}${gtMyProfit.toFixed(2)}
                       </td>
                     </tr>
                   </tfoot>
