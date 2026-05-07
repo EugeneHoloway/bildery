@@ -91,19 +91,33 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <body>
 <div class="wrap">
   <div class="topbar">
-    <div><div class="page-title">Game providers</div><div class="page-url">betup.com/providers</div></div>
+    <div><div class="page-title">Pragmatica</div><div class="page-url">betup.com/pragmatica</div></div>
     <div class="topbar-right"><button class="btn">Content</button><button class="btn btn-primary">Save SEO</button></div>
   </div>
+  <div style="margin:14px 20px 0;padding:10px 12px;background:#eff6ff;border-radius:8px;font-size:12px;color:#1d4ed8">Custom page. Configure URL, visibility and content below, then publish to make it live.</div>
   <div class="tabs">
-    <div class="tab active" onclick="switchTab('basic',this)">Basic SEO</div>
+    <div class="tab active" onclick="switchTab('main',this)">Main</div>
+    <div class="tab" onclick="switchTab('basic',this)">Basic SEO</div>
     <div class="tab" onclick="switchTab('content',this)">Content</div>
     <div class="tab" onclick="switchTab('og',this)">Social / OG</div>
     <div class="tab" onclick="switchTab('advanced',this)">Advanced</div>
     <div class="tab" onclick="switchTab('audit',this)">SEO audit</div>
   </div>
 
+  <!-- MAIN -->
+  <div id="t-main" class="body">
+    <div class="row2">
+      <div class="field-group"><div class="field-label">Page title</div><input class="field-input" type="text" value="Game providers"></div>
+      <div class="field-group"><div class="field-label">URL slug</div><input class="field-input" type="text" value="providers"></div>
+    </div>
+    <div class="row2">
+      <div class="field-group"><div class="field-label">Show in navigation</div><select class="field-input"><option>Yes — main menu</option><option>Yes — footer only</option><option>No — hidden</option></select></div>
+      <div class="field-group"><div class="field-label">Access</div><select class="field-input"><option>Public</option><option>Logged in only</option><option>VIP only</option></select></div>
+    </div>
+  </div>
+
   <!-- BASIC SEO -->
-  <div id="t-basic" class="body">
+  <div id="t-basic" class="body hidden">
     <div class="lang-tabs">
       <button class="lang-tab active" onclick="setLang(this)">EN</button>
       <button class="lang-tab" onclick="setLang(this)">DE</button>
@@ -237,7 +251,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 </div>
 <script>
 function switchTab(id,el){
-  ['basic','og','advanced','audit','content'].forEach(t=>document.getElementById('t-'+t).classList.toggle('hidden',t!==id));
+  ['main','basic','og','advanced','audit','content'].forEach(t=>document.getElementById('t-'+t).classList.toggle('hidden',t!==id));
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   el.classList.add('active');
 }

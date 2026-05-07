@@ -71,17 +71,6 @@ const marketCards: SandboxCardData[] = [
 
 const mockupCards: SandboxCardData[] = [
   {
-    id: 'mockup-pages',
-    tag: 'iGaming Backoffice',
-    title: 'Page manager',
-    description:
-      'Create, hide and delete custom pages. Includes Game Providers page with logo grid, layout toggle and per-page settings.',
-    status: 'BetUp',
-
-    sections: 2,
-    href: '/sandbox/mockup-pages',
-  },
-  {
     id: 'mockup-homepage',
     tag: 'iGaming Backoffice',
     title: 'Homepage configurator',
@@ -91,6 +80,17 @@ const mockupCards: SandboxCardData[] = [
 
     sections: 3,
     href: '/sandbox/mockup-homepage',
+  },
+  {
+    id: 'mockup-pages',
+    tag: 'iGaming Backoffice',
+    title: 'Page manager',
+    description:
+      'Create, hide and delete custom pages. Includes Game Providers page with logo grid, layout toggle and per-page settings.',
+    status: 'BetUp',
+
+    sections: 2,
+    href: '/sandbox/mockup-pages',
   },
   {
     id: 'mockup-seo',
