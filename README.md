@@ -1,10 +1,10 @@
 # Bildery
 
-**A personal product lab.** Built to think out loud — tasks, prototypes, docs, and analytical work in one place. Nothing is final. Everything is in progress.
+**A personal product lab.** Built to think out loud: tasks, prototypes, docs, and analytical work in one place. Nothing is final. Everything is in progress.
 
 → [bildery.com](https://bildery.com)
 
----
+
 
 ## What is this?
 
@@ -18,7 +18,7 @@ I use it to:
 
 The codebase itself is also an experiment. It's where I learn and iterate on stack choices, design patterns, and component architecture in a real deployed context — not a toy project.
 
----
+
 
 ## What's inside
 
@@ -37,7 +37,7 @@ A few things currently living in `/sandbox`:
 - **enable3** — 3D / WebGL prototyping
 - **tips, stm, subsub, rocketman, liki24** — various side experiments
 
----
+
 
 ## Stack
 
@@ -58,7 +58,7 @@ A few things currently living in `/sandbox`:
 | Theming | next-themes (dark/light) |
 | Deployment | Vercel |
 
----
+
 
 ## About
 
@@ -68,6 +68,6 @@ Bildery is my corner of the web.
 
 [LinkedIn](https://www.linkedin.com/in/eugeneholoway) · [GitHub](https://github.com/EugeneHoloway) · [Instagram](https://www.instagram.com/eugeneholoway)
 
----
+
 
 *This is a personal project and a perpetual work in progress. Not meant to be production-grade — meant to be useful.*
