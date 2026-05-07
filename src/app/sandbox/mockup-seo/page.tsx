@@ -1,333 +1,545 @@
 'use client'
 
+import { useState } from 'react'
+import Link from 'next/link'
+import {
+  ChevronRight,
+  Globe,
+  Save,
+  FileText,
+  AlertCircle,
+  CheckCircle2,
+  AlertTriangle,
+  XCircle,
+} from 'lucide-react'
 
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { Label } from '@/components/ui/label'
+import { Separator } from '@/components/ui/separator'
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { cn } from '@/lib/utils'
 
-const html = `<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#fff;color:#111}
-.wrap{border:1px solid #e5e5e5;border-radius:12px;overflow:hidden;min-height:560px}
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid #e5e5e5}
-.page-title{font-size:15px;font-weight:500}
-.page-url{font-size:12px;color:#888;margin-top:1px}
-.topbar-right{display:flex;gap:8px;align-items:center}
-.btn{padding:6px 13px;font-size:12px;border:1px solid #e5e5e5;border-radius:8px;background:transparent;color:#111;cursor:pointer}
-.btn:hover{background:#f8f8f7}
-.btn-primary{background:#4F46E5;color:#fff;border-color:#4F46E5}
-.tabs{display:flex;border-bottom:1px solid #e5e5e5}
-.tab{padding:10px 18px;font-size:13px;cursor:pointer;color:#888;border-bottom:2px solid transparent;margin-bottom:-1px}
-.tab:hover{color:#111}
-.tab.active{color:#4F46E5;border-bottom-color:#4F46E5}
-.body{padding:20px;display:flex;flex-direction:column;gap:16px}
-.hidden{display:none}
-.field-group{display:flex;flex-direction:column;gap:5px}
-.field-label{font-size:12px;font-weight:500;color:#888;display:flex;justify-content:space-between}
-.field-hint{font-size:11px;color:#aaa;font-weight:400}
-.field-input{padding:8px 10px;border:1px solid #e5e5e5;border-radius:8px;font-size:13px;background:#f8f8f7;color:#111;width:100%}
-.field-input:focus{outline:none;border-color:#4F46E5}
-.textarea{width:100%;padding:8px 10px;border:1px solid #e5e5e5;border-radius:8px;font-size:13px;background:#f8f8f7;color:#111;resize:vertical;line-height:1.5}
-.textarea:focus{outline:none;border-color:#4F46E5}
-.char-bar-wrap{height:3px;border-radius:2px;background:#e5e5e5;margin-top:4px}
-.char-bar{height:3px;border-radius:2px;transition:width 0.2s,background 0.2s}
-.char-count{font-size:11px;color:#888;margin-top:3px}
-.serp-preview{border:1px solid #e5e5e5;border-radius:12px;padding:16px;background:#f8f8f7}
-.serp-label{font-size:11px;font-weight:500;color:#888;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.06em}
-.serp-url{font-size:12px;color:#1a7f4b;margin-bottom:2px}
-.serp-title{font-size:18px;color:#1558d6;font-weight:400;margin-bottom:3px;line-height:1.3}
-.serp-desc{font-size:13px;color:#555;line-height:1.5}
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.divider{height:1px;background:#e5e5e5}
-.lang-tabs{display:flex;gap:6px}
-.lang-tab{padding:4px 10px;font-size:11px;border:1px solid #e5e5e5;border-radius:6px;cursor:pointer;background:transparent;color:#888}
-.lang-tab.active{background:#4F46E5;color:#fff;border-color:#4F46E5}
-.og-preview{border:1px solid #e5e5e5;border-radius:8px;overflow:hidden}
-.og-img{width:100%;height:80px;background:#f1f1f1;display:flex;align-items:center;justify-content:center;font-size:12px;color:#888;cursor:pointer}
-.og-meta{padding:10px 12px;background:#f8f8f7}
-.og-domain{font-size:10px;color:#888;text-transform:uppercase}
-.og-title{font-size:13px;font-weight:500}
-.og-desc{font-size:12px;color:#888}
-.checklist{display:flex;flex-direction:column;gap:8px;padding:12px;background:#f8f8f7;border-radius:8px}
-.status-row{display:flex;align-items:center;gap:8px}
-.status-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-.dot-ok{background:#22c55e}
-.dot-warn{background:#f59e0b}
-.dot-err{background:#E24B4A}
-.status-text{font-size:12px;color:#555}
-/* WYSIWYG */
-.wysiwyg{border:1px solid #e5e5e5;border-radius:8px;overflow:hidden}
-.wysiwyg-toolbar{display:flex;gap:2px;padding:6px 8px;border-bottom:1px solid #e5e5e5;background:#f8f8f7;align-items:center;flex-wrap:wrap}
-.tb{min-width:26px;height:26px;border:none;background:transparent;border-radius:4px;cursor:pointer;font-size:12px;color:#555;display:inline-flex;align-items:center;justify-content:center;padding:0 6px;font-family:inherit}
-.tb:hover{background:#e5e5e5;color:#111}
-.tb.active{background:#e0e7ff;color:#4F46E5}
-.tb-b{font-weight:700}
-.tb-i{font-style:italic}
-.tb-sep{width:1px;height:18px;background:#e5e5e5;margin:0 4px;flex-shrink:0}
-.wysiwyg-body{padding:12px 14px;min-height:160px;font-size:13px;line-height:1.7;outline:none;color:#111}
-.wysiwyg-body:focus{outline:none}
-.wysiwyg-body h2{font-size:15px;font-weight:600;margin-bottom:4px;margin-top:2px}
-.wysiwyg-body p{margin-bottom:6px}
-.wysiwyg-body ul,.wysiwyg-body ol{padding-left:20px;margin-bottom:6px}
-.wysiwyg-body a{color:#4F46E5;text-decoration:underline}
-.word-count{font-size:11px;color:#aaa;margin-top:4px;text-align:right}
-/* Game selector */
-.games-top{display:flex;align-items:center;gap:8px;margin-bottom:10px}
-.games-search-input{flex:1;padding:7px 10px;border:1px solid #e5e5e5;border-radius:8px;font-size:12px;background:#f8f8f7;color:#111;outline:none}
-.games-search-input:focus{border-color:#4F46E5}
-.games-count{font-size:11px;color:#888;white-space:nowrap}
-.games-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-.game-card{border:1px solid #e5e5e5;border-radius:8px;padding:8px 6px;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;position:relative;background:#f8f8f7}
-.game-card.on{border-color:#4F46E5;background:#fff}
-.game-card:hover{border-color:#c7c5f4}
-.game-card.on:hover{border-color:#4F46E5}
-.game-thumb{width:100%;height:38px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:9px;color:rgba(255,255,255,0.85);font-weight:600;letter-spacing:0.03em}
-.game-name{font-size:10px;font-weight:500;text-align:center;line-height:1.3;color:#111}
-.game-prov{font-size:9px;color:#aaa;text-align:center}
-.game-check{position:absolute;top:4px;right:5px;font-size:10px;color:#4F46E5;font-weight:700}
-</style>
-</head>
-<body>
-<div class="wrap">
-  <div class="topbar">
-    <div><div class="page-title">Pragmatica</div><div class="page-url">betup.com/pragmatica</div></div>
-    <div class="topbar-right"><button class="btn">Content</button><button class="btn btn-primary">Save SEO</button></div>
-  </div>
-  <div style="margin:14px 20px 0;padding:10px 12px;background:#eff6ff;border-radius:8px;font-size:12px;color:#1d4ed8">Custom page. Configure URL, visibility and content below, then publish to make it live.</div>
-  <div class="tabs">
-    <div class="tab active" onclick="switchTab('main',this)">Main</div>
-    <div class="tab" onclick="switchTab('basic',this)">Basic SEO</div>
-    <div class="tab" onclick="switchTab('content',this)">Content</div>
-    <div class="tab" onclick="switchTab('og',this)">Social / OG</div>
-    <div class="tab" onclick="switchTab('advanced',this)">Advanced</div>
-    <div class="tab" onclick="switchTab('audit',this)">SEO audit</div>
-  </div>
+// ─── Types ────────────────────────────────────────────────────────────────────
 
-  <!-- MAIN -->
-  <div id="t-main" class="body">
-    <div class="row2">
-      <div class="field-group"><div class="field-label">Page title</div><input class="field-input" type="text" value="Game providers"></div>
-      <div class="field-group"><div class="field-label">URL slug</div><input class="field-input" type="text" value="/providers"></div>
-    </div>
-    <div class="row2">
-      <div class="field-group"><div class="field-label">Show in navigation</div><select class="field-input"><option>Yes — main menu</option><option>Yes — footer only</option><option>No — hidden</option></select></div>
-      <div class="field-group"><div class="field-label">Access</div><select class="field-input"><option>Public</option><option>Logged in only</option><option>VIP only</option></select></div>
-    </div>
-  </div>
+interface AuditItem {
+  status: 'ok' | 'warn' | 'error'
+  text: string
+}
 
-  <!-- BASIC SEO -->
-  <div id="t-basic" class="body hidden">
-    <div class="lang-tabs">
-      <button class="lang-tab active" onclick="setLang(this)">EN</button>
-      <button class="lang-tab" onclick="setLang(this)">DE</button>
-      <button class="lang-tab" onclick="setLang(this)">UA</button>
+interface GameCard {
+  id: string
+  name: string
+  provider: string
+  abbr: string
+  gradient: string
+  selected: boolean
+}
+
+// ─── Data ────────────────────────────────────────────────────────────────────
+
+const TITLE_MAX = 60
+const DESC_MAX = 160
+
+const INITIAL_TITLE = 'Game Providers — BetUp Casino | Slots & Live Games'
+const INITIAL_DESC =
+  'Explore 12 top game providers at BetUp Casino. Play 2000+ slots, live casino games and crash games from Pragmatic Play, Evolution, NetEnt and more.'
+const INITIAL_H1 = 'Game providers at BetUp Casino'
+
+const INITIAL_GAMES: GameCard[] = [
+  { id: 'sweet-bonanza', name: 'Sweet Bonanza', provider: 'Pragmatic Play', abbr: 'PP', gradient: 'from-pink-400 to-red-400', selected: true },
+  { id: 'gates-of-olympus', name: 'Gates of Olympus', provider: 'Pragmatic Play', abbr: 'PP', gradient: 'from-violet-700 to-indigo-500', selected: true },
+  { id: 'big-bass', name: 'Big Bass Bonanza', provider: 'Pragmatic Play', abbr: 'PP', gradient: 'from-sky-500 to-cyan-400', selected: false },
+  { id: 'wolf-gold', name: 'Wolf Gold', provider: 'Pragmatic Play', abbr: 'PP', gradient: 'from-blue-900 to-blue-600', selected: false },
+  { id: 'lightning-roulette', name: 'Lightning Roulette', provider: 'Evolution', abbr: 'EVO', gradient: 'from-amber-600 to-amber-400', selected: true },
+  { id: 'crazy-time', name: 'Crazy Time', provider: 'Evolution', abbr: 'EVO', gradient: 'from-red-600 to-orange-500', selected: true },
+  { id: 'monopoly-live', name: 'Monopoly Live', provider: 'Evolution', abbr: 'EVO', gradient: 'from-green-700 to-green-400', selected: false },
+  { id: 'starburst', name: 'Starburst', provider: 'NetEnt', abbr: 'NET', gradient: 'from-purple-700 to-fuchsia-600', selected: false },
+  { id: 'gonzos-quest', name: "Gonzo's Quest", provider: 'NetEnt', abbr: 'NET', gradient: 'from-yellow-800 to-yellow-400', selected: false },
+  { id: 'book-of-dead', name: 'Book of Dead', provider: "Play'n GO", abbr: 'PNG', gradient: 'from-amber-900 to-amber-500', selected: false },
+  { id: 'reactoonz', name: 'Reactoonz', provider: "Play'n GO", abbr: 'PNG', gradient: 'from-emerald-800 to-emerald-400', selected: false },
+  { id: 'jammin-jars', name: "Jammin' Jars", provider: "Play'n GO", abbr: 'PNG', gradient: 'from-rose-800 to-rose-400', selected: false },
+]
+
+const AUDIT_ITEMS: AuditItem[] = [
+  { status: 'ok', text: 'H1 present and unique' },
+  { status: 'ok', text: 'Title tag: 50 characters — good length' },
+  { status: 'ok', text: 'Meta description: 148 characters — good length' },
+  { status: 'warn', text: 'OG image not set — social shares will use fallback' },
+  { status: 'ok', text: 'Page is indexable (robots: index, follow)' },
+  { status: 'ok', text: 'Page included in sitemap' },
+  { status: 'warn', text: 'No structured data — consider adding JSON-LD' },
+  { status: 'ok', text: 'Canonical URL: self-referencing (correct)' },
+  { status: 'error', text: 'DE and UA translations missing' },
+]
+
+// ─── Small helpers ────────────────────────────────────────────────────────────
+
+function CharBar({ value, max }: { value: number; max: number }) {
+  const pct = Math.min((value / max) * 100, 100)
+  const color =
+    value > max
+      ? 'bg-destructive'
+      : value > max * 0.83
+      ? 'bg-success'
+      : 'bg-amber-400'
+  return (
+    <div className="mt-1.5 h-[3px] w-full rounded-full bg-border">
+      <div
+        className={cn('h-[3px] rounded-full transition-all duration-150', color)}
+        style={{ width: `${pct}%` }}
+      />
     </div>
-    <div class="field-group">
-      <div class="field-label">H1 — page heading <span class="field-hint">shown on the page, 1 per page</span></div>
-      <input id="h1" class="field-input" type="text" value="Game providers at BetUp Casino" oninput="updateSerp()">
-    </div>
-    <div class="field-group">
-      <div class="field-label">Title tag <span class="field-hint">shown in browser tab and Google</span></div>
-      <input id="meta-title" class="field-input" type="text" value="Game Providers — BetUp Casino | Slots & Live Games" oninput="updateBars();updateSerp()">
-      <div class="char-bar-wrap"><div id="bar-title" class="char-bar"></div></div>
-      <div id="cnt-title" class="char-count"></div>
-    </div>
-    <div class="field-group">
-      <div class="field-label">Meta description <span class="field-hint">shown under title in Google</span></div>
-      <textarea id="meta-desc" class="textarea" rows="3" oninput="updateBars();updateSerp()">Explore 12 top game providers at BetUp Casino. Play 2000+ slots, live casino games and crash games from Pragmatic Play, Evolution, NetEnt and more.</textarea>
-      <div class="char-bar-wrap"><div id="bar-desc" class="char-bar"></div></div>
-      <div id="cnt-desc" class="char-count"></div>
-    </div>
-    <div class="divider"></div>
-    <div class="field-group">
-      <div class="field-label">SERP preview</div>
-      <div class="serp-preview">
-        <div class="serp-label">Google search result</div>
-        <div class="serp-url">betup.com › providers</div>
-        <div id="serp-title" class="serp-title">Game Providers — BetUp Casino | Slots & Live Games</div>
-        <div id="serp-desc" class="serp-desc">Explore 12 top game providers at BetUp Casino. Play 2000+ slots, live casino games and crash games from Pragmatic Play, Evolution, NetEnt and more.</div>
+  )
+}
+
+function FieldRow({ children }: { children: React.ReactNode }) {
+  return <div className="grid grid-cols-1 gap-3 tablet:grid-cols-2">{children}</div>
+}
+
+function FieldGroup({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <div className="flex items-center justify-between">
+        <Label className="text-xs font-medium text-muted-foreground">{label}</Label>
+        {hint && <span className="text-xs text-muted-foreground">{hint}</span>}
       </div>
+      {children}
     </div>
-  </div>
-
-  <!-- OG -->
-  <div id="t-og" class="body hidden">
-    <div class="field-group"><div class="field-label">OG title <span class="field-hint">shown when sharing link on social</span></div><input class="field-input" type="text" value="Game Providers — BetUp Casino"></div>
-    <div class="field-group"><div class="field-label">OG description</div><textarea class="textarea" rows="2">Discover all game providers at BetUp. Slots, live casino and more from the world's top studios.</textarea></div>
-    <div class="field-group">
-      <div class="field-label">OG image <span class="field-hint">recommended 1200×630px</span></div>
-      <div class="og-preview">
-        <div class="og-img">Click to upload OG image (1200×630)</div>
-        <div class="og-meta"><div class="og-domain">BETUP.COM</div><div class="og-title">Game Providers — BetUp Casino</div><div class="og-desc">Discover all game providers at BetUp.</div></div>
-      </div>
-    </div>
-    <div class="row2">
-      <div class="field-group"><div class="field-label">Twitter card type</div><select class="field-input"><option>summary_large_image</option><option>summary</option></select></div>
-      <div class="field-group"><div class="field-label">Twitter site handle</div><input class="field-input" type="text" value="@betup"></div>
-    </div>
-  </div>
-
-  <!-- ADVANCED -->
-  <div id="t-advanced" class="body hidden">
-    <div class="row2">
-      <div class="field-group"><div class="field-label">Canonical URL <span class="field-hint">leave blank = self</span></div><input class="field-input" type="text" placeholder="https://betup.com/providers"></div>
-      <div class="field-group"><div class="field-label">Robots</div><select class="field-input"><option>index, follow</option><option>noindex, follow</option><option>noindex, nofollow</option></select></div>
-    </div>
-    <div class="row2">
-      <div class="field-group"><div class="field-label">Include in sitemap</div><select class="field-input"><option>Yes</option><option>No</option></select></div>
-      <div class="field-group"><div class="field-label">Sitemap priority</div><select class="field-input"><option>0.8 — high</option><option>0.5 — normal</option><option>0.3 — low</option></select></div>
-    </div>
-    <div class="divider"></div>
-    <div class="field-group"><div class="field-label">Structured data (JSON-LD)</div><textarea class="textarea" rows="5" style="font-family:monospace;font-size:12px">{\n  "@context": "https://schema.org",\n  "@type": "ItemList",\n  "name": "Game providers at BetUp Casino"\n}</textarea></div>
-    <div class="field-group"><div class="field-label">Hreflang</div><select class="field-input"><option>Auto — generate from active languages</option><option>Manual</option><option>Disabled</option></select></div>
-  </div>
-
-  <!-- CONTENT -->
-  <div id="t-content" class="body hidden">
-
-    <!-- WYSIWYG -->
-    <div class="field-group">
-      <div class="field-label">Page text <span class="field-hint">shown on the page below the provider grid</span></div>
-      <div class="wysiwyg">
-        <div class="wysiwyg-toolbar">
-          <button class="tb tb-b" title="Bold" onclick="fmt('bold')">B</button>
-          <button class="tb tb-i" title="Italic" onclick="fmt('italic')">I</button>
-          <button class="tb" title="Underline" onclick="fmt('underline')" style="text-decoration:underline">U</button>
-          <span class="tb-sep"></span>
-          <button class="tb" title="Heading 2" onclick="fmt('formatBlock','h2')" style="font-size:11px;font-weight:600">H2</button>
-          <button class="tb" title="Paragraph" onclick="fmt('formatBlock','p')" style="font-size:11px">¶</button>
-          <span class="tb-sep"></span>
-          <button class="tb" title="Bullet list" onclick="fmt('insertUnorderedList')">• list</button>
-          <button class="tb" title="Numbered list" onclick="fmt('insertOrderedList')">1. list</button>
-          <span class="tb-sep"></span>
-          <button class="tb" title="Insert link" onclick="insertLink()" style="color:#4F46E5">⌘ link</button>
-        </div>
-        <div id="wysiwyg-body" class="wysiwyg-body" contenteditable="true" oninput="updateWordCount()"><h2>Top Game Providers at BetUp Casino</h2><p>BetUp Casino partners with 12 of the world's leading game studios, delivering over 2,000 slots, live casino tables, and crash games. From <strong>Pragmatic Play's</strong> iconic Sweet Bonanza to <strong>Evolution's</strong> live Lightning Roulette — every title is hand-picked for quality.</p><p>All providers are licensed, regularly audited for fairness, and offer games optimised for desktop and mobile.</p></div>
-      </div>
-      <div id="word-count" class="word-count"></div>
-    </div>
-
-    <div class="divider"></div>
-
-    <!-- GAME SELECTOR -->
-    <div class="field-group">
-      <div class="field-label">Featured games <span class="field-hint" id="sel-count">4 selected</span></div>
-      <div class="games-top">
-        <input class="games-search-input" type="text" placeholder="Search games…" oninput="filterGames(this.value)">
-        <span class="games-count" id="games-visible-count">12 games</span>
-      </div>
-      <div class="games-grid" id="games-grid">
-        <div class="game-card on" onclick="toggleGame(this)" data-name="sweet bonanza"><div class="game-check">✓</div><div class="game-thumb" style="background:linear-gradient(135deg,#e879a0,#f87171)">PP</div><div class="game-name">Sweet Bonanza</div><div class="game-prov">Pragmatic Play</div></div>
-        <div class="game-card on" onclick="toggleGame(this)" data-name="gates of olympus"><div class="game-check">✓</div><div class="game-thumb" style="background:linear-gradient(135deg,#7c3aed,#6366f1)">PP</div><div class="game-name">Gates of Olympus</div><div class="game-prov">Pragmatic Play</div></div>
-        <div class="game-card" onclick="toggleGame(this)" data-name="big bass bonanza"><div class="game-thumb" style="background:linear-gradient(135deg,#0ea5e9,#22d3ee)">PP</div><div class="game-name">Big Bass Bonanza</div><div class="game-prov">Pragmatic Play</div></div>
-        <div class="game-card" onclick="toggleGame(this)" data-name="wolf gold"><div class="game-thumb" style="background:linear-gradient(135deg,#1e3a5f,#2563eb)">PP</div><div class="game-name">Wolf Gold</div><div class="game-prov">Pragmatic Play</div></div>
-        <div class="game-card on" onclick="toggleGame(this)" data-name="lightning roulette"><div class="game-check">✓</div><div class="game-thumb" style="background:linear-gradient(135deg,#d97706,#fbbf24)">EVO</div><div class="game-name">Lightning Roulette</div><div class="game-prov">Evolution</div></div>
-        <div class="game-card on" onclick="toggleGame(this)" data-name="crazy time"><div class="game-check">✓</div><div class="game-thumb" style="background:linear-gradient(135deg,#dc2626,#f97316)">EVO</div><div class="game-name">Crazy Time</div><div class="game-prov">Evolution</div></div>
-        <div class="game-card" onclick="toggleGame(this)" data-name="monopoly live"><div class="game-thumb" style="background:linear-gradient(135deg,#15803d,#4ade80)">EVO</div><div class="game-name">Monopoly Live</div><div class="game-prov">Evolution</div></div>
-        <div class="game-card" onclick="toggleGame(this)" data-name="starburst"><div class="game-thumb" style="background:linear-gradient(135deg,#7e22ce,#c026d3)">NET</div><div class="game-name">Starburst</div><div class="game-prov">NetEnt</div></div>
-        <div class="game-card" onclick="toggleGame(this)" data-name="gonzo's quest"><div class="game-thumb" style="background:linear-gradient(135deg,#854d0e,#eab308)">NET</div><div class="game-name">Gonzo's Quest</div><div class="game-prov">NetEnt</div></div>
-        <div class="game-card" onclick="toggleGame(this)" data-name="book of dead"><div class="game-thumb" style="background:linear-gradient(135deg,#78350f,#d97706)">PNG</div><div class="game-name">Book of Dead</div><div class="game-prov">Play'n GO</div></div>
-        <div class="game-card" onclick="toggleGame(this)" data-name="reactoonz"><div class="game-thumb" style="background:linear-gradient(135deg,#065f46,#10b981)">PNG</div><div class="game-name">Reactoonz</div><div class="game-prov">Play'n GO</div></div>
-        <div class="game-card" onclick="toggleGame(this)" data-name="jammin jars"><div class="game-thumb" style="background:linear-gradient(135deg,#9f1239,#fb7185)">PNG</div><div class="game-name">Jammin' Jars</div><div class="game-prov">Play'n GO</div></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- AUDIT -->
-  <div id="t-audit" class="body hidden">
-    <div class="checklist">
-      <div class="status-row"><span class="status-dot dot-ok"></span><span class="status-text">H1 present and unique</span></div>
-      <div class="status-row"><span class="status-dot dot-ok"></span><span class="status-text">Title tag: 50 characters — good length</span></div>
-      <div class="status-row"><span class="status-dot dot-ok"></span><span class="status-text">Meta description: 148 characters — good length</span></div>
-      <div class="status-row"><span class="status-dot dot-warn"></span><span class="status-text">OG image not set — social shares will use fallback</span></div>
-      <div class="status-row"><span class="status-dot dot-ok"></span><span class="status-text">Page is indexable (robots: index, follow)</span></div>
-      <div class="status-row"><span class="status-dot dot-ok"></span><span class="status-text">Page included in sitemap</span></div>
-      <div class="status-row"><span class="status-dot dot-warn"></span><span class="status-text">No structured data — consider adding JSON-LD</span></div>
-      <div class="status-row"><span class="status-dot dot-ok"></span><span class="status-text">Canonical URL: self-referencing (correct)</span></div>
-      <div class="status-row"><span class="status-dot dot-err"></span><span class="status-text">DE and UA translations missing</span></div>
-    </div>
-  </div>
-</div>
-<script>
-function switchTab(id,el){
-  ['main','basic','og','advanced','audit','content'].forEach(t=>document.getElementById('t-'+t).classList.toggle('hidden',t!==id));
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  el.classList.add('active');
+  )
 }
-function fmt(cmd,val){document.getElementById('wysiwyg-body').focus();document.execCommand(cmd,false,val||null);}
-function insertLink(){const url=prompt('URL:','https://');if(url)document.execCommand('createLink',false,url);}
-function updateWordCount(){
-  const text=document.getElementById('wysiwyg-body').innerText||'';
-  const words=text.trim().split(/\s+/).filter(Boolean).length;
-  document.getElementById('word-count').textContent=words+' words';
+
+function AuditDot({ status }: { status: AuditItem['status'] }) {
+  if (status === 'ok') return <CheckCircle2 className="size-4 shrink-0 text-success" />
+  if (status === 'warn') return <AlertTriangle className="size-4 shrink-0 text-amber-500" />
+  return <XCircle className="size-4 shrink-0 text-destructive" />
 }
-function toggleGame(el){
-  el.classList.toggle('on');
-  const chk=el.querySelector('.game-check');
-  if(el.classList.contains('on')){if(!chk){const c=document.createElement('div');c.className='game-check';c.textContent='✓';el.prepend(c);}else chk.style.display='';}
-  else{if(chk)chk.style.display='none';}
-  const total=document.querySelectorAll('.game-card.on').length;
-  document.getElementById('sel-count').textContent=total+' selected';
-}
-function filterGames(q){
-  const cards=document.querySelectorAll('#games-grid .game-card');
-  let visible=0;
-  cards.forEach(c=>{const match=c.dataset.name.includes(q.toLowerCase());c.style.display=match?'':'none';if(match)visible++;});
-  document.getElementById('games-visible-count').textContent=visible+' games';
-}
-updateWordCount();
-function setLang(el){document.querySelectorAll('.lang-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');}
-function updateBars(){
-  const title=document.getElementById('meta-title').value;
-  const desc=document.getElementById('meta-desc').value;
-  const tLen=title.length,dLen=desc.length;
-  const tMax=60,dMax=160;
-  const tPct=Math.min(tLen/tMax*100,100);
-  const dPct=Math.min(dLen/dMax*100,100);
-  const tColor=tLen>tMax?'#E24B4A':tLen>50?'#22c55e':'#f59e0b';
-  const dColor=dLen>dMax?'#E24B4A':dLen>120?'#22c55e':'#f59e0b';
-  const bt=document.getElementById('bar-title');const bd=document.getElementById('bar-desc');
-  bt.style.width=tPct+'%';bt.style.background=tColor;
-  bd.style.width=dPct+'%';bd.style.background=dColor;
-  document.getElementById('cnt-title').textContent=tLen+' / '+tMax+' characters';
-  document.getElementById('cnt-desc').textContent=dLen+' / '+dMax+' characters';
-}
-function updateSerp(){
-  const t=document.getElementById('meta-title').value;
-  const d=document.getElementById('meta-desc').value;
-  document.getElementById('serp-title').textContent=t.length>60?t.slice(0,57)+'…':t;
-  document.getElementById('serp-desc').textContent=d.length>160?d.slice(0,157)+'…':d;
-}
-updateBars();updateSerp();
-</script>
-</body>
-</html>`;
+
+// ─── Main page ────────────────────────────────────────────────────────────────
 
 export default function MockupSeoPage() {
+  // Basic SEO state
+  const [h1, setH1] = useState(INITIAL_H1)
+  const [metaTitle, setMetaTitle] = useState(INITIAL_TITLE)
+  const [metaDesc, setMetaDesc] = useState(INITIAL_DESC)
+  const [activeLang, setActiveLang] = useState<'EN' | 'DE' | 'UA'>('EN')
+
+  // Content tab state
+  const [games, setGames] = useState(INITIAL_GAMES)
+  const [gameSearch, setGameSearch] = useState('')
+
+  const filteredGames = gameSearch
+    ? games.filter((g) => g.name.toLowerCase().includes(gameSearch.toLowerCase()))
+    : games
+
+  const selectedCount = games.filter((g) => g.selected).length
+
+  function toggleGame(id: string) {
+    setGames((prev) => prev.map((g) => (g.id === id ? { ...g, selected: !g.selected } : g)))
+  }
+
+  // SERP preview values
+  const serpTitle = metaTitle.length > TITLE_MAX ? metaTitle.slice(0, 57) + '…' : metaTitle
+  const serpDesc = metaDesc.length > DESC_MAX ? metaDesc.slice(0, 157) + '…' : metaDesc
+
   return (
-    <div className="sandbox-page">
-      <div className="container">
-        <div className="sandbox-header">
-          <nav className="doc-breadcrumb" aria-label="Breadcrumb">
-            <a className="doc-breadcrumb__link" href="/sandbox">Sandbox</a>
-            <span className="doc-breadcrumb__sep">/</span>
-            <span className="doc-breadcrumb__current">SEO editor</span>
-          </nav>
-          <span className="sandbox-card__tag" style={{ display: 'inline-block', marginBottom: 8 }}>iGaming Backoffice (mockup)</span>
-          <h1 className="sandbox-header__title">SEO editor · BetUp</h1>
-          <p className="sandbox-header__description">
-            Per-page SEO panel with H1, title, meta description, live SERP preview, Open Graph, advanced settings and audit.
+    <div className="py-12 pb-20">
+      <div className="mx-auto max-w-[1240px] px-4">
+
+        {/* Breadcrumb */}
+        <nav className="mb-6 flex items-center gap-1 text-sm text-muted-foreground">
+          <Link href="/sandbox/mockup-pages" className="hover:text-foreground transition-colors">
+            Page manager
+          </Link>
+          <ChevronRight className="size-3.5" />
+          <span className="text-foreground">Pragmatica</span>
+        </nav>
+
+        {/* Page header */}
+        <div className="mb-8 flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <h1 className="mb-2 text-[2rem] font-bold tracking-[-0.03em]">
+              Pragmatica
+            </h1>
+            <p className="flex items-center gap-1.5 text-base leading-relaxed text-muted-foreground">
+              <Globe className="size-4" />
+              betup.com/pragmatica
+            </p>
+          </div>
+          <div className="flex items-center gap-2 pt-1">
+            <Button variant="outline" size="sm">
+              <FileText className="size-3.5" />
+              Content
+            </Button>
+            <Button size="sm">
+              <Save className="size-3.5" />
+              Save SEO
+            </Button>
+          </div>
+        </div>
+
+        {/* Info box */}
+        <div className="mb-6 flex items-start gap-2 rounded-lg bg-brand-bg px-3 py-2.5">
+          <AlertCircle className="mt-0.5 size-3.5 shrink-0 text-brand" />
+          <p className="text-xs text-brand leading-relaxed">
+            Custom page. Configure URL, visibility and content below, then publish to make it live.
           </p>
         </div>
-        <div className="sandbox-section">
-          <iframe
-            srcDoc={html}
-            style={{ width: '100%', height: 720, border: 'none', borderRadius: 12 }}
-            title="SEO editor mockup"
-          />
-        </div>
+
+        {/* Tabs */}
+        <Tabs defaultValue="main">
+          <div className="overflow-x-auto border-b">
+            <TabsList className="h-auto w-max gap-0 rounded-none bg-transparent p-0">
+                {(['main', 'basic', 'content', 'og', 'advanced', 'audit'] as const).map((tab) => {
+                  const labels: Record<string, string> = {
+                    main: 'Main',
+                    basic: 'Basic SEO',
+                    content: 'Content',
+                    og: 'Social / OG',
+                    advanced: 'Advanced',
+                    audit: 'SEO audit',
+                  }
+                  return (
+                    <TabsTrigger
+                      key={tab}
+                      value={tab}
+                      className="mb-[-1px] rounded-none border-b-2 border-transparent px-4 py-2.5 text-sm data-[state=active]:border-brand data-[state=active]:text-brand data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+                    >
+                      {labels[tab]}
+                    </TabsTrigger>
+                  )
+                })}
+              </TabsList>
+            </div>
+
+            {/* ── MAIN ───────────────────────────────────────────────────────── */}
+            <TabsContent value="main" className="flex flex-col gap-4 pt-6 max-w-[720px]">
+              <FieldRow>
+                <FieldGroup label="Page title">
+                  <Input defaultValue="Game providers" />
+                </FieldGroup>
+                <FieldGroup label="URL slug">
+                  <Input defaultValue="/providers" />
+                </FieldGroup>
+              </FieldRow>
+              <FieldRow>
+                <FieldGroup label="Show in navigation">
+                  <Select defaultValue="main">
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="main">Yes — main menu</SelectItem>
+                      <SelectItem value="footer">Yes — footer only</SelectItem>
+                      <SelectItem value="hidden">No — hidden</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </FieldGroup>
+                <FieldGroup label="Access">
+                  <Select defaultValue="public">
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="public">Public</SelectItem>
+                      <SelectItem value="loggedin">Logged in only</SelectItem>
+                      <SelectItem value="vip">VIP only</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </FieldGroup>
+              </FieldRow>
+            </TabsContent>
+
+            {/* ── BASIC SEO ──────────────────────────────────────────────────── */}
+            <TabsContent value="basic" className="flex flex-col gap-4 pt-6 max-w-[720px]">
+
+              {/* Language selector */}
+              <div className="flex gap-1.5">
+                {(['EN', 'DE', 'UA'] as const).map((lang) => (
+                  <button
+                    key={lang}
+                    onClick={() => setActiveLang(lang)}
+                    className={cn(
+                      'rounded-md border px-3 py-1 text-xs font-medium transition-colors',
+                      activeLang === lang
+                        ? 'border-brand bg-brand text-white'
+                        : 'border-border bg-background text-muted-foreground hover:text-foreground'
+                    )}
+                  >
+                    {lang}
+                  </button>
+                ))}
+              </div>
+
+              <FieldGroup label="H1 — page heading" hint="shown on the page, 1 per page">
+                <Input
+                  value={h1}
+                  onChange={(e) => setH1(e.target.value)}
+                />
+              </FieldGroup>
+
+              <FieldGroup label="Title tag" hint="shown in browser tab and Google">
+                <Input
+                  value={metaTitle}
+                  onChange={(e) => setMetaTitle(e.target.value)}
+                />
+                <CharBar value={metaTitle.length} max={TITLE_MAX} />
+                <p className="text-xs text-muted-foreground">
+                  {metaTitle.length} / {TITLE_MAX} characters
+                </p>
+              </FieldGroup>
+
+              <FieldGroup label="Meta description" hint="shown under title in Google">
+                <Textarea
+                  rows={3}
+                  value={metaDesc}
+                  onChange={(e) => setMetaDesc(e.target.value)}
+                />
+                <CharBar value={metaDesc.length} max={DESC_MAX} />
+                <p className="text-xs text-muted-foreground">
+                  {metaDesc.length} / {DESC_MAX} characters
+                </p>
+              </FieldGroup>
+
+              <Separator />
+
+              {/* SERP preview */}
+              <FieldGroup label="SERP preview">
+                <div className="rounded-xl border bg-muted/40 p-4">
+                  <p className="mb-2.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                    Google search result
+                  </p>
+                  <p className="text-xs text-[#1a7f4b] dark:text-green-400">betup.com › providers</p>
+                  <p className="mt-0.5 text-[18px] font-normal leading-snug text-[#1558d6] dark:text-blue-400">
+                    {serpTitle}
+                  </p>
+                  <p className="mt-1 text-sm leading-relaxed text-[#555] dark:text-muted-foreground">
+                    {serpDesc}
+                  </p>
+                </div>
+              </FieldGroup>
+            </TabsContent>
+
+            {/* ── CONTENT ────────────────────────────────────────────────────── */}
+            <TabsContent value="content" className="flex flex-col gap-5 pt-6">
+
+              {/* WYSIWYG placeholder — TipTap in Iteration 3 */}
+              <div className="max-w-[720px]">
+              <FieldGroup label="Page text" hint="shown on page below the provider grid">
+                <div className="overflow-hidden rounded-lg border">
+                  {/* Toolbar */}
+                  <div className="flex flex-wrap items-center gap-0.5 border-b bg-muted/50 px-2 py-1.5">
+                    {['B', 'I', 'U', '|', 'H2', '¶', '|', '• list', '1. list', '|', '⌘ link'].map((t, i) =>
+                      t === '|' ? (
+                        <span key={i} className="mx-1 h-4 w-px bg-border" />
+                      ) : (
+                        <button
+                          key={i}
+                          className="inline-flex h-6 min-w-[26px] items-center justify-center rounded px-1.5 text-xs text-muted-foreground hover:bg-muted hover:text-foreground"
+                        >
+                          {t}
+                        </button>
+                      )
+                    )}
+                  </div>
+                  <div
+                    className="min-h-[160px] p-3 text-sm leading-relaxed outline-none"
+                    contentEditable
+                    suppressContentEditableWarning
+                  >
+                    <h2 className="mb-1 mt-0.5 text-[15px] font-semibold">
+                      Top Game Providers at BetUp Casino
+                    </h2>
+                    <p className="mb-1.5">
+                      BetUp Casino partners with 12 of the world's leading game studios, delivering over 2,000 slots, live casino tables, and crash games. From <strong>Pragmatic Play's</strong> iconic Sweet Bonanza to <strong>Evolution's</strong> live Lightning Roulette — every title is hand-picked for quality.
+                    </p>
+                    <p>
+                      All providers are licensed, regularly audited for fairness, and offer games optimised for desktop and mobile.
+                    </p>
+                  </div>
+                </div>
+              </FieldGroup>
+              </div>
+
+              <Separator className="max-w-[720px]" />
+
+              {/* Game selector */}
+              <FieldGroup
+                label="Featured games"
+                hint={`${selectedCount} selected`}
+              >
+                <div className="mb-2 flex items-center gap-2">
+                  <Input
+                    placeholder="Search games…"
+                    value={gameSearch}
+                    onChange={(e) => setGameSearch(e.target.value)}
+                    className="text-xs"
+                  />
+                  <span className="shrink-0 text-[11px] text-muted-foreground">
+                    {filteredGames.length} games
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 gap-2 tablet:grid-cols-4">
+                  {filteredGames.map((game) => (
+                    <button
+                      key={game.id}
+                      onClick={() => toggleGame(game.id)}
+                      className={cn(
+                        'relative flex flex-col items-center gap-1 rounded-lg border p-2 text-center transition-colors',
+                        game.selected
+                          ? 'border-brand bg-background'
+                          : 'border-border bg-muted/40 hover:border-subtle-border'
+                      )}
+                    >
+                      {game.selected && (
+                        <span className="absolute right-1.5 top-1 text-[10px] font-bold text-brand">✓</span>
+                      )}
+                      <div
+                        className={cn(
+                          'flex h-9 w-full items-center justify-center rounded-md bg-gradient-to-br text-[9px] font-semibold text-white/90 tracking-wide',
+                          game.gradient
+                        )}
+                      >
+                        {game.abbr}
+                      </div>
+                      <span className="text-[10px] font-medium leading-tight">{game.name}</span>
+                      <span className="text-[9px] text-muted-foreground">{game.provider}</span>
+                    </button>
+                  ))}
+                </div>
+              </FieldGroup>
+            </TabsContent>
+
+            {/* ── SOCIAL / OG ────────────────────────────────────────────────── */}
+            <TabsContent value="og" className="flex flex-col gap-4 pt-6 max-w-[720px]">
+              <FieldGroup label="OG title" hint="shown when sharing link on social">
+                <Input defaultValue="Game Providers — BetUp Casino" />
+              </FieldGroup>
+              <FieldGroup label="OG description">
+                <Textarea
+                  rows={2}
+                  defaultValue="Discover all game providers at BetUp. Slots, live casino and more from the world's top studios."
+                />
+              </FieldGroup>
+              <FieldGroup label="OG image" hint="recommended 1200×630px">
+                <div className="overflow-hidden rounded-lg border">
+                  <div className="flex h-20 cursor-pointer items-center justify-center bg-muted/50 text-xs text-muted-foreground hover:bg-muted transition-colors">
+                    Click to upload OG image (1200×630)
+                  </div>
+                  <div className="border-t bg-muted/50 px-3 py-2.5">
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground">BETUP.COM</p>
+                    <p className="mt-0.5 text-[13px] font-medium">Game Providers — BetUp Casino</p>
+                    <p className="text-xs text-muted-foreground">Discover all game providers at BetUp.</p>
+                  </div>
+                </div>
+              </FieldGroup>
+              <FieldRow>
+                <FieldGroup label="Twitter card type">
+                  <Select defaultValue="large">
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="large">summary_large_image</SelectItem>
+                      <SelectItem value="summary">summary</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </FieldGroup>
+                <FieldGroup label="Twitter site handle">
+                  <Input defaultValue="@betup" />
+                </FieldGroup>
+              </FieldRow>
+            </TabsContent>
+
+            {/* ── ADVANCED ───────────────────────────────────────────────────── */}
+            <TabsContent value="advanced" className="flex flex-col gap-4 pt-6 max-w-[720px]">
+              <FieldRow>
+                <FieldGroup label="Canonical URL" hint="leave blank = self">
+                  <Input placeholder="https://betup.com/providers" />
+                </FieldGroup>
+                <FieldGroup label="Robots">
+                  <Select defaultValue="index">
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="index">index, follow</SelectItem>
+                      <SelectItem value="noindex-follow">noindex, follow</SelectItem>
+                      <SelectItem value="noindex">noindex, nofollow</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </FieldGroup>
+              </FieldRow>
+              <FieldRow>
+                <FieldGroup label="Include in sitemap">
+                  <Select defaultValue="yes">
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="yes">Yes</SelectItem>
+                      <SelectItem value="no">No</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </FieldGroup>
+                <FieldGroup label="Sitemap priority">
+                  <Select defaultValue="high">
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="high">0.8 — high</SelectItem>
+                      <SelectItem value="normal">0.5 — normal</SelectItem>
+                      <SelectItem value="low">0.3 — low</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </FieldGroup>
+              </FieldRow>
+              <Separator />
+              <FieldGroup label="Structured data (JSON-LD)">
+                <Textarea
+                  rows={5}
+                  className="font-mono text-[12px]"
+                  defaultValue={`{\n  "@context": "https://schema.org",\n  "@type": "ItemList",\n  "name": "Game providers at BetUp Casino"\n}`}
+                />
+              </FieldGroup>
+              <FieldGroup label="Hreflang">
+                <Select defaultValue="auto">
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="auto">Auto — generate from active languages</SelectItem>
+                    <SelectItem value="manual">Manual</SelectItem>
+                    <SelectItem value="disabled">Disabled</SelectItem>
+                  </SelectContent>
+                </Select>
+              </FieldGroup>
+            </TabsContent>
+
+            {/* ── SEO AUDIT ──────────────────────────────────────────────────── */}
+            <TabsContent value="audit" className="pt-6 max-w-[480px]">
+              <div className="flex flex-col gap-2 rounded-xl bg-muted/50 p-4">
+                {AUDIT_ITEMS.map((item, i) => (
+                  <div key={i} className="flex items-center gap-2.5">
+                    <AuditDot status={item.status} />
+                    <span className="text-[13px] text-foreground">{item.text}</span>
+                  </div>
+                ))}
+              </div>
+            </TabsContent>
+
+        </Tabs>
+
       </div>
     </div>
-  );
+  )
 }
