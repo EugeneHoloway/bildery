@@ -190,7 +190,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           <div id="s-main" class="seo-panel">
             <div class="row2">
               <div class="field-group"><div class="field-label">Page title</div><input class="field-input" type="text" value="Game providers"></div>
-              <div class="field-group"><div class="field-label">URL slug</div><input class="field-input" type="text" value="providers"></div>
+              <div class="field-group"><div class="field-label">URL slug</div><input class="field-input" type="text" value="/providers"></div>
             </div>
             <div class="row2">
               <div class="field-group"><div class="field-label">Show in navigation</div><select class="field-input"><option>Yes — main menu</option><option>Yes — footer only</option><option>No — hidden</option></select></div>
