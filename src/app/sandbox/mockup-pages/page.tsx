@@ -55,6 +55,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .prov-name{font-size:11px;text-align:center}
 .prov-games{font-size:10px;color:#888}
 .prov-check{position:absolute;top:5px;right:6px;font-size:11px;color:#4F46E5;font-weight:700}
+.prov-seo{display:none;position:absolute;bottom:5px;right:5px;padding:2px 6px;font-size:9px;font-weight:600;color:#4F46E5;background:#eef2ff;border-radius:4px;cursor:pointer;letter-spacing:0.02em;z-index:5;white-space:nowrap}
+.prov-card:hover{border-color:#c7c5f4;background:#fafafe}
+.prov-card.on:hover{border-color:#4F46E5;background:#fff}
+.prov-card:hover .prov-seo{display:block}
 .layout-opts{display:flex;gap:8px}
 .layout-opt{border:1px solid #e5e5e5;border-radius:8px;padding:8px 12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;background:#f8f8f7}
 .layout-opt.active{border-color:#4F46E5;background:#fff}
@@ -63,6 +67,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .layout-opt.active .lp-bar{background:#4F46E5}
 .layout-lbl{font-size:10px;color:#888}
 .layout-opt.active .layout-lbl{color:#4F46E5}
+.wysiwyg{border:1px solid #e5e5e5;border-radius:8px;overflow:hidden}
+.wysiwyg-toolbar{display:flex;gap:2px;padding:6px 8px;border-bottom:1px solid #e5e5e5;background:#f8f8f7;align-items:center;flex-wrap:wrap}
+.tb{min-width:26px;height:26px;border:none;background:transparent;border-radius:4px;cursor:pointer;font-size:12px;color:#555;display:inline-flex;align-items:center;justify-content:center;padding:0 6px;font-family:inherit}
+.tb:hover{background:#e5e5e5;color:#111}
+.tb-b{font-weight:700}
+.tb-i{font-style:italic}
+.tb-sep{width:1px;height:18px;background:#e5e5e5;margin:0 4px;flex-shrink:0}
+.wysiwyg-body{padding:12px 14px;min-height:120px;font-size:13px;line-height:1.7;outline:none;color:#111}
+.wysiwyg-body h2{font-size:15px;font-weight:600;margin-bottom:4px;margin-top:2px}
+.wysiwyg-body p{margin-bottom:6px}
+.wysiwyg-body ul,.wysiwyg-body ol{padding-left:20px;margin-bottom:6px}
+.wysiwyg-body a{color:#4F46E5;text-decoration:underline}
+.word-count{font-size:11px;color:#aaa;margin-top:4px;text-align:right}
 .modal-bg{background:rgba(0,0,0,0.35);border-radius:12px;display:flex;align-items:center;justify-content:center;padding:40px 20px;min-height:400px}
 .modal{background:#fff;border-radius:12px;border:1px solid #e5e5e5;padding:24px;width:100%;max-width:440px}
 .modal-title{font-size:15px;font-weight:500;margin-bottom:16px}
@@ -137,19 +154,37 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <div>
           <div style="font-size:13px;font-weight:500;margin-bottom:12px">Providers to display — click to toggle</div>
           <div class="providers-grid">
-            <div class="prov-card on" onclick="toggleProv(this)"><div class="prov-check">✓</div><div class="prov-logo">EZG</div><div class="prov-name">Ezugi</div><div class="prov-games">84 games</div></div>
-            <div class="prov-card on" onclick="toggleProv(this)"><div class="prov-check">✓</div><div class="prov-logo">PP</div><div class="prov-name">Pragmatic Play</div><div class="prov-games">312 games</div></div>
-            <div class="prov-card on" onclick="toggleProv(this)"><div class="prov-check">✓</div><div class="prov-logo">EVO</div><div class="prov-name">Evolution</div><div class="prov-games">127 games</div></div>
-            <div class="prov-card on" onclick="toggleProv(this)"><div class="prov-check">✓</div><div class="prov-logo">PNG</div><div class="prov-name">Play'n GO</div><div class="prov-games">256 games</div></div>
-            <div class="prov-card on" onclick="toggleProv(this)"><div class="prov-check">✓</div><div class="prov-logo">NET</div><div class="prov-name">NetEnt</div><div class="prov-games">203 games</div></div>
-            <div class="prov-card" onclick="toggleProv(this)"><div class="prov-logo">YGG</div><div class="prov-name">Yggdrasil</div><div class="prov-games">91 games</div></div>
-            <div class="prov-card" onclick="toggleProv(this)"><div class="prov-logo">HCK</div><div class="prov-name">Hacksaw</div><div class="prov-games">54 games</div></div>
-            <div class="prov-card" onclick="toggleProv(this)"><div class="prov-logo">RLX</div><div class="prov-name">Relax Gaming</div><div class="prov-games">68 games</div></div>
+            <div class="prov-card on" onclick="toggleProv(this)"><div class="prov-check">✓</div><div class="prov-logo">EZG</div><div class="prov-name">Ezugi</div><div class="prov-games">84 games</div><div class="prov-seo" onclick="editSeo(event)">Edit SEO ↗</div></div>
+            <div class="prov-card on" onclick="toggleProv(this)"><div class="prov-check">✓</div><div class="prov-logo">PP</div><div class="prov-name">Pragmatic Play</div><div class="prov-games">312 games</div><div class="prov-seo" onclick="editSeo(event)">Edit SEO ↗</div></div>
+            <div class="prov-card on" onclick="toggleProv(this)"><div class="prov-check">✓</div><div class="prov-logo">EVO</div><div class="prov-name">Evolution</div><div class="prov-games">127 games</div><div class="prov-seo" onclick="editSeo(event)">Edit SEO ↗</div></div>
+            <div class="prov-card on" onclick="toggleProv(this)"><div class="prov-check">✓</div><div class="prov-logo">PNG</div><div class="prov-name">Play'n GO</div><div class="prov-games">256 games</div><div class="prov-seo" onclick="editSeo(event)">Edit SEO ↗</div></div>
+            <div class="prov-card on" onclick="toggleProv(this)"><div class="prov-check">✓</div><div class="prov-logo">NET</div><div class="prov-name">NetEnt</div><div class="prov-games">203 games</div><div class="prov-seo" onclick="editSeo(event)">Edit SEO ↗</div></div>
+            <div class="prov-card" onclick="toggleProv(this)"><div class="prov-logo">YGG</div><div class="prov-name">Yggdrasil</div><div class="prov-games">91 games</div><div class="prov-seo" onclick="editSeo(event)">Edit SEO ↗</div></div>
+            <div class="prov-card" onclick="toggleProv(this)"><div class="prov-logo">HCK</div><div class="prov-name">Hacksaw</div><div class="prov-games">54 games</div><div class="prov-seo" onclick="editSeo(event)">Edit SEO ↗</div></div>
+            <div class="prov-card" onclick="toggleProv(this)"><div class="prov-logo">RLX</div><div class="prov-name">Relax Gaming</div><div class="prov-games">68 games</div><div class="prov-seo" onclick="editSeo(event)">Edit SEO ↗</div></div>
           </div>
         </div>
-        <div class="row2">
-          <div class="field-group"><div class="field-label">Meta title</div><input class="field-input" type="text" value="Game Providers — BetUp Casino"></div>
-          <div class="field-group"><div class="field-label">Meta description</div><input class="field-input" type="text" value="Explore all game providers at BetUp Casino"></div>
+        <div class="divider"></div>
+        <div>
+          <div style="font-size:13px;font-weight:500;margin-bottom:4px">Page text</div>
+          <div style="font-size:11px;color:#888;margin-bottom:10px">Shown below the provider grid</div>
+          <div class="wysiwyg">
+            <div class="wysiwyg-toolbar">
+              <button class="tb tb-b" title="Bold" onclick="fmt('bold')">B</button>
+              <button class="tb tb-i" title="Italic" onclick="fmt('italic')">I</button>
+              <button class="tb" title="Underline" onclick="fmt('underline')" style="text-decoration:underline">U</button>
+              <span class="tb-sep"></span>
+              <button class="tb" title="Heading 2" onclick="fmt('formatBlock','h2')" style="font-size:11px;font-weight:600">H2</button>
+              <button class="tb" title="Paragraph" onclick="fmt('formatBlock','p')" style="font-size:11px">¶</button>
+              <span class="tb-sep"></span>
+              <button class="tb" title="Bullet list" onclick="fmt('insertUnorderedList')">• list</button>
+              <button class="tb" title="Numbered list" onclick="fmt('insertOrderedList')">1. list</button>
+              <span class="tb-sep"></span>
+              <button class="tb" title="Insert link" onclick="insertLink()" style="color:#4F46E5">⌘ link</button>
+            </div>
+            <div id="page-wysiwyg" class="wysiwyg-body" contenteditable="true" oninput="updateWc()"><h2>Game Providers at BetUp Casino</h2><p>Discover the world's top game studios in one place. BetUp Casino partners with industry leaders like <strong>Pragmatic Play</strong>, <strong>Evolution</strong> and <strong>NetEnt</strong> to bring you thousands of premium titles — from slots and live tables to crash games.</p></div>
+          </div>
+          <div id="wc" class="word-count"></div>
         </div>
       </div>
     </div>
@@ -225,13 +260,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   </div>
 </div>
 <script>
+function fmt(cmd,val){document.getElementById('page-wysiwyg').focus();document.execCommand(cmd,false,val||null);}
+function insertLink(){const url=prompt('URL:','https://');if(url)document.execCommand('createLink',false,url);}
+function updateWc(){const t=document.getElementById('page-wysiwyg').innerText||'';const w=t.trim().split(/\s+/).filter(Boolean).length;document.getElementById('wc').textContent=w+' words';}
 const views=['providers','home','promotions','vip','about','blog','new-page','delete-confirm'];
 function showView(id){views.forEach(v=>{const el=document.getElementById('v-'+v);if(el)el.classList.toggle('hidden',v!==id)});}
 function nav(el,id){document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));if(el)el.classList.add('active');showView(id);}
 function toggleProv(el){el.classList.toggle('on');const chk=el.querySelector('.prov-check');if(el.classList.contains('on')){if(!chk){const c=document.createElement('div');c.className='prov-check';c.textContent='✓';el.prepend(c);}else chk.style.display='';}else{if(chk)chk.style.display='none';}}
 function setLayout(el){document.querySelectorAll('.layout-opt').forEach(o=>o.classList.remove('active'));el.classList.add('active');}
+function editSeo(e){e.stopPropagation();window.top.location.href='/sandbox/mockup-seo';}
 function publishPage(){const badge=document.querySelector('#v-providers .status-badge');badge.className='status-badge sb-live';badge.textContent='Live';const dot=document.querySelector('#nav-providers .status-dot');dot.className='status-dot dot-live';}
-showView('providers');
+showView('providers');updateWc();
 </script>
 </body>
 </html>`;
@@ -255,7 +294,7 @@ export default function MockupPagesPage() {
         <div className="sandbox-section">
           <iframe
             srcDoc={html}
-            style={{ width: '100%', height: 700, border: 'none', borderRadius: 12 }}
+            style={{ width: '100%', height: 900, border: 'none', borderRadius: 12 }}
             title="Page manager mockup"
           />
         </div>
