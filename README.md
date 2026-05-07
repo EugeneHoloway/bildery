@@ -8,15 +8,15 @@
 
 ## What is this?
 
-Bildery is my personal operating system on the web. Part workspace, part experiment sandbox, part public notebook.
+Bildery is a personal operating system on the web. Part workspace, part experiment sandbox, part public notebook.
 
-I use it to:
-- **Prototype** — build and ship quick UI experiments and product mockups
-- **Analyze** — explore data, model revenue, investigate product metrics
-- **Document** — capture thinking in MDX-powered docs
-- **Manage work** — a lightweight task layer for day-to-day tracking
+Bildery is used to:
+- **Prototype** -- build and ship quick UI experiments and product mockups
+- **Analyze** -- explore data, model revenue, investigate product metrics
+- **Document** -- capture thinking in MDX-powered docs
+- **Manage work** -- a lightweight task layer for day-to-day tracking
 
-The codebase itself is also an experiment. It's where I learn and iterate on stack choices, design patterns, and component architecture in a real deployed context — not a toy project.
+The codebase itself is also an experiment. It's where I learn and iterate on stack choices, design patterns, and component architecture in a real deployed context -- not a toy project.
 
 
 
@@ -24,18 +24,18 @@ The codebase itself is also an experiment. It's where I learn and iterate on sta
 
 | Section | Description |
 |---|---|
-| `/sandbox` | Standalone experiments — analytics dashboards, revenue models, UI mockups, interactive prototypes |
+| `/sandbox` | Standalone experiments -- analytics dashboards, revenue models, UI mockups, interactive prototypes |
 | `/tasks` | Lightweight personal task management |
 | `/docs` | MDX-powered documentation and notes |
-| `/about` | Who I am |
+| `/about` | About the narrator |
 
 A few things currently living in `/sandbox`:
 
-- **analytics** — product analytics explorations
-- **revenue-intelligence** — revenue modeling and SaaS metrics
-- **mockup-homepage / mockup-pages / mockup-seo** — UI mockup experiments
-- **enable3** — 3D / WebGL prototyping
-- **tips, stm, subsub, rocketman, liki24** — various side experiments
+- **analytics** -- product analytics explorations
+- **revenue-intelligence** -- revenue modeling and SaaS metrics
+- **mockup-homepage / mockup-pages / mockup-seo** -- UI mockup experiments
+- **enable3** -- 3D / WebGL prototyping
+- **tips, stm, subsub, rocketman, liki24** -- various side experiments
 
 
 
@@ -62,7 +62,7 @@ A few things currently living in `/sandbox`:
 
 ## About
 
-Hi, I'm **Eugene Holoway** — Head of Product, based in Berlin. I like building things, reading, traveling, and thinking about financial markets.
+Hi, I'm **Eugene Holoway** -- Head of Product, based in Berlin. I like building things, reading, traveling, and thinking about financial markets.
 
 Bildery is my corner of the web.
 
@@ -70,4 +70,4 @@ Bildery is my corner of the web.
 
 
 
-*This is a personal project and a perpetual work in progress. Not meant to be production-grade — meant to be useful.*
+*This is a personal project and a perpetual work in progress. Not meant to be production-grade -- meant to be useful.*
