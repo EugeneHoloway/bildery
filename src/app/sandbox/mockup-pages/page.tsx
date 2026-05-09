@@ -191,24 +191,33 @@ function LayoutOption({ value, active, onClick, children, label }: {
     <button
       onClick={onClick}
       className={cn(
-        'flex flex-col items-center gap-1.5 rounded-lg border px-3 py-2 transition-colors',
+        'flex flex-col items-center gap-2.5 rounded-xl border px-5 py-3 transition-colors',
         active
-          ? 'border-brand bg-background text-brand'
-          : 'border-border bg-muted/40 text-muted-foreground hover:border-subtle-border',
+          ? 'border-foreground bg-background text-foreground'
+          : 'border-border bg-muted/30 text-muted-foreground hover:border-subtle-border',
       )}
     >
-      <div className="flex items-end gap-[3px]">{children}</div>
-      <span className="text-[10px] font-medium">{label}</span>
+      <div className="flex items-center gap-1">{children}</div>
+      <span className="text-xs font-medium">{label}</span>
     </button>
   )
 }
 
-function Bar({ w, h, active }: { w: number; h: number; active: boolean }) {
+function Block({ active }: { active: boolean }) {
   return (
-    <div
-      className={cn('rounded-sm', active ? 'bg-brand' : 'bg-muted-foreground/30')}
-      style={{ width: w, height: h }}
-    />
+    <div className={cn(
+      'h-5 w-5 rounded-md transition-colors',
+      active ? 'bg-foreground' : 'bg-muted-foreground/25',
+    )} />
+  )
+}
+
+function ListLine({ active }: { active: boolean }) {
+  return (
+    <div className={cn(
+      'h-[5px] w-10 rounded-full transition-colors',
+      active ? 'bg-foreground' : 'bg-muted-foreground/25',
+    )} />
   )
 }
 
@@ -360,11 +369,11 @@ function AddProviderDialog({ onAdd }: { onAdd: (name: string) => void }) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <button className="flex flex-col items-center justify-center gap-1.5 rounded-lg border border-dashed border-border p-2.5 text-center transition-colors hover:border-subtle-border">
-          <div className="flex size-7 items-center justify-center rounded-full bg-muted text-muted-foreground">
-            <Plus className="size-3.5" />
+        <button className="flex aspect-square flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-border bg-muted/20 transition-colors hover:border-subtle-border hover:bg-muted/40">
+          <div className="flex size-9 items-center justify-center rounded-full bg-muted text-muted-foreground">
+            <Plus className="size-4" />
           </div>
-          <span className="text-[10px] text-muted-foreground">Add new</span>
+          <span className="text-xs text-muted-foreground">Add provider</span>
         </button>
       </DialogTrigger>
       <DialogContent>
@@ -453,9 +462,9 @@ function ProvidersView({
       <div className="flex-1 overflow-y-auto">
 
         {/* Info box */}
-        <div className="mx-5 mt-4 flex items-start gap-2 rounded-lg bg-brand-bg px-3 py-2.5">
-          <AlertCircle className="mt-0.5 size-3.5 shrink-0 text-brand" />
-          <p className="text-xs leading-relaxed text-brand">{page.info}</p>
+        <div className="mx-5 mt-4 flex items-start gap-2 rounded-lg border border-border bg-muted px-3 py-2.5">
+          <AlertCircle className="mt-0.5 size-3.5 shrink-0 text-muted-foreground" />
+          <p className="text-xs leading-relaxed text-foreground">{page.info}</p>
         </div>
 
         {/* Tabs */}
@@ -466,7 +475,7 @@ function ProvidersView({
                 <TabsTrigger
                   key={value}
                   value={value}
-                  className="mb-[-1px] rounded-none border-b-2 border-transparent px-4 py-2.5 text-sm data-[state=active]:border-brand data-[state=active]:text-brand data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+                  className="mb-[-1px] rounded-none border-b-2 border-transparent px-4 py-2.5 text-sm font-medium text-muted-foreground data-[state=active]:border-foreground data-[state=active]:text-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none"
                 >
                   {label}
                 </TabsTrigger>
@@ -517,14 +526,14 @@ function ProvidersView({
               <Label className="text-xs font-medium text-muted-foreground">Page layout</Label>
               <div className="flex gap-2">
                 <LayoutOption value="4col" active={layout === '4col'} onClick={() => setLayout('4col')} label="4-column">
-                  {[13, 13, 13, 13].map((w, i) => <Bar key={i} w={w} h={14} active={layout === '4col'} />)}
+                  {[0,1,2,3].map((i) => <Block key={i} active={layout === '4col'} />)}
                 </LayoutOption>
                 <LayoutOption value="3col" active={layout === '3col'} onClick={() => setLayout('3col')} label="3-column">
-                  {[17, 17, 17].map((w, i) => <Bar key={i} w={w} h={14} active={layout === '3col'} />)}
+                  {[0,1,2].map((i) => <Block key={i} active={layout === '3col'} />)}
                 </LayoutOption>
                 <LayoutOption value="list" active={layout === 'list'} onClick={() => setLayout('list')} label="List view">
-                  <div className="flex flex-col gap-[3px]">
-                    {[40, 40, 40].map((w, i) => <Bar key={i} w={w} h={5} active={layout === 'list'} />)}
+                  <div className="flex flex-col gap-1">
+                    {[0,1,2].map((i) => <ListLine key={i} active={layout === 'list'} />)}
                   </div>
                 </LayoutOption>
               </div>
@@ -537,49 +546,45 @@ function ProvidersView({
               <Label className="text-xs font-medium text-muted-foreground">
                 Providers to display — click to toggle
               </Label>
-              <div className="grid grid-cols-4 gap-2 tablet:grid-cols-6 desktop:grid-cols-8">
+              <div className="grid grid-cols-3 gap-3 tablet:grid-cols-4">
                 {providers.map((prov) => (
-                  <button
+                  <div
                     key={prov.id}
                     onClick={() => toggleProvider(prov.id)}
                     className={cn(
-                      'group relative flex flex-col items-center gap-2 rounded-lg border p-3 text-center transition-colors',
+                      'group relative flex aspect-square cursor-pointer flex-col items-center justify-evenly overflow-hidden rounded-2xl border px-5 transition-colors',
                       prov.selected
-                        ? 'border-brand bg-background shadow-[0_0_0_1px_hsl(var(--brand)/0.15)]'
+                        ? 'border-foreground bg-background'
                         : 'border-border bg-muted/40 hover:border-subtle-border hover:bg-background/60',
                     )}
                   >
-                    {/* Checkbox — top-right, purely visual */}
+                    {/* Checkbox — top-right */}
                     <Checkbox
                       checked={prov.selected}
                       tabIndex={-1}
-                      className="pointer-events-none absolute right-2 top-2 h-3.5 w-3.5"
+                      className="pointer-events-none absolute right-2.5 top-2.5"
                     />
 
-                    {/* Logo placeholder */}
-                    <div className={cn(
-                      'flex h-8 w-full items-center justify-center rounded-md border text-[10px] font-bold tracking-wide transition-colors',
-                      prov.selected
-                        ? 'border-brand/30 bg-brand-bg text-brand'
-                        : 'border-border bg-background text-muted-foreground',
-                    )}>
+                    {/* Logo icon */}
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#0f1623] dark:bg-[#1e2535] text-sm font-bold tracking-wide text-white">
                       {prov.abbr}
                     </div>
 
-                    <div className="flex flex-col gap-0.5">
-                      <span className="text-[10px] font-semibold leading-tight">{prov.name}</span>
-                      <span className="text-[10px] text-muted-foreground">{prov.games} games</span>
-                    </div>
+                    {/* Name */}
+                    <span className="text-sm font-semibold leading-tight">{prov.name}</span>
 
-                    {/* Edit SEO — visible on hover */}
+                    {/* Games count */}
+                    <span className="text-xs text-muted-foreground">{prov.games} games</span>
+
+                    {/* Button */}
                     <Link
                       href="/sandbox/mockup-seo"
                       onClick={(e) => e.stopPropagation()}
-                      className="absolute bottom-1.5 right-1.5 hidden items-center gap-0.5 rounded bg-brand-bg px-1.5 py-0.5 text-[9px] font-semibold text-brand group-hover:flex"
+                      className="flex w-full items-center justify-center rounded-lg bg-foreground py-2 text-xs font-semibold text-background transition-opacity hover:opacity-80"
                     >
-                      Edit SEO <ExternalLink className="size-2.5" />
+                      Webpage setup
                     </Link>
-                  </button>
+                  </div>
                 ))}
 
                 {/* Add new */}
@@ -609,8 +614,8 @@ function ProvidersView({
                   className={cn(
                     'rounded-md border px-3 py-1 text-xs font-medium transition-colors',
                     activeLang === lang
-                      ? 'border-brand bg-brand text-white'
-                      : 'border-border bg-background text-muted-foreground hover:text-foreground',
+                      ? 'border-foreground bg-foreground text-background'
+                      : 'border-border bg-background text-muted-foreground hover:border-foreground/40 hover:text-foreground',
                   )}
                 >
                   {lang}
