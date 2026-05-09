@@ -1,497 +1,955 @@
 'use client'
 
+import { useState, useRef } from 'react'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import {
+  ChevronRight,
+  Globe,
+  Plus,
+  ExternalLink,
+  AlertCircle,
+  CheckCircle2,
+  AlertTriangle,
+  XCircle,
+} from 'lucide-react'
 
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { Label } from '@/components/ui/label'
+import { Separator } from '@/components/ui/separator'
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogClose,
+} from '@/components/ui/dialog'
+import { cn } from '@/lib/utils'
 
-const html = `<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#fff;color:#111}
-.wrap{display:grid;grid-template-columns:220px 1fr;gap:0;border:1px solid #e5e5e5;border-radius:12px;overflow:hidden;min-height:640px}
-.nav{background:#f8f8f7;border-right:1px solid #e5e5e5;display:flex;flex-direction:column}
-.nav-top{padding:14px 16px 10px;border-bottom:1px solid #e5e5e5}
-.nav-label{font-size:11px;font-weight:500;color:#888;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:8px}
-.add-btn{width:100%;padding:7px 10px;background:#4F46E5;color:#fff;border:none;border-radius:8px;font-size:12px;cursor:pointer;font-weight:500;text-align:left}
-.nav-section{padding:10px 0}
-.nav-group-label{font-size:10px;font-weight:500;color:#888;letter-spacing:0.07em;text-transform:uppercase;padding:4px 16px 6px}
-.nav-item{display:flex;align-items:center;gap:8px;padding:8px 16px;cursor:pointer;border-left:2px solid transparent}
-.nav-item:hover{background:#fff}
-.nav-item.active{background:#fff;border-left-color:#4F46E5}
-.nav-item .page-label{flex:1;font-size:13px}
-.nav-item .page-label.muted{color:#aaa}
-.status-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
-.dot-live{background:#22c55e}
-.dot-hidden{background:#d1d5db}
-.dot-new{background:#f59e0b}
-.badge-sys{font-size:9px;padding:2px 5px;border-radius:3px;background:#f1f1f1;color:#888}
-.main{background:#fff;display:flex;flex-direction:column}
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #e5e5e5}
-.topbar-left{display:flex;flex-direction:column;gap:2px}
-.page-title{font-size:16px;font-weight:500}
-.page-url{font-size:12px;color:#888}
-.topbar-right{display:flex;gap:8px;align-items:center}
-.btn{padding:6px 13px;font-size:12px;border:1px solid #e5e5e5;border-radius:8px;background:transparent;color:#111;cursor:pointer}
-.btn:hover{background:#f8f8f7}
-.btn-primary{background:#4F46E5;color:#fff;border-color:#4F46E5}
-.btn-danger{color:#E24B4A;border-color:#fca5a5}
-.status-badge{font-size:11px;padding:3px 8px;border-radius:20px;font-weight:500}
-.sb-live{background:#dcfce7;color:#15803d}
-.sb-hidden{background:#f1f1f1;color:#888}
-.sb-new{background:#fef9c3;color:#92400e}
-.content{padding:20px;flex:1;display:flex;flex-direction:column;gap:16px}
-.field-group{display:flex;flex-direction:column;gap:5px}
-.field-label{font-size:12px;font-weight:500;color:#888}
-.field-input{padding:8px 10px;border:1px solid #e5e5e5;border-radius:8px;font-size:13px;background:#f8f8f7;color:#111;width:100%}
-.field-input:focus{outline:none;border-color:#4F46E5}
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.divider{height:1px;background:#e5e5e5}
-.info-box{background:#eff6ff;border-radius:8px;padding:10px 12px;font-size:12px;color:#1d4ed8}
-.providers-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-.prov-card{border:1px solid #e5e5e5;border-radius:8px;padding:12px 10px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;background:#f8f8f7;position:relative}
-.prov-card.on{border-color:#4F46E5;background:#fff}
-.prov-logo{width:44px;height:28px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;color:#888;background:#fff;border:1px solid #e5e5e5}
-.prov-name{font-size:11px;text-align:center}
-.prov-games{font-size:10px;color:#888}
-.prov-check{position:absolute;top:5px;right:6px;font-size:11px;color:#4F46E5;font-weight:700}
-.prov-seo{display:none;position:absolute;bottom:5px;right:5px;padding:2px 6px;font-size:9px;font-weight:600;color:#4F46E5;background:#eef2ff;border-radius:4px;cursor:pointer;letter-spacing:0.02em;z-index:5;white-space:nowrap}
-.prov-card:hover{border-color:#c7c5f4;background:#fafafe}
-.prov-card.on:hover{border-color:#4F46E5;background:#fff}
-.prov-card:hover .prov-seo{display:block}
-.layout-opts{display:flex;gap:8px}
-.layout-opt{border:1px solid #e5e5e5;border-radius:8px;padding:8px 12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;background:#f8f8f7}
-.layout-opt.active{border-color:#4F46E5;background:#fff}
-.layout-preview{display:flex;gap:2px;align-items:flex-end}
-.lp-bar{background:#d1d5db;border-radius:1px}
-.layout-opt.active .lp-bar{background:#4F46E5}
-.layout-lbl{font-size:10px;color:#888}
-.layout-opt.active .layout-lbl{color:#4F46E5}
-.wysiwyg{border:1px solid #e5e5e5;border-radius:8px;overflow:hidden}
-.wysiwyg-toolbar{display:flex;gap:2px;padding:6px 8px;border-bottom:1px solid #e5e5e5;background:#f8f8f7;align-items:center;flex-wrap:wrap}
-.tb{min-width:26px;height:26px;border:none;background:transparent;border-radius:4px;cursor:pointer;font-size:12px;color:#555;display:inline-flex;align-items:center;justify-content:center;padding:0 6px;font-family:inherit}
-.tb:hover{background:#e5e5e5;color:#111}
-.tb-b{font-weight:700}
-.tb-i{font-style:italic}
-.tb-sep{width:1px;height:18px;background:#e5e5e5;margin:0 4px;flex-shrink:0}
-.wysiwyg-body{padding:12px 14px;min-height:120px;font-size:13px;line-height:1.7;outline:none;color:#111}
-.wysiwyg-body h2{font-size:15px;font-weight:600;margin-bottom:4px;margin-top:2px}
-.wysiwyg-body p{margin-bottom:6px}
-.wysiwyg-body ul,.wysiwyg-body ol{padding-left:20px;margin-bottom:6px}
-.wysiwyg-body a{color:#4F46E5;text-decoration:underline}
-.word-count{font-size:11px;color:#aaa;margin-top:4px;text-align:right}
-.modal-bg{background:rgba(0,0,0,0.35);border-radius:12px;display:flex;align-items:center;justify-content:center;padding:40px 20px;min-height:400px}
-.modal{background:#fff;border-radius:12px;border:1px solid #e5e5e5;padding:24px;width:100%;max-width:440px}
-.modal-title{font-size:15px;font-weight:500;margin-bottom:16px}
-.modal-body{display:flex;flex-direction:column;gap:12px}
-.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:20px}
-.hidden{display:none !important}
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:100;display:flex;align-items:center;justify-content:center}
-.add-modal{background:#fff;border-radius:14px;width:560px;max-height:520px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.18)}
-.add-modal-header{padding:18px 20px 14px;border-bottom:1px solid #e5e5e5;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
-.add-modal-title{font-size:15px;font-weight:500}
-.add-modal-close{width:28px;height:28px;border:none;background:#f1f1f1;border-radius:6px;cursor:pointer;font-size:16px;color:#888;display:flex;align-items:center;justify-content:center;line-height:1}
-.add-modal-search{padding:12px 20px;border-bottom:1px solid #e5e5e5;flex-shrink:0}
-.add-modal-list{overflow-y:auto;flex:1;padding:8px 12px}
-.ap-item{display:flex;align-items:center;gap:12px;padding:10px 10px;border-radius:8px;cursor:pointer}
-.ap-item:hover{background:#f5f5ff}
-.ap-logo{width:40px;height:26px;border-radius:4px;background:#fff;border:1px solid #e5e5e5;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;color:#888;flex-shrink:0}
-.ap-info{flex:1}
-.ap-name{font-size:13px;font-weight:500}
-.ap-meta{font-size:11px;color:#888}
-.ap-add{font-size:11px;font-weight:600;color:#4F46E5;padding:4px 10px;border:1px solid #c7c5f4;border-radius:6px;background:transparent;cursor:pointer}
-.ap-add:hover{background:#eef2ff}
-/* SEO section */
-.seo-tabs{display:flex;border-bottom:1px solid #e5e5e5;margin-bottom:16px;overflow-x:auto}
-.seo-tab{padding:8px 14px;font-size:12px;cursor:pointer;color:#888;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap}
-.seo-tab:hover{color:#111}
-.seo-tab.seo-active{color:#4F46E5;border-bottom-color:#4F46E5}
-.seo-panel{display:flex;flex-direction:column;gap:14px}
-.lang-tabs{display:flex;gap:6px}
-.lang-tab{padding:4px 10px;font-size:11px;border:1px solid #e5e5e5;border-radius:6px;cursor:pointer;background:transparent;color:#888}
-.lang-tab.lang-active{background:#4F46E5;color:#fff;border-color:#4F46E5}
-.char-bar-wrap{height:3px;border-radius:2px;background:#e5e5e5;margin-top:4px}
-.char-bar{height:3px;border-radius:2px;transition:width 0.2s,background 0.2s}
-.char-count{font-size:11px;color:#888;margin-top:3px}
-.serp-preview{border:1px solid #e5e5e5;border-radius:10px;padding:14px;background:#f8f8f7}
-.serp-label{font-size:11px;font-weight:500;color:#888;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.06em}
-.serp-url{font-size:12px;color:#1a7f4b;margin-bottom:2px}
-.serp-title{font-size:17px;color:#1558d6;font-weight:400;margin-bottom:3px;line-height:1.3}
-.serp-desc{font-size:13px;color:#555;line-height:1.5}
-.og-preview{border:1px solid #e5e5e5;border-radius:8px;overflow:hidden}
-.og-img{width:100%;height:80px;background:#f1f1f1;display:flex;align-items:center;justify-content:center;font-size:12px;color:#888;cursor:pointer}
-.og-meta{padding:10px 12px;background:#f8f8f7}
-.og-domain{font-size:10px;color:#888;text-transform:uppercase}
-.og-title{font-size:13px;font-weight:500}
-.og-desc{font-size:12px;color:#888}
-.checklist{display:flex;flex-direction:column;gap:8px;padding:12px;background:#f8f8f7;border-radius:8px}
-.status-row{display:flex;align-items:center;gap:8px}
-.audit-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-.dot-ok{background:#22c55e}.dot-warn{background:#f59e0b}.dot-err{background:#E24B4A}
-.status-text{font-size:12px;color:#555}
-.games-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-.game-card{border:1px solid #e5e5e5;border-radius:8px;padding:8px 6px;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;position:relative;background:#f8f8f7}
-.game-card.on{border-color:#4F46E5;background:#fff}
-.game-card:hover{border-color:#c7c5f4}
-.game-card.on:hover{border-color:#4F46E5}
-.game-thumb{width:100%;height:38px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:9px;color:rgba(255,255,255,0.85);font-weight:600;letter-spacing:0.03em}
-.game-name{font-size:10px;font-weight:500;text-align:center;line-height:1.3;color:#111}
-.game-prov{font-size:9px;color:#aaa;text-align:center}
-.game-check{position:absolute;top:4px;right:5px;font-size:10px;color:#4F46E5;font-weight:700}
-</style>
-</head>
-<body>
-<div class="wrap">
-  <div class="nav">
-    <div class="nav-top">
-      <div class="nav-label">Site pages</div>
-      <button class="add-btn" onclick="showView('new-page')">+ New page</button>
-    </div>
-    <div class="nav-section">
-      <div class="nav-group-label">System pages</div>
-      <div class="nav-item" onclick="nav(this,'home')"><span class="status-dot dot-live"></span><span class="page-label">Homepage</span><span class="badge-sys">sys</span></div>
-      <div class="nav-item" onclick="nav(this,'promotions')"><span class="status-dot dot-live"></span><span class="page-label">Promotions</span><span class="badge-sys">sys</span></div>
-      <div class="nav-item" onclick="nav(this,'vip')"><span class="status-dot dot-hidden"></span><span class="page-label muted">VIP club</span><span class="badge-sys">sys</span></div>
-      <div id="nav-providers" class="nav-item active" onclick="nav(this,'providers')"><span class="status-dot dot-new"></span><span class="page-label">Game providers</span><span class="badge-sys">sys</span></div>
-    </div>
-    <div style="height:1px;background:#e5e5e5"></div>
-    <div class="nav-section">
-      <div class="nav-group-label">Custom pages</div>
-      <div class="nav-item" onclick="nav(this,'about')"><span class="status-dot dot-live"></span><span class="page-label">About us</span></div>
-      <div class="nav-item" onclick="nav(this,'blog')"><span class="status-dot dot-hidden"></span><span class="page-label muted">Blog</span></div>
-    </div>
-  </div>
+// ─── Types ────────────────────────────────────────────────────────────────────
 
-  <div class="main">
-    <!-- PROVIDERS PAGE -->
-    <div id="v-providers">
-      <div class="topbar">
-        <div class="topbar-left"><div class="page-title">Game providers</div><div class="page-url">betup.com/providers</div></div>
-        <div class="topbar-right">
-          <span class="status-badge sb-new">Draft</span>
-          <button class="btn" onclick="showView('delete-confirm')">Delete page</button>
-          <button class="btn">Preview</button>
-          <button class="btn btn-primary" onclick="publishPage()">Publish</button>
-        </div>
-      </div>
-      <div class="content">
-        <div class="info-box">Custom page. Configure URL, visibility and content below, then publish to make it live.</div>
-        <div>
-          <div class="seo-tabs">
-            <div class="seo-tab seo-active" onclick="seoTab('s-main',this)">Main</div>
-            <div class="seo-tab" onclick="seoTab('s-basic',this)">Basic SEO</div>
-            <div class="seo-tab" onclick="seoTab('s-content',this)">Content</div>
-            <div class="seo-tab" onclick="seoTab('s-og',this)">Social / OG</div>
-            <div class="seo-tab" onclick="seoTab('s-advanced',this)">Advanced</div>
-            <div class="seo-tab" onclick="seoTab('s-audit',this)">SEO audit</div>
-          </div>
+type PageStatus = 'live' | 'hidden' | 'draft'
 
-          <!-- Main -->
-          <div id="s-main" class="seo-panel">
-            <div class="row2">
-              <div class="field-group"><div class="field-label">Page title</div><input class="field-input" type="text" value="Game providers"></div>
-              <div class="field-group"><div class="field-label">URL slug</div><input class="field-input" type="text" value="/providers"></div>
-            </div>
-            <div class="row2">
-              <div class="field-group"><div class="field-label">Show in navigation</div><select class="field-input"><option>Yes — main menu</option><option>Yes — footer only</option><option>No — hidden</option></select></div>
-              <div class="field-group"><div class="field-label">Access</div><select class="field-input"><option>Public</option><option>Logged in only</option><option>VIP only</option></select></div>
-            </div>
-            <div class="divider"></div>
-            <div>
-              <div style="font-size:13px;font-weight:500;margin-bottom:12px">Page layout</div>
-              <div class="layout-opts">
-                <div class="layout-opt active" onclick="setLayout(this)">
-                  <div class="layout-preview"><div class="lp-bar" style="width:11px;height:14px"></div><div class="lp-bar" style="width:11px;height:14px"></div><div class="lp-bar" style="width:11px;height:14px"></div><div class="lp-bar" style="width:11px;height:14px"></div></div>
-                  <div class="layout-lbl">4-column</div>
-                </div>
-                <div class="layout-opt" onclick="setLayout(this)">
-                  <div class="layout-preview"><div class="lp-bar" style="width:14px;height:14px"></div><div class="lp-bar" style="width:14px;height:14px"></div><div class="lp-bar" style="width:14px;height:14px"></div></div>
-                  <div class="layout-lbl">3-column</div>
-                </div>
-                <div class="layout-opt" onclick="setLayout(this)">
-                  <div class="layout-preview" style="flex-direction:column"><div class="lp-bar" style="width:40px;height:6px;margin-bottom:2px"></div><div class="lp-bar" style="width:40px;height:6px;margin-bottom:2px"></div><div class="lp-bar" style="width:40px;height:6px"></div></div>
-                  <div class="layout-lbl">List view</div>
-                </div>
-              </div>
-            </div>
-            <div class="divider"></div>
-            <div>
-              <div style="font-size:13px;font-weight:500;margin-bottom:12px">Providers to display — click to toggle</div>
-              <div class="providers-grid">
-                <div class="prov-card on" onclick="toggleProv(this)"><div class="prov-check">✓</div><div class="prov-logo">EZG</div><div class="prov-name">Ezugi</div><div class="prov-games">84 games</div><div class="prov-seo" onclick="editSeo(event)">Edit SEO ↗</div></div>
-                <div class="prov-card on" onclick="toggleProv(this)"><div class="prov-check">✓</div><div class="prov-logo">PP</div><div class="prov-name">Pragmatic Play</div><div class="prov-games">312 games</div><div class="prov-seo" onclick="editSeo(event)">Edit SEO ↗</div></div>
-                <div class="prov-card on" onclick="toggleProv(this)"><div class="prov-check">✓</div><div class="prov-logo">EVO</div><div class="prov-name">Evolution</div><div class="prov-games">127 games</div><div class="prov-seo" onclick="editSeo(event)">Edit SEO ↗</div></div>
-                <div class="prov-card on" onclick="toggleProv(this)"><div class="prov-check">✓</div><div class="prov-logo">PNG</div><div class="prov-name">Play'n GO</div><div class="prov-games">256 games</div><div class="prov-seo" onclick="editSeo(event)">Edit SEO ↗</div></div>
-                <div class="prov-card on" onclick="toggleProv(this)"><div class="prov-check">✓</div><div class="prov-logo">NET</div><div class="prov-name">NetEnt</div><div class="prov-games">203 games</div><div class="prov-seo" onclick="editSeo(event)">Edit SEO ↗</div></div>
-                <div class="prov-card" onclick="toggleProv(this)"><div class="prov-logo">YGG</div><div class="prov-name">Yggdrasil</div><div class="prov-games">91 games</div><div class="prov-seo" onclick="editSeo(event)">Edit SEO ↗</div></div>
-                <div class="prov-card" onclick="toggleProv(this)"><div class="prov-logo">HCK</div><div class="prov-name">Hacksaw</div><div class="prov-games">54 games</div><div class="prov-seo" onclick="editSeo(event)">Edit SEO ↗</div></div>
-                <div class="prov-card" style="border-style:dashed;cursor:pointer;justify-content:center;gap:6px" onclick="openAddModal()"><div style="width:28px;height:28px;border-radius:50%;background:#f1f1f1;display:flex;align-items:center;justify-content:center;font-size:18px;color:#aaa">+</div><div class="prov-name" style="color:#aaa">Add new</div></div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Basic SEO -->
-          <div id="s-basic" class="seo-panel hidden">
-            <div class="lang-tabs">
-              <button class="lang-tab lang-active" onclick="seoLang(this)">EN</button>
-              <button class="lang-tab" onclick="seoLang(this)">DE</button>
-              <button class="lang-tab" onclick="seoLang(this)">UA</button>
-            </div>
-            <div class="field-group">
-              <div class="field-label" style="display:flex;justify-content:space-between">H1 — page heading <span style="font-size:11px;color:#aaa;font-weight:400">shown on the page, 1 per page</span></div>
-              <input id="s-h1" class="field-input" type="text" value="Game providers at BetUp Casino" oninput="seoSerp()">
-            </div>
-            <div class="field-group">
-              <div class="field-label" style="display:flex;justify-content:space-between">Title tag <span style="font-size:11px;color:#aaa;font-weight:400">shown in browser tab and Google</span></div>
-              <input id="s-title" class="field-input" type="text" value="Game Providers — BetUp Casino | Slots & Live Games" oninput="seoBars();seoSerp()">
-              <div class="char-bar-wrap"><div id="s-bar-title" class="char-bar"></div></div>
-              <div id="s-cnt-title" class="char-count"></div>
-            </div>
-            <div class="field-group">
-              <div class="field-label" style="display:flex;justify-content:space-between">Meta description <span style="font-size:11px;color:#aaa;font-weight:400">shown under title in Google</span></div>
-              <textarea id="s-desc" class="field-input" rows="3" style="resize:vertical;line-height:1.5" oninput="seoBars();seoSerp()">Explore 12 top game providers at BetUp Casino. Play 2000+ slots, live casino games and crash games from Pragmatic Play, Evolution, NetEnt and more.</textarea>
-              <div class="char-bar-wrap"><div id="s-bar-desc" class="char-bar"></div></div>
-              <div id="s-cnt-desc" class="char-count"></div>
-            </div>
-            <div class="divider"></div>
-            <div class="field-group">
-              <div class="field-label">SERP preview</div>
-              <div class="serp-preview">
-                <div class="serp-label">Google search result</div>
-                <div class="serp-url">betup.com › providers</div>
-                <div id="s-serp-title" class="serp-title">Game Providers — BetUp Casino | Slots & Live Games</div>
-                <div id="s-serp-desc" class="serp-desc">Explore 12 top game providers at BetUp Casino. Play 2000+ slots, live casino games and crash games from Pragmatic Play, Evolution, NetEnt and more.</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Content -->
-          <div id="s-content" class="seo-panel hidden">
-            <div class="field-group">
-              <div class="field-label" style="display:flex;justify-content:space-between">Page text <span style="font-size:11px;color:#aaa;font-weight:400">shown below the provider grid</span></div>
-              <div class="wysiwyg">
-                <div class="wysiwyg-toolbar">
-                  <button class="tb tb-b" onclick="sFmt('bold')">B</button>
-                  <button class="tb tb-i" onclick="sFmt('italic')">I</button>
-                  <button class="tb" onclick="sFmt('underline')" style="text-decoration:underline">U</button>
-                  <span class="tb-sep"></span>
-                  <button class="tb" onclick="sFmt('formatBlock','h2')" style="font-size:11px;font-weight:600">H2</button>
-                  <button class="tb" onclick="sFmt('formatBlock','p')" style="font-size:11px">¶</button>
-                  <span class="tb-sep"></span>
-                  <button class="tb" onclick="sFmt('insertUnorderedList')">• list</button>
-                  <button class="tb" onclick="sFmt('insertOrderedList')">1. list</button>
-                  <span class="tb-sep"></span>
-                  <button class="tb" onclick="sInsertLink()" style="color:#4F46E5">⌘ link</button>
-                </div>
-                <div id="s-wysiwyg" class="wysiwyg-body" contenteditable="true" oninput="sUpdateWc()"><h2>Top Game Providers at BetUp Casino</h2><p>BetUp Casino partners with 12 of the world's leading game studios, delivering over 2,000 slots, live casino tables, and crash games. From <strong>Pragmatic Play's</strong> iconic Sweet Bonanza to <strong>Evolution's</strong> live Lightning Roulette — every title is hand-picked for quality.</p><p>All providers are licensed, regularly audited for fairness, and offer games optimised for desktop and mobile.</p></div>
-              </div>
-              <div id="s-wc" class="word-count"></div>
-            </div>
-          </div>
-
-          <!-- Social / OG -->
-          <div id="s-og" class="seo-panel hidden">
-            <div class="field-group"><div class="field-label" style="display:flex;justify-content:space-between">OG title <span style="font-size:11px;color:#aaa;font-weight:400">shown when sharing on social</span></div><input class="field-input" type="text" value="Game Providers — BetUp Casino"></div>
-            <div class="field-group"><div class="field-label">OG description</div><textarea class="field-input" rows="2" style="resize:vertical;line-height:1.5">Discover all game providers at BetUp. Slots, live casino and more from the world's top studios.</textarea></div>
-            <div class="field-group">
-              <div class="field-label" style="display:flex;justify-content:space-between">OG image <span style="font-size:11px;color:#aaa;font-weight:400">recommended 1200×630px</span></div>
-              <div class="og-preview">
-                <div class="og-img">Click to upload OG image (1200×630)</div>
-                <div class="og-meta"><div class="og-domain">BETUP.COM</div><div class="og-title">Game Providers — BetUp Casino</div><div class="og-desc">Discover all game providers at BetUp.</div></div>
-              </div>
-            </div>
-            <div class="row2">
-              <div class="field-group"><div class="field-label">Twitter card type</div><select class="field-input"><option>summary_large_image</option><option>summary</option></select></div>
-              <div class="field-group"><div class="field-label">Twitter site handle</div><input class="field-input" type="text" value="@betup"></div>
-            </div>
-          </div>
-
-          <!-- Advanced -->
-          <div id="s-advanced" class="seo-panel hidden">
-            <div class="row2">
-              <div class="field-group"><div class="field-label" style="display:flex;justify-content:space-between">Canonical URL <span style="font-size:11px;color:#aaa;font-weight:400">leave blank = self</span></div><input class="field-input" type="text" placeholder="https://betup.com/providers"></div>
-              <div class="field-group"><div class="field-label">Robots</div><select class="field-input"><option>index, follow</option><option>noindex, follow</option><option>noindex, nofollow</option></select></div>
-            </div>
-            <div class="row2">
-              <div class="field-group"><div class="field-label">Include in sitemap</div><select class="field-input"><option>Yes</option><option>No</option></select></div>
-              <div class="field-group"><div class="field-label">Sitemap priority</div><select class="field-input"><option>0.8 — high</option><option>0.5 — normal</option><option>0.3 — low</option></select></div>
-            </div>
-            <div class="divider"></div>
-            <div class="field-group"><div class="field-label">Structured data (JSON-LD)</div><textarea class="field-input" rows="5" style="font-family:monospace;font-size:12px;resize:vertical">{\n  "@context": "https://schema.org",\n  "@type": "ItemList",\n  "name": "Game providers at BetUp Casino"\n}</textarea></div>
-            <div class="field-group"><div class="field-label">Hreflang</div><select class="field-input"><option>Auto — generate from active languages</option><option>Manual</option><option>Disabled</option></select></div>
-          </div>
-
-          <!-- SEO audit -->
-          <div id="s-audit" class="seo-panel hidden">
-            <div class="checklist">
-              <div class="status-row"><span class="audit-dot dot-ok"></span><span class="status-text">H1 present and unique</span></div>
-              <div class="status-row"><span class="audit-dot dot-ok"></span><span class="status-text">Title tag: 50 characters — good length</span></div>
-              <div class="status-row"><span class="audit-dot dot-ok"></span><span class="status-text">Meta description: 148 characters — good length</span></div>
-              <div class="status-row"><span class="audit-dot dot-warn"></span><span class="status-text">OG image not set — social shares will use fallback</span></div>
-              <div class="status-row"><span class="audit-dot dot-ok"></span><span class="status-text">Page is indexable (robots: index, follow)</span></div>
-              <div class="status-row"><span class="audit-dot dot-ok"></span><span class="status-text">Page included in sitemap</span></div>
-              <div class="status-row"><span class="audit-dot dot-warn"></span><span class="status-text">No structured data — consider adding JSON-LD</span></div>
-              <div class="status-row"><span class="audit-dot dot-ok"></span><span class="status-text">Canonical URL: self-referencing (correct)</span></div>
-              <div class="status-row"><span class="audit-dot dot-err"></span><span class="status-text">DE and UA translations missing</span></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- HOME -->
-    <div id="v-home" class="hidden">
-      <div class="topbar"><div class="topbar-left"><div class="page-title">Homepage</div><div class="page-url">betup.com/</div></div><div class="topbar-right"><span class="status-badge sb-live">Live</span><button class="btn btn-primary">Edit sections</button></div></div>
-      <div class="content"><div class="info-box">System page — use Homepage Configurator to manage sections.</div></div>
-    </div>
-
-    <!-- PROMOTIONS -->
-    <div id="v-promotions" class="hidden">
-      <div class="topbar"><div class="topbar-left"><div class="page-title">Promotions</div><div class="page-url">betup.com/promotions</div></div><div class="topbar-right"><span class="status-badge sb-live">Live</span><button class="btn btn-primary">Manage promos</button></div></div>
-      <div class="content"><div class="info-box">System page — manage individual promotion cards in the Promotions module.</div></div>
-    </div>
-
-    <!-- VIP -->
-    <div id="v-vip" class="hidden">
-      <div class="topbar"><div class="topbar-left"><div class="page-title">VIP club</div><div class="page-url">betup.com/vip</div></div><div class="topbar-right"><span class="status-badge sb-hidden">Hidden</span><button class="btn">Show page</button><button class="btn btn-primary">Edit content</button></div></div>
-      <div class="content"><div class="info-box">This system page is currently hidden from all visitors.</div></div>
-    </div>
-
-    <!-- ABOUT -->
-    <div id="v-about" class="hidden">
-      <div class="topbar"><div class="topbar-left"><div class="page-title">About us</div><div class="page-url">betup.com/about</div></div><div class="topbar-right"><span class="status-badge sb-live">Live</span><button class="btn btn-danger">Hide page</button><button class="btn btn-primary">Edit content</button></div></div>
-      <div class="content"><div class="info-box">Custom page — live and visible to all visitors.</div></div>
-    </div>
-
-    <!-- BLOG -->
-    <div id="v-blog" class="hidden">
-      <div class="topbar"><div class="topbar-left"><div class="page-title">Blog</div><div class="page-url">betup.com/blog</div></div><div class="topbar-right"><span class="status-badge sb-hidden">Hidden</span><button class="btn">Show page</button><button class="btn btn-danger">Delete page</button></div></div>
-      <div class="content"><div class="info-box">Custom page — currently hidden.</div></div>
-    </div>
-
-    <!-- NEW PAGE MODAL -->
-    <div id="v-new-page" class="hidden">
-      <div class="topbar"><div class="topbar-left"><div class="page-title">New page</div></div><div class="topbar-right"><button class="btn" onclick="nav(document.getElementById('nav-providers'),'providers')">Cancel</button></div></div>
-      <div class="content">
-        <div class="modal-bg">
-          <div class="modal">
-            <div class="modal-title">Create a new page</div>
-            <div class="modal-body">
-              <div class="field-group"><div class="field-label">Page title</div><input class="field-input" type="text" placeholder="e.g. Game providers"></div>
-              <div class="field-group"><div class="field-label">URL slug</div><input class="field-input" type="text" placeholder="e.g. providers"></div>
-              <div class="field-group"><div class="field-label">Page type</div><select class="field-input"><option>Content page (logo grid, text, images)</option><option>Landing page (custom sections)</option><option>Redirect</option></select></div>
-              <div class="field-group"><div class="field-label">Initial visibility</div><select class="field-input"><option>Draft — hidden until published</option><option>Live immediately</option></select></div>
-            </div>
-            <div class="modal-actions">
-              <button class="btn" onclick="nav(document.getElementById('nav-providers'),'providers')">Cancel</button>
-              <button class="btn btn-primary" onclick="nav(document.getElementById('nav-providers'),'providers')">Create page</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- DELETE CONFIRM -->
-    <div id="v-delete-confirm" class="hidden">
-      <div class="topbar"><div class="topbar-left"><div class="page-title">Delete page</div></div><div class="topbar-right"><button class="btn" onclick="nav(document.getElementById('nav-providers'),'providers')">Cancel</button></div></div>
-      <div class="content">
-        <div class="modal-bg">
-          <div class="modal">
-            <div class="modal-title">Delete "Game providers"?</div>
-            <p style="font-size:13px;color:#888;line-height:1.6">This will permanently remove the page. Any links pointing to <strong style="color:#111">betup.com/providers</strong> will return 404. This cannot be undone.</p>
-            <div class="modal-actions">
-              <button class="btn" onclick="nav(document.getElementById('nav-providers'),'providers')">Cancel</button>
-              <button class="btn btn-danger" onclick="nav(document.getElementById('nav-providers'),'providers')">Delete page</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-<script>
-function fmt(cmd,val){document.getElementById('page-wysiwyg').focus();document.execCommand(cmd,false,val||null);}
-function insertLink(){const url=prompt('URL:','https://');if(url)document.execCommand('createLink',false,url);}
-function updateWc(){const t=document.getElementById('page-wysiwyg').innerText||'';const w=t.trim().split(/\s+/).filter(Boolean).length;document.getElementById('wc').textContent=w+' words';}
-const views=['providers','home','promotions','vip','about','blog','new-page','delete-confirm'];
-function showView(id){views.forEach(v=>{const el=document.getElementById('v-'+v);if(el)el.classList.toggle('hidden',v!==id)});}
-function nav(el,id){document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));if(el)el.classList.add('active');showView(id);}
-function toggleProv(el){el.classList.toggle('on');const chk=el.querySelector('.prov-check');if(el.classList.contains('on')){if(!chk){const c=document.createElement('div');c.className='prov-check';c.textContent='✓';el.prepend(c);}else chk.style.display='';}else{if(chk)chk.style.display='none';}}
-function setLayout(el){document.querySelectorAll('.layout-opt').forEach(o=>o.classList.remove('active'));el.classList.add('active');}
-function editSeo(e){e.stopPropagation();window.top.location.href='/sandbox/mockup-seo';}
-function publishPage(){const badge=document.querySelector('#v-providers .status-badge');badge.className='status-badge sb-live';badge.textContent='Live';const dot=document.querySelector('#nav-providers .status-dot');dot.className='status-dot dot-live';}
-showView('providers');updateWc();
-function seoTab(id,el){['s-main','s-basic','s-content','s-og','s-advanced','s-audit'].forEach(t=>{document.getElementById(t).classList.toggle('hidden',t!==id)});document.querySelectorAll('.seo-tab').forEach(t=>t.classList.remove('seo-active'));el.classList.add('seo-active');}
-function seoLang(el){document.querySelectorAll('.lang-tab').forEach(t=>t.classList.remove('lang-active'));el.classList.add('lang-active');}
-function seoBars(){const t=document.getElementById('s-title').value;const d=document.getElementById('s-desc').value;const tLen=t.length,dLen=d.length,tMax=60,dMax=160;const bt=document.getElementById('s-bar-title');const bd=document.getElementById('s-bar-desc');bt.style.width=Math.min(tLen/tMax*100,100)+'%';bt.style.background=tLen>tMax?'#E24B4A':tLen>50?'#22c55e':'#f59e0b';bd.style.width=Math.min(dLen/dMax*100,100)+'%';bd.style.background=dLen>dMax?'#E24B4A':dLen>120?'#22c55e':'#f59e0b';document.getElementById('s-cnt-title').textContent=tLen+' / '+tMax+' characters';document.getElementById('s-cnt-desc').textContent=dLen+' / '+dMax+' characters';}
-function seoSerp(){const t=document.getElementById('s-title').value;const d=document.getElementById('s-desc').value;document.getElementById('s-serp-title').textContent=t.length>60?t.slice(0,57)+'…':t;document.getElementById('s-serp-desc').textContent=d.length>160?d.slice(0,157)+'…':d;}
-function sFmt(cmd,val){document.getElementById('s-wysiwyg').focus();document.execCommand(cmd,false,val||null);}
-function sInsertLink(){const url=prompt('URL:','https://');if(url)document.execCommand('createLink',false,url);}
-function sUpdateWc(){const t=document.getElementById('s-wysiwyg').innerText||'';const w=t.trim().split(/\s+/).filter(Boolean).length;document.getElementById('s-wc').textContent=w+' words';}
-function sToggleGame(el){el.classList.toggle('on');const chk=el.querySelector('.game-check');if(el.classList.contains('on')){if(!chk){const c=document.createElement('div');c.className='game-check';c.textContent='✓';el.prepend(c);}else chk.style.display='';}else{if(chk)chk.style.display='none';}const total=document.querySelectorAll('#s-games-grid .game-card.on').length;document.getElementById('s-sel-count').textContent=total+' selected';}
-function sFilterGames(q){const cards=document.querySelectorAll('#s-games-grid .game-card');let v=0;cards.forEach(c=>{const m=c.dataset.name.includes(q.toLowerCase());c.style.display=m?'':'none';if(m)v++;});document.getElementById('s-games-total').textContent=v+' games';}
-seoBars();seoSerp();sUpdateWc();
-function openAddModal(){
-  document.getElementById('add-modal-overlay').classList.remove('hidden');
-  document.getElementById('ap-name').value='';
-  setTimeout(()=>document.getElementById('ap-name').focus(),50);
+interface SitePage {
+  id: string
+  label: string
+  url: string
+  status: PageStatus
+  isSystem: boolean
+  info: string
 }
-function closeAddModal(){document.getElementById('add-modal-overlay').classList.add('hidden');}
-function createProvider(){
-  const name=document.getElementById('ap-name').value.trim();
-  if(!name)return;
-  closeAddModal();
-  window.top.location.href='/sandbox/mockup-seo';
+
+interface Provider {
+  id: string
+  abbr: string
+  name: string
+  games: number
+  selected: boolean
 }
-</script>
 
-<!-- Add provider modal -->
-<div id="add-modal-overlay" class="overlay hidden" onclick="if(event.target===this)closeAddModal()">
-  <div class="add-modal" style="max-height:none">
-    <div class="add-modal-header">
-      <div class="add-modal-title">New game provider</div>
-      <button class="add-modal-close" onclick="closeAddModal()">✕</button>
-    </div>
-    <div style="padding:20px;display:flex;flex-direction:column;gap:16px">
-      <div class="field-group">
-        <div class="field-label">Provider name</div>
-        <input id="ap-name" class="field-input" type="text" placeholder="e.g. Relax Gaming" onkeydown="if(event.key==='Enter')createProvider()">
-      </div>
-      <div style="display:flex;justify-content:flex-end;gap:8px">
-        <button class="btn" onclick="closeAddModal()">Cancel</button>
-        <button class="btn btn-primary" onclick="createProvider()">Create →</button>
-      </div>
-    </div>
-  </div>
-</div>
+interface AuditItem {
+  status: 'ok' | 'warn' | 'error'
+  text: string
+}
 
-</body>
-</html>`;
+// ─── Constants ────────────────────────────────────────────────────────────────
 
-export default function MockupPagesPage() {
+const SYSTEM_PAGES: SitePage[] = [
+  { id: 'homepage',   label: 'Homepage',       url: 'betup.com/',           status: 'live',   isSystem: true,  info: 'System page — use Homepage Configurator to manage sections.' },
+  { id: 'promotions', label: 'Promotions',     url: 'betup.com/promotions', status: 'live',   isSystem: true,  info: 'System page — manage individual promotion cards in the Promotions module.' },
+  { id: 'vip',        label: 'VIP club',       url: 'betup.com/vip',        status: 'hidden', isSystem: true,  info: 'This system page is currently hidden from all visitors.' },
+  { id: 'providers',  label: 'Game providers', url: 'betup.com/providers',  status: 'draft',  isSystem: true,  info: 'Custom page. Configure URL, visibility and content below, then publish to make it live.' },
+]
+
+const CUSTOM_PAGES: SitePage[] = [
+  { id: 'about', label: 'About us', url: 'betup.com/about', status: 'live',   isSystem: false, info: 'Custom page — live and visible to all visitors.' },
+  { id: 'blog',  label: 'Blog',     url: 'betup.com/blog',  status: 'hidden', isSystem: false, info: 'Custom page — currently hidden.' },
+]
+
+const INITIAL_PROVIDERS: Provider[] = [
+  { id: 'ezugi',     abbr: 'EZG', name: 'Ezugi',         games: 84,  selected: true  },
+  { id: 'pragmatic', abbr: 'PP',  name: 'Pragmatic Play', games: 312, selected: true  },
+  { id: 'evolution', abbr: 'EVO', name: 'Evolution',      games: 127, selected: true  },
+  { id: 'playngo',   abbr: 'PNG', name: "Play'n GO",      games: 256, selected: true  },
+  { id: 'netent',    abbr: 'NET', name: 'NetEnt',         games: 203, selected: true  },
+  { id: 'yggdrasil', abbr: 'YGG', name: 'Yggdrasil',     games: 91,  selected: false },
+  { id: 'hacksaw',   abbr: 'HCK', name: 'Hacksaw',       games: 54,  selected: false },
+]
+
+const AUDIT_ITEMS: AuditItem[] = [
+  { status: 'ok',    text: 'H1 present and unique' },
+  { status: 'ok',    text: 'Title tag: 50 characters — good length' },
+  { status: 'ok',    text: 'Meta description: 148 characters — good length' },
+  { status: 'warn',  text: 'OG image not set — social shares will use fallback' },
+  { status: 'ok',    text: 'Page is indexable (robots: index, follow)' },
+  { status: 'ok',    text: 'Page included in sitemap' },
+  { status: 'warn',  text: 'No structured data — consider adding JSON-LD' },
+  { status: 'ok',    text: 'Canonical URL: self-referencing (correct)' },
+  { status: 'error', text: 'DE and UA translations missing' },
+]
+
+const TITLE_MAX = 60
+const DESC_MAX  = 160
+
+// ─── Shared helpers ───────────────────────────────────────────────────────────
+
+function StatusDot({ status }: { status: PageStatus }) {
   return (
-    <div className="sandbox-page">
-      <div className="container">
-        <div className="sandbox-header">
-          <nav className="doc-breadcrumb" aria-label="Breadcrumb">
-            <a className="doc-breadcrumb__link" href="/sandbox">Sandbox</a>
-            <span className="doc-breadcrumb__sep">/</span>
-            <span className="doc-breadcrumb__current">Page manager</span>
-          </nav>
-          <span className="sandbox-card__tag" style={{ display: 'inline-block', marginBottom: 8 }}>iGaming Backoffice (mockup)</span>
-          <h1 className="sandbox-header__title">Page manager · BetUp</h1>
-          <p className="sandbox-header__description">
-            Create, hide and delete custom pages. Click pages in the left nav, toggle providers, switch layout, publish.
-          </p>
+    <span className={cn(
+      'size-[6px] shrink-0 rounded-full',
+      status === 'live'   && 'bg-success',
+      status === 'hidden' && 'bg-muted-foreground/40',
+      status === 'draft'  && 'bg-amber-400',
+    )} />
+  )
+}
+
+function StatusBadge({ status }: { status: PageStatus }) {
+  return (
+    <span className={cn(
+      'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
+      status === 'live'   && 'bg-success-bg text-success',
+      status === 'hidden' && 'bg-muted text-muted-foreground',
+      status === 'draft'  && 'bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400',
+    )}>
+      {status === 'live' ? 'Live' : status === 'hidden' ? 'Hidden' : 'Draft'}
+    </span>
+  )
+}
+
+function FieldRow({ children }: { children: React.ReactNode }) {
+  return <div className="grid grid-cols-1 gap-3 tablet:grid-cols-2">{children}</div>
+}
+
+function FieldGroup({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <div className="flex items-center justify-between">
+        <Label className="text-xs font-medium text-muted-foreground">{label}</Label>
+        {hint && <span className="text-xs text-muted-foreground">{hint}</span>}
+      </div>
+      {children}
+    </div>
+  )
+}
+
+function CharBar({ value, max }: { value: number; max: number }) {
+  const pct   = Math.min((value / max) * 100, 100)
+  const color = value > max ? 'bg-destructive' : value > max * 0.83 ? 'bg-success' : 'bg-amber-400'
+  return (
+    <div className="mt-1.5 h-[3px] w-full rounded-full bg-border">
+      <div className={cn('h-[3px] rounded-full transition-all duration-150', color)} style={{ width: `${pct}%` }} />
+    </div>
+  )
+}
+
+function AuditIcon({ status }: { status: AuditItem['status'] }) {
+  if (status === 'ok')   return <CheckCircle2 className="size-4 shrink-0 text-success" />
+  if (status === 'warn') return <AlertTriangle className="size-4 shrink-0 text-amber-500" />
+  return <XCircle className="size-4 shrink-0 text-destructive" />
+}
+
+function PageTopbar({ page, status, children }: { page: SitePage; status: PageStatus; children: React.ReactNode }) {
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-3 border-b px-5 py-3.5">
+      <div>
+        <p className="text-[15px] font-medium leading-tight">{page.label}</p>
+        <p className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground">
+          <Globe className="size-3" />{page.url}
+        </p>
+      </div>
+      <div className="flex items-center gap-2">
+        <StatusBadge status={status} />
+        {children}
+      </div>
+    </div>
+  )
+}
+
+// ─── Layout selector ──────────────────────────────────────────────────────────
+
+type Layout = '4col' | '3col' | 'list'
+
+function LayoutOption({ value, active, onClick, children, label }: {
+  value: Layout; active: boolean; onClick: () => void; children: React.ReactNode; label: string
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={cn(
+        'flex flex-col items-center gap-1.5 rounded-lg border px-3 py-2 transition-colors',
+        active
+          ? 'border-brand bg-background text-brand'
+          : 'border-border bg-muted/40 text-muted-foreground hover:border-subtle-border',
+      )}
+    >
+      <div className="flex items-end gap-[3px]">{children}</div>
+      <span className="text-[10px] font-medium">{label}</span>
+    </button>
+  )
+}
+
+function Bar({ w, h, active }: { w: number; h: number; active: boolean }) {
+  return (
+    <div
+      className={cn('rounded-sm', active ? 'bg-brand' : 'bg-muted-foreground/30')}
+      style={{ width: w, height: h }}
+    />
+  )
+}
+
+// ─── New page dialog ──────────────────────────────────────────────────────────
+
+function NewPageDialog({ onCreated }: { onCreated: (page: SitePage) => void }) {
+  const [open, setOpen]     = useState(false)
+  const [name, setName]     = useState('')
+  const [slug, setSlug]     = useState('')
+  const nameRef             = useRef<HTMLInputElement>(null)
+
+  function handleNameChange(v: string) {
+    setName(v)
+    setSlug('/' + v.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''))
+  }
+
+  function handleCreate() {
+    if (!name.trim()) return
+    const id = 'custom-' + Date.now()
+    onCreated({
+      id,
+      label: name.trim(),
+      url: 'betup.com' + slug,
+      status: 'draft',
+      isSystem: false,
+      info: 'Custom page — configure content and SEO, then publish to make it live.',
+    })
+    setName('')
+    setSlug('')
+    setOpen(false)
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button size="sm" className="w-full justify-start gap-1.5">
+          <Plus className="size-3.5" />
+          New page
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>New page</DialogTitle>
+          <DialogDescription>Enter a name and URL slug for the new page.</DialogDescription>
+        </DialogHeader>
+
+        <div className="flex flex-col gap-3 py-1">
+          <div className="flex flex-col gap-1.5">
+            <Label className="text-xs font-medium text-muted-foreground">Page name</Label>
+            <Input
+              ref={nameRef}
+              autoFocus
+              placeholder="e.g. Responsible gaming"
+              value={name}
+              onChange={(e) => handleNameChange(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
+            />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label className="text-xs font-medium text-muted-foreground">URL slug</Label>
+            <Input
+              placeholder="/responsible-gaming"
+              value={slug}
+              onChange={(e) => setSlug(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
+            />
+          </div>
         </div>
-        <div className="sandbox-section">
-          <iframe
-            srcDoc={html}
-            style={{ width: '100%', height: 900, border: 'none', borderRadius: 12 }}
-            title="Page manager mockup"
+
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button variant="outline" size="sm">Cancel</Button>
+          </DialogClose>
+          <Button size="sm" disabled={!name.trim()} onClick={handleCreate}>
+            Create page
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+// ─── Delete page dialog ───────────────────────────────────────────────────────
+
+function DeletePageDialog({
+  pageName,
+  onConfirm,
+}: {
+  pageName: string
+  onConfirm: () => void
+}) {
+  const [open, setOpen] = useState(false)
+
+  function handleConfirm() {
+    onConfirm()
+    setOpen(false)
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button
+          variant="outline"
+          size="sm"
+          className="text-destructive border-destructive/30 hover:bg-destructive/5 hover:text-destructive"
+        >
+          Delete page
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Delete "{pageName}"?</DialogTitle>
+          <DialogDescription>
+            This will permanently remove the page and all its content. This action cannot be undone.
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button variant="outline" size="sm">Cancel</Button>
+          </DialogClose>
+          <Button
+            size="sm"
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            onClick={handleConfirm}
+          >
+            Delete page
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+// ─── Add provider dialog ──────────────────────────────────────────────────────
+
+function AddProviderDialog({ onAdd }: { onAdd: (name: string) => void }) {
+  const router              = useRouter()
+  const [open, setOpen]     = useState(false)
+  const [name, setName]     = useState('')
+
+  function handleAdd() {
+    if (!name.trim()) return
+    onAdd(name.trim())
+    setName('')
+    setOpen(false)
+    router.push('/sandbox/mockup-seo')
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <button className="flex flex-col items-center justify-center gap-1.5 rounded-lg border border-dashed border-border p-2.5 text-center transition-colors hover:border-subtle-border">
+          <div className="flex size-7 items-center justify-center rounded-full bg-muted text-muted-foreground">
+            <Plus className="size-3.5" />
+          </div>
+          <span className="text-[10px] text-muted-foreground">Add new</span>
+        </button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Add game provider</DialogTitle>
+          <DialogDescription>
+            Enter the provider name. You'll be taken to the SEO editor to configure its page.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="flex flex-col gap-1.5 py-1">
+          <Label className="text-xs font-medium text-muted-foreground">Provider name</Label>
+          <Input
+            autoFocus
+            placeholder="e.g. Red Tiger"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
           />
         </div>
+
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button variant="outline" size="sm">Cancel</Button>
+          </DialogClose>
+          <Button size="sm" disabled={!name.trim()} onClick={handleAdd}>
+            Add &amp; open SEO editor
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+// ─── Providers view (full tabbed editor) ──────────────────────────────────────
+
+function ProvidersView({
+  page,
+  status,
+  onPublish,
+  onDelete,
+}: {
+  page: SitePage
+  status: PageStatus
+  onPublish: () => void
+  onDelete: () => void
+}) {
+  const [layout,    setLayout]    = useState<Layout>('4col')
+  const [providers, setProviders] = useState<Provider[]>(INITIAL_PROVIDERS)
+  const [h1,        setH1]        = useState('Game providers at BetUp Casino')
+  const [metaTitle, setMetaTitle] = useState('Game Providers — BetUp Casino | Slots & Live Games')
+  const [metaDesc,  setMetaDesc]  = useState('Explore 12 top game providers at BetUp Casino. Play 2000+ slots, live casino games and crash games from Pragmatic Play, Evolution, NetEnt and more.')
+  const [activeLang, setActiveLang] = useState<'EN' | 'DE' | 'UA'>('EN')
+
+  const serpTitle = metaTitle.length > TITLE_MAX ? metaTitle.slice(0, 57) + '…' : metaTitle
+  const serpDesc  = metaDesc.length  > DESC_MAX  ? metaDesc.slice(0, 157)  + '…' : metaDesc
+
+  function toggleProvider(id: string) {
+    setProviders(prev => prev.map(p => p.id === id ? { ...p, selected: !p.selected } : p))
+  }
+
+  const TAB_LABELS: Record<string, string> = {
+    main: 'Main', basic: 'Basic SEO', content: 'Content',
+    og: 'Social / OG', advanced: 'Advanced', audit: 'SEO audit',
+  }
+
+  return (
+    <>
+      {/* Topbar */}
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b px-5 py-3.5">
+        <div>
+          <p className="text-[15px] font-medium leading-tight">{page.label}</p>
+          <p className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground">
+            <Globe className="size-3" />{page.url}
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <StatusBadge status={status} />
+          <DeletePageDialog pageName={page.label} onConfirm={onDelete} />
+          <Button variant="outline" size="sm">Preview</Button>
+          <Button size="sm" onClick={onPublish}>Publish</Button>
+        </div>
+      </div>
+
+      {/* Scrollable content */}
+      <div className="flex-1 overflow-y-auto">
+
+        {/* Info box */}
+        <div className="mx-5 mt-4 flex items-start gap-2 rounded-lg bg-brand-bg px-3 py-2.5">
+          <AlertCircle className="mt-0.5 size-3.5 shrink-0 text-brand" />
+          <p className="text-xs leading-relaxed text-brand">{page.info}</p>
+        </div>
+
+        {/* Tabs */}
+        <Tabs defaultValue="main" className="mt-4">
+          <div className="overflow-x-auto border-b px-5">
+            <TabsList className="h-auto w-max gap-0 rounded-none bg-transparent p-0">
+              {Object.entries(TAB_LABELS).map(([value, label]) => (
+                <TabsTrigger
+                  key={value}
+                  value={value}
+                  className="mb-[-1px] rounded-none border-b-2 border-transparent px-4 py-2.5 text-sm data-[state=active]:border-brand data-[state=active]:text-brand data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+                >
+                  {label}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </div>
+
+          {/* ── MAIN ─────────────────────────────────────────────────────── */}
+          <TabsContent value="main" className="flex flex-col gap-5 p-5">
+
+            <div className="flex flex-col gap-4 max-w-[640px]">
+              <FieldRow>
+                <FieldGroup label="Page title">
+                  <Input defaultValue="Game providers" />
+                </FieldGroup>
+                <FieldGroup label="URL slug">
+                  <Input defaultValue="/providers" />
+                </FieldGroup>
+              </FieldRow>
+              <FieldRow>
+                <FieldGroup label="Show in navigation">
+                  <Select defaultValue="main">
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="main">Yes — main menu</SelectItem>
+                      <SelectItem value="footer">Yes — footer only</SelectItem>
+                      <SelectItem value="hidden">No — hidden</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </FieldGroup>
+                <FieldGroup label="Access">
+                  <Select defaultValue="public">
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="public">Public</SelectItem>
+                      <SelectItem value="loggedin">Logged in only</SelectItem>
+                      <SelectItem value="vip">VIP only</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </FieldGroup>
+              </FieldRow>
+            </div>
+
+            <Separator className="max-w-[640px]" />
+
+            {/* Layout selector */}
+            <div className="flex flex-col gap-3">
+              <Label className="text-xs font-medium text-muted-foreground">Page layout</Label>
+              <div className="flex gap-2">
+                <LayoutOption value="4col" active={layout === '4col'} onClick={() => setLayout('4col')} label="4-column">
+                  {[13, 13, 13, 13].map((w, i) => <Bar key={i} w={w} h={14} active={layout === '4col'} />)}
+                </LayoutOption>
+                <LayoutOption value="3col" active={layout === '3col'} onClick={() => setLayout('3col')} label="3-column">
+                  {[17, 17, 17].map((w, i) => <Bar key={i} w={w} h={14} active={layout === '3col'} />)}
+                </LayoutOption>
+                <LayoutOption value="list" active={layout === 'list'} onClick={() => setLayout('list')} label="List view">
+                  <div className="flex flex-col gap-[3px]">
+                    {[40, 40, 40].map((w, i) => <Bar key={i} w={w} h={5} active={layout === 'list'} />)}
+                  </div>
+                </LayoutOption>
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* Providers grid */}
+            <div className="flex flex-col gap-3">
+              <Label className="text-xs font-medium text-muted-foreground">
+                Providers to display — click to toggle
+              </Label>
+              <div className="grid grid-cols-4 gap-2 tablet:grid-cols-6 desktop:grid-cols-8">
+                {providers.map((prov) => (
+                  <button
+                    key={prov.id}
+                    onClick={() => toggleProvider(prov.id)}
+                    className={cn(
+                      'group relative flex flex-col items-center gap-1.5 rounded-lg border p-2.5 text-center transition-colors',
+                      prov.selected
+                        ? 'border-brand bg-background'
+                        : 'border-border bg-muted/40 hover:border-subtle-border',
+                    )}
+                  >
+                    {prov.selected && (
+                      <span className="absolute right-1.5 top-1 text-[10px] font-bold text-brand">✓</span>
+                    )}
+                    {/* Logo placeholder */}
+                    <div className="flex h-7 w-full items-center justify-center rounded border border-border bg-background text-[10px] font-semibold text-muted-foreground">
+                      {prov.abbr}
+                    </div>
+                    <span className="text-[10px] font-medium leading-tight">{prov.name}</span>
+                    <span className="text-[10px] text-muted-foreground">{prov.games} games</span>
+                    {/* Edit SEO — visible on hover */}
+                    <Link
+                      href="/sandbox/mockup-seo"
+                      onClick={(e) => e.stopPropagation()}
+                      className="absolute bottom-1 right-1 hidden items-center gap-0.5 rounded bg-brand-bg px-1.5 py-0.5 text-[9px] font-semibold text-brand group-hover:flex"
+                    >
+                      Edit SEO <ExternalLink className="size-2.5" />
+                    </Link>
+                  </button>
+                ))}
+
+                {/* Add new */}
+                <AddProviderDialog
+                  onAdd={(name) => {
+                    const abbr = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 3)
+                    setProviders(prev => [
+                      ...prev,
+                      { id: 'new-' + Date.now(), abbr, name, games: 0, selected: true },
+                    ])
+                  }}
+                />
+              </div>
+            </div>
+
+          </TabsContent>
+
+          {/* ── BASIC SEO ─────────────────────────────────────────────────── */}
+          <TabsContent value="basic" className="flex flex-col gap-4 p-5 max-w-[720px]">
+
+            {/* Lang switcher */}
+            <div className="flex gap-1.5">
+              {(['EN', 'DE', 'UA'] as const).map((lang) => (
+                <button
+                  key={lang}
+                  onClick={() => setActiveLang(lang)}
+                  className={cn(
+                    'rounded-md border px-3 py-1 text-xs font-medium transition-colors',
+                    activeLang === lang
+                      ? 'border-brand bg-brand text-white'
+                      : 'border-border bg-background text-muted-foreground hover:text-foreground',
+                  )}
+                >
+                  {lang}
+                </button>
+              ))}
+            </div>
+
+            <FieldGroup label="H1 — page heading" hint="shown on the page, 1 per page">
+              <Input value={h1} onChange={(e) => setH1(e.target.value)} />
+            </FieldGroup>
+
+            <FieldGroup label="Title tag" hint="shown in browser tab and Google">
+              <Input value={metaTitle} onChange={(e) => setMetaTitle(e.target.value)} />
+              <CharBar value={metaTitle.length} max={TITLE_MAX} />
+              <p className="text-xs text-muted-foreground">{metaTitle.length} / {TITLE_MAX} characters</p>
+            </FieldGroup>
+
+            <FieldGroup label="Meta description" hint="shown under title in Google">
+              <Textarea rows={3} value={metaDesc} onChange={(e) => setMetaDesc(e.target.value)} />
+              <CharBar value={metaDesc.length} max={DESC_MAX} />
+              <p className="text-xs text-muted-foreground">{metaDesc.length} / {DESC_MAX} characters</p>
+            </FieldGroup>
+
+            <Separator />
+
+            <FieldGroup label="SERP preview">
+              <div className="rounded-xl border bg-muted/40 p-4">
+                <p className="mb-2.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Google search result</p>
+                <p className="text-xs text-[#1a7f4b] dark:text-green-400">betup.com › providers</p>
+                <p className="mt-0.5 text-[18px] font-normal leading-snug text-[#1558d6] dark:text-blue-400">{serpTitle}</p>
+                <p className="mt-1 text-sm leading-relaxed text-[#555] dark:text-muted-foreground">{serpDesc}</p>
+              </div>
+            </FieldGroup>
+
+          </TabsContent>
+
+          {/* ── CONTENT ───────────────────────────────────────────────────── */}
+          <TabsContent value="content" className="flex flex-col gap-4 p-5">
+            <div className="max-w-[720px]">
+              <FieldGroup label="Page text" hint="shown below the provider grid">
+                <div className="overflow-hidden rounded-lg border">
+                  <div className="flex flex-wrap items-center gap-0.5 border-b bg-muted/50 px-2 py-1.5">
+                    {['B', 'I', 'U', '|', 'H2', '¶', '|', '• list', '1. list', '|', '⌘ link'].map((t, i) =>
+                      t === '|'
+                        ? <span key={i} className="mx-1 h-4 w-px bg-border" />
+                        : <button key={i} className="inline-flex h-6 min-w-[26px] items-center justify-center rounded px-1.5 text-xs text-muted-foreground hover:bg-muted hover:text-foreground">{t}</button>
+                    )}
+                  </div>
+                  <div className="min-h-[140px] p-3 text-sm leading-relaxed outline-none" contentEditable suppressContentEditableWarning>
+                    <h2 className="mb-1 mt-0.5 text-[15px] font-semibold">Top Game Providers at BetUp Casino</h2>
+                    <p className="mb-1.5">BetUp Casino partners with 12 of the world's leading game studios, delivering over 2,000 slots, live casino tables, and crash games. From <strong>Pragmatic Play's</strong> iconic Sweet Bonanza to <strong>Evolution's</strong> live Lightning Roulette — every title is hand-picked for quality.</p>
+                    <p>All providers are licensed, regularly audited for fairness, and offer games optimised for desktop and mobile.</p>
+                  </div>
+                </div>
+              </FieldGroup>
+            </div>
+          </TabsContent>
+
+          {/* ── SOCIAL / OG ───────────────────────────────────────────────── */}
+          <TabsContent value="og" className="flex flex-col gap-4 p-5 max-w-[720px]">
+            <FieldGroup label="OG title" hint="shown when sharing on social">
+              <Input defaultValue="Game Providers — BetUp Casino" />
+            </FieldGroup>
+            <FieldGroup label="OG description">
+              <Textarea rows={2} defaultValue="Discover all game providers at BetUp. Slots, live casino and more from the world's top studios." />
+            </FieldGroup>
+            <FieldGroup label="OG image" hint="recommended 1200×630px">
+              <div className="overflow-hidden rounded-lg border">
+                <div className="flex h-20 cursor-pointer items-center justify-center bg-muted/50 text-xs text-muted-foreground transition-colors hover:bg-muted">
+                  Click to upload OG image (1200×630)
+                </div>
+                <div className="border-t bg-muted/50 px-3 py-2.5">
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground">BETUP.COM</p>
+                  <p className="mt-0.5 text-sm font-medium">Game Providers — BetUp Casino</p>
+                  <p className="text-xs text-muted-foreground">Discover all game providers at BetUp.</p>
+                </div>
+              </div>
+            </FieldGroup>
+            <FieldRow>
+              <FieldGroup label="Twitter card type">
+                <Select defaultValue="large">
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="large">summary_large_image</SelectItem>
+                    <SelectItem value="summary">summary</SelectItem>
+                  </SelectContent>
+                </Select>
+              </FieldGroup>
+              <FieldGroup label="Twitter site handle">
+                <Input defaultValue="@betup" />
+              </FieldGroup>
+            </FieldRow>
+          </TabsContent>
+
+          {/* ── ADVANCED ──────────────────────────────────────────────────── */}
+          <TabsContent value="advanced" className="flex flex-col gap-4 p-5 max-w-[720px]">
+            <FieldRow>
+              <FieldGroup label="Canonical URL" hint="leave blank = self">
+                <Input placeholder="https://betup.com/providers" />
+              </FieldGroup>
+              <FieldGroup label="Robots">
+                <Select defaultValue="index">
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="index">index, follow</SelectItem>
+                    <SelectItem value="noindex-follow">noindex, follow</SelectItem>
+                    <SelectItem value="noindex">noindex, nofollow</SelectItem>
+                  </SelectContent>
+                </Select>
+              </FieldGroup>
+            </FieldRow>
+            <FieldRow>
+              <FieldGroup label="Include in sitemap">
+                <Select defaultValue="yes">
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="yes">Yes</SelectItem>
+                    <SelectItem value="no">No</SelectItem>
+                  </SelectContent>
+                </Select>
+              </FieldGroup>
+              <FieldGroup label="Sitemap priority">
+                <Select defaultValue="high">
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="high">0.8 — high</SelectItem>
+                    <SelectItem value="normal">0.5 — normal</SelectItem>
+                    <SelectItem value="low">0.3 — low</SelectItem>
+                  </SelectContent>
+                </Select>
+              </FieldGroup>
+            </FieldRow>
+            <Separator />
+            <FieldGroup label="Structured data (JSON-LD)">
+              <Textarea rows={5} className="font-mono text-xs" defaultValue={`{\n  "@context": "https://schema.org",\n  "@type": "ItemList",\n  "name": "Game providers at BetUp Casino"\n}`} />
+            </FieldGroup>
+            <FieldGroup label="Hreflang">
+              <Select defaultValue="auto">
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="auto">Auto — generate from active languages</SelectItem>
+                  <SelectItem value="manual">Manual</SelectItem>
+                  <SelectItem value="disabled">Disabled</SelectItem>
+                </SelectContent>
+              </Select>
+            </FieldGroup>
+          </TabsContent>
+
+          {/* ── SEO AUDIT ─────────────────────────────────────────────────── */}
+          <TabsContent value="audit" className="p-5 max-w-[480px]">
+            <div className="flex flex-col gap-2 rounded-xl bg-muted/50 p-4">
+              {AUDIT_ITEMS.map((item, i) => (
+                <div key={i} className="flex items-center gap-2.5">
+                  <AuditIcon status={item.status} />
+                  <span className="text-sm text-foreground">{item.text}</span>
+                </div>
+              ))}
+            </div>
+          </TabsContent>
+
+        </Tabs>
+      </div>
+    </>
+  )
+}
+
+// ─── Simple page views ────────────────────────────────────────────────────────
+
+function SimpleView({ page, status, children }: { page: SitePage; status: PageStatus; children: React.ReactNode }) {
+  return (
+    <>
+      <PageTopbar page={page} status={status}>{children}</PageTopbar>
+      <div className="p-5">
+        <p className="text-sm text-muted-foreground">{page.info}</p>
+      </div>
+    </>
+  )
+}
+
+// ─── Main page ────────────────────────────────────────────────────────────────
+
+export default function MockupPagesPage() {
+  const [activeId,     setActiveId]     = useState<string>('providers')
+  const [customPages,  setCustomPages]  = useState<SitePage[]>(CUSTOM_PAGES)
+  // Track live statuses separately so Publish can update sidebar dot
+  const [pageStatuses, setPageStatuses] = useState<Record<string, PageStatus>>({
+    providers: 'draft',
+    about: 'live',
+    blog: 'hidden',
+  })
+
+  const allPages   = [...SYSTEM_PAGES, ...customPages]
+  const activePage = allPages.find((p) => p.id === activeId) ?? allPages[0]
+
+  function getStatus(id: string): PageStatus {
+    return pageStatuses[id] ?? activePage.status
+  }
+
+  function setStatus(id: string, status: PageStatus) {
+    setPageStatuses(prev => ({ ...prev, [id]: status }))
+  }
+
+  function handleDeletePage(id: string) {
+    setCustomPages(prev => prev.filter(p => p.id !== id))
+    // If we deleted the active page, fall back to providers
+    if (activeId === id) setActiveId('providers')
+  }
+
+  function renderView() {
+    const status = getStatus(activeId)
+    switch (activeId) {
+      case 'homepage':
+        return <SimpleView page={activePage} status="live"><Button size="sm">Edit sections</Button></SimpleView>
+      case 'promotions':
+        return <SimpleView page={activePage} status="live"><Button size="sm">Manage promos</Button></SimpleView>
+      case 'vip':
+        return (
+          <SimpleView page={activePage} status="hidden">
+            <Button variant="outline" size="sm">Show page</Button>
+            <Button size="sm">Edit content</Button>
+          </SimpleView>
+        )
+      case 'providers':
+        return (
+          <ProvidersView
+            page={activePage}
+            status={status}
+            onPublish={() => setStatus('providers', 'live')}
+            onDelete={() => {}} // system page — delete disabled
+          />
+        )
+      case 'about':
+        return (
+          <SimpleView page={activePage} status={status}>
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-destructive border-destructive/30 hover:bg-destructive/5 hover:text-destructive"
+              onClick={() => setStatus('about', 'hidden')}
+            >
+              Hide page
+            </Button>
+            <Button size="sm">Edit content</Button>
+          </SimpleView>
+        )
+      case 'blog':
+        return (
+          <SimpleView page={activePage} status={status}>
+            <Button variant="outline" size="sm" onClick={() => setStatus('blog', 'live')}>Show page</Button>
+            <DeletePageDialog pageName={activePage.label} onConfirm={() => handleDeletePage('blog')} />
+          </SimpleView>
+        )
+      default: {
+        // Custom pages added via New Page dialog
+        const cp = customPages.find(p => p.id === activeId)
+        if (!cp) return null
+        return (
+          <SimpleView page={cp} status={status}>
+            <DeletePageDialog pageName={cp.label} onConfirm={() => handleDeletePage(cp.id)} />
+            <Button size="sm" onClick={() => setStatus(cp.id, 'live')}>Publish</Button>
+          </SimpleView>
+        )
+      }
+    }
+  }
+
+  function NavItem({ page }: { page: SitePage }) {
+    const isActive  = page.id === activeId
+    const navStatus = getStatus(page.id) ?? page.status
+    return (
+      <button
+        onClick={() => setActiveId(page.id)}
+        className={cn(
+          'flex w-full items-center gap-2 border-l-2 px-4 py-2 text-left text-sm transition-colors',
+          isActive
+            ? 'border-brand bg-background text-foreground'
+            : 'border-transparent text-muted-foreground hover:bg-background/60 hover:text-foreground',
+        )}
+      >
+        <StatusDot status={navStatus} />
+        <span className={cn('flex-1 truncate', navStatus === 'hidden' && !isActive && 'opacity-50')}>
+          {page.label}
+        </span>
+        {page.isSystem && (
+          <span className="rounded px-1 py-px text-[9px] font-medium uppercase tracking-wide text-muted-foreground bg-muted">
+            sys
+          </span>
+        )}
+      </button>
+    )
+  }
+
+  return (
+    <div className="py-12 pb-20">
+      <div className="mx-auto max-w-[1240px] px-4">
+
+        {/* Breadcrumb */}
+        <nav className="mb-6 flex items-center gap-1 text-sm text-muted-foreground">
+          <Link href="/sandbox" className="hover:text-foreground transition-colors">Sandbox</Link>
+          <ChevronRight className="size-3.5" />
+          <span className="text-foreground">Page manager</span>
+        </nav>
+
+        {/* Page header */}
+        <div className="mb-8">
+          <h1 className="mb-2 text-[2rem] font-bold tracking-[-0.03em]">Page manager</h1>
+          <p className="text-base leading-relaxed text-muted-foreground">
+            Create, configure and publish pages. Manage URL slugs, visibility, SEO and content.
+          </p>
+        </div>
+
+        {/* Tool area */}
+        <div className="flex min-h-[600px] overflow-hidden rounded-xl border border-border">
+
+          {/* Sidebar */}
+          <aside className="flex w-[220px] shrink-0 flex-col border-r border-border bg-muted/30">
+            <div className="border-b border-border px-4 py-3">
+              <p className="mb-2.5 text-[10px] font-semibold uppercase tracking-[0.07em] text-muted-foreground">
+                Site pages
+              </p>
+              <NewPageDialog
+                onCreated={(page) => {
+                  setCustomPages(prev => [...prev, page])
+                  setActiveId(page.id)
+                }}
+              />
+            </div>
+
+            <div className="py-2">
+              <p className="px-4 pb-1 pt-2 text-[10px] font-semibold uppercase tracking-[0.07em] text-muted-foreground">
+                System pages
+              </p>
+              {SYSTEM_PAGES.map((page) => <NavItem key={page.id} page={page} />)}
+            </div>
+
+            <div className="mx-4 h-px bg-border" />
+
+            <div className="py-2">
+              <p className="px-4 pb-1 pt-2 text-[10px] font-semibold uppercase tracking-[0.07em] text-muted-foreground">
+                Custom pages
+              </p>
+              {customPages.map((page) => <NavItem key={page.id} page={page} />)}
+            </div>
+          </aside>
+
+          {/* Main content */}
+          <main className="flex flex-1 flex-col bg-background overflow-hidden">
+            {renderView()}
+          </main>
+
+        </div>
+
       </div>
     </div>
-  );
+  )
 }
