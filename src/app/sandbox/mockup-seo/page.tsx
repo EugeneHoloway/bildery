@@ -187,9 +187,9 @@ export default function MockupSeoPage() {
         </div>
 
         {/* Info box */}
-        <div className="mb-6 flex items-start gap-2 rounded-lg bg-brand-bg px-3 py-2.5">
-          <AlertCircle className="mt-0.5 size-3.5 shrink-0 text-brand" />
-          <p className="text-xs text-brand leading-relaxed">
+        <div className="mb-6 flex items-start gap-2 rounded-lg border border-border bg-muted px-3 py-2.5">
+          <AlertCircle className="mt-0.5 size-3.5 shrink-0 text-muted-foreground" />
+          <p className="text-xs text-foreground leading-relaxed">
             Custom page. Configure URL, visibility and content below, then publish to make it live.
           </p>
         </div>
@@ -211,7 +211,7 @@ export default function MockupSeoPage() {
                     <TabsTrigger
                       key={tab}
                       value={tab}
-                      className="mb-[-1px] rounded-none border-b-2 border-transparent px-4 py-2.5 text-sm data-[state=active]:border-brand data-[state=active]:text-brand data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+                      className="mb-[-1px] rounded-none border-b-2 border-transparent px-4 py-2.5 text-sm font-medium text-muted-foreground data-[state=active]:border-foreground data-[state=active]:text-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none"
                     >
                       {labels[tab]}
                     </TabsTrigger>
@@ -270,8 +270,8 @@ export default function MockupSeoPage() {
                     className={cn(
                       'rounded-md border px-3 py-1 text-xs font-medium transition-colors',
                       activeLang === lang
-                        ? 'border-brand bg-brand text-white'
-                        : 'border-border bg-background text-muted-foreground hover:text-foreground'
+                        ? 'border-foreground bg-foreground text-background'
+                        : 'border-border bg-background text-muted-foreground hover:border-foreground/40 hover:text-foreground'
                     )}
                   >
                     {lang}
@@ -395,12 +395,12 @@ export default function MockupSeoPage() {
                       className={cn(
                         'relative flex flex-col items-center gap-1 rounded-lg border p-2 text-center transition-colors',
                         game.selected
-                          ? 'border-brand bg-background'
+                          ? 'border-foreground bg-background'
                           : 'border-border bg-muted/40 hover:border-subtle-border'
                       )}
                     >
                       {game.selected && (
-                        <span className="absolute right-1.5 top-1 text-[10px] font-bold text-brand">✓</span>
+                        <span className="absolute right-1.5 top-1 text-[10px] font-bold text-foreground">✓</span>
                       )}
                       <div
                         className={cn(
