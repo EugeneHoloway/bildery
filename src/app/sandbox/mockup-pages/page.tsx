@@ -459,7 +459,7 @@ function ProvidersView({
       </div>
 
       {/* Scrollable content */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
 
         {/* Info box */}
         <div className="mx-5 mt-4 flex items-start gap-2 rounded-lg border border-border bg-muted px-3 py-2.5">
@@ -469,8 +469,8 @@ function ProvidersView({
 
         {/* Tabs */}
         <Tabs defaultValue="main" className="mt-4">
-          <div className="overflow-x-auto border-b px-5">
-            <TabsList className="h-auto w-max gap-0 rounded-none bg-transparent p-0">
+          <div className="border-b px-5">
+            <TabsList className="h-auto flex-wrap gap-0 rounded-none bg-transparent p-0">
               {Object.entries(TAB_LABELS).map(([value, label]) => (
                 <TabsTrigger
                   key={value}
@@ -521,26 +521,6 @@ function ProvidersView({
 
             <Separator className="max-w-[640px]" />
 
-            {/* Layout selector */}
-            <div className="flex flex-col gap-3">
-              <Label className="text-xs font-medium text-muted-foreground">Page layout</Label>
-              <div className="flex gap-2">
-                <LayoutOption value="4col" active={layout === '4col'} onClick={() => setLayout('4col')} label="4-column">
-                  {[0,1,2,3].map((i) => <Block key={i} active={layout === '4col'} />)}
-                </LayoutOption>
-                <LayoutOption value="3col" active={layout === '3col'} onClick={() => setLayout('3col')} label="3-column">
-                  {[0,1,2].map((i) => <Block key={i} active={layout === '3col'} />)}
-                </LayoutOption>
-                <LayoutOption value="list" active={layout === 'list'} onClick={() => setLayout('list')} label="List view">
-                  <div className="flex flex-col gap-1">
-                    {[0,1,2].map((i) => <ListLine key={i} active={layout === 'list'} />)}
-                  </div>
-                </LayoutOption>
-              </div>
-            </div>
-
-            <Separator />
-
             {/* Providers grid */}
             <div className="flex flex-col gap-3">
               <Label className="text-xs font-medium text-muted-foreground">
@@ -577,13 +557,11 @@ function ProvidersView({
                     <span className="text-xs text-muted-foreground">{prov.games} games</span>
 
                     {/* Button */}
-                    <Link
-                      href="/sandbox/mockup-seo"
-                      onClick={(e) => e.stopPropagation()}
-                      className="flex w-full items-center justify-center rounded-lg bg-foreground py-2 text-xs font-semibold text-background transition-opacity hover:opacity-80"
-                    >
-                      Webpage setup
-                    </Link>
+                    <Button size="sm" asChild>
+                      <Link href="/sandbox/mockup-seo" onClick={(e) => e.stopPropagation()}>
+                        Webpage setup
+                      </Link>
+                    </Button>
                   </div>
                 ))}
 
@@ -928,7 +906,7 @@ export default function MockupPagesPage() {
         </div>
 
         {/* Tool area */}
-        <div className="flex min-h-[600px] overflow-hidden rounded-xl border border-border">
+        <div className="flex h-[calc(100vh-16rem)] min-h-[600px] overflow-hidden rounded-xl border border-border">
 
           {/* Sidebar */}
           <aside className="flex w-[220px] shrink-0 flex-col border-r border-border bg-muted/30">
