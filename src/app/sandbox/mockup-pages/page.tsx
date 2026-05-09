@@ -15,6 +15,7 @@ import {
 } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
@@ -542,26 +543,39 @@ function ProvidersView({
                     key={prov.id}
                     onClick={() => toggleProvider(prov.id)}
                     className={cn(
-                      'group relative flex flex-col items-center gap-1.5 rounded-lg border p-2.5 text-center transition-colors',
+                      'group relative flex flex-col items-center gap-2 rounded-lg border p-3 text-center transition-colors',
                       prov.selected
-                        ? 'border-brand bg-background'
-                        : 'border-border bg-muted/40 hover:border-subtle-border',
+                        ? 'border-brand bg-background shadow-[0_0_0_1px_hsl(var(--brand)/0.15)]'
+                        : 'border-border bg-muted/40 hover:border-subtle-border hover:bg-background/60',
                     )}
                   >
-                    {prov.selected && (
-                      <span className="absolute right-1.5 top-1 text-[10px] font-bold text-brand">✓</span>
-                    )}
+                    {/* Checkbox — top-right, purely visual */}
+                    <Checkbox
+                      checked={prov.selected}
+                      tabIndex={-1}
+                      className="pointer-events-none absolute right-2 top-2 h-3.5 w-3.5"
+                    />
+
                     {/* Logo placeholder */}
-                    <div className="flex h-7 w-full items-center justify-center rounded border border-border bg-background text-[10px] font-semibold text-muted-foreground">
+                    <div className={cn(
+                      'flex h-8 w-full items-center justify-center rounded-md border text-[10px] font-bold tracking-wide transition-colors',
+                      prov.selected
+                        ? 'border-brand/30 bg-brand-bg text-brand'
+                        : 'border-border bg-background text-muted-foreground',
+                    )}>
                       {prov.abbr}
                     </div>
-                    <span className="text-[10px] font-medium leading-tight">{prov.name}</span>
-                    <span className="text-[10px] text-muted-foreground">{prov.games} games</span>
+
+                    <div className="flex flex-col gap-0.5">
+                      <span className="text-[10px] font-semibold leading-tight">{prov.name}</span>
+                      <span className="text-[10px] text-muted-foreground">{prov.games} games</span>
+                    </div>
+
                     {/* Edit SEO — visible on hover */}
                     <Link
                       href="/sandbox/mockup-seo"
                       onClick={(e) => e.stopPropagation()}
-                      className="absolute bottom-1 right-1 hidden items-center gap-0.5 rounded bg-brand-bg px-1.5 py-0.5 text-[9px] font-semibold text-brand group-hover:flex"
+                      className="absolute bottom-1.5 right-1.5 hidden items-center gap-0.5 rounded bg-brand-bg px-1.5 py-0.5 text-[9px] font-semibold text-brand group-hover:flex"
                     >
                       Edit SEO <ExternalLink className="size-2.5" />
                     </Link>
