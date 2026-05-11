@@ -110,7 +110,7 @@ export default function DocsPage() {
     if (!error) fetchDocs()
   }
 
-  const inputCls = 'px-3 py-2 border border-border rounded-lg text-[16px] tablet:text-sm outline-none transition-colors duration-150 focus:border-brand bg-background'
+  const inputCls = 'px-3 py-2 border border-border rounded-lg text-base tablet:text-sm outline-none transition-colors duration-150 focus:border-brand bg-background'
   const btnCls   = 'px-4 py-2 bg-foreground text-background rounded-lg text-sm font-semibold cursor-pointer transition-opacity hover:opacity-85'
 
   return (
@@ -120,7 +120,7 @@ export default function DocsPage() {
         {/* Page header */}
         <div className="mb-10 flex items-start justify-between gap-4">
           <div>
-            <h1 className="mb-2 text-[2rem] font-bold tracking-[-0.03em]">Documents</h1>
+            <h1 className="mb-2 text-xl font-bold tracking-heading">Documents</h1>
             <p className="text-base leading-relaxed text-muted-foreground">
               Notes, drafts, and written work.
             </p>
@@ -175,7 +175,7 @@ export default function DocsPage() {
               <span className="flex items-center justify-center w-9 h-9 rounded-xl bg-muted text-muted-foreground">
                 <Plus className="size-4" />
               </span>
-              <span className="text-[0.8rem] font-semibold text-muted-foreground tracking-[0.04em]">
+              <span className="text-caption font-semibold text-muted-foreground tracking-caps">
                 New document
               </span>
             </button>
@@ -198,16 +198,16 @@ export default function DocsPage() {
                 <div className="flex flex-col gap-3">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex flex-col gap-0.5">
-                      <h2 className="text-sm font-bold leading-[1.35] tracking-[-0.02em] text-foreground">
+                      <h2 className="text-sm font-bold leading-snug tracking-heading text-foreground">
                         {doc.title}
                       </h2>
-                      <span className="text-[0.72rem] text-muted-foreground">
+                      <span className="text-xs text-muted-foreground">
                         {formatDate(doc.created_at)}
                       </span>
                     </div>
                     <Badge
                       variant="secondary"
-                      className="shrink-0 text-[0.65rem] font-semibold px-2 py-0.5"
+                      className="shrink-0 px-2"
                     >
                       Document
                     </Badge>
@@ -250,13 +250,13 @@ export default function DocsPage() {
             className="bg-card rounded-2xl p-7 w-full max-w-[440px] shadow-[0_8px_32px_rgba(0,0,0,0.12)]"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="text-[1.1rem] font-bold mb-4 tracking-[-0.02em]">
+            <h3 className="text-lg font-bold mb-4 tracking-heading">
               New document
             </h3>
 
             <input
               className={cn(
-                'w-full px-3 py-[10px] border border-border rounded-lg text-[0.9rem]',
+                'w-full px-3 py-[10px] border border-border rounded-lg text-sm',
                 'outline-none transition-colors mb-2 bg-background',
                 'focus:border-brand',
                 titleError && 'border-destructive',
@@ -271,7 +271,7 @@ export default function DocsPage() {
             />
 
             {titleError && (
-              <p className="text-[0.8rem] text-destructive mb-2">{titleError}</p>
+              <p className="text-caption text-destructive mb-2">{titleError}</p>
             )}
 
             <p className="text-xs text-muted-foreground mb-5">

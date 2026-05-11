@@ -13,7 +13,7 @@ export default function TasksPage() {
 
         {/* Page header */}
         <div className="mb-10">
-          <h1 className="mb-2 text-[2rem] font-bold tracking-[-0.03em]">Tasks</h1>
+          <h1 className="mb-2 text-xl font-bold tracking-heading">Tasks</h1>
           <p className="text-base leading-relaxed text-muted-foreground">
             Work in progress tasks and to-dos.
           </p>

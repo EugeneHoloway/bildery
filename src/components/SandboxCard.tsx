@@ -32,22 +32,22 @@ export function SandboxCard({ card }: { card: SandboxCardData }) {
       <div className="flex flex-col gap-3">
         <div className="flex items-start justify-between gap-3">
           <div className="flex flex-col gap-0.5">
-            <h2 className="text-sm font-bold leading-[1.35] tracking-[-0.02em] text-foreground">
+            <h2 className="text-sm font-bold leading-snug tracking-heading text-foreground">
               {card.title}
             </h2>
-            <span className="text-[0.72rem] text-muted-foreground">
+            <span className="text-xs text-muted-foreground">
               {card.sections} sections
             </span>
           </div>
           <Badge
             variant="secondary"
-            className="shrink-0 text-[0.65rem] font-semibold px-2 py-0.5"
+            className="shrink-0 px-2"
           >
             {card.tag}
           </Badge>
         </div>
 
-        <p className="text-[0.8rem] leading-[1.55] text-muted-foreground">
+        <p className="text-sm leading-[1.55] text-muted-foreground">
           {card.description}
         </p>
       </div>

@@ -80,7 +80,7 @@ export function Header() {
           {/* Logo */}
           <Link
             href="/"
-            className="text-[1.125rem] font-semibold tracking-[-0.03em] text-foreground"
+            className="text-lg font-semibold tracking-display text-foreground"
           >
             Bildery
           </Link>
@@ -92,7 +92,7 @@ export function Header() {
                 key={item.label}
                 href={item.href}
                 className={cn(
-                  'text-[0.95rem] font-medium transition-colors duration-200',
+                  'text-sm font-medium transition-colors duration-200',
                   isActive(item.href)
                     ? 'text-foreground'
                     : 'text-muted-foreground hover:text-foreground',
@@ -159,7 +159,7 @@ export function Header() {
               href={item.href}
               className={cn(
                 'border-b border-border py-[10px]',
-                'text-2xl font-semibold tracking-[-0.03em]',
+                'text-2xl font-semibold tracking-display',
                 'transition-colors duration-150',
                 isActive(item.href)
                   ? 'text-muted-foreground'

@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Sparkles } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -50,11 +51,12 @@ const SCORE_CARDS = [
   { key: 'overall',         label: 'Overall Score',   invert: false },
 ] as const
 
-const INSIGHT_C: Record<InsightType, { border: string; bg: string; tag: string }> = {
-  critical: { border: '#ff4d6a', bg: '#1a0f11', tag: '#ff4d6a' },
-  warning:  { border: '#ffb340', bg: '#1a160a', tag: '#ffb340' },
-  good:     { border: '#00d68f', bg: '#0a1a12', tag: '#00d68f' },
-  info:     { border: '#4d9eff', bg: '#0a1020', tag: '#4d9eff' },
+/** Tailwind classes for each insight type */
+const INSIGHT_CLASSES: Record<InsightType, { wrapper: string; tag: string }> = {
+  critical: { wrapper: 'border-l-2 border-l-destructive bg-destructive-bg', tag: 'text-destructive'  },
+  warning:  { wrapper: 'border-l-2 border-l-warning bg-warning-bg',         tag: 'text-warning'      },
+  good:     { wrapper: 'border-l-2 border-l-success bg-success-bg',         tag: 'text-success'      },
+  info:     { wrapper: 'border-l-2 border-l-brand bg-brand-bg',             tag: 'text-brand'        },
 }
 
 // ── Score calculation ─────────────────────────────────────────────────────────
@@ -137,80 +139,53 @@ const METHODOLOGY = [
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-function scoreColor(n: number, invert = false) {
-  if (invert) { if (n < 30) return '#00d68f'; if (n < 60) return '#ffb340'; return '#ff4d6a'; }
-  if (n >= 70) return '#00d68f'; if (n >= 45) return '#ffb340'; return '#ff4d6a';
+function scoreColorClass(n: number, invert = false): string {
+  if (invert) {
+    if (n < 30) return 'text-success'
+    if (n < 60) return 'text-warning'
+    return 'text-destructive'
+  }
+  if (n >= 70) return 'text-success'
+  if (n >= 45) return 'text-warning'
+  return 'text-destructive'
 }
 
-// ── Scoped CSS — only for what inline styles can't do ────────────────────────
-
-const LOCAL_CSS = `
-  .ri-grid           { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
-  .ri-method-grid    { display:grid; grid-template-columns:repeat(2,1fr); gap:16px; }
-  @media(max-width:640px){ .ri-grid{ grid-template-columns:repeat(2,1fr); } }
-  @media(max-width:768px){ .ri-method-grid{ grid-template-columns:1fr; } }
-
-  @keyframes ri-spin { to{ transform:rotate(360deg); } }
-  .ri-spin       { animation:ri-spin .8s linear infinite; }
-`
-
-// ── Shared micro-styles ───────────────────────────────────────────────────────
-
+function dotClass(n: number): string {
+  if (n >= 70) return 'bg-success'
+  if (n >= 45) return 'bg-warning'
+  return 'bg-destructive'
+}
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function RevenueIntelligencePage() {
-  const [values, setValues]         = useState<MetricValues>(DEFAULT_VALUES)
-  const [loading, setLoading]       = useState(false)
-  const [result, setResult]         = useState<AnalysisResult | null>(null)
-  const [errorMsg, setErrorMsg]     = useState<string | null>(null)
+  const [values, setValues]     = useState<MetricValues>(DEFAULT_VALUES)
+  const [loading, setLoading]   = useState(false)
+  const [result, setResult]     = useState<AnalysisResult | null>(null)
+  const [errorMsg, setErrorMsg] = useState<string | null>(null)
+
   function setMetric(key: MetricKey, val: string) {
     setValues(prev => ({ ...prev, [key]: parseFloat(val) || 0 }))
   }
 
   async function runAnalysis() {
     setLoading(true); setResult(null); setErrorMsg(null)
-
     await new Promise(r => setTimeout(r, 1200))
     setResult({
       scores: computeScores(values),
       top_action: 'Fix payment routing first — resolving 71% success rate could recover 20%+ lost revenue immediately.',
       insights: [
-        {
-          type: 'critical',
-          tag: 'Payment Failure Crisis',
-          text: '71% payment success rate is costing ~29% of deposit attempts. Audit PSP routing immediately and add 2 backup providers.',
-        },
-        {
-          type: 'critical',
-          tag: 'Bonus Budget Burning',
-          text: '0.9x bonus ROI means losing money on every promotion. Cap bonus at 15% of first deposit and add 5x wagering requirement.',
-        },
-        {
-          type: 'critical',
-          tag: 'Churn Destroying Base',
-          text: '43% month-1 churn is 8 points above critical threshold. Launch day-7 and day-14 triggered retention emails with 10% reload offer.',
-        },
-        {
-          type: 'warning',
-          tag: 'Reactivation Far Below Benchmark',
-          text: '12% reactivation vs 18% minimum benchmark. Deploy 30-day lapsed player SMS campaign with €5 free spin no-deposit incentive.',
-        },
+        { type: 'critical', tag: 'Payment Failure Crisis',        text: '71% payment success rate is costing ~29% of deposit attempts. Audit PSP routing immediately and add 2 backup providers.' },
+        { type: 'critical', tag: 'Bonus Budget Burning',          text: '0.9x bonus ROI means losing money on every promotion. Cap bonus at 15% of first deposit and add 5x wagering requirement.' },
+        { type: 'critical', tag: 'Churn Destroying Base',         text: '43% month-1 churn is 8 points above critical threshold. Launch day-7 and day-14 triggered retention emails with 10% reload offer.' },
+        { type: 'warning',  tag: 'Reactivation Far Below Benchmark', text: '12% reactivation vs 18% minimum benchmark. Deploy 30-day lapsed player SMS campaign with €5 free spin no-deposit incentive.' },
       ],
     })
-
     setLoading(false)
   }
 
-  const dotColor = result
-    ? result.scores.overall >= 70 ? '#00d68f' : result.scores.overall >= 45 ? '#ffb340' : '#ff4d6a'
-    : '#00d68f'
-
   return (
     <div className="doc-page">
-      {/* Scoped styles */}
-      <style>{LOCAL_CSS}</style>
-
       <div className="container">
 
         {/* Breadcrumb */}
@@ -233,15 +208,14 @@ export default function RevenueIntelligencePage() {
           </p>
         </div>
 
-
         {/* Metrics grid */}
-        <div className="ri-grid" style={{ marginBottom: 32 }}>
+        <div className="mb-8 grid grid-cols-2 gap-2.5 sm:grid-cols-3">
           {METRICS.map(m => (
-            <div key={m.key} className="bg-card border border-border rounded-2xl shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition-[border-color,box-shadow] duration-200 hover:border-subtle-border hover:shadow-[0_4px_16px_rgba(16,24,40,0.08)]" style={{ padding: '14px 16px' }}>
-              <div style={{ fontSize: 12, color: 'var(--color-muted-foreground)', marginBottom: 8 }}>
-                {m.label}
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div key={m.key}
+              className="rounded-2xl border border-border bg-card px-4 py-3.5 shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition-[border-color,box-shadow] duration-200 hover:border-subtle-border hover:shadow-[0_4px_16px_rgba(16,24,40,0.08)]"
+            >
+              <p className="mb-2 text-xs text-muted-foreground">{m.label}</p>
+              <div className="flex items-center gap-1.5">
                 <Input
                   type="number"
                   value={values[m.key]}
@@ -249,17 +223,15 @@ export default function RevenueIntelligencePage() {
                   onChange={e => setMetric(m.key, e.target.value)}
                   className="h-9 text-sm font-medium"
                 />
-                <span style={{ fontSize: 12, color: 'var(--color-muted-foreground)', flexShrink: 0 }}>{m.unit}</span>
+                <span className="shrink-0 text-xs text-muted-foreground">{m.unit}</span>
               </div>
-              <div style={{ fontSize: 11, color: 'var(--color-muted-foreground)', opacity: 0.6, marginTop: 6 }}>
-                bench: {m.bench}
-              </div>
+              <p className="mt-1.5 text-2xs text-muted-foreground/60">bench: {m.bench}</p>
             </div>
           ))}
         </div>
 
         {/* Analyze button */}
-        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 40 }}>
+        <div className="mb-10 flex justify-center">
           <Button disabled={loading} onClick={runAnalysis}>
             <Sparkles data-icon="inline-start" /> Analyze &amp; Generate Insights
           </Button>
@@ -267,20 +239,20 @@ export default function RevenueIntelligencePage() {
 
         {/* Loading */}
         {loading && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 13, color: 'var(--color-muted-foreground)', padding: '20px 0', marginBottom: 16 }}>
-            <div className="ri-spin" style={{ width: 14, height: 14, border: '1px solid var(--color-border)', borderTopColor: '#00d68f', borderRadius: '50%', flexShrink: 0 }} />
+          <div className="mb-4 flex items-center gap-3 py-5 text-xs text-muted-foreground">
+            <span className="size-3.5 shrink-0 animate-spin rounded-full border border-border border-t-success" />
             Analyzing operator metrics against benchmarks...
           </div>
         )}
 
         {/* Error */}
         {errorMsg !== null && (
-          <div style={{ marginBottom: 40, padding: '14px 16px', borderRadius: 8, borderLeft: '2px solid #ff4d6a', background: 'var(--color-card)', border: '1px solid var(--color-border)' }}>
-            <div style={{ fontSize: 11, fontWeight: 600, marginBottom: 6, color: '#ff4d6a' }}>Error</div>
-            <div style={{ fontSize: 13, lineHeight: 1.7, color: 'var(--color-foreground)' }}>
+          <div className="mb-10 rounded-lg border border-border border-l-2 border-l-destructive bg-card px-4 py-3.5">
+            <p className="mb-1.5 text-2xs font-semibold text-destructive">Error</p>
+            <p className="text-sm leading-relaxed text-foreground">
               Could not connect to AI service. Direct browser access requires a server-side proxy — coming soon.
               {errorMsg ? ` (${errorMsg})` : ''}
-            </div>
+            </p>
           </div>
         )}
 
@@ -288,23 +260,24 @@ export default function RevenueIntelligencePage() {
         {result !== null && (
           <>
             {/* Output header */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 24, paddingBottom: 16, borderBottom: '1px solid var(--color-border)' }}>
-              <div style={{ width: 7, height: 7, borderRadius: '50%', background: dotColor, flexShrink: 0 }} />
-              <div style={{ fontSize: 12, color: 'var(--color-muted-foreground)' }}>
+            <div className="mb-6 flex items-center gap-2.5 border-b border-border pb-4">
+              <span className={cn('size-[7px] shrink-0 rounded-full', dotClass(result.scores.overall))} />
+              <p className="text-xs text-muted-foreground">
                 AI Analysis Complete — {new Date().toLocaleTimeString()}
-              </div>
+              </p>
             </div>
 
-            {/* Score cards — full width */}
+            {/* Score cards */}
             <div className="doc-kpi-row">
               {SCORE_CARDS.map(s => {
-                const color = scoreColor(result.scores[s.key], s.invert)
                 const status = s.invert
                   ? result.scores[s.key] < 30 ? 'Low risk' : result.scores[s.key] < 60 ? 'Moderate risk' : 'High risk'
                   : result.scores[s.key] >= 70 ? 'Good' : result.scores[s.key] >= 45 ? 'At risk' : 'Critical'
                 return (
                   <div key={s.key} className="doc-kpi">
-                    <span className="doc-kpi__value" style={{ color }}>{result.scores[s.key]}</span>
+                    <span className={cn('doc-kpi__value', scoreColorClass(result.scores[s.key], s.invert))}>
+                      {result.scores[s.key]}
+                    </span>
                     <span className="doc-kpi__label">{s.label}</span>
                     <span className="doc-kpi__note">{status}</span>
                   </div>
@@ -313,67 +286,63 @@ export default function RevenueIntelligencePage() {
             </div>
 
             {/* Top action */}
-            <div style={{ marginBottom: 12, padding: '12px 16px', borderLeft: '2px solid #4d9eff' }}>
-              <div style={{ fontSize: 11, fontWeight: 600, marginBottom: 4, color: '#4d9eff' }}>Top Priority Action</div>
-              <div style={{ fontSize: 13, lineHeight: 1.7, color: 'var(--color-foreground)' }}>{result.top_action}</div>
+            <div className="mb-3 border-l-2 border-l-brand px-4 py-3">
+              <p className="mb-1 text-2xs font-semibold text-brand">Top Priority Action</p>
+              <p className="text-sm leading-relaxed text-foreground">{result.top_action}</p>
             </div>
 
             {/* Insights */}
             {result.insights.map((ins, i) => {
-              const c = INSIGHT_C[ins.type]
+              const c = INSIGHT_CLASSES[ins.type]
               return (
-                <div key={i} style={{ marginBottom: 12, padding: '12px 16px', borderLeft: `2px solid ${c.border}` }}>
-                  <div style={{ fontSize: 11, fontWeight: 600, marginBottom: 4, color: c.tag }}>{ins.tag}</div>
-                  <div style={{ fontSize: 13, lineHeight: 1.7, color: 'var(--color-foreground)' }}>{ins.text}</div>
+                <div key={i} className={cn('mb-3 rounded-sm px-4 py-3', c.wrapper)}>
+                  <p className={cn('mb-1 text-2xs font-semibold uppercase tracking-wider', c.tag)}>{ins.tag}</p>
+                  <p className="text-sm leading-relaxed text-foreground">{ins.text}</p>
                 </div>
               )
             })}
 
-            {/* ── Methodology ─────────────────────────────────────────────── */}
-            <div style={{ marginTop: 48, paddingTop: 32, borderTop: '1px solid var(--color-border)' }}>
-              <h2 style={{ fontSize: '1rem', fontWeight: 700, letterSpacing: '-0.02em', marginBottom: 4 }}>
-                How scores are calculated
-              </h2>
-              <p style={{ fontSize: 13, color: 'var(--color-muted-foreground)', marginBottom: 24, lineHeight: 1.6 }}>
-                Each score is a weighted average of normalized metrics. Every metric is mapped to a 0–100 scale using its realistic min/max range, then multiplied by its weight. <strong style={{ fontWeight: 600, color: 'var(--color-foreground)' }}>v</strong> = the value you entered for that metric.
+            {/* Methodology */}
+            <div className="mt-12 border-t border-border pt-8">
+              <h2 className="mb-1 text-base font-bold tracking-tight">How scores are calculated</h2>
+              <p className="mb-6 text-sm leading-relaxed text-muted-foreground">
+                Each score is a weighted average of normalized metrics. Every metric is mapped to a 0–100 scale using its realistic min/max range, then multiplied by its weight.{' '}
+                <strong className="font-semibold text-foreground">v</strong> = the value you entered for that metric.
               </p>
 
-              <div className="ri-method-grid">
+              <div className="grid grid-cols-1 gap-4 tablet:grid-cols-2">
                 {METHODOLOGY.map(m => (
-                  <div key={m.score} className="bg-card border border-border rounded-2xl" style={{ padding: '20px 24px' }}>
-                    <div style={{ fontSize: '0.85rem', fontWeight: 700, marginBottom: 4 }}>{m.score}</div>
-                    <div style={{ fontSize: 12, color: 'var(--color-muted-foreground)', marginBottom: 16, lineHeight: 1.5 }}>{m.description}</div>
+                  <div key={m.score} className="rounded-2xl border border-border bg-card px-6 py-5">
+                    <p className="mb-1 text-sm font-bold">{m.score}</p>
+                    <p className="mb-4 text-xs leading-normal text-muted-foreground">{m.description}</p>
 
-                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+                    <table className="w-full border-collapse text-xs">
                       <thead>
-                        <tr style={{ borderBottom: '1px solid var(--color-border)' }}>
-                          <th style={{ textAlign: 'left', paddingBottom: 6, fontWeight: 600, color: 'var(--color-muted-foreground)' }}>Metric</th>
-                          <th style={{ textAlign: 'right', paddingBottom: 6, fontWeight: 600, color: 'var(--color-muted-foreground)' }}>Weight</th>
-                          <th style={{ textAlign: 'right', paddingBottom: 6, fontWeight: 600, color: 'var(--color-muted-foreground)' }}>Formula × 100</th>
+                        <tr className="border-b border-border">
+                          <th className="pb-1.5 text-left font-semibold text-muted-foreground">Metric</th>
+                          <th className="pb-1.5 text-right font-semibold text-muted-foreground">Weight</th>
+                          <th className="pb-1.5 text-right font-semibold text-muted-foreground">Formula × 100</th>
                         </tr>
                       </thead>
                       <tbody>
                         {m.components.map((c, i) => (
-                          <tr key={i} style={{ borderBottom: '1px solid var(--color-border)' }}>
-                            <td style={{ padding: '8px 0' }}>
-                              <div style={{ fontSize: 12, color: 'var(--color-foreground)', marginBottom: 3 }}>{c.metric}</div>
-                              <div style={{ fontSize: 11, color: 'var(--color-muted-foreground)', lineHeight: 1.5 }}>{c.explain}</div>
+                          <tr key={i} className="border-b border-border">
+                            <td className="py-2">
+                              <p className="text-xs text-foreground">{c.metric}</p>
+                              <p className="mt-0.5 text-2xs leading-relaxed text-muted-foreground">{c.explain}</p>
                             </td>
-                            <td style={{ padding: '8px 0 8px 12px', textAlign: 'right', verticalAlign: 'top', color: 'var(--color-muted-foreground)', whiteSpace: 'nowrap' }}>{c.weight}</td>
-                            <td style={{ padding: '8px 0 8px 12px', textAlign: 'right', verticalAlign: 'top', color: 'var(--color-muted-foreground)', fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }}>{c.formula}</td>
+                            <td className="py-2 pl-3 text-right align-top whitespace-nowrap text-muted-foreground">{c.weight}</td>
+                            <td className="py-2 pl-3 text-right align-top whitespace-nowrap tabular-nums text-muted-foreground">{c.formula}</td>
                           </tr>
                         ))}
                       </tbody>
                     </table>
 
-                    <div style={{ marginTop: 12, fontSize: 11, color: 'var(--color-muted-foreground)', opacity: 0.7 }}>
-                      {m.threshold}
-                    </div>
+                    <p className="mt-3 text-2xs text-muted-foreground/70">{m.threshold}</p>
                   </div>
                 ))}
               </div>
             </div>
-
           </>
         )}
 

@@ -134,15 +134,15 @@ export default function STMPage() {
                 <AreaChart data={priceHistory[priceRange as keyof typeof priceHistory]} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
                   <defs>
                     <linearGradient id="priceGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#6366f1" stopOpacity={0.15} />
-                      <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+                      <stop offset="5%" stopColor="var(--color-chart-1)" stopOpacity={0.15} />
+                      <stop offset="95%" stopColor="var(--color-chart-1)" stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                  <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#6b7280' }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fontSize: 11, fill: '#6b7280' }} axisLine={false} tickLine={false} tickFormatter={(v) => `€${v}`} domain={['auto', 'auto']} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
+                  <XAxis dataKey="date" tick={{ fontSize: 11, fill: 'var(--color-muted-foreground)' }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fontSize: 11, fill: 'var(--color-muted-foreground)' }} axisLine={false} tickLine={false} tickFormatter={(v) => `€${v}`} domain={['auto', 'auto']} />
                   <Tooltip content={<CustomTooltip />} />
-                  <Area type="monotone" dataKey="price" stroke="#6366f1" strokeWidth={2} fill="url(#priceGrad)" dot={false} />
+                  <Area type="monotone" dataKey="price" stroke="var(--color-chart-1)" strokeWidth={2} fill="url(#priceGrad)" dot={false} />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
@@ -253,20 +253,20 @@ export default function STMPage() {
                 <AreaChart data={gmHistory} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
                   <defs>
                     <linearGradient id="actualGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#6366f1" stopOpacity={0.15} />
-                      <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+                      <stop offset="5%" stopColor="var(--color-chart-1)" stopOpacity={0.15} />
+                      <stop offset="95%" stopColor="var(--color-chart-1)" stopOpacity={0} />
                     </linearGradient>
                     <linearGradient id="forecastGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.15} />
-                      <stop offset="95%" stopColor="#f59e0b" stopOpacity={0} />
+                      <stop offset="5%" stopColor="var(--color-chart-3)" stopOpacity={0.15} />
+                      <stop offset="95%" stopColor="var(--color-chart-3)" stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                  <XAxis dataKey="q" tick={{ fontSize: 11, fill: '#6b7280' }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fontSize: 11, fill: '#6b7280' }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v}%`} domain={[28, 44]} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
+                  <XAxis dataKey="q" tick={{ fontSize: 11, fill: 'var(--color-muted-foreground)' }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fontSize: 11, fill: 'var(--color-muted-foreground)' }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v}%`} domain={[28, 44]} />
                   <Tooltip content={<GmTooltip />} />
-                  <Area type="monotone" dataKey="actual" stroke="#6366f1" strokeWidth={2} fill="url(#actualGrad)" dot={false} connectNulls={false} />
-                  <Area type="monotone" dataKey="forecast" stroke="#f59e0b" strokeWidth={2} strokeDasharray="5 4" fill="url(#forecastGrad)" dot={false} connectNulls={false} />
+                  <Area type="monotone" dataKey="actual" stroke="var(--color-chart-1)" strokeWidth={2} fill="url(#actualGrad)" dot={false} connectNulls={false} />
+                  <Area type="monotone" dataKey="forecast" stroke="var(--color-chart-3)" strokeWidth={2} strokeDasharray="5 4" fill="url(#forecastGrad)" dot={false} connectNulls={false} />
                 </AreaChart>
               </ResponsiveContainer>
               <div className="stm-legend">

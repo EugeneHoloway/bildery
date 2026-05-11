@@ -34,7 +34,7 @@ function getDateFilter(range: string) {
   return null;
 }
 
-const COLORS = ['#6366f1', '#f59e0b', '#10b981', '#f43f5e', '#3b82f6'];
+const COLORS = ['var(--color-chart-1)', 'var(--color-chart-3)', 'var(--color-chart-2)', 'var(--color-chart-5)', 'var(--color-chart-4)'];
 
 interface TooltipPayloadItem {
   dataKey: string
@@ -211,7 +211,7 @@ setLtvCurve({ data: curveData, cohorts: cohortNames });
     return (
       <div className="doc-page">
         <div className="container">
-          <p style={{ color: '#6b7280', padding: '4rem 0' }}>Loading analytics…</p>
+          <p style={{ color: 'var(--color-muted-foreground)', padding: '4rem 0' }}>Loading analytics…</p>
         </div>
       </div>
     );
@@ -293,25 +293,25 @@ setLtvCurve({ data: curveData, cohorts: cohortNames });
                 <AreaChart data={filteredMonthly} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
                   <defs>
                     <linearGradient id="ggrGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#6366f1" stopOpacity={0.18} />
-                      <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+                      <stop offset="5%" stopColor="var(--color-chart-1)" stopOpacity={0.18} />
+                      <stop offset="95%" stopColor="var(--color-chart-1)" stopOpacity={0} />
                     </linearGradient>
                     <linearGradient id="ngrGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.18} />
-                      <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                      <stop offset="5%" stopColor="var(--color-chart-2)" stopOpacity={0.18} />
+                      <stop offset="95%" stopColor="var(--color-chart-2)" stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                  <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#6b7280' }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fontSize: 11, fill: '#6b7280' }} axisLine={false} tickLine={false} tickFormatter={(v) => `€${v}`} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
+                  <XAxis dataKey="month" tick={{ fontSize: 11, fill: 'var(--color-muted-foreground)' }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fontSize: 11, fill: 'var(--color-muted-foreground)' }} axisLine={false} tickLine={false} tickFormatter={(v) => `€${v}`} />
                   <Tooltip content={<RevenueTooltip />} />
-                  <Area type="monotone" dataKey="ggr" name="GGR" stroke="#6366f1" strokeWidth={2} fill="url(#ggrGrad)" dot={false} />
-                  <Area type="monotone" dataKey="ngr" name="NGR" stroke="#10b981" strokeWidth={2} fill="url(#ngrGrad)" dot={false} />
+                  <Area type="monotone" dataKey="ggr" name="GGR" stroke="var(--color-chart-1)" strokeWidth={2} fill="url(#ggrGrad)" dot={false} />
+                  <Area type="monotone" dataKey="ngr" name="NGR" stroke="var(--color-chart-2)" strokeWidth={2} fill="url(#ngrGrad)" dot={false} />
                 </AreaChart>
               </ResponsiveContainer>
               <div className="stm-legend">
-                <span className="stm-legend__item" style={{ '--c': '#6366f1' }}>GGR</span>
-                <span className="stm-legend__item" style={{ '--c': '#10b981' }}>NGR</span>
+                <span className="stm-legend__item" style={{ '--c': 'var(--color-chart-1)' }}>GGR</span>
+                <span className="stm-legend__item" style={{ '--c': 'var(--color-chart-2)' }}>NGR</span>
               </div>
             </div>
           </div>
@@ -320,9 +320,9 @@ setLtvCurve({ data: curveData, cohorts: cohortNames });
             <div className="stm-chart-wrap">
               <ResponsiveContainer width="100%" height={200}>
                 <BarChart data={byCategory} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                  <XAxis dataKey="game_category" tick={{ fontSize: 11, fill: '#6b7280' }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fontSize: 11, fill: '#6b7280' }} axisLine={false} tickLine={false} tickFormatter={(v) => `€${v}`} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
+                  <XAxis dataKey="game_category" tick={{ fontSize: 11, fill: 'var(--color-muted-foreground)' }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fontSize: 11, fill: 'var(--color-muted-foreground)' }} axisLine={false} tickLine={false} tickFormatter={(v) => `€${v}`} />
                   <Tooltip content={<BarTooltip />} />
                   <Bar dataKey="ggr" radius={[4,4,0,0]}>
                     {byCategory.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
@@ -384,17 +384,17 @@ setLtvCurve({ data: curveData, cohorts: cohortNames });
             <div className="stm-chart-wrap">
               <ResponsiveContainer width="100%" height={220}>
                 <BarChart data={filteredTxChart} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                  <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#6b7280' }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fontSize: 11, fill: '#6b7280' }} axisLine={false} tickLine={false} tickFormatter={(v) => `€${v}`} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
+                  <XAxis dataKey="month" tick={{ fontSize: 11, fill: 'var(--color-muted-foreground)' }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fontSize: 11, fill: 'var(--color-muted-foreground)' }} axisLine={false} tickLine={false} tickFormatter={(v) => `€${v}`} />
                   <Tooltip formatter={(v: string | number) => [`€${fmt(v)}`]} />
-                  <Bar dataKey="deposits"    name="Deposits"    fill="#6366f1" radius={[4,4,0,0]} />
-                  <Bar dataKey="withdrawals" name="Withdrawals" fill="#f59e0b" radius={[4,4,0,0]} />
+                  <Bar dataKey="deposits"    name="Deposits"    fill="var(--color-chart-1)" radius={[4,4,0,0]} />
+                  <Bar dataKey="withdrawals" name="Withdrawals" fill="var(--color-chart-3)" radius={[4,4,0,0]} />
                 </BarChart>
               </ResponsiveContainer>
               <div className="stm-legend">
-                <span className="stm-legend__item" style={{ '--c': '#6366f1' }}>Deposits</span>
-                <span className="stm-legend__item" style={{ '--c': '#f59e0b' }}>Withdrawals</span>
+                <span className="stm-legend__item" style={{ '--c': 'var(--color-chart-1)' }}>Deposits</span>
+                <span className="stm-legend__item" style={{ '--c': 'var(--color-chart-3)' }}>Withdrawals</span>
               </div>
             </div>
           </div>
@@ -442,9 +442,9 @@ setLtvCurve({ data: curveData, cohorts: cohortNames });
             <div className="stm-chart-wrap">
               <ResponsiveContainer width="100%" height={180}>
                 <BarChart data={segmentData} layout="vertical" margin={{ top: 4, right: 32, left: 16, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" horizontal={false} />
-                  <XAxis type="number" tick={{ fontSize: 11, fill: '#6b7280' }} axisLine={false} tickLine={false} />
-                  <YAxis type="category" dataKey="name" tick={{ fontSize: 11, fill: '#6b7280' }} axisLine={false} tickLine={false} width={64} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" horizontal={false} />
+                  <XAxis type="number" tick={{ fontSize: 11, fill: 'var(--color-muted-foreground)' }} axisLine={false} tickLine={false} />
+                  <YAxis type="category" dataKey="name" tick={{ fontSize: 11, fill: 'var(--color-muted-foreground)' }} axisLine={false} tickLine={false} width={64} />
                   <Tooltip formatter={(v: string | number) => [v, 'players']} />
                   <Bar dataKey="value" radius={[0,4,4,0]}>
                     {segmentData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
@@ -463,7 +463,7 @@ setLtvCurve({ data: curveData, cohorts: cohortNames });
                 <tbody>
                   {players.slice(0, 10).map((p, i) => (
                     <tr key={p.player_id}>
-                      <td style={{ color: '#9ca3af', fontSize: '12px' }}>{i + 1}</td>
+                      <td style={{ color: 'var(--color-muted-foreground)', fontSize: '12px' }}>{i + 1}</td>
                       <td>{p.country}</td>
                       <td>{p.channel}</td>
                       <td><span className="sandbox-card__tag">{p.vip_tier}</span></td>
@@ -502,8 +502,8 @@ setLtvCurve({ data: curveData, cohorts: cohortNames });
                   {cohorts.map((r) => {
                     const badge = (pct: string | number) => ({
                       display: 'inline-block', padding: '2px 8px', borderRadius: '20px', fontSize: '12px',
-                      background: Number(pct) >= 50 ? '#EAF3DE' : Number(pct) > 0 ? '#FAEEDA' : '#F1EFE8',
-                      color:      Number(pct) >= 50 ? '#27500A' : Number(pct) > 0 ? '#633806' : '#5F5E5A',
+                      background: Number(pct) >= 50 ? 'var(--color-success-bg)' : Number(pct) > 0 ? 'var(--color-warning-bg)' : 'var(--color-subtle)',
+                      color:      Number(pct) >= 50 ? 'var(--color-success)' : Number(pct) > 0 ? 'var(--color-warning)' : 'var(--color-muted-foreground)',
                     });
                     return (
                       <tr key={r.cohort}>
@@ -532,25 +532,25 @@ setLtvCurve({ data: curveData, cohorts: cohortNames });
                 >
                   <defs>
                     <linearGradient id="d7Grad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#6366f1" stopOpacity={0.15} />
-                      <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+                      <stop offset="5%" stopColor="var(--color-chart-1)" stopOpacity={0.15} />
+                      <stop offset="95%" stopColor="var(--color-chart-1)" stopOpacity={0} />
                     </linearGradient>
                     <linearGradient id="d30Grad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.15} />
-                      <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                      <stop offset="5%" stopColor="var(--color-chart-2)" stopOpacity={0.15} />
+                      <stop offset="95%" stopColor="var(--color-chart-2)" stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                  <XAxis dataKey="cohort" tick={{ fontSize: 11, fill: '#6b7280' }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fontSize: 11, fill: '#6b7280' }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v}%`} domain={[0, 100]} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
+                  <XAxis dataKey="cohort" tick={{ fontSize: 11, fill: 'var(--color-muted-foreground)' }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fontSize: 11, fill: 'var(--color-muted-foreground)' }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v}%`} domain={[0, 100]} />
                   <Tooltip formatter={(v: string | number) => [`${v}%`]} />
-                  <Area type="monotone" dataKey="d7"  name="D7"  stroke="#6366f1" strokeWidth={2} fill="url(#d7Grad)"  dot={false} />
-                  <Area type="monotone" dataKey="d30" name="D30" stroke="#10b981" strokeWidth={2} fill="url(#d30Grad)" dot={false} />
+                  <Area type="monotone" dataKey="d7"  name="D7"  stroke="var(--color-chart-1)" strokeWidth={2} fill="url(#d7Grad)"  dot={false} />
+                  <Area type="monotone" dataKey="d30" name="D30" stroke="var(--color-chart-2)" strokeWidth={2} fill="url(#d30Grad)" dot={false} />
                 </AreaChart>
               </ResponsiveContainer>
               <div className="stm-legend">
-                <span className="stm-legend__item" style={{ '--c': '#6366f1' }}>D7 retention</span>
-                <span className="stm-legend__item" style={{ '--c': '#10b981' }}>D30 retention</span>
+                <span className="stm-legend__item" style={{ '--c': 'var(--color-chart-1)' }}>D7 retention</span>
+                <span className="stm-legend__item" style={{ '--c': 'var(--color-chart-2)' }}>D30 retention</span>
               </div>
             </div>
           </div>
@@ -568,9 +568,9 @@ setLtvCurve({ data: curveData, cohorts: cohortNames });
             <div className="stm-chart-wrap">
               <ResponsiveContainer width="100%" height={200}>
                 <BarChart data={rfmSummary} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                  <XAxis dataKey="segment" tick={{ fontSize: 11, fill: '#6b7280' }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fontSize: 11, fill: '#6b7280' }} axisLine={false} tickLine={false} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
+                  <XAxis dataKey="segment" tick={{ fontSize: 11, fill: 'var(--color-muted-foreground)' }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fontSize: 11, fill: 'var(--color-muted-foreground)' }} axisLine={false} tickLine={false} />
                   <Tooltip
                     content={({ active, payload, label }) => {
                       if (!active || !payload?.length) return null;
@@ -587,13 +587,13 @@ setLtvCurve({ data: curveData, cohorts: cohortNames });
                       );
                     }}
                   />
-                  <Bar dataKey="count"   name="Players" fill="#6366f1" radius={[4,4,0,0]} />
-                  <Bar dataKey="avg_ggr" name="Avg GGR" fill="#10b981" radius={[4,4,0,0]} />
+                  <Bar dataKey="count"   name="Players" fill="var(--color-chart-1)" radius={[4,4,0,0]} />
+                  <Bar dataKey="avg_ggr" name="Avg GGR" fill="var(--color-chart-2)" radius={[4,4,0,0]} />
                 </BarChart>
               </ResponsiveContainer>
               <div className="stm-legend">
-                <span className="stm-legend__item" style={{ '--c': '#6366f1' }}>Players count</span>
-                <span className="stm-legend__item" style={{ '--c': '#10b981' }}>Avg GGR (€)</span>
+                <span className="stm-legend__item" style={{ '--c': 'var(--color-chart-1)' }}>Players count</span>
+                <span className="stm-legend__item" style={{ '--c': 'var(--color-chart-2)' }}>Avg GGR (€)</span>
               </div>
             </div>
           </div>
@@ -607,15 +607,15 @@ setLtvCurve({ data: curveData, cohorts: cohortNames });
                 <tbody>
                   {rfm.map((r, i) => {
                     const segColors: Record<string, { bg: string; color: string }> = {
-                      Champions:    { bg: '#EEEDFE', color: '#3C3489' },
-                      Loyal:        { bg: '#E1F5EE', color: '#085041' },
-                      Promising:    { bg: '#E6F1FB', color: '#0C447C' },
-                      'New Players':{ bg: '#EAF3DE', color: '#27500A' },
-                      'At Risk':    { bg: '#FAEEDA', color: '#633806' },
-                      Lost:         { bg: '#FAECE7', color: '#712B13' },
+                      Champions:    { bg: 'var(--color-brand-bg)',       color: 'var(--color-brand)'       },
+                      Loyal:        { bg: 'var(--color-success-bg)',     color: 'var(--color-success)'     },
+                      Promising:    { bg: 'var(--color-info-bg)',        color: 'var(--color-info)'        },
+                      'New Players':{ bg: 'var(--color-success-bg)',     color: 'var(--color-success)'     },
+                      'At Risk':    { bg: 'var(--color-warning-bg)',     color: 'var(--color-warning)'     },
+                      Lost:         { bg: 'var(--color-destructive-bg)', color: 'var(--color-destructive)' },
                     };
-                    const sc = segColors[r.segment] || { bg: '#F1EFE8', color: '#5F5E5A' };
-                    const scoreColor = (s: number) => s >= 4 ? '#27500A' : s <= 2 ? '#712B13' : '#633806';
+                    const sc = segColors[r.segment] || { bg: 'var(--color-subtle)', color: 'var(--color-muted-foreground)' };
+                    const scoreColor = (s: number) => s >= 4 ? 'var(--color-success)' : s <= 2 ? 'var(--color-destructive)' : 'var(--color-warning)';
                     return (
                       <tr key={i}>
                         <td>
@@ -663,16 +663,16 @@ setLtvCurve({ data: curveData, cohorts: cohortNames });
               </linearGradient>
             ))}
           </defs>
-          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+          <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
           <XAxis
   dataKey="week"
-  tick={{ fontSize: 11, fill: '#6b7280' }}
+  tick={{ fontSize: 11, fill: 'var(--color-muted-foreground)' }}
   axisLine={false}
   tickLine={false}
   interval={2}
   tickFormatter={(v) => v}
 />
-          <YAxis tick={{ fontSize: 11, fill: '#6b7280' }} axisLine={false} tickLine={false} tickFormatter={(v) => `€${v}`} />
+          <YAxis tick={{ fontSize: 11, fill: 'var(--color-muted-foreground)' }} axisLine={false} tickLine={false} tickFormatter={(v) => `€${v}`} />
           <Tooltip
             content={({ active, payload, label }) => {
               if (!active || !payload?.length) return null;
@@ -741,11 +741,7 @@ setLtvCurve({ data: curveData, cohorts: cohortNames });
                 <td>€{fmt(r.arpu_d30 || 0)}</td>
                 <td>€{fmt(r.arpu_d90 || 0)}</td>
                 <td>
-                  <span style={{
-                    display: 'inline-block', padding: '2px 8px',
-                    borderRadius: '20px', fontSize: '12px',
-                    background: '#EEEDFE', color: '#3C3489', fontWeight: 500,
-                  }}>
+                  <span className="inline-block rounded-full bg-brand-bg px-2 py-0.5 text-xs font-medium text-brand">
                     €{fmt(predictedLtv)}
                   </span>
                 </td>
@@ -755,7 +751,7 @@ setLtvCurve({ data: curveData, cohorts: cohortNames });
         </tbody>
       </table>
     </div>
-    <p style={{ fontSize: '12px', color: '#9ca3af', marginTop: '8px' }}>
+    <p style={{ fontSize: '12px', color: 'var(--color-muted-foreground)', marginTop: '8px' }}>
       Predicted LTV = lifetime ARPU × 1.8 · simplified model · replace with regression in production
     </p>
   </div>

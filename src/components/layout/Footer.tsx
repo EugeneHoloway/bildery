@@ -28,7 +28,7 @@ export function Footer() {
         </nav>
 
         <p className="text-sm text-muted-foreground">
-          2026. All rights reserved. v. {version}
+          2026. All rights reserved. v{version}
         </p>
       </div>
     </footer>

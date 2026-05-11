@@ -443,8 +443,8 @@ export default function RocketmanDemoPage() {
   const isCountdown = phase === 'countdown'
   const isResults   = phase === 'results'
 
-  const curveColor = isCrashed ? '#ef4444' : isCashedOut ? '#22c55e' : '#4d9eff'
-  const multColor  = isCrashed ? '#ef4444' : isCashedOut ? 'var(--color-success)' : 'var(--color-foreground)'
+  const curveColor = isCrashed ? 'var(--color-destructive)' : isCashedOut ? 'var(--color-success)' : 'var(--color-chart-4)'
+  const multColor  = isCrashed ? 'var(--color-destructive)' : isCashedOut ? 'var(--color-success)' : 'var(--color-foreground)'
   const fillGrad   = isCrashed ? 'url(#gradCrash)' : isCashedOut ? 'url(#gradWin)' : 'url(#gradFly)'
 
   const win = (betAmount * mult).toFixed(2)
@@ -475,10 +475,10 @@ export default function RocketmanDemoPage() {
 
         {/* Title */}
         <div className="mb-6 flex items-center gap-3">
-          <h1 className="text-2xl font-extrabold tracking-tight">Rocketman — Live demo</h1>
+          <h1 className="text-xl font-bold tracking-heading">Rocketman — Live demo</h1>
           <Badge
             variant="outline"
-            className="border-brand/30 bg-brand-bg text-[0.65rem] font-semibold text-brand"
+            className="border-brand/30 bg-brand-bg text-2xs text-brand"
           >
             🛸 Orbit · ×10 jackpot
           </Badge>
@@ -492,20 +492,20 @@ export default function RocketmanDemoPage() {
           {/* Left — player list */}
           <div className="w-52 shrink-0 border-r border-border">
             <div className="border-b border-border px-3 py-2.5">
-              <p className="text-[0.65rem] font-bold uppercase tracking-widest text-muted-foreground">
+              <p className="text-2xs font-bold uppercase tracking-widest text-muted-foreground">
                 Total bank
               </p>
               <p className="text-sm font-extrabold text-foreground">${totalBank.toFixed(2)}</p>
-              <p className="mt-0.5 text-[0.6rem] text-muted-foreground">
+              <p className="mt-0.5 text-3xs text-muted-foreground">
                 {isIdle ? '9 players' : `${livePlayers.filter(p => p.bet !== null).length + 1} of 9 placed bets`}
               </p>
             </div>
             <Table>
               <TableHeader>
                 <TableRow className="hover:bg-transparent">
-                  <TableHead className="text-[0.6rem]">User</TableHead>
-                  <TableHead className="text-right text-[0.6rem]">Bet</TableHead>
-                  <TableHead className="text-right text-[0.6rem]">Result</TableHead>
+                  <TableHead className="text-3xs">User</TableHead>
+                  <TableHead className="text-right text-3xs">Bet</TableHead>
+                  <TableHead className="text-right text-3xs">Result</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -523,9 +523,9 @@ export default function RocketmanDemoPage() {
                     ) : (isCrashed && cashedAt === null) || (isResults && roundResult?.myCashedAt === null) ? (
                       <span className="font-bold text-destructive">✗</span>
                     ) : isFlying ? (
-                      <span className="animate-pulse text-[0.6rem] text-brand">flying</span>
+                      <span className="animate-pulse text-3xs text-brand">flying</span>
                     ) : isCountdown ? (
-                      <span className="text-[0.6rem] text-muted-foreground">waiting</span>
+                      <span className="text-3xs text-muted-foreground">waiting</span>
                     ) : (
                       <span className="text-muted-foreground/30">—</span>
                     )}
@@ -549,7 +549,7 @@ export default function RocketmanDemoPage() {
                       ) : p.status === 'crashed' ? (
                         <span className="font-bold text-destructive">✗</span>
                       ) : p.status === 'in' ? (
-                        <span className="animate-pulse text-[0.6rem] text-brand">flying</span>
+                        <span className="animate-pulse text-3xs text-brand">flying</span>
                       ) : (
                         <span className="text-muted-foreground/30">—</span>
                       )}
@@ -565,7 +565,7 @@ export default function RocketmanDemoPage() {
             <div className="absolute right-3 top-3 z-10">
               <Badge
                 variant="secondary"
-                className="text-[0.6rem] font-semibold uppercase tracking-wider text-muted-foreground"
+                className="text-3xs uppercase tracking-wider text-muted-foreground"
               >
                 Orbit target ×10
               </Badge>
@@ -574,16 +574,16 @@ export default function RocketmanDemoPage() {
             <svg viewBox={`0 0 ${W} ${H}`} className="block h-auto w-full">
               <defs>
                 <linearGradient id="gradFly" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%"   stopColor="#4d9eff" stopOpacity="0.35" />
-                  <stop offset="100%" stopColor="#4d9eff" stopOpacity="0.04" />
+                  <stop offset="0%"   stopColor="var(--color-chart-4)" stopOpacity="0.35" />
+                  <stop offset="100%" stopColor="var(--color-chart-4)" stopOpacity="0.04" />
                 </linearGradient>
                 <linearGradient id="gradCrash" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%"   stopColor="#ef4444" stopOpacity="0.35" />
-                  <stop offset="100%" stopColor="#ef4444" stopOpacity="0.04" />
+                  <stop offset="0%"   stopColor="var(--color-chart-5)" stopOpacity="0.35" />
+                  <stop offset="100%" stopColor="var(--color-chart-5)" stopOpacity="0.04" />
                 </linearGradient>
                 <linearGradient id="gradWin" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%"   stopColor="#22c55e" stopOpacity="0.35" />
-                  <stop offset="100%" stopColor="#22c55e" stopOpacity="0.04" />
+                  <stop offset="0%"   stopColor="var(--color-chart-2)" stopOpacity="0.35" />
+                  <stop offset="100%" stopColor="var(--color-chart-2)" stopOpacity="0.04" />
                 </linearGradient>
                 <filter id="glow">
                   <feGaussianBlur stdDeviation="3" result="blur" />
@@ -602,7 +602,7 @@ export default function RocketmanDemoPage() {
                 <circle
                   key={i} cx={sx} cy={sy}
                   r={i % 5 === 0 ? 1.2 : 0.7}
-                  style={{ fill: i % 7 === 0 ? '#4d9eff' : 'var(--color-muted-foreground)' }}
+                  style={{ fill: i % 7 === 0 ? 'var(--color-chart-4)' : 'var(--color-muted-foreground)' }}
                   opacity={0.18 + (i % 4) * 0.08}
                 />
               ))}
@@ -617,7 +617,7 @@ export default function RocketmanDemoPage() {
                   <g key={m}>
                     <line
                       x1={0} y1={gy} x2={W} y2={gy}
-                      style={{ stroke: isJackpot ? '#4d9eff' : 'var(--color-border)' }}
+                      style={{ stroke: isJackpot ? 'var(--color-chart-4)' : 'var(--color-border)' }}
                       strokeWidth={isJackpot ? 1 : 0.8}
                       strokeDasharray="4 6"
                       opacity={isJackpot ? 0.7 : 1}
@@ -626,7 +626,7 @@ export default function RocketmanDemoPage() {
                       x={10}
                       y={gy - 5}
                       fontSize={10}
-                      style={{ fill: isJackpot ? '#4d9eff' : 'var(--color-foreground)' }}
+                      style={{ fill: isJackpot ? 'var(--color-chart-4)' : 'var(--color-foreground)' }}
                       fontWeight={isJackpot ? 700 : 500}
                       fontFamily="system-ui, sans-serif"
                     >
@@ -662,40 +662,40 @@ export default function RocketmanDemoPage() {
                     <g transform={`translate(${rocketX}, ${rocketY}) rotate(${rocketAng}) translate(0, -32)`}>
                       {/* ── Depo Rocketman — custom rocket silhouette ── */}
                       {/* Nose cone */}
-                      <path d="M0,-52 C-2,-52 -10,-42 -10,-28 L10,-28 C10,-42 2,-52 0,-52 Z" fill="#4d9eff" />
+                      <path d="M0,-52 C-2,-52 -10,-42 -10,-28 L10,-28 C10,-42 2,-52 0,-52 Z" fill="var(--color-chart-4)" />
                       {/* Nose collar stripe */}
-                      <rect x="-10" y="-30" width="20" height="4" rx="1" fill="#4d9eff" />
+                      <rect x="-10" y="-30" width="20" height="4" rx="1" fill="var(--color-chart-4)" />
                       {/* Main body */}
-                      <rect x="-10" y="-26" width="20" height="36" rx="1.5" fill="#4d9eff" />
+                      <rect x="-10" y="-26" width="20" height="36" rx="1.5" fill="var(--color-chart-4)" />
                       {/* Panel right edge stripe */}
-                      <rect x="4" y="-24" width="4" height="28" rx="0.5" fill="#4d9eff" />
+                      <rect x="4" y="-24" width="4" height="28" rx="0.5" fill="var(--color-chart-4)" />
                       {/* Left booster nose */}
-                      <path d="M-19,-20 C-21,-20 -24,-16 -24,-10 L-13,-10 C-13,-16 -17,-20 -19,-20 Z" fill="#4d9eff" />
+                      <path d="M-19,-20 C-21,-20 -24,-16 -24,-10 L-13,-10 C-13,-16 -17,-20 -19,-20 Z" fill="var(--color-chart-4)" />
                       {/* Left booster body */}
-                      <rect x="-24" y="-10" width="11" height="24" rx="1" fill="#4d9eff" />
+                      <rect x="-24" y="-10" width="11" height="24" rx="1" fill="var(--color-chart-4)" />
                       {/* Left connector strut */}
-                      <rect x="-13" y="-6" width="3" height="14" fill="#4d9eff" />
+                      <rect x="-13" y="-6" width="3" height="14" fill="var(--color-chart-4)" />
                       {/* Left booster diagonal stripe (decorative) */}
-                      <path d="M-24,4 L-20,4 L-24,10 Z" fill="#4d9eff" />
+                      <path d="M-24,4 L-20,4 L-24,10 Z" fill="var(--color-chart-4)" />
                       {/* Right booster nose */}
-                      <path d="M19,-20 C21,-20 24,-16 24,-10 L13,-10 C13,-16 17,-20 19,-20 Z" fill="#4d9eff" />
+                      <path d="M19,-20 C21,-20 24,-16 24,-10 L13,-10 C13,-16 17,-20 19,-20 Z" fill="var(--color-chart-4)" />
                       {/* Right booster body */}
-                      <rect x="13" y="-10" width="11" height="24" rx="1" fill="#4d9eff" />
+                      <rect x="13" y="-10" width="11" height="24" rx="1" fill="var(--color-chart-4)" />
                       {/* Right connector strut */}
-                      <rect x="10" y="-6" width="3" height="14" fill="#4d9eff" />
+                      <rect x="10" y="-6" width="3" height="14" fill="var(--color-chart-4)" />
                       {/* Right booster diagonal stripe */}
-                      <path d="M24,4 L20,4 L24,10 Z" fill="#4d9eff" />
+                      <path d="M24,4 L20,4 L24,10 Z" fill="var(--color-chart-4)" />
                       {/* Central nozzle shroud */}
-                      <path d="M-10,10 L-13,24 L13,24 L10,10 Z" fill="#4d9eff" />
+                      <path d="M-10,10 L-13,24 L13,24 L10,10 Z" fill="var(--color-chart-4)" />
                       {/* Left booster nozzle */}
-                      <path d="M-24,14 L-26,24 L-15,24 L-13,14 Z" fill="#4d9eff" />
+                      <path d="M-24,14 L-26,24 L-15,24 L-13,14 Z" fill="var(--color-chart-4)" />
                       {/* Right booster nozzle */}
-                      <path d="M24,14 L26,24 L15,24 L13,14 Z" fill="#4d9eff" />
+                      <path d="M24,14 L26,24 L15,24 L13,14 Z" fill="var(--color-chart-4)" />
                       {/* Legs */}
-                      <path d="M-13,24 L-17,32 L-7,32 L-10,24 Z" fill="#4d9eff" />
-                      <path d="M10,24 L14,32 L4,32 L7,24 Z" fill="#4d9eff" />
-                      <path d="M-26,24 L-29,32 L-21,32 L-24,24 Z" fill="#4d9eff" />
-                      <path d="M26,24 L29,32 L21,32 L24,24 Z" fill="#4d9eff" />
+                      <path d="M-13,24 L-17,32 L-7,32 L-10,24 Z" fill="var(--color-chart-4)" />
+                      <path d="M10,24 L14,32 L4,32 L7,24 Z" fill="var(--color-chart-4)" />
+                      <path d="M-26,24 L-29,32 L-21,32 L-24,24 Z" fill="var(--color-chart-4)" />
+                      <path d="M26,24 L29,32 L21,32 L24,24 Z" fill="var(--color-chart-4)" />
                     </g>
                   )}
                 </>
@@ -753,7 +753,7 @@ export default function RocketmanDemoPage() {
                     x={60} y={H / 2 + 38}
                     width={Math.max(0, (countdown / COUNTDOWN_S) * (W - 120))}
                     height={5} rx={2.5}
-                    style={{ fill: '#4d9eff' }}
+                    style={{ fill: 'var(--color-chart-4)' }}
                     opacity={0.85}
                   />
                 </g>
@@ -783,7 +783,7 @@ export default function RocketmanDemoPage() {
           {/* Bet selector — shown when idle or countdown */}
           {(isIdle || isCountdown) && (
             <div className="flex flex-wrap items-center gap-2 border-b border-border px-5 py-3">
-              <span className="text-[0.65rem] font-bold uppercase tracking-widest text-muted-foreground">
+              <span className="text-2xs font-bold uppercase tracking-widest text-muted-foreground">
                 Bet
               </span>
               {BET_OPTS.map(v => (
@@ -815,7 +815,7 @@ export default function RocketmanDemoPage() {
             {isIdle && (
               <>
                 <div className="flex-1">
-                  <p className="mb-1 text-[0.65rem] font-semibold uppercase tracking-widest text-muted-foreground">
+                  <p className="mb-1 text-2xs font-semibold uppercase tracking-widest text-muted-foreground">
                     {sessionComplete ? 'Session complete' : 'Ready to play'}
                   </p>
                   <p className="text-2xl font-extrabold tracking-tight text-foreground">
@@ -841,7 +841,7 @@ export default function RocketmanDemoPage() {
             {isCountdown && (
               <>
                 <div className="flex-1">
-                  <p className="mb-1 text-[0.65rem] font-semibold uppercase tracking-widest text-muted-foreground">
+                  <p className="mb-1 text-2xs font-semibold uppercase tracking-widest text-muted-foreground">
                     Your bet
                   </p>
                   <p className="text-2xl font-extrabold tracking-tight text-foreground">
@@ -849,7 +849,7 @@ export default function RocketmanDemoPage() {
                   </p>
                 </div>
                 <div className="flex-1">
-                  <p className="mb-1 text-[0.65rem] font-semibold uppercase tracking-widest text-muted-foreground">
+                  <p className="mb-1 text-2xs font-semibold uppercase tracking-widest text-muted-foreground">
                     Starting in
                   </p>
                   <p className="text-2xl font-extrabold tracking-tight text-foreground">
@@ -872,7 +872,7 @@ export default function RocketmanDemoPage() {
             {isFlying && (
               <>
                 <div className="flex-1">
-                  <p className="mb-1 text-[0.65rem] font-semibold uppercase tracking-widest text-muted-foreground">
+                  <p className="mb-1 text-2xs font-semibold uppercase tracking-widest text-muted-foreground">
                     Your bet
                   </p>
                   <p className="text-2xl font-extrabold tracking-tight text-foreground">
@@ -880,7 +880,7 @@ export default function RocketmanDemoPage() {
                   </p>
                 </div>
                 <div className="flex-1">
-                  <p className="mb-1 text-[0.65rem] font-semibold uppercase tracking-widest text-muted-foreground">
+                  <p className="mb-1 text-2xs font-semibold uppercase tracking-widest text-muted-foreground">
                     Current win
                   </p>
                   <p className="text-2xl font-extrabold tracking-tight text-brand">${win}</p>
@@ -907,7 +907,7 @@ export default function RocketmanDemoPage() {
             {isCashedOut && (
               <>
                 <div className="flex-1">
-                  <p className="mb-1 text-[0.65rem] font-semibold uppercase tracking-widest text-muted-foreground">
+                  <p className="mb-1 text-2xs font-semibold uppercase tracking-widest text-muted-foreground">
                     You&apos;re out at
                   </p>
                   <p className="text-2xl font-extrabold tracking-tight text-foreground">
@@ -915,7 +915,7 @@ export default function RocketmanDemoPage() {
                   </p>
                 </div>
                 <div className="flex-1">
-                  <p className="mb-1 text-[0.65rem] font-semibold uppercase tracking-widest text-muted-foreground">
+                  <p className="mb-1 text-2xs font-semibold uppercase tracking-widest text-muted-foreground">
                     You won
                   </p>
                   <p className="text-2xl font-extrabold tracking-tight text-success">
@@ -938,7 +938,7 @@ export default function RocketmanDemoPage() {
             {isCrashed && (
               <>
                 <div className="flex-1">
-                  <p className="mb-1 text-[0.65rem] font-semibold uppercase tracking-widest text-muted-foreground">
+                  <p className="mb-1 text-2xs font-semibold uppercase tracking-widest text-muted-foreground">
                     {cashedAt ? 'Cashed out at' : 'Crashed at'}
                   </p>
                   <p className={`text-2xl font-extrabold tracking-tight ${cashedAt ? 'text-success' : 'text-destructive'}`}>
@@ -946,7 +946,7 @@ export default function RocketmanDemoPage() {
                   </p>
                 </div>
                 <div className="flex-1">
-                  <p className="mb-1 text-[0.65rem] font-semibold uppercase tracking-widest text-muted-foreground">
+                  <p className="mb-1 text-2xs font-semibold uppercase tracking-widest text-muted-foreground">
                     {cashedAt ? 'You won' : 'You lost'}
                   </p>
                   <p className={`text-2xl font-extrabold tracking-tight ${cashedAt ? 'text-success' : 'text-destructive'}`}>
@@ -971,7 +971,7 @@ export default function RocketmanDemoPage() {
               return (
                 <div className="flex w-full flex-wrap items-start gap-5">
                   <div className="min-w-[80px]">
-                    <p className="mb-0.5 text-[0.6rem] font-bold uppercase tracking-widest text-muted-foreground">
+                    <p className="mb-0.5 text-3xs font-bold uppercase tracking-widest text-muted-foreground">
                       Crashed at
                     </p>
                     <p className="text-lg font-extrabold text-destructive">
@@ -979,20 +979,20 @@ export default function RocketmanDemoPage() {
                     </p>
                   </div>
                   <div className="min-w-[80px]">
-                    <p className="mb-0.5 text-[0.6rem] font-bold uppercase tracking-widest text-muted-foreground">
+                    <p className="mb-0.5 text-3xs font-bold uppercase tracking-widest text-muted-foreground">
                       Your result
                     </p>
                     <p className={`text-lg font-extrabold ${roundResult.myProfit >= 0 ? 'text-success' : 'text-destructive'}`}>
                       {roundResult.myProfit >= 0 ? '+' : ''}${roundResult.myProfit.toFixed(2)}
                     </p>
                     {roundResult.myCashedAt !== null && (
-                      <p className="text-[0.6rem] text-muted-foreground">
+                      <p className="text-3xs text-muted-foreground">
                         got back ${(roundResult.myBet * roundResult.myCashedAt).toFixed(2)}
                       </p>
                     )}
                   </div>
                   <div className="min-w-[80px]">
-                    <p className="mb-0.5 text-[0.6rem] font-bold uppercase tracking-widest text-muted-foreground">
+                    <p className="mb-0.5 text-3xs font-bold uppercase tracking-widest text-muted-foreground">
                       Total bank
                     </p>
                     <p className="text-lg font-extrabold text-foreground">
@@ -1000,22 +1000,22 @@ export default function RocketmanDemoPage() {
                     </p>
                   </div>
                   <div className="min-w-[80px]">
-                    <p className="mb-0.5 text-[0.6rem] font-bold uppercase tracking-widest text-muted-foreground">
+                    <p className="mb-0.5 text-3xs font-bold uppercase tracking-widest text-muted-foreground">
                       Paid to winners
                     </p>
                     <p className="text-lg font-extrabold text-foreground">
                       ${totalPayout.toFixed(2)}
                     </p>
-                    <p className="text-[0.6rem] text-muted-foreground">gross return</p>
+                    <p className="text-3xs text-muted-foreground">gross return</p>
                   </div>
                   <div className="min-w-[80px]">
-                    <p className="mb-0.5 text-[0.6rem] font-bold uppercase tracking-widest text-muted-foreground">
+                    <p className="mb-0.5 text-3xs font-bold uppercase tracking-widest text-muted-foreground">
                       Provider earned
                     </p>
                     <p className={`text-lg font-extrabold ${providerEarned >= 0 ? 'text-success' : 'text-destructive'}`}>
                       {providerEarned >= 0 ? '+' : ''}${providerEarned.toFixed(2)}
                     </p>
-                    <p className="text-[0.6rem] text-muted-foreground">
+                    <p className="text-3xs text-muted-foreground">
                       bank − payouts
                     </p>
                   </div>
@@ -1048,14 +1048,14 @@ export default function RocketmanDemoPage() {
               <div className="flex items-center justify-between border-b border-border px-5 py-3">
                 <div>
                   <p className="text-sm font-bold text-foreground">Session history</p>
-                  <p className="text-[0.65rem] text-muted-foreground">
+                  <p className="text-2xs text-muted-foreground">
                     {sessionComplete
                       ? `${SESSION_SIZE} rounds complete`
                       : `Round ${roundHistory.length} of ${SESSION_SIZE}`}
                   </p>
                 </div>
                 {sessionComplete && (
-                  <Badge variant="outline" className="border-success/40 bg-success/10 text-[0.65rem] font-semibold text-success">
+                  <Badge variant="outline" className="border-success/40 bg-success/10 text-2xs text-success">
                     Session complete
                   </Badge>
                 )}
@@ -1065,12 +1065,12 @@ export default function RocketmanDemoPage() {
               <Table>
                 <TableHeader>
                   <TableRow className="hover:bg-transparent">
-                    <TableHead className="w-10 text-[0.6rem]">#</TableHead>
-                    <TableHead className="text-[0.6rem]">Crash</TableHead>
-                    <TableHead className="text-right text-[0.6rem]">Bank</TableHead>
-                    <TableHead className="text-right text-[0.6rem]">Paid to winners</TableHead>
-                    <TableHead className="text-right text-[0.6rem]">Provider</TableHead>
-                    <TableHead className="text-right text-[0.6rem]">You</TableHead>
+                    <TableHead className="w-10 text-3xs">#</TableHead>
+                    <TableHead className="text-3xs">Crash</TableHead>
+                    <TableHead className="text-right text-3xs">Bank</TableHead>
+                    <TableHead className="text-right text-3xs">Paid to winners</TableHead>
+                    <TableHead className="text-right text-3xs">Provider</TableHead>
+                    <TableHead className="text-right text-3xs">You</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>

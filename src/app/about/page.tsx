@@ -17,7 +17,7 @@ export default function AboutPage() {
           {/* Text block */}
           <div className="flex-1 min-w-0">
             <div className="mb-10">
-              <h1 className="mb-2 text-[2rem] font-bold tracking-[-0.03em]">
+              <h1 className="mb-2 text-xl font-bold tracking-heading">
                 About
               </h1>
               <p className="text-base leading-relaxed text-muted-foreground">

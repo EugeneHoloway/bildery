@@ -4,9 +4,6 @@ import { useState } from 'react'
 import Link from 'next/link'
 import {
   ChevronRight,
-  Globe,
-  Save,
-  FileText,
   AlertCircle,
   CheckCircle2,
   AlertTriangle,
@@ -26,6 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Checkbox } from '@/components/ui/checkbox'
 import { cn } from '@/lib/utils'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -156,35 +154,13 @@ export default function MockupSeoPage() {
 
         {/* Breadcrumb */}
         <nav className="mb-6 flex items-center gap-1 text-sm text-muted-foreground">
-          <Link href="/sandbox/mockup-pages" className="hover:text-foreground transition-colors">
-            Page manager
+          <Link href="/sandbox" className="hover:text-foreground transition-colors">
+            Sandbox
           </Link>
           <ChevronRight className="size-3.5" />
-          <span className="text-foreground">Pragmatica</span>
+          <span className="text-foreground">SEO Settings</span>
         </nav>
 
-        {/* Page header */}
-        <div className="mb-8 flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <h1 className="mb-2 text-[2rem] font-bold tracking-[-0.03em]">
-              Pragmatica
-            </h1>
-            <p className="flex items-center gap-1.5 text-base leading-relaxed text-muted-foreground">
-              <Globe className="size-4" />
-              betup.com/pragmatica
-            </p>
-          </div>
-          <div className="flex items-center gap-2 pt-1">
-            <Button variant="outline" size="sm">
-              <FileText className="size-3.5" />
-              Content
-            </Button>
-            <Button size="sm">
-              <Save className="size-3.5" />
-              Save SEO
-            </Button>
-          </div>
-        </div>
 
         {/* Info box */}
         <div className="mb-6 flex items-start gap-2 rounded-lg border border-border bg-muted px-3 py-2.5">
@@ -196,7 +172,7 @@ export default function MockupSeoPage() {
 
         {/* Tabs */}
         <Tabs defaultValue="main">
-          <div className="overflow-x-auto border-b">
+          <div className="border-b">
             <TabsList className="h-auto w-max gap-0 rounded-none bg-transparent p-0">
                 {(['main', 'basic', 'content', 'og', 'advanced', 'audit'] as const).map((tab) => {
                   const labels: Record<string, string> = {
@@ -314,14 +290,14 @@ export default function MockupSeoPage() {
               {/* SERP preview */}
               <FieldGroup label="SERP preview">
                 <div className="rounded-xl border bg-muted/40 p-4">
-                  <p className="mb-2.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  <p className="mb-2.5 text-2xs font-semibold uppercase tracking-wider text-muted-foreground">
                     Google search result
                   </p>
-                  <p className="text-xs text-[#1a7f4b] dark:text-green-400">betup.com › providers</p>
-                  <p className="mt-0.5 text-[18px] font-normal leading-snug text-[#1558d6] dark:text-blue-400">
+                  <p className="text-xs text-serp-domain">betup.com › providers</p>
+                  <p className="mt-0.5 text-lg font-normal leading-snug text-serp-title">
                     {serpTitle}
                   </p>
-                  <p className="mt-1 text-sm leading-relaxed text-[#555] dark:text-muted-foreground">
+                  <p className="mt-1 text-sm leading-relaxed text-serp-text">
                     {serpDesc}
                   </p>
                 </div>
@@ -355,7 +331,7 @@ export default function MockupSeoPage() {
                     contentEditable
                     suppressContentEditableWarning
                   >
-                    <h2 className="mb-1 mt-0.5 text-[15px] font-semibold">
+                    <h2 className="mb-1 mt-0.5 text-sm font-semibold">
                       Top Game Providers at BetUp Casino
                     </h2>
                     <p className="mb-1.5">
@@ -383,7 +359,7 @@ export default function MockupSeoPage() {
                     onChange={(e) => setGameSearch(e.target.value)}
                     className="text-xs"
                   />
-                  <span className="shrink-0 text-[11px] text-muted-foreground">
+                  <span className="shrink-0 text-xs text-muted-foreground">
                     {filteredGames.length} games
                   </span>
                 </div>
@@ -393,25 +369,18 @@ export default function MockupSeoPage() {
                       key={game.id}
                       onClick={() => toggleGame(game.id)}
                       className={cn(
-                        'relative flex flex-col items-center gap-1 rounded-lg border p-2 text-center transition-colors',
+                        'relative flex aspect-square flex-col items-center justify-center gap-1.5 rounded-xl border p-3 text-center transition-colors',
                         game.selected
                           ? 'border-foreground bg-background'
                           : 'border-border bg-muted/40 hover:border-subtle-border'
                       )}
                     >
-                      {game.selected && (
-                        <span className="absolute right-1.5 top-1 text-[10px] font-bold text-foreground">✓</span>
-                      )}
-                      <div
-                        className={cn(
-                          'flex h-9 w-full items-center justify-center rounded-md bg-gradient-to-br text-[9px] font-semibold text-white/90 tracking-wide',
-                          game.gradient
-                        )}
-                      >
-                        {game.abbr}
-                      </div>
-                      <span className="text-[10px] font-medium leading-tight">{game.name}</span>
-                      <span className="text-[9px] text-muted-foreground">{game.provider}</span>
+                      <Checkbox
+                        checked={game.selected}
+                        className="absolute right-2 top-2 pointer-events-none"
+                      />
+                      <span className="text-xs font-semibold leading-tight">{game.name}</span>
+                      <span className="text-2xs text-muted-foreground">{game.provider}</span>
                     </button>
                   ))}
                 </div>
@@ -435,8 +404,8 @@ export default function MockupSeoPage() {
                     Click to upload OG image (1200×630)
                   </div>
                   <div className="border-t bg-muted/50 px-3 py-2.5">
-                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground">BETUP.COM</p>
-                    <p className="mt-0.5 text-[13px] font-medium">Game Providers — BetUp Casino</p>
+                    <p className="text-2xs uppercase tracking-wider text-muted-foreground">BETUP.COM</p>
+                    <p className="mt-0.5 text-sm font-medium">Game Providers — BetUp Casino</p>
                     <p className="text-xs text-muted-foreground">Discover all game providers at BetUp.</p>
                   </div>
                 </div>
@@ -507,7 +476,7 @@ export default function MockupSeoPage() {
               <FieldGroup label="Structured data (JSON-LD)">
                 <Textarea
                   rows={5}
-                  className="font-mono text-[12px]"
+                  className="font-mono text-xs"
                   defaultValue={`{\n  "@context": "https://schema.org",\n  "@type": "ItemList",\n  "name": "Game providers at BetUp Casino"\n}`}
                 />
               </FieldGroup>
@@ -531,7 +500,7 @@ export default function MockupSeoPage() {
                 {AUDIT_ITEMS.map((item, i) => (
                   <div key={i} className="flex items-center gap-2.5">
                     <AuditDot status={item.status} />
-                    <span className="text-[13px] text-foreground">{item.text}</span>
+                    <span className="text-sm text-foreground">{item.text}</span>
                   </div>
                 ))}
               </div>

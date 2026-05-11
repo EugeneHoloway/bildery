@@ -149,7 +149,7 @@ function SandboxSection({
 }) {
   return (
     <section>
-      <h2 className="mb-4 text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+      <h2 className="mb-4 text-caption font-semibold uppercase tracking-label text-muted-foreground">
         {title}
       </h2>
       <div className="grid grid-cols-1 gap-4 tablet:grid-cols-2 desktop:grid-cols-4">
@@ -170,7 +170,7 @@ export default function SandboxPage() {
 
         {/* Page header */}
         <div className="mb-10">
-          <h1 className="mb-2 text-[2rem] font-bold tracking-[-0.03em]">
+          <h1 className="mb-2 text-xl font-bold tracking-heading">
             Sandbox
           </h1>
           <p className="text-base leading-relaxed text-muted-foreground">

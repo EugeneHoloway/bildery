@@ -10,7 +10,7 @@ export default function HomePage() {
     <div className="py-12 pb-20">
       <div className="mx-auto max-w-[1240px] px-4">
         <div className="mb-10">
-          <h1 className="mb-2 text-[2rem] font-bold tracking-[-0.03em]">
+          <h1 className="mb-2 text-xl font-bold tracking-heading">
             A product lab.
           </h1>
           <p className="text-base leading-relaxed text-muted-foreground">

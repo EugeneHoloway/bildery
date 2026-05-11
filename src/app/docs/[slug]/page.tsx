@@ -58,7 +58,7 @@ function ToolBtn({
   return (
     <button
       className={cn(
-        'px-[10px] py-1 rounded-md text-[0.8rem] font-semibold cursor-pointer transition-colors duration-150',
+        'px-[10px] py-1 rounded-md text-caption font-semibold cursor-pointer transition-colors duration-150',
         active
           ? 'bg-foreground text-background'
           : 'text-muted-foreground hover:bg-muted hover:text-foreground',
@@ -192,7 +192,7 @@ export default function DocEditorPage() {
 
         {/* Header: title + lock */}
         <div className="flex items-start justify-between gap-4 mb-6">
-          <h1 className="text-[2rem] font-bold tracking-[-0.03em] leading-[1.1]">
+          <h1 className="text-xl font-bold tracking-heading leading-[1.1]">
             {doc!.title}
           </h1>
 
@@ -270,7 +270,7 @@ export default function DocEditorPage() {
         >
           <EditorContent editor={editor} />
           {!isUnlocked && !doc!.content && (
-            <p className="text-muted-foreground text-[0.9rem]">This document is empty.</p>
+            <p className="text-muted-foreground text-sm">This document is empty.</p>
           )}
         </div>
 

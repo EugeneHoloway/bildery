@@ -27,7 +27,7 @@ const MODES: ModeConfig[] = [
     jackpot: '×10',
     houseEdge: 0.04,
     maxPayout: 10,
-    color: '#4d9eff',
+    color: 'var(--color-chart-4)',
     targets: [1.5, 2, 3, 5, 10],
   },
   {
@@ -37,7 +37,7 @@ const MODES: ModeConfig[] = [
     jackpot: '×50',
     houseEdge: 0.03,
     maxPayout: 50,
-    color: '#ffb340',
+    color: 'var(--color-warning)',
     targets: [2, 5, 10, 25, 50],
   },
   {
@@ -47,7 +47,7 @@ const MODES: ModeConfig[] = [
     jackpot: '×100',
     houseEdge: 0.02,
     maxPayout: 100,
-    color: '#ff4d6a',
+    color: 'var(--color-destructive)',
     targets: [5, 10, 25, 50, 100],
   },
 ]
@@ -331,7 +331,7 @@ export default function RocketmanPage() {
           className="bg-card border border-border rounded-xl"
           style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px', marginBottom: 40 }}
         >
-          <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#ffb340', flexShrink: 0 }} />
+          <div className="size-[7px] shrink-0 rounded-full bg-warning" />
           <span style={{ fontSize: 13, color: 'var(--color-muted-foreground)' }}>
             Status: <strong style={{ color: 'var(--color-foreground)' }}>In development</strong>
             &nbsp;·&nbsp; Current: Iteration 3 done — animated game loop live
@@ -352,20 +352,7 @@ export default function RocketmanPage() {
           </div>
           <Link
             href="/sandbox/rocketman/demo"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 6,
-              padding: '8px 18px',
-              background: '#4d9eff',
-              color: 'white',
-              borderRadius: 10,
-              fontSize: 13,
-              fontWeight: 700,
-              textDecoration: 'none',
-              whiteSpace: 'nowrap',
-              flexShrink: 0,
-            }}
+            className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-xl bg-brand px-[18px] py-2 text-sm font-bold text-primary-foreground no-underline"
           >
             🚀 Open demo
           </Link>
@@ -560,7 +547,7 @@ export default function RocketmanPage() {
                         fontWeight: 800,
                         letterSpacing: '-0.03em',
                         marginBottom: 'auto',
-                        color: s.highlight ? '#00d68f' : 'var(--color-foreground)',
+                        color: s.highlight ? 'var(--color-success)' : 'var(--color-foreground)',
                       }}>
                         {s.value}
                       </div>
@@ -610,7 +597,7 @@ export default function RocketmanPage() {
                     <div style={{ fontSize: 11, color: activeMode.color, marginBottom: 6 }}>{s.sub}</div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11 }}>
                       <span style={{ color: 'var(--color-muted-foreground)' }}>expected {s.expected}</span>
-                      <span style={{ color: s.ok ? '#00d68f' : '#ffb340', fontWeight: 600 }}>{s.ok ? '✓' : '~'}</span>
+                      <span style={{ color: s.ok ? 'var(--color-success)' : 'var(--color-warning)', fontWeight: 600 }}>{s.ok ? '✓' : '~'}</span>
                     </div>
                   </div>
                 ))}
@@ -636,10 +623,10 @@ export default function RocketmanPage() {
                           <td style={{ padding: '8px 12px 8px 0', fontWeight: 700, color: activeMode.color }}>×{ts.target}</td>
                           <td style={{ padding: '8px 12px 8px 0', color: 'var(--color-muted-foreground)' }}>{pct(ts.winRate)}</td>
                           <td style={{ padding: '8px 12px 8px 0', fontWeight: 600 }}>{pct(ts.empiricalRtp)}</td>
-                          <td style={{ padding: '8px 12px 8px 0', color: ts.avgReturnPerRound >= 0 ? '#00d68f' : '#ff4d6a', fontWeight: 600 }}>
+                          <td style={{ padding: '8px 12px 8px 0', color: ts.avgReturnPerRound >= 0 ? 'var(--color-success)' : 'var(--color-destructive)', fontWeight: 600 }}>
                             {usd(ts.avgReturnPerRound)}
                           </td>
-                          <td style={{ padding: '8px 0', color: '#00d68f', fontWeight: 600 }}>
+                          <td style={{ padding: '8px 0', color: 'var(--color-success)', fontWeight: 600 }}>
                             +{usdPlain(ts.operatorPerRound * 1000)}
                           </td>
                         </tr>
@@ -681,7 +668,7 @@ export default function RocketmanPage() {
                     const ridingReturn = i === 0
                       ? -betAmount  // instant crash: lose entire bet
                       : (avgCrash - 1) * betAmount  // net profit if riding to avg crash in bucket
-                    const ridingColor = ridingReturn >= 0 ? '#00d68f' : '#ff4d6a'
+                    const ridingColor = ridingReturn >= 0 ? 'var(--color-success)' : 'var(--color-destructive)'
 
                     return (
                       <div key={b.label} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -769,14 +756,14 @@ export default function RocketmanPage() {
               >
                 <div style={{
                   width: 8, height: 8, borderRadius: '50%', flexShrink: 0,
-                  background: item.status === 'done' ? '#00d68f' : item.status === 'next' ? '#ffb340' : 'var(--color-border)',
+                  background: item.status === 'done' ? 'var(--color-success)' : item.status === 'next' ? 'var(--color-warning)' : 'var(--color-border)',
                 }} />
                 <div style={{ flex: 1 }}>
                   <span style={{ fontSize: 13, fontWeight: 600, marginRight: 8 }}>{item.label}</span>
                   <span style={{ fontSize: 13, color: 'var(--color-muted-foreground)' }}>{item.desc}</span>
                 </div>
-                {item.status === 'done' && <span style={{ fontSize: 11, color: '#00d68f', fontWeight: 600 }}>Done</span>}
-                {item.status === 'next' && <span style={{ fontSize: 11, color: '#ffb340', fontWeight: 600 }}>Next</span>}
+                {item.status === 'done' && <span style={{ fontSize: 11, color: 'var(--color-success)', fontWeight: 600 }}>Done</span>}
+                {item.status === 'next' && <span style={{ fontSize: 11, color: 'var(--color-warning)', fontWeight: 600 }}>Next</span>}
               </div>
             ))}
           </div>

@@ -103,7 +103,7 @@ function SortableTodoItem({
         {isEditing ? (
           <>
             <input
-              className="flex-1 px-[6px] py-[2px] border border-brand rounded bg-brand-bg text-[0.9rem] outline-none"
+              className="flex-1 px-[6px] py-[2px] border border-brand rounded bg-brand-bg text-sm outline-none"
               value={editText}
               onChange={(e) => setEditText(e.target.value)}
               onKeyDown={(e) => {
@@ -113,7 +113,7 @@ function SortableTodoItem({
               autoFocus
             />
             <input
-              className="flex-1 min-w-[80px] px-[6px] py-[2px] border border-brand rounded bg-brand-bg text-[0.9rem] outline-none"
+              className="flex-1 min-w-[80px] px-[6px] py-[2px] border border-brand rounded bg-brand-bg text-sm outline-none"
               value={editProject}
               onChange={(e) => setEditProject(e.target.value)}
               onKeyDown={(e) => {
@@ -127,14 +127,14 @@ function SortableTodoItem({
           <>
             <span
               className={cn(
-                'text-[0.9rem] text-foreground',
+                'text-sm text-foreground',
                 todo.is_done && 'line-through',
               )}
             >
               {todo.text}
             </span>
             {todo.project && (
-              <Badge variant="secondary" className="text-[0.65rem] font-semibold px-2 py-0.5">
+              <Badge variant="secondary" className="px-2">
                 {todo.project}
               </Badge>
             )}
@@ -299,7 +299,7 @@ export function TodoList() {
     onSaveEdit: saveEdit, onCancelEdit: cancelEdit,
   }
 
-  const inputCls = 'px-3 py-2 border border-border rounded-lg text-[16px] tablet:text-sm outline-none transition-colors duration-150 focus:border-brand bg-background'
+  const inputCls = 'px-3 py-2 border border-border rounded-lg text-base tablet:text-sm outline-none transition-colors duration-150 focus:border-brand bg-background'
   const btnCls   = 'px-4 py-2 bg-foreground text-background rounded-lg text-sm font-semibold cursor-pointer transition-opacity hover:opacity-85'
 
   return (
@@ -307,13 +307,13 @@ export function TodoList() {
       {/* Section header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <h2 className="text-xl font-bold tracking-[-0.02em]">To-Dos</h2>
+          <h2 className="text-lg font-bold tracking-heading">To-Dos</h2>
           <div className="flex gap-[6px]">
-            <Badge variant="secondary" className="text-[0.65rem] font-semibold px-2 py-0.5">
+            <Badge variant="secondary" className="px-2">
               {open.length} open
             </Badge>
             {done.length > 0 && (
-              <Badge variant="outline" className="text-[0.65rem] font-semibold px-2 py-0.5 text-muted-foreground border-border bg-transparent">
+              <Badge variant="outline" className="px-2 text-muted-foreground border-border bg-transparent">
                 {done.length} done
               </Badge>
             )}
