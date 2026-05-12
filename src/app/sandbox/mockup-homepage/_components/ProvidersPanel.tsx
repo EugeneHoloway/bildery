@@ -3,8 +3,8 @@
 import * as React from "react"
 import { useState } from "react"
 import { Input } from "@/components/ui/input"
-import { FieldGroup } from "@/components/shared"
-import { cn } from "@/lib/utils"
+import { FieldGroup, PanelContent } from "@/components/shared"
+import { ToggleChip } from "./shared"
 
 interface ToggleItem { id: string; label: string; enabled: boolean }
 
@@ -29,28 +29,23 @@ export function ProvidersPanel() {
   }
 
   return (
-    <div className="flex-1 overflow-y-auto">
-      <div className="flex flex-col gap-5 p-6">
+    <PanelContent>
         <div className="flex flex-col gap-2">
           <p className="text-xs font-medium text-muted-foreground">Visible providers — click to toggle</p>
           <div className="mt-1 flex flex-wrap gap-2">
             {chips.map((chip) => (
-              <button key={chip.id} onClick={() => toggleChip(chip.id)}
-                className={cn(
-                  "rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors",
-                  chip.enabled
-                    ? "border-foreground bg-foreground text-background"
-                    : "border-border bg-background text-muted-foreground hover:border-foreground/40 hover:text-foreground",
-                )}>
-                {chip.label}
-              </button>
+              <ToggleChip
+                key={chip.id}
+                label={chip.label}
+                enabled={chip.enabled}
+                onToggle={() => toggleChip(chip.id)}
+              />
             ))}
           </div>
         </div>
         <FieldGroup label="Display limit" className="max-w-[200px]">
           <Input type="number" defaultValue="8" min={4} max={20} />
         </FieldGroup>
-      </div>
-    </div>
+    </PanelContent>
   )
 }

@@ -38,6 +38,8 @@ interface PanelSidebarItemProps {
   children: React.ReactNode
   /** "panel" — border-l-2 стиль (по умолчанию); "nav" — rounded bg-accent стиль (как settings sidebar) */
   variant?: "panel" | "nav"
+  /** Рендерить как div вместо button — когда внутри есть интерактивные элементы (Switch и т.п.) */
+  as?: "button" | "div"
   className?: string
 }
 
@@ -46,14 +48,16 @@ export function PanelSidebarItem({
   onClick,
   children,
   variant = "panel",
+  as: Tag = "button",
   className,
 }: PanelSidebarItemProps) {
   if (variant === "nav") {
     return (
-      <button
+      <Tag
         onClick={onClick}
         className={cn(
           "flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm transition-colors",
+          Tag === "div" && "cursor-pointer",
           isActive
             ? "bg-accent text-foreground font-medium"
             : "text-muted-foreground hover:bg-accent hover:text-foreground",
@@ -61,15 +65,16 @@ export function PanelSidebarItem({
         )}
       >
         {children}
-      </button>
+      </Tag>
     )
   }
 
   return (
-    <button
+    <Tag
       onClick={onClick}
       className={cn(
         "flex w-full items-center gap-2.5 border-l-2 px-3 py-2.5 text-left text-sm transition-colors",
+        Tag === "div" && "cursor-pointer",
         isActive
           ? "border-foreground bg-background text-foreground"
           : "border-transparent text-muted-foreground hover:bg-background/60 hover:text-foreground",
@@ -77,7 +82,7 @@ export function PanelSidebarItem({
       )}
     >
       {children}
-    </button>
+    </Tag>
   )
 }
 

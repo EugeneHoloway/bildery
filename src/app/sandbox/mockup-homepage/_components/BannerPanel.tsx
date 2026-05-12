@@ -5,7 +5,7 @@ import { useState } from "react"
 import { Pencil, Plus, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { FieldGroup, FieldRow } from "@/components/shared"
+import { FieldGroup, FieldRow, PanelContent } from "@/components/shared"
 
 interface Slide { id: string; abbr: string; title: string; meta: string }
 
@@ -28,8 +28,7 @@ export function BannerPanel() {
   const [slides, setSlides] = useState<Slide[]>(INITIAL_SLIDES)
 
   return (
-    <div className="flex-1 overflow-y-auto">
-      <div className="flex flex-col gap-6 p-6">
+    <PanelContent className="gap-6">
         <div className="flex gap-3">
           <StatCard value="3"     label="Active slides" />
           <StatCard value="4.2s"  label="Auto-rotate" />
@@ -84,7 +83,6 @@ export function BannerPanel() {
             </Select>
           </FieldGroup>
         </FieldRow>
-      </div>
-    </div>
+    </PanelContent>
   )
 }

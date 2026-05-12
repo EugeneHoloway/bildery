@@ -2,9 +2,9 @@
 
 import * as React from "react"
 import { useState } from "react"
-import { Plus } from "lucide-react"
+import { Check, Plus } from "lucide-react"
 import { Input } from "@/components/ui/input"
-import { FieldGroup } from "@/components/shared"
+import { FieldGroup, PanelContent } from "@/components/shared"
 import { cn } from "@/lib/utils"
 
 interface GameSlot { id: string; name: string; selected: boolean }
@@ -29,8 +29,7 @@ export function EditorialPanel() {
   }
 
   return (
-    <div className="flex-1 overflow-y-auto">
-      <div className="flex flex-col gap-5 p-6">
+    <PanelContent>
         <FieldGroup label="Section title" className="max-w-[400px]">
           <Input defaultValue="Editor's picks" />
         </FieldGroup>
@@ -52,7 +51,7 @@ export function EditorialPanel() {
                   ? <span className="px-1 leading-tight">{game.name}</span>
                   : <Plus className="size-3 m-auto text-muted-foreground/50" />}
                 {game.selected && (
-                  <span className="absolute right-1 top-0.5 text-3xs font-bold text-foreground/50">✓</span>
+                  <Check className="absolute right-1 top-0.5 size-2.5 text-foreground/50" />
                 )}
               </button>
             ))}
@@ -62,7 +61,6 @@ export function EditorialPanel() {
         <FieldGroup label="Search game catalog" className="max-w-[400px]">
           <Input placeholder="Type game name or provider…" />
         </FieldGroup>
-      </div>
-    </div>
+    </PanelContent>
   )
 }

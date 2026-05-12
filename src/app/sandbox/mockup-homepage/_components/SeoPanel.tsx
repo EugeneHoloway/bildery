@@ -6,14 +6,13 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
-import { FieldGroup, FieldRow, LangSwitcher, type Lang } from "@/components/shared"
+import { FieldGroup, FieldRow, LangSwitcher, PanelContent, type Lang } from "@/components/shared"
 
 export function SeoPanel() {
   const [lang, setLang] = useState<Lang>("EN")
 
   return (
-    <div className="flex-1 overflow-y-auto">
-      <div className="flex flex-col gap-5 p-6 max-w-[640px]">
+    <PanelContent className="max-w-[640px]">
         <LangSwitcher value={lang} onChange={setLang} />
 
         <FieldGroup label="H1">
@@ -47,7 +46,6 @@ export function SeoPanel() {
             </Select>
           </FieldGroup>
         </FieldRow>
-      </div>
-    </div>
+    </PanelContent>
   )
 }

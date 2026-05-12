@@ -1,5 +1,6 @@
 import * as React from "react"
 import { GripVertical } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
 import { Switch } from "@/components/ui/switch"
 import { cn } from "@/lib/utils"
 
@@ -7,16 +8,79 @@ export type BadgeType = "auto" | "manual"
 
 export function SectionBadge({ type }: { type: BadgeType }) {
   return (
-    <span className={cn(
-      "shrink-0 rounded px-1.5 py-px text-3xs font-semibold uppercase tracking-wider",
-      type === "auto"
-        ? "bg-sky-100 text-sky-700 dark:bg-sky-950/60 dark:text-sky-400"
-        : "bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-400",
-    )}>
+    <Badge
+      className={cn(
+        "shrink-0 rounded-sm px-1.5 py-px text-3xs uppercase tracking-wider border-transparent",
+        type === "auto"
+          ? "bg-brand-bg text-brand"
+          : "bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-400",
+      )}
+    >
       {type}
-    </span>
+    </Badge>
   )
 }
+
+// ── SegmentControl ────────────────────────────────────────────────────────────
+
+interface SegmentControlProps<T extends string> {
+  options: T[]
+  value: T
+  onChange: (value: T) => void
+  className?: string
+}
+
+export function SegmentControl<T extends string>({
+  options, value, onChange, className,
+}: SegmentControlProps<T>) {
+  return (
+    <div className={cn("flex w-fit overflow-hidden rounded-lg border border-border", className)}>
+      {options.map((option, i) => (
+        <button
+          key={option}
+          type="button"
+          onClick={() => onChange(option)}
+          className={cn(
+            "px-4 py-1.5 text-sm font-medium capitalize transition-colors",
+            i > 0 && "border-l border-border",
+            value === option
+              ? "bg-foreground text-background"
+              : "bg-background text-muted-foreground hover:bg-muted hover:text-foreground",
+          )}
+        >
+          {option}
+        </button>
+      ))}
+    </div>
+  )
+}
+
+// ── ToggleChip ────────────────────────────────────────────────────────────────
+
+interface ToggleChipProps {
+  label: string
+  enabled: boolean
+  onToggle: () => void
+}
+
+export function ToggleChip({ label, enabled, onToggle }: ToggleChipProps) {
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      className={cn(
+        "rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors",
+        enabled
+          ? "border-foreground bg-foreground text-background"
+          : "border-border bg-background text-muted-foreground hover:border-foreground/40 hover:text-foreground",
+      )}
+    >
+      {label}
+    </button>
+  )
+}
+
+// ── SortableRow ───────────────────────────────────────────────────────────────
 
 export function SortableRow({ label, enabled, onToggle }: { label: string; enabled: boolean; onToggle: () => void }) {
   return (

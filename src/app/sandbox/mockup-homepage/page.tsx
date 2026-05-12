@@ -89,6 +89,7 @@ export default function MockupHomepagePage() {
         {sections.map((section) => (
           <PanelSidebarItem
             key={section.id}
+            as="div"
             isActive={section.id === activeId}
             onClick={() => setActiveId(section.id)}
           >

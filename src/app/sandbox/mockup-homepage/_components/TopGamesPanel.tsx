@@ -4,8 +4,8 @@ import * as React from "react"
 import { useState } from "react"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { FieldGroup, FieldRow } from "@/components/shared"
-import { cn } from "@/lib/utils"
+import { FieldGroup, FieldRow, PanelContent } from "@/components/shared"
+import { SegmentControl } from "./shared"
 
 type SelectionMode = "auto" | "manual" | "mixed"
 
@@ -13,8 +13,7 @@ export function TopGamesPanel() {
   const [mode, setMode] = useState<SelectionMode>("auto")
 
   return (
-    <div className="flex-1 overflow-y-auto">
-      <div className="flex flex-col gap-5 p-6 max-w-[600px]">
+    <PanelContent className="max-w-[600px]">
         <FieldRow>
           <FieldGroup label="Section title"><Input defaultValue="Top games" /></FieldGroup>
           <FieldGroup label="Max games"><Input type="number" defaultValue="14" /></FieldGroup>
@@ -22,20 +21,11 @@ export function TopGamesPanel() {
 
         <div className="flex flex-col gap-1.5">
           <p className="text-xs font-medium text-muted-foreground">Selection mode</p>
-          <div className="flex w-fit overflow-hidden rounded-lg border border-border">
-            {(["auto", "manual", "mixed"] as SelectionMode[]).map((m) => (
-              <button key={m} onClick={() => setMode(m)}
-                className={cn(
-                  "px-4 py-1.5 text-sm font-medium capitalize transition-colors",
-                  m !== "auto" && "border-l border-border",
-                  mode === m
-                    ? "bg-foreground text-background"
-                    : "bg-background text-muted-foreground hover:bg-muted hover:text-foreground",
-                )}>
-                {m}
-              </button>
-            ))}
-          </div>
+          <SegmentControl
+            options={["auto", "manual", "mixed"] as SelectionMode[]}
+            value={mode}
+            onChange={setMode}
+          />
         </div>
 
         {mode !== "manual" && (
@@ -66,7 +56,6 @@ export function TopGamesPanel() {
           )}
           <FieldGroup label='Link "All Games"'><Input defaultValue="/games" /></FieldGroup>
         </FieldRow>
-      </div>
-    </div>
+    </PanelContent>
   )
 }
