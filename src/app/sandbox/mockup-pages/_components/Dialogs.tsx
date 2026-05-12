@@ -115,11 +115,9 @@ export function AddProviderDialog({ onAdd }: { onAdd: (name: string) => void }) 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <button className="flex aspect-square flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-border bg-muted/20 transition-colors hover:border-subtle-border hover:bg-muted/40">
-          <div className="flex size-9 items-center justify-center rounded-full bg-muted text-muted-foreground">
-            <Plus className="size-4" />
-          </div>
-          <span className="text-xs text-muted-foreground">Add provider</span>
+        <button className="shrink-0 inline-flex items-center gap-1.5 rounded-lg bg-foreground px-3 h-8 text-sm font-medium text-background">
+          <Plus className="size-3.5" />
+          Add provider
         </button>
       </DialogTrigger>
       <DialogContent>

@@ -1,14 +1,25 @@
 "use client"
 
 import { useState } from "react"
+import { Home, Tag, Crown, Building2, Info, FileText } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { PageShell, PanelLayout, PanelSidebar, PanelSidebarSection, PanelSidebarItem, StatusBadge, StatusDot } from "@/components/shared"
+import { Separator } from "@/components/ui/separator"
+import { PageShell, PanelLayout, PanelSidebar, PanelSidebarSection, StatusBadge } from "@/components/shared"
 import { cn } from "@/lib/utils"
 
 import { type SitePage, type PageStatus, SYSTEM_PAGES, CUSTOM_PAGES } from "./_components/types"
-import { NewPageDialog, DeletePageDialog } from "./_components/Dialogs"
+import { DeletePageDialog } from "./_components/Dialogs"
 import { SimpleView }    from "./_components/SimpleView"
 import { ProvidersView } from "./_components/ProvidersView"
+
+const PAGE_ICONS: Record<string, React.ReactNode> = {
+  homepage:   <Home      className="size-4 shrink-0" />,
+  promotions: <Tag       className="size-4 shrink-0" />,
+  vip:        <Crown     className="size-4 shrink-0" />,
+  providers:  <Building2 className="size-4 shrink-0" />,
+  about:      <Info      className="size-4 shrink-0" />,
+  blog:       <FileText  className="size-4 shrink-0" />,
+}
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
@@ -84,43 +95,31 @@ export default function MockupPagesPage() {
   }
 
   function NavItem({ page }: { page: SitePage }) {
-    const isActive  = page.id === activeId
-    const navStatus = getStatus(page.id)
+    const isActive = page.id === activeId
     return (
-      <PanelSidebarItem isActive={isActive} onClick={() => setActiveId(page.id)}>
-        <StatusDot status={navStatus} />
-        <span className={cn("flex-1 truncate", navStatus === "hidden" && !isActive && "opacity-50")}>
-          {page.label}
-        </span>
-        {page.isSystem && (
-          <span className="rounded px-1 py-px text-3xs font-medium uppercase tracking-wide text-muted-foreground bg-muted">
-            sys
-          </span>
+      <Button
+        variant="ghost"
+        onClick={() => setActiveId(page.id)}
+        className={cn(
+          "w-full justify-start gap-2.5",
+          isActive
+            ? "bg-zinc-100 text-foreground font-medium hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-800"
+            : "bg-transparent text-muted-foreground font-normal hover:bg-zinc-100 hover:text-foreground dark:hover:bg-zinc-800"
         )}
-      </PanelSidebarItem>
+      >
+        {PAGE_ICONS[page.id]}
+        <span className="truncate">{page.label}</span>
+      </Button>
     )
   }
 
   const sidebar = (
-    <PanelSidebar>
-      <div className="border-b border-border px-4 py-3">
-        <p className="mb-2.5 text-2xs font-semibold uppercase tracking-label text-muted-foreground">
-          Site pages
-        </p>
-        <NewPageDialog
-          onCreated={(page) => {
-            setCustomPages((prev) => [...prev, page])
-            setActiveId(page.id)
-          }}
-        />
-      </div>
-      <PanelSidebarSection label="System pages">
-        {SYSTEM_PAGES.map((page) => <NavItem key={page.id} page={page} />)}
-      </PanelSidebarSection>
-      <div className="mx-4 h-px bg-border" />
-      <PanelSidebarSection label="Custom pages">
-        {customPages.map((page) => <NavItem key={page.id} page={page} />)}
-      </PanelSidebarSection>
+    <PanelSidebar className="bg-background pt-5 pb-3 pr-6">
+      <p className="px-2 pb-2 text-xs font-semibold text-muted-foreground">System pages</p>
+      {SYSTEM_PAGES.map((page) => <NavItem key={page.id} page={page} />)}
+      <Separator className="my-3" />
+      <p className="px-2 pb-2 text-xs font-semibold text-muted-foreground">Custom pages</p>
+      {customPages.map((page) => <NavItem key={page.id} page={page} />)}
     </PanelSidebar>
   )
 
@@ -133,7 +132,8 @@ export default function MockupPagesPage() {
       title="Page manager"
       description="Create, configure and publish pages. Manage URL slugs, visibility, SEO and content."
     >
-      <PanelLayout sidebar={sidebar}>
+      <Separator className="mb-8" />
+      <PanelLayout flat sidebar={sidebar}>
         {renderView()}
       </PanelLayout>
     </PageShell>

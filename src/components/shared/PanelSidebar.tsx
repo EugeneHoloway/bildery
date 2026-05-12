@@ -36,6 +36,8 @@ interface PanelSidebarItemProps {
   isActive: boolean
   onClick: () => void
   children: React.ReactNode
+  /** "panel" — border-l-2 стиль (по умолчанию); "nav" — rounded bg-accent стиль (как settings sidebar) */
+  variant?: "panel" | "nav"
   className?: string
 }
 
@@ -43,8 +45,26 @@ export function PanelSidebarItem({
   isActive,
   onClick,
   children,
+  variant = "panel",
   className,
 }: PanelSidebarItemProps) {
+  if (variant === "nav") {
+    return (
+      <button
+        onClick={onClick}
+        className={cn(
+          "flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm transition-colors",
+          isActive
+            ? "bg-accent text-foreground font-medium"
+            : "text-muted-foreground hover:bg-accent hover:text-foreground",
+          className
+        )}
+      >
+        {children}
+      </button>
+    )
+  }
+
   return (
     <button
       onClick={onClick}
@@ -81,7 +101,7 @@ export function PanelSidebar({
   return (
     <aside
       className={cn(
-        "flex shrink-0 flex-col border-r border-border bg-muted/30",
+        "flex shrink-0 flex-col bg-muted/30",
         width,
         className
       )}

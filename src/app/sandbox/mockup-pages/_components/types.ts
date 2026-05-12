@@ -14,7 +14,9 @@ export interface Provider {
   abbr: string
   name: string
   games: number
+  enabledGames: number
   selected: boolean
+  live: boolean
 }
 
 export interface AuditItem {
@@ -38,13 +40,13 @@ export const CUSTOM_PAGES: SitePage[] = [
 ]
 
 export const INITIAL_PROVIDERS: Provider[] = [
-  { id: "ezugi",     abbr: "EZG", name: "Ezugi",         games: 84,  selected: true  },
-  { id: "pragmatic", abbr: "PP",  name: "Pragmatic Play", games: 312, selected: true  },
-  { id: "evolution", abbr: "EVO", name: "Evolution",      games: 127, selected: true  },
-  { id: "playngo",   abbr: "PNG", name: "Play'n GO",      games: 256, selected: true  },
-  { id: "netent",    abbr: "NET", name: "NetEnt",         games: 203, selected: true  },
-  { id: "yggdrasil", abbr: "YGG", name: "Yggdrasil",     games: 91,  selected: false },
-  { id: "hacksaw",   abbr: "HCK", name: "Hacksaw",       games: 54,  selected: false },
+  { id: "ezugi",     abbr: "EZG", name: "Ezugi",         games: 84,  enabledGames: 71,  selected: true,  live: true  },
+  { id: "pragmatic", abbr: "PP",  name: "Pragmatic Play", games: 312, enabledGames: 298, selected: true,  live: true  },
+  { id: "evolution", abbr: "EVO", name: "Evolution",      games: 127, enabledGames: 127, selected: true,  live: true  },
+  { id: "playngo",   abbr: "PNG", name: "Play'n GO",      games: 2834, enabledGames: 1560, selected: true,  live: true  },
+  { id: "netent",    abbr: "NET", name: "NetEnt",         games: 203, enabledGames: 140, selected: true,  live: false },
+  { id: "yggdrasil", abbr: "YGG", name: "Yggdrasil",     games: 91,  enabledGames: 0,   selected: false, live: false },
+  { id: "hacksaw",   abbr: "HCK", name: "Hacksaw",       games: 54,  enabledGames: 0,   selected: false, live: false },
 ]
 
 export const AUDIT_ITEMS: AuditItem[] = [

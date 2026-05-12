@@ -3,19 +3,38 @@
 import * as React from "react"
 import { useState } from "react"
 import Link from "next/link"
-import { Globe, AlertCircle, CheckCircle2, AlertTriangle, XCircle } from "lucide-react"
+import { AlertCircle, CheckCircle2, AlertTriangle, XCircle } from "lucide-react"
 import { Button, buttonVariants } from "@/components/ui/button"
+import { Switch } from "@/components/ui/switch"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Checkbox } from "@/components/ui/checkbox"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { FieldGroup, FieldRow, StatusBadge, LangSwitcher, CharBar, type Lang } from "@/components/shared"
+import { FieldGroup, FieldRow, LangSwitcher, CharBar, type Lang } from "@/components/shared"
 import { InfoBox } from "@/components/shared"
 import { cn } from "@/lib/utils"
 import { DeletePageDialog, AddProviderDialog } from "./Dialogs"
 import { type SitePage, type PageStatus, type Provider, type AuditItem, INITIAL_PROVIDERS, AUDIT_ITEMS, TITLE_MAX, DESC_MAX } from "./types"
+
+const CIRCUMFERENCE = 267.035
+
+function CircleProgress({ value, max }: { value: number; max: number }) {
+  const pct  = max > 0 ? Math.min(value / max, 1) : 0
+  const dash = pct * CIRCUMFERENCE
+  return (
+    <svg aria-hidden="true" fill="none" width="16" height="16" viewBox="0 0 100 100" className="-rotate-90 shrink-0">
+      <circle cx="50" cy="50" r="42.5" strokeWidth="12" strokeDashoffset="0"
+        strokeLinecap="round" strokeLinejoin="round"
+        stroke="currentColor" className="opacity-20"
+        style={{ strokeDasharray: `${CIRCUMFERENCE}, ${CIRCUMFERENCE}` }} />
+      <circle cx="50" cy="50" r="42.5" strokeWidth="12" strokeDashoffset="0"
+        strokeLinecap="round" strokeLinejoin="round"
+        stroke="currentColor" className="transition-all duration-300"
+        style={{ strokeDasharray: `${dash}, ${CIRCUMFERENCE}` }} />
+    </svg>
+  )
+}
 
 function AuditIcon({ status }: { status: AuditItem["status"] }) {
   if (status === "ok")   return <CheckCircle2 className="size-4 shrink-0 text-success" />
@@ -49,31 +68,19 @@ export function ProvidersView({ page, status, onPublish, onDelete }: ProvidersVi
     setProviders((prev) => prev.map((p) => (p.id === id ? { ...p, selected: !p.selected } : p)))
   }
 
+  function toggleLive(id: string) {
+    setProviders((prev) => prev.map((p) => (p.id === id ? { ...p, live: !p.live } : p)))
+  }
+
   return (
     <>
-      {/* Topbar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b px-5 py-3.5">
-        <div>
-          <p className="text-sm font-medium leading-tight">{page.label}</p>
-          <p className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground">
-            <Globe className="size-3" />{page.url}
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <StatusBadge status={status} />
-          <DeletePageDialog pageName={page.label} onConfirm={onDelete} />
-          <Button variant="outline" size="sm">Preview</Button>
-          <Button size="sm" onClick={onPublish}>Publish</Button>
-        </div>
-      </div>
-
-      <div className="flex-1 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        <div className="mx-5 mt-4">
+      <div className="flex-1">
+        <div className="mt-5 pl-5">
           <InfoBox>{page.info}</InfoBox>
         </div>
 
         <Tabs defaultValue="main" className="mt-4">
-          <div className="border-b px-5">
+          <div className="ml-5 border-b">
             <TabsList className="h-auto flex-wrap gap-0 rounded-none bg-transparent p-0">
               {Object.entries(TAB_LABELS).map(([value, label]) => (
                 <TabsTrigger key={value} value={value}
@@ -114,35 +121,51 @@ export function ProvidersView({ page, status, onPublish, onDelete }: ProvidersVi
                 </FieldGroup>
               </FieldRow>
             </div>
-            <Separator className="max-w-[640px]" />
+            <Separator />
             <div className="flex flex-col gap-3">
-              <p className="text-xs font-medium text-muted-foreground">Providers to display — click to toggle</p>
-              <div className="grid grid-cols-3 gap-3 tablet:grid-cols-4">
-                {providers.map((prov) => (
-                  <div key={prov.id} onClick={() => toggleProvider(prov.id)}
-                    className={cn(
-                      "group relative flex aspect-square cursor-pointer flex-col items-center justify-evenly overflow-hidden rounded-2xl border px-5 transition-colors",
-                      prov.selected ? "border-foreground bg-background" : "border-border bg-muted/40 hover:border-subtle-border hover:bg-background/60",
-                    )}>
-                    <Checkbox checked={prov.selected} tabIndex={-1} className="pointer-events-none absolute right-2.5 top-2.5" />
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-game-thumb text-sm font-bold tracking-wide text-white">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3>Providers to display</h3>
+                  <p className="text-xs text-muted-foreground">Configure which providers are live on your site.</p>
+                </div>
+                <AddProviderDialog onAdd={(name) => {
+                  const abbr = name.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 3)
+                  setProviders((prev) => [...prev, { id: "new-" + Date.now(), abbr, name, games: 0, enabledGames: 0, selected: true, live: false }])
+                }} />
+              </div>
+              <div className="flex flex-col">
+                {providers.map((prov, i) => (
+                  <div key={prov.id}
+                    className={cn("flex items-center gap-4 py-3", i !== 0 && "border-t border-border")}>
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-zinc-100 text-sm font-bold tracking-wide text-zinc-800 dark:bg-zinc-800 dark:text-zinc-100">
                       {prov.abbr}
                     </div>
-                    <span className="text-sm font-semibold leading-tight">{prov.name}</span>
-                    <span className="text-xs text-muted-foreground">{prov.games} games</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-foreground">{prov.name}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {prov.enabledGames} / {prov.games} games · {prov.games > 0
+                          ? `${Math.round(prov.enabledGames / prov.games * 100)}% active`
+                          : "0% active"}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className={cn(
+                        "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium",
+                        prov.live
+                          ? "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400"
+                          : "bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400"
+                      )}>Shown</span>
+                      <Switch checked={prov.live} onCheckedChange={() => toggleLive(prov.id)} />
+                    </div>
                     <Link
                       href="/sandbox/mockup-seo"
                       onClick={(e) => e.stopPropagation()}
-                      className={buttonVariants({ size: 'sm' })}
+                      className="shrink-0 inline-flex items-center rounded-lg border border-border bg-transparent px-3 h-8 text-sm font-medium text-foreground hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
                     >
-                      Webpage setup
+                      View details
                     </Link>
                   </div>
                 ))}
-                <AddProviderDialog onAdd={(name) => {
-                  const abbr = name.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 3)
-                  setProviders((prev) => [...prev, { id: "new-" + Date.now(), abbr, name, games: 0, selected: true }])
-                }} />
               </div>
             </div>
           </TabsContent>
@@ -175,17 +198,17 @@ export function ProvidersView({ page, status, onPublish, onDelete }: ProvidersVi
           </TabsContent>
 
           {/* CONTENT */}
-          <TabsContent value="content" className="p-5">
+          <TabsContent value="content" className="p-5" tabIndex={-1}>
             <div className="max-w-[720px]">
               <FieldGroup label="Page text" hint="shown below the provider grid">
-                <div className="overflow-hidden rounded-lg border">
+                <div className="rounded-lg border">
                   <div className="flex flex-wrap items-center gap-0.5 border-b bg-muted/50 px-2 py-1.5">
                     {["B","I","U","|","H2","¶","|","• list","1. list","|","⌘ link"].map((t,i) =>
                       t==="|" ? <span key={i} className="mx-1 h-4 w-px bg-border" />
                                : <button key={i} className="inline-flex h-6 min-w-[26px] items-center justify-center rounded px-1.5 text-xs text-muted-foreground hover:bg-muted hover:text-foreground">{t}</button>
                     )}
                   </div>
-                  <div className="min-h-[140px] p-3 text-sm leading-relaxed outline-none" contentEditable suppressContentEditableWarning>
+                  <div className="min-h-[140px] p-3 text-sm leading-relaxed outline-none resize-y overflow-auto" contentEditable suppressContentEditableWarning>
                     <p>BetUp Casino partners with 12 of the world's leading game studios, delivering over 2,000 slots, live casino tables, and crash games.</p>
                   </div>
                 </div>
@@ -261,6 +284,7 @@ export function ProvidersView({ page, status, onPublish, onDelete }: ProvidersVi
             </FieldRow>
             <Separator />
             <FieldGroup label="Structured data (JSON-LD)">
+              <InfoBox>JSON-LD is injected into the page <code className="font-mono">&lt;head&gt;</code> and tells Google the structure of your content in machine-readable format. Without it, Google sees plain text. With it, rich snippets in search results become possible.</InfoBox>
               <Textarea rows={5} className="font-mono text-xs"
                 defaultValue={'{\n  "@context": "https://schema.org",\n  "@type": "ItemList",\n  "name": "Game providers at BetUp Casino"\n}'} />
             </FieldGroup>
