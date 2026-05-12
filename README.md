@@ -66,7 +66,7 @@ Hi, I'm **Eugene Holoway** -- Head of Product, based in Berlin. I like building 
 
 Bildery is my corner of the web.
 
-[LinkedIn](https://www.linkedin.com/in/eugeneholoway) · [GitHub](https://github.com/EugeneHoloway) · [Instagram](https://www.instagram.com/eugeneholoway)
+[LinkedIn](https://www.linkedin.com/in/eugeneholoway) | [GitHub](https://github.com/EugeneHoloway) | [Instagram](https://www.instagram.com/eugeneholoway)
 
 
 
