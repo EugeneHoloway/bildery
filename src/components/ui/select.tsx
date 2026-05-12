@@ -44,7 +44,7 @@ function SelectTrigger({
         "[&>span]:line-clamp-1",
         "aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20",
         size === "default" && "h-8",
-        size === "sm" && "h-7 text-caption",
+        size === "sm" && "h-7 text-xs",
         className
       )}
       {...props}

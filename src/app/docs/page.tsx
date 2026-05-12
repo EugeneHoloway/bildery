@@ -175,7 +175,7 @@ export default function DocsPage() {
               <span className="flex items-center justify-center w-9 h-9 rounded-xl bg-muted text-muted-foreground">
                 <Plus className="size-4" />
               </span>
-              <span className="text-caption font-semibold text-muted-foreground tracking-caps">
+              <span className="text-xs font-semibold text-muted-foreground tracking-caps">
                 New document
               </span>
             </button>
@@ -271,7 +271,7 @@ export default function DocsPage() {
             />
 
             {titleError && (
-              <p className="text-caption text-destructive mb-2">{titleError}</p>
+              <p className="text-xs text-destructive mb-2">{titleError}</p>
             )}
 
             <p className="text-xs text-muted-foreground mb-5">

@@ -149,7 +149,7 @@ function SandboxSection({
 }) {
   return (
     <section>
-      <h2 className="mb-4 text-caption font-semibold uppercase tracking-label text-muted-foreground">
+      <h2 className="mb-4 text-xs font-semibold uppercase tracking-label text-muted-foreground">
         {title}
       </h2>
       <div className="grid grid-cols-1 gap-4 tablet:grid-cols-2 desktop:grid-cols-4">

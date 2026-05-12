@@ -58,7 +58,7 @@ function ToolBtn({
   return (
     <button
       className={cn(
-        'px-[10px] py-1 rounded-md text-caption font-semibold cursor-pointer transition-colors duration-150',
+        'px-[10px] py-1 rounded-md text-xs font-semibold cursor-pointer transition-colors duration-150',
         active
           ? 'bg-foreground text-background'
           : 'text-muted-foreground hover:bg-muted hover:text-foreground',

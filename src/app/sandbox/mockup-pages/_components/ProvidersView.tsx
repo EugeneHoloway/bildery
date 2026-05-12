@@ -1,10 +1,9 @@
 "use client"
 
-import * as React from "react"
 import { useState } from "react"
 import Link from "next/link"
-import { AlertCircle, CheckCircle2, AlertTriangle, XCircle } from "lucide-react"
-import { Button, buttonVariants } from "@/components/ui/button"
+import { CheckCircle2, AlertTriangle, XCircle } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -14,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { FieldGroup, FieldRow, LangSwitcher, CharBar, type Lang } from "@/components/shared"
 import { InfoBox } from "@/components/shared"
 import { cn } from "@/lib/utils"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { DeletePageDialog, AddProviderDialog } from "./Dialogs"
 import { type SitePage, type PageStatus, type Provider, type AuditItem, INITIAL_PROVIDERS, AUDIT_ITEMS, TITLE_MAX, DESC_MAX } from "./types"
 
@@ -51,10 +51,9 @@ interface ProvidersViewProps {
   page: SitePage
   status: PageStatus
   onPublish: () => void
-  onDelete: () => void
 }
 
-export function ProvidersView({ page, status, onPublish, onDelete }: ProvidersViewProps) {
+export function ProvidersView({ page, status, onPublish }: ProvidersViewProps) {
   const [lang,      setLang]      = useState<Lang>("EN")
   const [providers, setProviders] = useState<Provider[]>(INITIAL_PROVIDERS)
   const [h1,        setH1]        = useState("Game providers at BetUp Casino")
@@ -133,40 +132,53 @@ export function ProvidersView({ page, status, onPublish, onDelete }: ProvidersVi
                   setProviders((prev) => [...prev, { id: "new-" + Date.now(), abbr, name, games: 0, enabledGames: 0, selected: true, live: false }])
                 }} />
               </div>
-              <div className="flex flex-col">
-                {providers.map((prov, i) => (
-                  <div key={prov.id}
-                    className={cn("flex items-center gap-4 py-3", i !== 0 && "border-t border-border")}>
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-zinc-100 text-sm font-bold tracking-wide text-zinc-800 dark:bg-zinc-800 dark:text-zinc-100">
-                      {prov.abbr}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-foreground">{prov.name}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {prov.enabledGames} / {prov.games} games · {prov.games > 0
-                          ? `${Math.round(prov.enabledGames / prov.games * 100)}% active`
-                          : "0% active"}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className={cn(
-                        "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium",
-                        prov.live
-                          ? "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400"
-                          : "bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400"
-                      )}>Shown</span>
-                      <Switch checked={prov.live} onCheckedChange={() => toggleLive(prov.id)} />
-                    </div>
-                    <Link
-                      href="/sandbox/mockup-seo"
-                      onClick={(e) => e.stopPropagation()}
-                      className="shrink-0 inline-flex items-center rounded-lg border border-border bg-transparent px-3 h-8 text-sm font-medium text-foreground hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
-                    >
-                      View details
-                    </Link>
-                  </div>
-                ))}
-              </div>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-14">Image</TableHead>
+                    <TableHead>Provider</TableHead>
+                    <TableHead className="w-px whitespace-nowrap">Status</TableHead>
+                    <TableHead className="w-px whitespace-nowrap">Details</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {providers.map((prov) => (
+                    <TableRow key={prov.id}>
+                      <TableCell>
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted text-sm font-bold tracking-wide text-foreground">
+                          {prov.abbr}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <p className="text-sm font-semibold text-foreground">{prov.name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {prov.enabledGames} / {prov.games} games · {prov.games > 0
+                            ? `${Math.round(prov.enabledGames / prov.games * 100)}% active`
+                            : "0% active"}
+                        </p>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          <span className={cn(
+                            "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium",
+                            prov.live
+                              ? "bg-success-bg text-success"
+                              : "bg-muted text-muted-foreground"
+                          )}>Shown</span>
+                          <Switch checked={prov.live} onCheckedChange={() => toggleLive(prov.id)} />
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button variant="outline" size="sm" asChild>
+                          <Link href="/sandbox/mockup-seo" onClick={(e) => e.stopPropagation()}>
+                            View details
+                          </Link>
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </div>
           </TabsContent>
 
