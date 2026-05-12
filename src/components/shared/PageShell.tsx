@@ -9,8 +9,8 @@ export interface BreadcrumbItem {
 }
 
 interface PageShellProps {
-  /** Путь хлебных крошек. Последний элемент — текущая страница (без href). */
-  breadcrumbs: BreadcrumbItem[]
+  /** Путь хлебных крошек. Последний элемент — текущая страница (без href). Не передавать для верхнеуровневых страниц. */
+  breadcrumbs?: BreadcrumbItem[]
   title: string
   description?: string
   /** Доп. контент справа от заголовка (кнопки, бейджи и т.д.) */
@@ -36,25 +36,27 @@ export function PageShell({
       <div className="mx-auto max-w-[1240px] px-4">
 
         {/* Breadcrumb */}
-        <nav className="mb-6 flex items-center gap-1 text-sm text-muted-foreground">
-          {breadcrumbs.map((crumb, i) => {
-            const isLast = i === breadcrumbs.length - 1
-            return (
-              <React.Fragment key={i}>
-                {i > 0 && <ChevronRight className="size-3.5 shrink-0" />}
-                {isLast || !crumb.href ? (
-                  <span className={cn(isLast ? "text-foreground" : "")}>
-                    {crumb.label}
-                  </span>
-                ) : (
-                  <Link href={crumb.href} className="transition-colors hover:text-foreground">
-                    {crumb.label}
-                  </Link>
-                )}
-              </React.Fragment>
-            )
-          })}
-        </nav>
+        {breadcrumbs && breadcrumbs.length > 0 && (
+          <nav className="mb-6 flex items-center gap-1 text-sm text-muted-foreground">
+            {breadcrumbs.map((crumb, i) => {
+              const isLast = i === breadcrumbs.length - 1
+              return (
+                <React.Fragment key={i}>
+                  {i > 0 && <ChevronRight className="size-3.5 shrink-0" />}
+                  {isLast || !crumb.href ? (
+                    <span className={cn(isLast ? "text-foreground" : "")}>
+                      {crumb.label}
+                    </span>
+                  ) : (
+                    <Link href={crumb.href} className="transition-colors hover:text-foreground">
+                      {crumb.label}
+                    </Link>
+                  )}
+                </React.Fragment>
+              )
+            })}
+          </nav>
+        )}
 
         {/* Header */}
         <div className={cn("mb-8", actions && "flex items-start justify-between gap-4")}>

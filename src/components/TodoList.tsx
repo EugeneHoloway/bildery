@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
+import { Input } from '@/components/ui/input'
 import { GripVertical, Pencil, Trash2, Check, X, Lock, LockOpen } from 'lucide-react'
 import {
   DndContext,
@@ -80,14 +81,16 @@ function SortableTodoItem({
     >
       {/* Drag handle */}
       {isUnlocked && (
-        <button
-          className="shrink-0 w-6 h-6 flex items-center justify-center text-border hover:text-muted-foreground transition-colors cursor-grab active:cursor-grabbing touch-none"
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          className="shrink-0 text-border hover:text-muted-foreground cursor-grab active:cursor-grabbing touch-none"
           aria-label="Drag to reorder"
           {...attributes}
           {...listeners}
         >
           <GripVertical className="size-3.5" />
-        </button>
+        </Button>
       )}
 
       {/* Checkbox */}
@@ -102,8 +105,8 @@ function SortableTodoItem({
       <div className="flex-1 flex items-center gap-2 flex-wrap">
         {isEditing ? (
           <>
-            <input
-              className="flex-1 px-[6px] py-[2px] border border-brand rounded bg-brand-bg text-sm outline-none"
+            <Input
+              className="flex-1"
               value={editText}
               onChange={(e) => setEditText(e.target.value)}
               onKeyDown={(e) => {
@@ -112,8 +115,8 @@ function SortableTodoItem({
               }}
               autoFocus
             />
-            <input
-              className="flex-1 min-w-[80px] px-[6px] py-[2px] border border-brand rounded bg-brand-bg text-sm outline-none"
+            <Input
+              className="flex-1 min-w-[80px]"
               value={editProject}
               onChange={(e) => setEditProject(e.target.value)}
               onKeyDown={(e) => {
@@ -299,9 +302,6 @@ export function TodoList() {
     onSaveEdit: saveEdit, onCancelEdit: cancelEdit,
   }
 
-  const inputCls = 'px-3 py-2 border border-border rounded-lg text-base tablet:text-sm outline-none transition-colors duration-150 focus:border-brand bg-background'
-  const btnCls   = 'px-4 py-2 bg-foreground text-background rounded-lg text-sm font-semibold cursor-pointer transition-opacity hover:opacity-85'
-
   return (
     <>
       {/* Section header */}
@@ -337,45 +337,45 @@ export function TodoList() {
       {/* Password input */}
       {showPassword && !isUnlocked && (
         <div className="flex gap-2 mb-4">
-          <input
-            className={cn(inputCls, 'flex-1 min-w-0', passwordError && 'border-destructive')}
+          <Input
+            className="flex-1 min-w-0"
             type="password"
             placeholder="Enter password"
             value={passwordInput}
             onChange={(e) => { setPasswordInput(e.target.value); setPasswordError(false) }}
             onKeyDown={(e) => e.key === 'Enter' && handleUnlock()}
+            aria-invalid={passwordError || undefined}
             autoFocus
           />
-          <button className={cn(btnCls, 'shrink-0')} onClick={handleUnlock}>Unlock</button>
+          <Button onClick={handleUnlock} className="shrink-0">Unlock</Button>
         </div>
       )}
 
       {/* Add todo form */}
       {isUnlocked && (
         <div className="flex gap-2 mb-5 flex-wrap">
-          <input
-            className={cn(inputCls, 'flex-[2] min-w-[180px]')}
+          <Input
+            className="flex-[2] min-w-[180px]"
             type="text"
             placeholder="New task..."
             value={newText}
             onChange={(e) => setNewText(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && addTodo()}
           />
-          <input
-            className={cn(inputCls, 'flex-1 min-w-[120px]')}
+          <Input
+            className="flex-1 min-w-[120px]"
             type="text"
             placeholder="Project (optional)"
             value={newProject}
             onChange={(e) => setNewProject(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && addTodo()}
           />
-          <button
-            className={cn(btnCls, 'disabled:opacity-40 disabled:cursor-not-allowed')}
+          <Button
             onClick={addTodo}
             disabled={adding || !newText.trim()}
           >
             Add
-          </button>
+          </Button>
         </div>
       )}
 
