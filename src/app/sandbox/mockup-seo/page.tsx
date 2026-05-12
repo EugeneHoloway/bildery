@@ -162,6 +162,11 @@ export default function MockupSeoPage() {
         </nav>
 
 
+        {/* Title */}
+        <h1 className="mb-1 font-bold tracking-heading">SEO Settings</h1>
+        <p className="mb-6 text-sm text-muted-foreground">Configure meta tags, structured data and indexing rules for this page.</p>
+        <Separator className="mb-8" />
+
         {/* Info box */}
         <div className="mb-6 flex items-start gap-2 rounded-lg border border-border bg-muted px-3 py-2.5">
           <AlertCircle className="mt-0.5 size-3.5 shrink-0 text-muted-foreground" />
@@ -365,11 +370,14 @@ export default function MockupSeoPage() {
                 </div>
                 <div className="grid grid-cols-2 gap-2 tablet:grid-cols-4">
                   {filteredGames.map((game) => (
-                    <button
+                    <div
                       key={game.id}
+                      role="button"
+                      tabIndex={0}
                       onClick={() => toggleGame(game.id)}
+                      onKeyDown={(e) => e.key === 'Enter' && toggleGame(game.id)}
                       className={cn(
-                        'relative flex aspect-square flex-col items-center justify-center gap-1.5 rounded-xl border p-3 text-center transition-colors',
+                        'relative flex aspect-square cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl border p-3 text-center transition-colors',
                         game.selected
                           ? 'border-foreground bg-background'
                           : 'border-border bg-muted/40 hover:border-subtle-border'
@@ -381,7 +389,7 @@ export default function MockupSeoPage() {
                       />
                       <span className="text-xs font-semibold leading-tight">{game.name}</span>
                       <span className="text-2xs text-muted-foreground">{game.provider}</span>
-                    </button>
+                    </div>
                   ))}
                 </div>
               </FieldGroup>
