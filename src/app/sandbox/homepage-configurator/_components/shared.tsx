@@ -1,14 +1,14 @@
 import * as React from "react"
-import { GripVertical } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
-import { Switch } from "@/components/ui/switch"
+import { Toggle } from "@/components/ui/toggle"
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { cn } from "@/lib/utils"
 
 export type BadgeType = "auto" | "manual"
 
 export function SectionBadge({ type }: { type: BadgeType }) {
   return (
-    <Badge className="shrink-0 capitalize">{type}</Badge>
+    <Badge variant="secondary" className="shrink-0 capitalize">{type}</Badge>
   )
 }
 
@@ -25,24 +25,28 @@ export function SegmentControl<T extends string>({
   options, value, onChange, className,
 }: SegmentControlProps<T>) {
   return (
-    <div className={cn("flex w-fit overflow-hidden rounded-lg border border-border", className)}>
+    <ToggleGroup
+      type="single"
+      value={value}
+      onValueChange={(v) => { if (v) onChange(v as T) }}
+      className={cn("w-fit gap-0 overflow-hidden rounded-lg border border-border", className)}
+    >
       {options.map((option, i) => (
-        <button
+        <ToggleGroupItem
           key={option}
-          type="button"
-          onClick={() => onChange(option)}
+          value={option}
           className={cn(
-            "px-4 py-1.5 text-sm font-medium capitalize transition-colors",
+            "h-auto rounded-none px-4 py-1.5 text-sm font-medium capitalize",
             i > 0 && "border-l border-border",
-            value === option
-              ? "bg-foreground text-background"
-              : "bg-background text-muted-foreground hover:bg-muted hover:text-foreground",
+            "data-[state=on]:bg-foreground data-[state=on]:text-background",
+            "data-[state=off]:bg-background data-[state=off]:text-muted-foreground",
+            "hover:bg-muted hover:text-foreground data-[state=on]:hover:bg-foreground data-[state=on]:hover:text-background",
           )}
         >
           {option}
-        </button>
+        </ToggleGroupItem>
       ))}
-    </div>
+    </ToggleGroup>
   )
 }
 
@@ -56,29 +60,19 @@ interface ToggleChipProps {
 
 export function ToggleChip({ label, enabled, onToggle }: ToggleChipProps) {
   return (
-    <button
-      type="button"
-      onClick={onToggle}
+    <Toggle
+      pressed={enabled}
+      onPressedChange={onToggle}
       className={cn(
-        "rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors",
-        enabled
-          ? "border-foreground bg-foreground text-background"
-          : "border-border bg-background text-muted-foreground hover:border-foreground/40 hover:text-foreground",
+        "h-auto rounded-full border px-3.5 py-1.5 text-sm font-medium",
+        "data-[state=on]:border-foreground data-[state=on]:bg-foreground data-[state=on]:text-background",
+        "data-[state=off]:border-border data-[state=off]:bg-background data-[state=off]:text-muted-foreground",
+        "hover:border-foreground/40 hover:bg-background hover:text-foreground",
+        "data-[state=on]:hover:bg-foreground data-[state=on]:hover:text-background",
       )}
     >
       {label}
-    </button>
+    </Toggle>
   )
 }
 
-// ── SortableRow ───────────────────────────────────────────────────────────────
-
-export function SortableRow({ label, enabled, onToggle }: { label: string; enabled: boolean; onToggle: () => void }) {
-  return (
-    <div className="flex items-center gap-3 rounded-xl border border-border bg-muted/30 px-3 py-2.5 transition-colors hover:bg-muted/50">
-      <GripVertical className="size-3.5 shrink-0 text-muted-foreground/40" />
-      <span className="flex-1 text-sm font-medium text-foreground">{label}</span>
-      <Switch checked={enabled} onCheckedChange={onToggle} />
-    </div>
-  )
-}

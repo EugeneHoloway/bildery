@@ -5,7 +5,7 @@ import { FieldGroup, FieldRow, PanelContent } from "@/components/shared"
 
 export function FeedPanel() {
   return (
-    <PanelContent className="max-w-[560px]">
+    <PanelContent className="max-w-xl">
         <FieldRow>
           <FieldGroup label="Default tab">
             <Select defaultValue="casino">

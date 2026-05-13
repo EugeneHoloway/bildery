@@ -13,20 +13,19 @@ export function TopGamesPanel() {
   const [mode, setMode] = useState<SelectionMode>("auto")
 
   return (
-    <PanelContent className="max-w-[600px]">
+    <PanelContent className="max-w-2xl">
         <FieldRow>
           <FieldGroup label="Section title"><Input defaultValue="Top games" /></FieldGroup>
           <FieldGroup label="Max games"><Input type="number" defaultValue="14" /></FieldGroup>
         </FieldRow>
 
-        <div className="flex flex-col gap-1.5">
-          <p className="text-xs font-medium text-muted-foreground">Selection mode</p>
+        <FieldGroup label="Selection mode">
           <SegmentControl
             options={["auto", "manual", "mixed"] as SelectionMode[]}
             value={mode}
             onChange={setMode}
           />
-        </div>
+        </FieldGroup>
 
         {mode !== "manual" && (
           <FieldGroup label="Auto rule">

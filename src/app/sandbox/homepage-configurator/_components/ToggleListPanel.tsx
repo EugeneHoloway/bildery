@@ -1,26 +1,15 @@
 "use client"
 
 import * as React from "react"
-import { useState } from "react"
 import { GripVertical } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import { PanelContent } from "@/components/shared"
 import { cn } from "@/lib/utils"
-import {
-  DndContext,
-  closestCenter,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  type DragEndEvent,
-} from "@dnd-kit/core"
-import {
-  SortableContext,
-  verticalListSortingStrategy,
-  useSortable,
-  arrayMove,
-} from "@dnd-kit/sortable"
+import { DndContext, type DragEndEvent } from "@dnd-kit/core"
+import { SortableContext, verticalListSortingStrategy, useSortable } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
+import { useSortableList } from "../_hooks/useSortableList"
 
 interface ToggleItem { id: string; label: string; enabled: boolean }
 
@@ -45,15 +34,16 @@ function SortableRow({ item, onToggle }: { item: ToggleItem; onToggle: () => voi
       style={style}
       className="flex items-center gap-3 rounded-xl border border-border bg-muted/30 px-3 py-2.5 transition-colors hover:bg-muted/50"
     >
-      <button
-        type="button"
+      <Button
+        variant="ghost"
+        size="icon-sm"
         className="shrink-0 cursor-grab active:cursor-grabbing touch-none text-muted-foreground/40 hover:text-muted-foreground"
         aria-label="Drag to reorder"
         {...attributes}
         {...listeners}
       >
         <GripVertical className="size-3.5" />
-      </button>
+      </Button>
       <span className={cn("flex-1 text-sm font-medium", item.enabled ? "text-foreground" : "text-muted-foreground")}>
         {item.label}
       </span>
@@ -63,22 +53,11 @@ function SortableRow({ item, onToggle }: { item: ToggleItem; onToggle: () => voi
 }
 
 export function ToggleListPanel({ initial, description }: ToggleListPanelProps) {
-  const [items, setItems] = useState<ToggleItem[]>(initial)
-
-  const sensors = useSensors(useSensor(PointerSensor))
+  const { items, setItems, sensors, collisionDetection, accessibility, handleDragEnd } =
+    useSortableList<ToggleItem>(initial)
 
   function toggle(id: string) {
     setItems((prev) => prev.map((x) => (x.id === id ? { ...x, enabled: !x.enabled } : x)))
-  }
-
-  function handleDragEnd(event: DragEndEvent) {
-    const { active, over } = event
-    if (!over || active.id === over.id) return
-    setItems((prev) => {
-      const oldIndex = prev.findIndex((x) => x.id === active.id)
-      const newIndex = prev.findIndex((x) => x.id === over.id)
-      return arrayMove(prev, oldIndex, newIndex)
-    })
   }
 
   return (
@@ -87,9 +66,9 @@ export function ToggleListPanel({ initial, description }: ToggleListPanelProps) 
       <DndContext
         id="toggle-list-dnd"
         sensors={sensors}
-        collisionDetection={closestCenter}
+        collisionDetection={collisionDetection}
         onDragEnd={handleDragEnd}
-        accessibility={{ announcements: { onDragStart: () => '', onDragOver: () => '', onDragEnd: () => '', onDragCancel: () => '' } }}
+        accessibility={accessibility}
       >
         <SortableContext items={items.map((x) => x.id)} strategy={verticalListSortingStrategy}>
           <div className="mt-1 flex flex-col gap-2">

@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { FieldGroup, PanelContent } from "@/components/shared"
+import { AbbrAvatar, FieldGroup, PanelContent } from "@/components/shared"
 
 interface GameCard {
   id: string
@@ -55,19 +55,19 @@ export function EditorialPanel() {
 
   return (
     <PanelContent>
-      <FieldGroup label="Section title" className="max-w-[400px]">
+      <FieldGroup label="Section title" className="max-w-sm">
         <Input defaultValue="Editor's picks" />
       </FieldGroup>
 
       <div className="flex flex-col gap-3">
         <div>
           <h3 className="text-sm font-semibold text-foreground">Featured games</h3>
-          <p className="text-xs text-muted-foreground">Select which providers appear on this page and toggle their visibility.</p>
+          <p className="text-xs text-muted-foreground">Select which games appear in this section.</p>
         </div>
         <div className="flex items-center justify-between">
           <Input
             placeholder="Search games…"
-            className="max-w-[400px]"
+            className="max-w-sm"
             value={gameSearch}
             onChange={(e) => setGameSearch(e.target.value)}
           />
@@ -102,9 +102,7 @@ export function EditorialPanel() {
                   />
                 </TableCell>
                 <TableCell>
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted text-sm font-bold tracking-wide text-foreground">
-                    {game.abbr}
-                  </div>
+                  <AbbrAvatar abbr={game.abbr} />
                 </TableCell>
                 <TableCell className="text-foreground">{game.name}</TableCell>
                 <TableCell className="text-muted-foreground">{game.provider}</TableCell>

@@ -13,7 +13,9 @@ export default function TasksPage() {
       title="Tasks"
       description="Work in progress tasks and to-dos."
     >
-      <TodoList />
+      <div className="px-4">
+        <TodoList />
+      </div>
     </PageShell>
   )
 }

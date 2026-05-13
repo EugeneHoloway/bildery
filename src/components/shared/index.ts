@@ -1,3 +1,4 @@
+export { AbbrAvatar } from "./AbbrAvatar"
 export { FieldGroup } from "./FieldGroup"
 export { FieldRow } from "./FieldRow"
 export { CharBar } from "./CharBar"

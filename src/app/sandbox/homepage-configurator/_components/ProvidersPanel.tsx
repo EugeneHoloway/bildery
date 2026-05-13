@@ -4,11 +4,11 @@ import { useState } from "react"
 import Link from "next/link"
 import { Switch } from "@/components/ui/switch"
 import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { PanelContent } from "@/components/shared"
+import { AbbrAvatar, PanelContent } from "@/components/shared"
 import { AddProviderDialog } from "@/app/sandbox/page-manager/_components/Dialogs"
 import { type Provider, INITIAL_PROVIDERS } from "@/app/sandbox/page-manager/_components/types"
-import { cn } from "@/lib/utils"
 
 export function ProvidersPanel() {
   const [providers, setProviders] = useState<Provider[]>(INITIAL_PROVIDERS)
@@ -44,9 +44,7 @@ export function ProvidersPanel() {
             {providers.map((prov) => (
               <TableRow key={prov.id}>
                 <TableCell>
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted text-sm font-bold tracking-wide text-foreground">
-                    {prov.abbr}
-                  </div>
+                  <AbbrAvatar abbr={prov.abbr} />
                 </TableCell>
                 <TableCell>
                   <p className="text-sm font-semibold text-foreground">{prov.name}</p>
@@ -58,12 +56,12 @@ export function ProvidersPanel() {
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex items-center justify-end gap-2">
-                    <span className={cn(
-                      "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium",
-                      prov.live ? "bg-success-bg text-success" : "bg-muted text-muted-foreground"
-                    )}>
-                      Shown
-                    </span>
+                    <Badge
+                      variant="ghost"
+                      className={prov.live ? "bg-success-bg text-success" : ""}
+                    >
+                      {prov.live ? "Shown" : "Hidden"}
+                    </Badge>
                     <Switch checked={prov.live} onCheckedChange={() => toggleLive(prov.id)} />
                   </div>
                 </TableCell>

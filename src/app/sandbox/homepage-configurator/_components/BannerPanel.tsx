@@ -5,7 +5,7 @@ import { useState } from "react"
 import { Pencil, Plus, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { FieldGroup, FieldRow, PanelContent } from "@/components/shared"
+import { AbbrAvatar, FieldGroup, FieldRow, PanelContent } from "@/components/shared"
 
 interface Slide { id: string; abbr: string; title: string; meta: string }
 
@@ -39,9 +39,7 @@ export function BannerPanel() {
           <div className="mt-1 flex flex-col gap-2">
             {slides.map((slide) => (
               <div key={slide.id} className="flex items-center gap-3 rounded-xl border border-border bg-muted/30 px-3 py-2.5 transition-colors hover:bg-muted/50">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-muted text-sm font-bold tracking-wide text-foreground">
-                  {slide.abbr}
-                </div>
+                <AbbrAvatar abbr={slide.abbr} />
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium text-foreground">{slide.title}</p>
                   <p className="truncate text-xs text-muted-foreground">{slide.meta}</p>
@@ -55,9 +53,14 @@ export function BannerPanel() {
                 </div>
               </div>
             ))}
-            <button className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-dashed border-border py-3 text-xs text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground">
-              <Plus className="size-3.5" />Add slide
-            </button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full border-dashed text-muted-foreground hover:text-foreground"
+            >
+              <Plus className="size-3.5" />
+              Add slide
+            </Button>
           </div>
         </FieldGroup>
 

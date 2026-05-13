@@ -12,7 +12,7 @@ export function SeoPanel() {
   const [lang, setLang] = useState<Lang>("EN")
 
   return (
-    <PanelContent className="max-w-[640px]">
+    <PanelContent className="max-w-2xl">
         <LangSwitcher value={lang} onChange={setLang} />
 
         <FieldGroup label="H1">
