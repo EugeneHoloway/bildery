@@ -170,7 +170,7 @@ export function ProvidersView({ page, status, onPublish }: ProvidersViewProps) {
                       </TableCell>
                       <TableCell className="text-right">
                         <Button variant="outline" size="sm" asChild>
-                          <Link href="/sandbox/mockup-seo" onClick={(e) => e.stopPropagation()}>
+                          <Link href="/sandbox/seo-editor" onClick={(e) => e.stopPropagation()}>
                             View details
                           </Link>
                         </Button>

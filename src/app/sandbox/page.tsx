@@ -71,7 +71,7 @@ const marketCards: SandboxCardData[] = [
 
 const mockupCards: SandboxCardData[] = [
   {
-    id: 'mockup-homepage',
+    id: 'homepage-configurator',
     tag: 'iGaming Backoffice',
     title: 'Homepage configurator',
     description:
@@ -79,10 +79,10 @@ const mockupCards: SandboxCardData[] = [
     status: 'BetUp',
 
     sections: 3,
-    href: '/sandbox/mockup-homepage',
+    href: '/sandbox/homepage-configurator',
   },
   {
-    id: 'mockup-pages',
+    id: 'page-manager',
     tag: 'iGaming Backoffice',
     title: 'Page manager',
     description:
@@ -90,10 +90,10 @@ const mockupCards: SandboxCardData[] = [
     status: 'BetUp',
 
     sections: 2,
-    href: '/sandbox/mockup-pages',
+    href: '/sandbox/page-manager',
   },
   {
-    id: 'mockup-seo',
+    id: 'seo-editor',
     tag: 'iGaming Backoffice',
     title: 'SEO editor',
     description:
@@ -101,7 +101,7 @@ const mockupCards: SandboxCardData[] = [
     status: 'BetUp',
 
     sections: 4,
-    href: '/sandbox/mockup-seo',
+    href: '/sandbox/seo-editor',
   },
   {
     id: 'analytics',

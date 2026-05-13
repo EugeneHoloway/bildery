@@ -39,7 +39,7 @@ export function BannerPanel() {
           <div className="mt-1 flex flex-col gap-2">
             {slides.map((slide) => (
               <div key={slide.id} className="flex items-center gap-3 rounded-xl border border-border bg-muted/30 px-3 py-2.5 transition-colors hover:bg-muted/50">
-                <div className="flex h-10 w-14 shrink-0 items-center justify-center rounded-lg bg-game-thumb text-2xs font-bold text-white">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-muted text-sm font-bold tracking-wide text-foreground">
                   {slide.abbr}
                 </div>
                 <div className="min-w-0 flex-1">

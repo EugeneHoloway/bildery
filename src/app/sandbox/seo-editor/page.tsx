@@ -298,7 +298,7 @@ export default function MockupSeoPage() {
                     <TableCell />
                     <TableCell>
                       <Button variant="outline" size="sm" asChild>
-                        <Link href="/sandbox/mockup-seo">View details</Link>
+                        <Link href="/sandbox/seo-editor">View details</Link>
                       </Button>
                     </TableCell>
                   </TableRow>

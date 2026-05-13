@@ -41,7 +41,7 @@ export function SandboxCard({ card }: { card: SandboxCardData }) {
           </div>
           <Badge
             variant="secondary"
-            className="shrink-0 px-2"
+            className="shrink-0"
           >
             {card.tag}
           </Badge>
@@ -54,7 +54,7 @@ export function SandboxCard({ card }: { card: SandboxCardData }) {
 
       {/* Footer */}
       <div className="-mx-4 -mb-4 flex items-center justify-between gap-3 rounded-b-2xl border-t border-border bg-subtle px-4 py-4">
-        <Badge variant="outline" className="text-muted-foreground border-border bg-transparent">
+        <Badge variant="outline">
           {card.status}
         </Badge>
         <span className="shrink-0 inline-flex items-center rounded-lg bg-foreground px-3 h-8 text-sm font-medium text-background">

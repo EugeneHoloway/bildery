@@ -47,7 +47,7 @@ export function AddProviderDialog({ onAdd }: { onAdd: (name: string) => void }) 
   function handleAdd() {
     if (!name.trim()) return
     onAdd(name.trim()); setName(""); setOpen(false)
-    router.push("/sandbox/mockup-seo")
+    router.push("/sandbox/seo-editor")
   }
 
   return (

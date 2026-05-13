@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useTheme } from 'next-themes'
-import { Sun, Moon } from 'lucide-react'
+import { Sun, Moon, Menu, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
@@ -108,32 +108,20 @@ export function Header() {
             <ThemeToggle />
 
             {/* Burger — mobile only */}
-            <button
-              className="flex h-9 w-9 shrink-0 flex-col items-center justify-center gap-[5px] p-1 tablet:hidden"
+            <Button
+              variant="ghost"
+              size="icon"
+              className="tablet:hidden"
               aria-label={menuOpen ? 'Close menu' : 'Open menu'}
               aria-expanded={menuOpen}
               aria-controls="mobile-menu"
               onClick={() => setMenuOpen((v) => !v)}
             >
-              <span
-                className={cn(
-                  'block h-[1.5px] w-full origin-center rounded-[2px] bg-foreground transition-all duration-[250ms] ease-[ease]',
-                  menuOpen && 'translate-y-[6.5px] rotate-45',
-                )}
-              />
-              <span
-                className={cn(
-                  'block h-[1.5px] w-full origin-center rounded-[2px] bg-foreground transition-all duration-200',
-                  menuOpen && 'scale-x-0 opacity-0',
-                )}
-              />
-              <span
-                className={cn(
-                  'block h-[1.5px] w-full origin-center rounded-[2px] bg-foreground transition-all duration-[250ms] ease-[ease]',
-                  menuOpen && '-translate-y-[6.5px] -rotate-45',
-                )}
-              />
-            </button>
+              {menuOpen
+                ? <X className="size-5" />
+                : <Menu className="size-5" />
+              }
+            </Button>
           </div>
         </div>
       </header>
@@ -158,8 +146,8 @@ export function Header() {
               key={item.label}
               href={item.href}
               className={cn(
-                'border-b border-border py-[10px]',
-                'text-2xl font-semibold tracking-display',
+                'border-b border-border py-3',
+                'text-sm font-medium',
                 'transition-colors duration-150',
                 isActive(item.href)
                   ? 'text-muted-foreground'

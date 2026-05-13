@@ -8,16 +8,7 @@ export type BadgeType = "auto" | "manual"
 
 export function SectionBadge({ type }: { type: BadgeType }) {
   return (
-    <Badge
-      className={cn(
-        "shrink-0 rounded-sm px-1.5 py-px text-3xs uppercase tracking-wider border-transparent",
-        type === "auto"
-          ? "bg-brand-bg text-brand"
-          : "bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-400",
-      )}
-    >
-      {type}
-    </Badge>
+    <Badge className="shrink-0 capitalize">{type}</Badge>
   )
 }
 

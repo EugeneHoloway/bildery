@@ -137,7 +137,7 @@ function SortableTodoItem({
               {todo.text}
             </span>
             {todo.project && (
-              <Badge variant="secondary" className="px-2">
+              <Badge variant="secondary">
                 {todo.project}
               </Badge>
             )}
@@ -309,11 +309,11 @@ export function TodoList() {
         <div className="flex items-center gap-3">
           <h2 className="text-lg font-bold tracking-heading">To-Dos</h2>
           <div className="flex gap-[6px]">
-            <Badge variant="secondary" className="px-2">
+            <Badge variant="secondary">
               {open.length} open
             </Badge>
             {done.length > 0 && (
-              <Badge variant="outline" className="px-2 text-muted-foreground border-border bg-transparent">
+              <Badge variant="outline">
                 {done.length} done
               </Badge>
             )}

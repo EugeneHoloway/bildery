@@ -24,7 +24,7 @@ export function PanelSidebarSection({
           {label}
         </p>
       </div>
-      {headerAction && <div className="px-4 pb-2">{headerAction}</div>}
+      {headerAction && <div className="px-3 pb-2">{headerAction}</div>}
       {children}
     </div>
   )
@@ -73,11 +73,11 @@ export function PanelSidebarItem({
     <Tag
       onClick={onClick}
       className={cn(
-        "flex w-full items-center gap-2.5 border-l-2 px-3 py-2.5 text-left text-sm transition-colors",
+        "flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-sm transition-colors",
         Tag === "div" && "cursor-pointer",
         isActive
-          ? "border-foreground bg-background text-foreground"
-          : "border-transparent text-muted-foreground hover:bg-background/60 hover:text-foreground",
+          ? "bg-muted text-foreground font-medium"
+          : "text-muted-foreground hover:bg-muted/60 hover:text-foreground",
         className
       )}
     >
@@ -106,7 +106,7 @@ export function PanelSidebar({
   return (
     <aside
       className={cn(
-        "flex shrink-0 flex-col bg-muted/30",
+        "flex shrink-0 flex-col",
         width,
         className
       )}
