@@ -5,8 +5,11 @@ import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
+import { Lock, Unlock } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 
 const PASSWORD = process.env.NEXT_PUBLIC_TODO_PASSWORD
 
@@ -30,21 +33,6 @@ function debounce<T extends (...args: Parameters<T>) => void>(fn: T, delay: numb
   }
 }
 
-// ── Icons ─────────────────────────────────────────────────────────────────────
-
-const LockIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="3" y="11" width="18" height="11" rx="2"/>
-    <path d="M7 11V7a5 5 0 0 1 9.9-1"/>
-  </svg>
-)
-const UnlockIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="3" y="11" width="18" height="11" rx="2"/>
-    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-  </svg>
-)
-
 // ── Toolbar button ────────────────────────────────────────────────────────────
 
 function ToolBtn({
@@ -56,18 +44,14 @@ function ToolBtn({
   children: React.ReactNode
 }) {
   return (
-    <button
-      className={cn(
-        'px-[10px] py-1 rounded-md text-xs font-semibold cursor-pointer transition-colors duration-150',
-        active
-          ? 'bg-foreground text-background'
-          : 'text-muted-foreground hover:bg-muted hover:text-foreground',
-      )}
+    <Button
+      variant={active ? 'secondary' : 'ghost'}
+      size="sm"
       onClick={onClick}
       title={title}
     >
       {children}
-    </button>
+    </Button>
   )
 }
 
@@ -96,7 +80,7 @@ export default function DocEditorPage() {
     extensions: [StarterKit],
     content: '',
     editable: false,
-    immediatelyRender: false, // required in Next.js to avoid SSR hydration mismatch
+    immediatelyRender: false,
     onUpdate: ({ editor }) => {
       if (isUnlockedRef.current) autoSave(editor.getHTML())
     },
@@ -153,21 +137,18 @@ export default function DocEditorPage() {
 
   // ── Render states ─────────────────────────────────────────────────────────
 
-  const inputCls = 'px-3 py-2 border border-border rounded-lg text-sm outline-none transition-colors duration-150 focus:border-brand bg-background'
-  const btnCls   = 'px-4 py-2 bg-foreground text-background rounded-lg text-sm font-semibold cursor-pointer transition-opacity hover:opacity-85'
-
   if (loading) return (
     <div className="py-10 pb-20">
-      <div className="mx-auto max-w-[1240px] px-4 tablet:px-4">
-        <p className="text-sm text-muted-foreground py-4">Loading...</p>
+      <div className="mx-auto max-w-[1240px] px-4">
+        <p className="py-4 text-sm text-muted-foreground">Loading...</p>
       </div>
     </div>
   )
 
   if (notFound) return (
     <div className="py-10 pb-20">
-      <div className="mx-auto max-w-[1240px] px-4 tablet:px-4">
-        <p className="text-sm text-muted-foreground py-4">
+      <div className="mx-auto max-w-[1240px] px-4">
+        <p className="py-4 text-sm text-muted-foreground">
           Document not found.{' '}
           <Link href="/docs" className="text-brand underline">
             Back to documents
@@ -179,11 +160,11 @@ export default function DocEditorPage() {
 
   return (
     <div className="py-10 pb-20">
-      <div className="mx-auto max-w-[1240px] px-4 tablet:px-4">
+      <div className="mx-auto max-w-[1240px] px-4">
 
         {/* Breadcrumb */}
-        <nav className="flex items-center gap-2 mb-8 text-sm text-muted-foreground" aria-label="Breadcrumb">
-          <Link href="/docs" className="text-muted-foreground hover:text-foreground transition-colors">
+        <nav className="mb-8 flex items-center gap-2 text-sm text-muted-foreground" aria-label="Breadcrumb">
+          <Link href="/docs" className="transition-colors hover:text-foreground">
             Documents
           </Link>
           <span className="text-border">/</span>
@@ -191,32 +172,34 @@ export default function DocEditorPage() {
         </nav>
 
         {/* Header: title + lock */}
-        <div className="flex items-start justify-between gap-4 mb-6">
-          <h1 className="text-xl font-bold tracking-heading leading-[1.1]">
+        <div className="mb-6 flex items-start justify-between gap-4">
+          <h1 className="text-xl font-bold leading-[1.1] tracking-heading">
             {doc!.title}
           </h1>
 
-          <div className="flex items-center gap-2 shrink-0 pt-1">
+          <div className="flex shrink-0 items-center gap-2 pt-1">
             {isUnlocked && (
               <span className="text-xs text-muted-foreground">
-                {saving ? 'Saving...' : savedAt ? `Saved ${savedAt.toLocaleTimeString()}` : null}
+                {saving ? 'Saving…' : savedAt ? `Saved ${savedAt.toLocaleTimeString()}` : null}
               </span>
             )}
-            <button
-              className="p-1 rounded-md transition-colors hover:bg-border cursor-pointer"
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={() => isUnlocked ? setIsUnlocked(false) : setShowPassword((v) => !v)}
               aria-label={isUnlocked ? 'Lock' : 'Unlock to edit'}
             >
-              {isUnlocked ? <UnlockIcon /> : <LockIcon />}
-            </button>
+              {isUnlocked ? <Unlock className="size-4" /> : <Lock className="size-4" />}
+            </Button>
           </div>
         </div>
 
         {/* Password input */}
         {showPassword && !isUnlocked && (
-          <div className="flex gap-2 mb-6">
-            <input
-              className={cn(inputCls, 'flex-1', passwordError && 'border-destructive')}
+          <div className="mb-6 flex gap-2">
+            <Input
+              className={cn('flex-1', passwordError && 'aria-invalid:border-destructive')}
+              aria-invalid={passwordError || undefined}
               type="password"
               placeholder="Enter password to edit"
               value={passwordInput}
@@ -224,13 +207,13 @@ export default function DocEditorPage() {
               onKeyDown={(e) => e.key === 'Enter' && handleUnlock()}
               autoFocus
             />
-            <button className={btnCls} onClick={handleUnlock}>Unlock</button>
+            <Button onClick={handleUnlock}>Unlock</Button>
           </div>
         )}
 
         {/* Toolbar — only when unlocked */}
         {isUnlocked && editor && (
-          <div className="flex flex-wrap items-center gap-1 p-2 border border-border rounded-[10px] bg-card mb-4">
+          <div className="mb-4 flex flex-wrap items-center gap-1 rounded-[10px] border border-border bg-card p-2">
             <ToolBtn active={editor.isActive('bold')}      onClick={() => editor.chain().focus().toggleBold().run()}              title="Bold">
               <strong>B</strong>
             </ToolBtn>
@@ -253,8 +236,7 @@ export default function DocEditorPage() {
               &ldquo; Quote
             </ToolBtn>
 
-            {/* Separator */}
-            <div className="w-px h-5 bg-border mx-1" />
+            <div className="mx-1 h-5 w-px bg-border" />
 
             <ToolBtn onClick={() => editor.chain().focus().undo().run()} title="Undo">↩</ToolBtn>
             <ToolBtn onClick={() => editor.chain().focus().redo().run()} title="Redo">↪</ToolBtn>
@@ -264,13 +246,13 @@ export default function DocEditorPage() {
         {/* Editor content area */}
         <div
           className={cn(
-            'border border-border rounded-xl p-6 min-h-[400px] bg-card',
+            'min-h-[400px] rounded-xl border border-border bg-card p-6',
             isUnlocked && 'border-brand',
           )}
         >
           <EditorContent editor={editor} />
           {!isUnlocked && !doc!.content && (
-            <p className="text-muted-foreground text-sm">This document is empty.</p>
+            <p className="text-sm text-muted-foreground">This document is empty.</p>
           )}
         </div>
 
