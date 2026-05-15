@@ -10,7 +10,7 @@ import {
 } from "@dnd-kit/core"
 import { arrayMove } from "@dnd-kit/sortable"
 
-/** Заглушка accessibility-анонсов для DndContext — убирает лишние ARIA-live регионы */
+/** Заглушка accessibility-анонсов для DndContext -- убирает лишние ARIA-live регионы */
 const DND_ACCESSIBILITY = {
   announcements: {
     onDragStart: () => "",
@@ -26,7 +26,7 @@ interface SortableItem {
 
 /**
  * Хук для управления сортируемым списком через DnD.
- * Возвращает items, sensors, collisionDetection, accessiblity и handleDragEnd — готово к передаче в DndContext.
+ * Возвращает items, sensors, collisionDetection, accessiblity и handleDragEnd -- готово к передаче в DndContext.
  */
 export function useSortableList<T extends SortableItem>(initialItems: T[]) {
   const [items, setItems] = useState<T[]>(initialItems)

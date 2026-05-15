@@ -1,3 +1,5 @@
+import { Card } from '@/components/ui/card'
+
 interface AbCell {
   label: string
   pct: string
@@ -7,16 +9,18 @@ interface AbCell {
 
 export function DocAbGrid({ cells }: { cells: AbCell[] }) {
   return (
-    <div className="doc-ab-grid">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-5">
       {cells.map((cell) => (
-        <div key={cell.label} className="doc-ab-cell">
-          <div className="doc-ab-cell__header">
-            <span className="doc-ab-cell__label">{cell.label}</span>
-            <span className="doc-ab-cell__pct">{cell.pct}</span>
+        <Card key={cell.label} className="flex flex-col gap-1.5 p-4">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold tracking-widest uppercase text-muted-foreground">
+              {cell.label}
+            </span>
+            <span className="text-sm font-bold text-foreground">{cell.pct}</span>
           </div>
-          <strong className="doc-ab-cell__title">{cell.title}</strong>
-          <p className="doc-ab-cell__text">{cell.text}</p>
-        </div>
+          <span className="text-sm font-bold">{cell.title}</span>
+          <p className="text-xs text-muted-foreground leading-relaxed">{cell.text}</p>
+        </Card>
       ))}
     </div>
   )

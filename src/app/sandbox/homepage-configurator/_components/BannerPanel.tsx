@@ -10,9 +10,9 @@ import { AbbrAvatar, FieldGroup, FieldRow, PanelContent } from "@/components/sha
 interface Slide { id: string; abbr: string; title: string; meta: string }
 
 const INITIAL_SLIDES: Slide[] = [
-  { id: "s1", abbr: "225%", title: "Welcome bonus package", meta: "225% up to €2000 + 225 FS · Guests only · Active" },
-  { id: "s2", abbr: "VIP",  title: "VIP Reload bonus",      meta: "50% up to €500 · VIP only · Scheduled Apr 5" },
-  { id: "s3", abbr: "FS",   title: "Friday free spins",     meta: "50 FS on Book of Dead · All users · Active" },
+  { id: "s1", abbr: "225%", title: "Welcome bonus package", meta: "225% up to €2000 + 225 FS | Guests only | Active" },
+  { id: "s2", abbr: "VIP",  title: "VIP Reload bonus",      meta: "50% up to €500 | VIP only | Scheduled Apr 5" },
+  { id: "s3", abbr: "FS",   title: "Friday free spins",     meta: "50 FS on Book of Dead | All users | Active" },
 ]
 
 function StatCard({ value, label }: { value: string; label: string }) {

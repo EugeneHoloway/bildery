@@ -57,7 +57,7 @@ export function ProvidersView({ page, status, onPublish }: ProvidersViewProps) {
   const [lang,      setLang]      = useState<Lang>("EN")
   const [providers, setProviders] = useState<Provider[]>(INITIAL_PROVIDERS)
   const [h1,        setH1]        = useState("Game providers at BetUp Casino")
-  const [metaTitle, setMetaTitle] = useState("Game Providers — BetUp Casino | Slots & Live Games")
+  const [metaTitle, setMetaTitle] = useState("Game Providers -- BetUp Casino | Slots & Live Games")
   const [metaDesc,  setMetaDesc]  = useState("Explore 12 top game providers at BetUp Casino. Play 2000+ slots, live casino games and crash games from Pragmatic Play, Evolution, NetEnt and more.")
 
   const serpTitle = metaTitle.length > TITLE_MAX ? metaTitle.slice(0, 57) + "…" : metaTitle
@@ -102,9 +102,9 @@ export function ProvidersView({ page, status, onPublish }: ProvidersViewProps) {
                   <Select defaultValue="main">
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="main">Yes — main menu</SelectItem>
-                      <SelectItem value="footer">Yes — footer only</SelectItem>
-                      <SelectItem value="hidden">No — hidden</SelectItem>
+                      <SelectItem value="main">Yes -- main menu</SelectItem>
+                      <SelectItem value="footer">Yes -- footer only</SelectItem>
+                      <SelectItem value="hidden">No -- hidden</SelectItem>
                     </SelectContent>
                   </Select>
                 </FieldGroup>
@@ -152,7 +152,7 @@ export function ProvidersView({ page, status, onPublish }: ProvidersViewProps) {
                       <TableCell>
                         <p className="text-sm font-semibold text-foreground">{prov.name}</p>
                         <p className="text-xs text-muted-foreground">
-                          {prov.enabledGames} / {prov.games} games · {prov.games > 0
+                          {prov.enabledGames} / {prov.games} games | {prov.games > 0
                             ? `${Math.round(prov.enabledGames / prov.games * 100)}% active`
                             : "0% active"}
                         </p>
@@ -185,7 +185,7 @@ export function ProvidersView({ page, status, onPublish }: ProvidersViewProps) {
           {/* BASIC SEO */}
           <TabsContent value="basic" className="flex flex-col gap-4 p-5 max-w-[720px]">
             <LangSwitcher value={lang} onChange={setLang} />
-            <FieldGroup label="H1 — page heading" hint="shown on the page, 1 per page">
+            <FieldGroup label="H1 -- page heading" hint="shown on the page, 1 per page">
               <Input value={h1} onChange={(e) => setH1(e.target.value)} />
             </FieldGroup>
             <FieldGroup label="Title tag" hint="shown in browser tab and Google">
@@ -231,7 +231,7 @@ export function ProvidersView({ page, status, onPublish }: ProvidersViewProps) {
           {/* SOCIAL / OG */}
           <TabsContent value="og" className="flex flex-col gap-4 p-5 max-w-[720px]">
             <FieldGroup label="OG title" hint="shown when sharing on social">
-              <Input defaultValue="Game Providers — BetUp Casino" />
+              <Input defaultValue="Game Providers -- BetUp Casino" />
             </FieldGroup>
             <FieldGroup label="OG description">
               <Textarea rows={2} defaultValue="Discover all game providers at BetUp. Slots, live casino and more from the world's top studios." />
@@ -243,7 +243,7 @@ export function ProvidersView({ page, status, onPublish }: ProvidersViewProps) {
                 </div>
                 <div className="border-t bg-muted/50 px-3 py-2.5">
                   <p className="text-2xs uppercase tracking-wider text-muted-foreground">BETUP.COM</p>
-                  <p className="mt-0.5 text-sm font-medium">Game Providers — BetUp Casino</p>
+                  <p className="mt-0.5 text-sm font-medium">Game Providers -- BetUp Casino</p>
                 </div>
               </div>
             </FieldGroup>
@@ -287,9 +287,9 @@ export function ProvidersView({ page, status, onPublish }: ProvidersViewProps) {
                 <Select defaultValue="high">
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="high">0.8 — high</SelectItem>
-                    <SelectItem value="normal">0.5 — normal</SelectItem>
-                    <SelectItem value="low">0.3 — low</SelectItem>
+                    <SelectItem value="high">0.8 -- high</SelectItem>
+                    <SelectItem value="normal">0.5 -- normal</SelectItem>
+                    <SelectItem value="low">0.3 -- low</SelectItem>
                   </SelectContent>
                 </Select>
               </FieldGroup>

@@ -1,3 +1,5 @@
+import { Card } from '@/components/ui/card'
+
 interface KpiItem {
   value: string
   label: string
@@ -6,13 +8,13 @@ interface KpiItem {
 
 export function KpiRow({ items }: { items: KpiItem[] }) {
   return (
-    <div className="doc-kpi-row">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-14">
       {items.map((item) => (
-        <div key={item.label} className="doc-kpi">
-          <span className="doc-kpi__value">{item.value}</span>
-          <span className="doc-kpi__label">{item.label}</span>
-          <span className="doc-kpi__note">{item.note}</span>
-        </div>
+        <Card key={item.label} className="flex flex-col gap-1 p-5">
+          <span className="text-2xl font-bold tracking-tight text-foreground">{item.value}</span>
+          <span className="text-xs font-semibold text-foreground">{item.label}</span>
+          <span className="text-xs text-muted-foreground">{item.note}</span>
+        </Card>
       ))}
     </div>
   )

@@ -1,14 +1,22 @@
 import Link from 'next/link'
+import { Badge } from '@/components/ui/badge'
 
 interface Tag {
   label: string
   type: 'tag' | 'status'
 }
 
+interface Crumb {
+  label: string
+  href: string
+}
+
 interface Props {
   title: string
   breadcrumbLabel: string
   breadcrumbHref: string
+  /** Optional extra ancestor crumb inserted before breadcrumbLabel */
+  parentCrumb?: Crumb
   tags?: Tag[]
   description?: string
   footnote?: string
@@ -19,40 +27,59 @@ export function DocLayout({
   title,
   breadcrumbLabel,
   breadcrumbHref,
+  parentCrumb,
   tags,
   description,
   footnote,
   children,
 }: Props) {
   return (
-    <div className="doc-page">
+    <div className="py-10 pb-20">
       <div className="container">
 
-        <nav className="doc-breadcrumb" aria-label="Breadcrumb">
-          <Link href={breadcrumbHref} className="doc-breadcrumb__link">
+        <nav className="flex items-center gap-2 mb-8 text-sm text-muted-foreground" aria-label="Breadcrumb">
+          {parentCrumb && (
+            <>
+              <Link href={parentCrumb.href} className="hover:text-foreground transition-colors">
+                {parentCrumb.label}
+              </Link>
+              <span className="text-border">/</span>
+            </>
+          )}
+          <Link href={breadcrumbHref} className="hover:text-foreground transition-colors">
             {breadcrumbLabel}
           </Link>
-          <span className="doc-breadcrumb__sep">/</span>
-          <span className="doc-breadcrumb__current">{title}</span>
+          <span className="text-border">/</span>
+          <span className="text-foreground">{title}</span>
         </nav>
 
-        <div className="doc-hero">
-          <h1 className="doc-hero__title">{title}</h1>
+        <div className="mb-10">
+          <h1 className="text-xl font-bold tracking-tight mb-3">{title}</h1>
+          {description && (
+            <p className="text-base leading-relaxed text-muted-foreground mb-4 max-w-2xl">{description}</p>
+          )}
           {tags && tags.length > 0 && (
-            <div className="doc-hero__tags">
+            <div className="flex flex-wrap gap-2">
               {tags.map((t) => (
-                <span key={t.label} className={t.type === 'status' ? 'sandbox-card__status' : 'sandbox-card__tag'}>
+                <Badge
+                  key={t.label}
+                  variant="default"
+                  className="pointer-events-none"
+                >
                   {t.label}
-                </span>
+                </Badge>
               ))}
             </div>
           )}
-          {description && <p className="doc-hero__description">{description}</p>}
         </div>
 
         {children}
 
-        {footnote && <div className="doc-footnote">{footnote}</div>}
+        {footnote && (
+          <div className="mt-12 pt-4 border-t border-border text-xs text-muted-foreground leading-relaxed">
+            {footnote}
+          </div>
+        )}
 
       </div>
     </div>

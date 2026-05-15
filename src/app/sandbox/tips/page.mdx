@@ -6,6 +6,9 @@ import { Callout }      from '@/components/doc/Callout'
 import { DocFlow }      from '@/components/doc/DocFlow'
 import { DocScenarios } from '@/components/doc/DocScenarios'
 import { DocRisks }     from '@/components/doc/DocRisks'
+import { DocTable, DocTableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/doc/DocTable'
+import { DocFormula }   from '@/components/doc/DocFormula'
+import { Badge }        from '@/components/ui/badge'
 
 export default function Page({ children }) {
   return (
@@ -18,8 +21,8 @@ export default function Page({ children }) {
         { label: 'MVP',              type: 'tag' },
         { label: 'Rating Algorithm', type: 'tag' },
       ]}
-      description="Документ, на основі якого команда розробки може почати реалізацію MVP без додаткових уточнень бізнес-логіки · By Yevhenii Holovei"
-      footnote="📋 PO Test Task — Expert Rating System · Author: Yevhenii Holovei · Scope: MVP · Bayesian ROI Score Algorithm"
+      description="Документ, на основі якого команда розробки може почати реалізацію MVP без додаткових уточнень бізнес-логіки | By Yevhenii Holovei"
+      footnote="📋 PO Test Task -- Expert Rating System | Author: Yevhenii Holovei | Scope: MVP | Bayesian ROI Score Algorithm"
     >
       {children}
     </DocLayout>
@@ -30,7 +33,7 @@ export default function Page({ children }) {
 
 <DocBlock>
   <FeatureGrid items={[
-    { icon: '👤', title: 'Проблема для користувача', text: "Підписники не можуть об'єктивно оцінити якість тіпстерів. Без єдиного рейтингу вони підписуються на популярних, а не ефективних експертів — зазнаючи збитків." },
+    { icon: '👤', title: 'Проблема для користувача', text: "Підписники не можуть об'єктивно оцінити якість тіпстерів. Без єдиного рейтингу вони підписуються на популярних, а не ефективних експертів -- зазнаючи збитків." },
     { icon: '💼', title: 'Проблема для бізнесу',     text: 'Без прозорої метрики якості портал не може диференціювати тіпстерів. Зростає ризик репутаційних втрат. Рекламна монетизація профілів обмежена без підтвердженої ефективності.' },
   ]} />
 </DocBlock>
@@ -41,8 +44,8 @@ export default function Page({ children }) {
 
 <DocBlock>
   <FeatureGrid items={[
-    { icon: '✅', title: 'In scope (MVP)', text: 'Підрахунок SCORE для кожного активного тіпстера на базі ринку 1X2 · Публічна сторінка рейтингу TOP-N · Значок на профілі: ранг, SCORE, кількість ставок, Win Rate, ROI · Щоденний перерахунок о 04:00 CET · Правила підготовки даних · Захист від маніпуляцій з логуванням' },
-    { icon: '🚫', title: 'Out of scope',   text: 'Верифікація профілів · Підрейтинги по лізі та видах спорту · Алерти підписників при зміні рангу · Ручна модерація / апеляції · Рейтинг на базі реальних ставок · Поріг виключення при грубих маніпуляціях' },
+    { icon: '✅', title: 'In scope (MVP)', text: 'Підрахунок SCORE для кожного активного тіпстера на базі ринку 1X2 | Публічна сторінка рейтингу TOP-N | Значок на профілі: ранг, SCORE, кількість ставок, Win Rate, ROI | Щоденний перерахунок о 04:00 CET | Правила підготовки даних | Захист від маніпуляцій з логуванням' },
+    { icon: '🚫', title: 'Out of scope',   text: 'Верифікація профілів | Підрейтинги по лізі та видах спорту | Алерти підписників при зміні рангу | Ручна модерація / апеляції | Рейтинг на базі реальних ставок | Поріг виключення при грубих маніпуляціях' },
   ]} />
 </DocBlock>
 
@@ -51,29 +54,27 @@ export default function Page({ children }) {
 <DocSection num="03" title="Rating Algorithm Approach">
 
 <DocBlock title="Порівняння підходів">
-  <div className="doc-table-wrap">
-    <table className="doc-table">
-      <thead>
-        <tr><th>Підхід</th><th>Переваги</th><th>Недоліки</th><th>Вердикт</th></tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><strong>Win Rate Leaderboard</strong></td>
-          <td>Простий у реалізації · Легко пояснити · Інтуїтивно зрозуміло</td>
-          <td>Малі вибірки (2/2 = 100%) · Ігнорує коефіцієнти · Стимулює ставку на фаворита</td>
-          <td><span className="doc-badge doc-badge--reject">Відхилено</span></td>
-        </tr>
-        <tr>
-          <td><strong>Bayesian ROI Score</strong></td>
-          <td>Відображає реальну цінність · Нейтралізує малі вибірки · Стійкий до маніпуляцій</td>
-          <td>Складніше пояснити · Чутливий до якості даних · Потребує тюнінгу</td>
-          <td><span className="doc-badge doc-badge--select">Обрано ✓</span></td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-  <Callout variant="primary">
-    **Обґрунтування:** Betting-аудиторія оцінює прибутковість, а не лише частку перемог. Win Rate без урахування коефіцієнтів легко маніпулювати. Байєсівська корекція вирішує проблему малих вибірок без жорсткого cut-off порогу.
+  <DocTable>
+    <DocTableHeader>
+      <TableRow><TableHead>Підхід</TableHead><TableHead>Переваги</TableHead><TableHead>Недоліки</TableHead><TableHead>Вердикт</TableHead></TableRow>
+    </DocTableHeader>
+    <TableBody>
+      <TableRow>
+        <TableCell><strong>Win Rate Leaderboard</strong></TableCell>
+        <TableCell>Простий у реалізації | Легко пояснити | Інтуїтивно зрозуміло</TableCell>
+        <TableCell>Малі вибірки (2/2 = 100%) | Ігнорує коефіцієнти | Стимулює ставку на фаворита</TableCell>
+        <TableCell><Badge variant="outline" className="bg-destructive-bg text-destructive border-destructive/30 text-[0.7rem] pointer-events-none">Відхилено</Badge></TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell><strong>Bayesian ROI Score</strong></TableCell>
+        <TableCell>Відображає реальну цінність | Нейтралізує малі вибірки | Стійкий до маніпуляцій</TableCell>
+        <TableCell>Складніше пояснити | Чутливий до якості даних | Потребує тюнінгу</TableCell>
+        <TableCell><Badge variant="outline" className="bg-success-bg text-success border-success-border text-[0.7rem] pointer-events-none">Обрано</Badge></TableCell>
+      </TableRow>
+    </TableBody>
+  </DocTable>
+  <Callout variant="primary" title="Обґрунтування">
+    Betting-аудиторія оцінює прибутковість, а не лише частку перемог. Win Rate без урахування коефіцієнтів легко маніпулювати. Байєсівська корекція вирішує проблему малих вибірок без жорсткого cut-off порогу.
   </Callout>
 </DocBlock>
 
@@ -83,60 +84,57 @@ export default function Page({ children }) {
 
 <DocBlock title="Win / Lose / Push">
 
-Система використовує модель рівних одиничних ставок (flat betting unit model). Кожен прогноз — ставка рівно в 1 умовну одиницю.
+Система використовує модель рівних одиничних ставок (flat betting unit model). Кожен прогноз -- ставка рівно в 1 умовну одиницю.
 
-  <div className="doc-table-wrap">
-    <table className="doc-table">
-      <thead><tr><th>Результат</th><th>Формула profit_i</th></tr></thead>
-      <tbody>
-        <tr><td><strong>WIN</strong></td><td><code>odds_at_publish − 1</code></td></tr>
-        <tr><td><strong>LOSE</strong></td><td><code>−1</code></td></tr>
-        <tr><td><strong>PUSH</strong></td><td><code>0</code> (займає місце в N, знижуючи ROI)</td></tr>
-      </tbody>
-    </table>
-  </div>
-  <div className="doc-formula">
-    <span className="doc-formula__label">ROI_raw</span>
-    <code className="doc-formula__code">ROI_raw = Σ(profit_i) / N</code>
-  </div>
+  <DocTable>
+    <DocTableHeader>
+      <TableRow><TableHead>Результат</TableHead><TableHead>Формула profit_i</TableHead></TableRow>
+    </DocTableHeader>
+    <TableBody>
+      <TableRow><TableCell><strong>WIN</strong></TableCell><TableCell><code>odds_at_publish − 1</code></TableCell></TableRow>
+      <TableRow><TableCell><strong>LOSE</strong></TableCell><TableCell><code>−1</code></TableCell></TableRow>
+      <TableRow><TableCell><strong>PUSH</strong></TableCell><TableCell><code>0</code> (займає місце в N, знижуючи ROI)</TableCell></TableRow>
+    </TableBody>
+  </DocTable>
+  <DocFormula label="ROI_raw" code="ROI_raw = Σ(profit_i) / N" />
 
 Приклад: 2 win (+2.50, +0.80), 2 lose (−1.00, −1.00), 1 push (0.00) → Sum = +1.30, N = 5 → ROI\_raw = **0.26**
 
 </DocBlock>
 
 <DocBlock title="Як враховуються коефіцієнти">
-  <div className="doc-table-wrap">
-    <table className="doc-table">
-      <thead><tr><th>Ставка</th><th>Odds</th><th>Outcome</th><th>Profit</th></tr></thead>
-      <tbody>
-        <tr><td>A</td><td>1.2</td><td>WIN</td><td>+0.2</td></tr>
-        <tr><td>B</td><td>3.5</td><td>WIN</td><td>+2.5</td></tr>
-        <tr><td>C</td><td>5.0</td><td>LOSE</td><td>−1</td></tr>
-        <tr><td>D</td><td>1.1</td><td>LOSE</td><td>−1</td></tr>
-      </tbody>
-    </table>
-  </div>
+  <DocTable>
+    <DocTableHeader>
+      <TableRow><TableHead>Ставка</TableHead><TableHead>Odds</TableHead><TableHead>Outcome</TableHead><TableHead>Profit</TableHead></TableRow>
+    </DocTableHeader>
+    <TableBody>
+      <TableRow><TableCell>A</TableCell><TableCell>1.2</TableCell><TableCell>WIN</TableCell><TableCell>+0.2</TableCell></TableRow>
+      <TableRow><TableCell>B</TableCell><TableCell>3.5</TableCell><TableCell>WIN</TableCell><TableCell>+2.5</TableCell></TableRow>
+      <TableRow><TableCell>C</TableCell><TableCell>5.0</TableCell><TableCell>LOSE</TableCell><TableCell>−1</TableCell></TableRow>
+      <TableRow><TableCell>D</TableCell><TableCell>1.1</TableCell><TableCell>LOSE</TableCell><TableCell>−1</TableCell></TableRow>
+    </TableBody>
+  </DocTable>
 
-Ставки C і D програні однаково (−1), хоча коефіцієнти кардинально різні. Експерт із 90% WR при `avg_odds` = 1.2 матиме низький ROI — система природно пеналізує маніпуляцію через вибір "безпечних" ставок.
+Ставки C і D програні однаково (−1), хоча коефіцієнти кардинально різні. Експерт із 90% WR при `avg_odds` = 1.2 матиме низький ROI -- система природно пеналізує маніпуляцію через вибір "безпечних" ставок.
 
 </DocBlock>
 
 <DocBlock title="Мала вибірка (Байєсівська корекція)">
-  <div className="doc-formula">
-    <span className="doc-formula__label">Формула SCORE</span>
-    <code className="doc-formula__code">{`PRIOR_N = 10
+  <DocFormula
+    label="Формула SCORE"
+    code={`PRIOR_N = 10
 Confidence = N / (N + PRIOR_N)
-SCORE = Confidence × ROI_raw`}</code>
-  </div>
-  <div className="doc-table-wrap">
-    <table className="doc-table">
-      <thead><tr><th>N</th><th>Confidence</th><th>Ефект</th></tr></thead>
-      <tbody>
-        <tr><td>2</td><td>2/12 = 0.17</td><td>Навіть 100% WR дає Score ≈ 0.39</td></tr>
-        <tr><td>50</td><td>50/60 = 0.83</td><td>Рейтинг майже повністю залежить від реального ROI</td></tr>
-      </tbody>
-    </table>
-  </div>
+SCORE = Confidence × ROI_raw`}
+  />
+  <DocTable>
+    <DocTableHeader>
+      <TableRow><TableHead>N</TableHead><TableHead>Confidence</TableHead><TableHead>Ефект</TableHead></TableRow>
+    </DocTableHeader>
+    <TableBody>
+      <TableRow><TableCell>2</TableCell><TableCell>2/12 = 0.17</TableCell><TableCell>Навіть 100% WR дає Score ≈ 0.39</TableCell></TableRow>
+      <TableRow><TableCell>50</TableCell><TableCell>50/60 = 0.83</TableCell><TableCell>Рейтинг майже повністю залежить від реального ROI</TableCell></TableRow>
+    </TableBody>
+  </DocTable>
   <Callout variant="warning">
     Поріг відображення у публічному ТОП: **N ≥ MIN\_BETS = 5**. Профіль із N &lt; 5 відображається зі статусом "недостатньо даних" і не входить у рейтингову таблицю.
   </Callout>
@@ -155,27 +153,27 @@ SCORE = Confidence × ROI_raw`}</code>
 <DocSection num="05" title="База даних">
 
 <DocBlock title="Поля таблиці expert_ratings">
-  <div className="doc-table-wrap">
-    <table className="doc-table">
-      <thead><tr><th>Поле</th><th>Тип</th><th>Приклад</th><th>Примітка</th></tr></thead>
-      <tbody>
-        <tr><td><code>expert_id</code></td><td>VARCHAR(50)</td><td><code>&quot;C&quot;</code></td><td>PK</td></tr>
-        <tr><td><code>n_valid_bets</code></td><td>INTEGER</td><td><code>9</code></td><td>Для Confidence</td></tr>
-        <tr><td><code>wins</code></td><td>INTEGER</td><td><code>7</code></td><td>Для Win Rate на UI</td></tr>
-        <tr><td><code>losses</code></td><td>INTEGER</td><td><code>2</code></td><td>Аудит</td></tr>
-        <tr><td><code>pushes</code></td><td>INTEGER</td><td><code>0</code></td><td>Зарезервовано</td></tr>
-        <tr><td><code>sum_profit</code></td><td>DECIMAL(10,4)</td><td><code>6.0400</code></td><td>Для ROI</td></tr>
-        <tr><td><code>roi_raw</code></td><td>DECIMAL(10,4)</td><td><code>0.6711</code></td><td>Для UI та аудиту</td></tr>
-        <tr><td><code>score</code></td><td>DECIMAL(10,4)</td><td><code>0.3179</code></td><td>Основа для сортування</td></tr>
-        <tr><td><code>avg_odds</code></td><td>DECIMAL(5,2)</td><td><code>2.30</code></td><td>Для профілю</td></tr>
-        <tr><td><code>rank</code></td><td>INTEGER</td><td><code>2</code></td><td>Для швидкої вибірки</td></tr>
-        <tr><td><code>is_qualified</code></td><td>BOOLEAN</td><td><code>TRUE</code></td><td>Фільтрація публічного ТОП</td></tr>
-        <tr><td><code>last_calculated_at</code></td><td>TIMESTAMP</td><td><code>2026-03-20 06:00 CET</code></td><td>Актуальність</td></tr>
-      </tbody>
-    </table>
-  </div>
-  <Callout variant="primary">
-    **Обчислюються на льоту (не зберігаються):** win\_rate (wins/n\_valid\_bets) · confidence (n\_valid\_bets/(n\_valid\_bets+10)) · відносний приріст ROI за останні 30 днів
+  <DocTable>
+    <DocTableHeader>
+      <TableRow><TableHead>Поле</TableHead><TableHead>Тип</TableHead><TableHead>Приклад</TableHead><TableHead>Примітка</TableHead></TableRow>
+    </DocTableHeader>
+    <TableBody>
+      <TableRow><TableCell><code>expert_id</code></TableCell><TableCell>VARCHAR(50)</TableCell><TableCell><code>&quot;C&quot;</code></TableCell><TableCell>PK</TableCell></TableRow>
+      <TableRow><TableCell><code>n_valid_bets</code></TableCell><TableCell>INTEGER</TableCell><TableCell><code>9</code></TableCell><TableCell>Для Confidence</TableCell></TableRow>
+      <TableRow><TableCell><code>wins</code></TableCell><TableCell>INTEGER</TableCell><TableCell><code>7</code></TableCell><TableCell>Для Win Rate на UI</TableCell></TableRow>
+      <TableRow><TableCell><code>losses</code></TableCell><TableCell>INTEGER</TableCell><TableCell><code>2</code></TableCell><TableCell>Аудит</TableCell></TableRow>
+      <TableRow><TableCell><code>pushes</code></TableCell><TableCell>INTEGER</TableCell><TableCell><code>0</code></TableCell><TableCell>Зарезервовано</TableCell></TableRow>
+      <TableRow><TableCell><code>sum_profit</code></TableCell><TableCell>DECIMAL(10,4)</TableCell><TableCell><code>6.0400</code></TableCell><TableCell>Для ROI</TableCell></TableRow>
+      <TableRow><TableCell><code>roi_raw</code></TableCell><TableCell>DECIMAL(10,4)</TableCell><TableCell><code>0.6711</code></TableCell><TableCell>Для UI та аудиту</TableCell></TableRow>
+      <TableRow><TableCell><code>score</code></TableCell><TableCell>DECIMAL(10,4)</TableCell><TableCell><code>0.3179</code></TableCell><TableCell>Основа для сортування</TableCell></TableRow>
+      <TableRow><TableCell><code>avg_odds</code></TableCell><TableCell>DECIMAL(5,2)</TableCell><TableCell><code>2.30</code></TableCell><TableCell>Для профілю</TableCell></TableRow>
+      <TableRow><TableCell><code>rank</code></TableCell><TableCell>INTEGER</TableCell><TableCell><code>2</code></TableCell><TableCell>Для швидкої вибірки</TableCell></TableRow>
+      <TableRow><TableCell><code>is_qualified</code></TableCell><TableCell>BOOLEAN</TableCell><TableCell><code>TRUE</code></TableCell><TableCell>Фільтрація публічного ТОП</TableCell></TableRow>
+      <TableRow><TableCell><code>last_calculated_at</code></TableCell><TableCell>TIMESTAMP</TableCell><TableCell><code>2026-03-20 06:00 CET</code></TableCell><TableCell>Актуальність</TableCell></TableRow>
+    </TableBody>
+  </DocTable>
+  <Callout variant="primary" title="Обчислюються на льоту (не зберігаються)">
+    win_rate (wins/n_valid_bets) | confidence (n_valid_bets/(n_valid_bets+10)) | відносний приріст ROI за останні 30 днів
   </Callout>
 </DocBlock>
 
@@ -198,33 +196,33 @@ SCORE = Confidence × ROI_raw`}</code>
   ]} />
 </DocBlock>
 
-<DocBlock title="Acceptance Criteria — Детектор маніпуляцій" subtitle="Given / When / Then">
-  <div className="doc-flow">
-    <div className="doc-flow__step">
-      <span className="doc-flow__num">1</span>
-      <div className="doc-flow__content">
-        <strong className="doc-flow__title">Виявлення пізньої ставки</strong>
-        <div className="doc-flow__text">
-          <strong>GIVEN:</strong> Cron-задача запустила pipeline підготовки даних<br />
-          <strong>WHEN:</strong> published_at ≥ match_datetime відповідного матчу<br />
-          <strong>THEN:</strong> запис відхиляється → rejection_log (expert_id, prediction_id, reason='late_bet', detected_at=NOW())<br />
-          <strong>AND:</strong> кількість late_bet флагів ≥ 5 за 30 днів → moderation_flags severity='high'
-        </div>
-      </div>
-    </div>
-    <div className="doc-flow__step">
-      <span className="doc-flow__num">2</span>
-      <div className="doc-flow__content">
-        <strong className="doc-flow__title">Виявлення дубліката</strong>
-        <div className="doc-flow__text">
-          <strong>GIVEN:</strong> Pipeline обробляє прогноз expert_id=X, match_id=M<br />
-          <strong>WHEN:</strong> вже є валідний прогноз з тим самим expert_id та match_id<br />
-          <strong>THEN:</strong> новий запис відхиляється → rejection_log reason='duplicate', reference_pred_id<br />
-          <strong>AND:</strong> кількість duplicate ≥ 3 за 7 днів → moderation_flags severity='medium'
-        </div>
-      </div>
-    </div>
-  </div>
+<DocBlock title="Acceptance Criteria -- Детектор маніпуляцій" subtitle="Given / When / Then">
+  <DocFlow steps={[
+    {
+      num: '1',
+      title: 'Виявлення пізньої ставки',
+      text: (
+        <span className="flex flex-col gap-0.5">
+          <span><strong className="text-foreground">GIVEN:</strong> Cron-задача запустила pipeline підготовки даних</span>
+          <span><strong className="text-foreground">WHEN:</strong> published_at ≥ match_datetime відповідного матчу</span>
+          <span><strong className="text-foreground">THEN:</strong> запис відхиляється → rejection_log (expert_id, prediction_id, reason=&apos;late_bet&apos;, detected_at=NOW())</span>
+          <span><strong className="text-foreground">AND:</strong> кількість late_bet флагів ≥ 5 за 30 днів → moderation_flags severity=&apos;high&apos;</span>
+        </span>
+      ),
+    },
+    {
+      num: '2',
+      title: 'Виявлення дубліката',
+      text: (
+        <span className="flex flex-col gap-0.5">
+          <span><strong className="text-foreground">GIVEN:</strong> Pipeline обробляє прогноз expert_id=X, match_id=M</span>
+          <span><strong className="text-foreground">WHEN:</strong> вже є валідний прогноз з тим самим expert_id та match_id</span>
+          <span><strong className="text-foreground">THEN:</strong> новий запис відхиляється → rejection_log reason=&apos;duplicate&apos;, reference_pred_id</span>
+          <span><strong className="text-foreground">AND:</strong> кількість duplicate ≥ 3 за 7 днів → moderation_flags severity=&apos;medium&apos;</span>
+        </span>
+      ),
+    },
+  ]} />
 </DocBlock>
 
 <DocBlock title="Edge Cases">
@@ -260,18 +258,18 @@ SCORE = Confidence × ROI_raw`}</code>
 </DocBlock>
 
 <DocBlock title="Граничні стани">
-  <div className="doc-table-wrap">
-    <table className="doc-table">
-      <thead><tr><th>Ситуація</th><th>Поведінка системи</th></tr></thead>
-      <tbody>
-        <tr><td><strong>New expert N=0</strong></td><td>Профіль без рейтингових метрик. Плашка "Недостатньо даних (0 прогнозів)". Не входить у leaderboard.</td></tr>
-        <tr><td><strong>N &lt; MIN_BETS (1–4)</strong></td><td>SCORE розраховується і зберігається в БД, але is_qualified = FALSE. На профілі "Йде накопичення (N з 5)".</td></tr>
-        <tr><td><strong>Пропущене оновлення даних</strong></td><td>etl_status check → якщо pipeline не завершено, пропустити перерахунок. Залишити попередній рейтинг + алерт про помилку.</td></tr>
-        <tr><td><strong>Усі події upcoming</strong></td><td>Перерахунок не змінює рейтинг. Зберігається last_calculated_at від попереднього дня.</td></tr>
-        <tr><td><strong>Expert видалений/заблокований</strong></td><td>is_qualified = FALSE; soft delete (active=FALSE). Зникає з leaderboard, рядок зберігається.</td></tr>
-      </tbody>
-    </table>
-  </div>
+  <DocTable>
+    <DocTableHeader>
+      <TableRow><TableHead>Ситуація</TableHead><TableHead>Поведінка системи</TableHead></TableRow>
+    </DocTableHeader>
+    <TableBody>
+      <TableRow><TableCell className="font-semibold">New expert N=0</TableCell><TableCell>Профіль без рейтингових метрик. Плашка "Недостатньо даних (0 прогнозів)". Не входить у leaderboard.</TableCell></TableRow>
+      <TableRow><TableCell className="font-semibold">N &lt; MIN_BETS (1–4)</TableCell><TableCell>SCORE розраховується і зберігається в БД, але is_qualified = FALSE. На профілі "Йде накопичення (N з 5)".</TableCell></TableRow>
+      <TableRow><TableCell className="font-semibold">Пропущене оновлення даних</TableCell><TableCell>etl_status check → якщо pipeline не завершено, пропустити перерахунок. Залишити попередній рейтинг + алерт про помилку.</TableCell></TableRow>
+      <TableRow><TableCell className="font-semibold">Усі події upcoming</TableCell><TableCell>Перерахунок не змінює рейтинг. Зберігається last_calculated_at від попереднього дня.</TableCell></TableRow>
+      <TableRow><TableCell className="font-semibold">Expert видалений/заблокований</TableCell><TableCell>is_qualified = FALSE; soft delete (active=FALSE). Зникає з leaderboard, рядок зберігається.</TableCell></TableRow>
+    </TableBody>
+  </DocTable>
 </DocBlock>
 
 </DocSection>
@@ -279,19 +277,19 @@ SCORE = Confidence × ROI_raw`}</code>
 <DocSection num="08" title="Нефункціональні вимоги">
 
 <DocBlock title="Перформанс та обсяги">
-  <div className="doc-table-wrap">
-    <table className="doc-table">
-      <thead><tr><th>Метрика</th><th>Ціль</th></tr></thead>
-      <tbody>
-        <tr><td><strong>GET /leaderboard</strong></td><td>&lt; 200 мс при 1000 кваліфікованих експертах (Redis, TTL 1 год)</td></tr>
-        <tr><td><strong>{'GET /expert/{id}'}</strong></td><td>&lt; 100 мс (читання з БД з індексом по expert_id)</td></tr>
-        <tr><td><strong>Batch-розрахунок 1000 експертів</strong></td><td>&lt; 5 хвилин</td></tr>
-        <tr><td><strong>Predictions на рік</strong></td><td>1000 тіпстерів × 365 днів × 5 прогнозів = 1.8M рядків</td></tr>
-        <tr><td><strong>expert_ratings</strong></td><td>1 рядок на експерта, &lt; 1 MB</td></tr>
-        <tr><td><strong>rejection_log</strong></td><td>До 20 рядків на прогноз ≈ 30K рядків/місяць</td></tr>
-      </tbody>
-    </table>
-  </div>
+  <DocTable>
+    <DocTableHeader>
+      <TableRow><TableHead>Метрика</TableHead><TableHead>Ціль</TableHead></TableRow>
+    </DocTableHeader>
+    <TableBody>
+      <TableRow><TableCell className="font-semibold">GET /leaderboard</TableCell><TableCell>&lt; 200 мс при 1000 кваліфікованих експертах (Redis, TTL 1 год)</TableCell></TableRow>
+      <TableRow><TableCell className="font-semibold">{'GET /expert/{id}'}</TableCell><TableCell>&lt; 100 мс (читання з БД з індексом по expert_id)</TableCell></TableRow>
+      <TableRow><TableCell className="font-semibold">Batch-розрахунок 1000 експертів</TableCell><TableCell>&lt; 5 хвилин</TableCell></TableRow>
+      <TableRow><TableCell className="font-semibold">Predictions на рік</TableCell><TableCell>1000 тіпстерів × 365 днів × 5 прогнозів = 1.8M рядків</TableCell></TableRow>
+      <TableRow><TableCell className="font-semibold">expert_ratings</TableCell><TableCell>1 рядок на експерта, &lt; 1 MB</TableCell></TableRow>
+      <TableRow><TableCell className="font-semibold">rejection_log</TableCell><TableCell>До 20 рядків на прогноз ≈ 30K рядків/місяць</TableCell></TableRow>
+    </TableBody>
+  </DocTable>
 </DocBlock>
 
 <DocBlock title="Ризики">

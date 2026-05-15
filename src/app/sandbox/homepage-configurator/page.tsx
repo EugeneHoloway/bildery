@@ -35,7 +35,7 @@ interface Section {
   enabled: boolean
 }
 
-/** Маппинг id секции → компонент иконки. Для кастомных секций — fallback FileText. */
+/** Маппинг id секции → компонент иконки. Для кастомных секций -- fallback FileText. */
 const SECTION_ICONS: Record<string, React.ComponentType<LucideProps>> = {
   banner:     ImagePlay,
   categories: LayoutGrid,
@@ -193,7 +193,7 @@ export default function MockupHomepagePage() {
   function renderPanel() {
     switch (activeId) {
       case "banner":     return <BannerPanel />
-      case "categories": return <ToggleListPanel initial={INITIAL_CATEGORIES} description="Drag to reorder · toggle to show/hide" />
+      case "categories": return <ToggleListPanel initial={INITIAL_CATEGORIES} description="Drag to reorder | toggle to show/hide" />
       case "top":        return <TopGamesPanel />
       case "editorial":  return <EditorialPanel />
       case "providers":  return <ProvidersPanel />

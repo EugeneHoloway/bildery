@@ -49,7 +49,7 @@ export function ProvidersPanel() {
                 <TableCell>
                   <p className="text-sm font-semibold text-foreground">{prov.name}</p>
                   <p className="text-xs text-muted-foreground">
-                    {prov.enabledGames} / {prov.games} games · {prov.games > 0
+                    {prov.enabledGames} / {prov.games} games | {prov.games > 0
                       ? `${Math.round(prov.enabledGames / prov.games * 100)}% active`
                       : "0% active"}
                   </p>

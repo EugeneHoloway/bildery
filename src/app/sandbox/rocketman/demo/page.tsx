@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -13,6 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { DocLayout } from '@/components/doc/DocLayout'
 
 // ── Canvas constants ───────────────────────────────────────────────────────────
 
@@ -30,21 +30,21 @@ const CRASH_HOLD  = 1500
 // ── Trajectory: quarter-ellipse, arc-length parameterized ────────────────────
 //
 // Shape: A=(LAUNCH_X, H) → B=(END_X, TOP_Y)
-//   x(φ) = LAUNCH_X + RX · (1 − cos φ)^X_POWER   — X_POWER > 1 = вертикальный старт
-//   y(φ) = H − RY · sin φ
+//   x(φ) = LAUNCH_X + RX | (1 − cos φ)^X_POWER   -- X_POWER > 1 = вертикальный старт
+//   y(φ) = H − RY | sin φ
 //   Tangent at φ=0: вертикаль; at φ=π/2: горизонталь
 //
 // X_POWER:  1.0 = чистый эллипс  |  2.0 = долгий вертикальный разгон  |  3.0 = ещё дольше
 // Constant visual speed via arc-length LUT + log(mult) mapping.
 
-const ELLIPSE_RX = END_X - LAUNCH_X   // 590 px — горизонтальный размах
-const ELLIPSE_RY = H   - TOP_Y        // 400 px — вертикальный размах
+const ELLIPSE_RX = END_X - LAUNCH_X   // 590 px -- горизонтальный размах
+const ELLIPSE_RY = H   - TOP_Y        // 400 px -- вертикальный размах
 const X_POWER    = 1.6                 // ← крутить сюда: >1 = вертикальнее старт
 const ARC_N      = 500
 
 // Arc-length LUT с учётом X_POWER
-// dx/dφ = RX · X_POWER · (1−cos φ)^(X_POWER−1) · sin φ
-// dy/dφ = −RY · cos φ
+// dx/dφ = RX | X_POWER | (1−cos φ)^(X_POWER−1) | sin φ
+// dy/dφ = −RY | cos φ
 const arcLut: { phi: number; cumFrac: number }[] = (() => {
   const dPhi = (Math.PI / 2) / ARC_N
   const ds: number[] = Array.from({ length: ARC_N + 1 }, (_, i) => {
@@ -92,8 +92,8 @@ function multToVisualY(m: number): number {
 }
 
 // Tangent angle с учётом X_POWER:
-// dx/dφ = RX · X_POWER · (1−cos φ)^(X_POWER−1) · sin φ
-// dy/dφ = −RY · cos φ
+// dx/dφ = RX | X_POWER | (1−cos φ)^(X_POWER−1) | sin φ
+// dy/dφ = −RY | cos φ
 // atan2(dx, −dy) → 0° at A (вверх), 90° at B (вправо)
 function multToAngle(m: number): number {
   const phi = multToPhi(m)
@@ -131,7 +131,7 @@ function simulateCrash(): number {
   return Math.min(1 / (1 - Math.random()), MAX_MULT)
 }
 
-// ── Grid lines — фиксированные позиции, не зависит от траектории ─────────────
+// ── Grid lines -- фиксированные позиции, не зависит от траектории ─────────────
 // ×2=36%, ×4=61%, ×6=79%, ×8=91%, ×10=100% (от верха экрана)
 const GRID_Y_PCT: Record<number, number> = { 2: 0.36, 4: 0.61, 6: 0.79, 8: 0.91, 10: 1.0 }
 function gridLineY(m: number): number {
@@ -395,7 +395,7 @@ export default function RocketmanDemoPage() {
     }
 
     // ── Cash out ──────────────────────────────────────────────────────────────
-    // Does NOT stop RAF — round continues for other players until crash
+    // Does NOT stop RAF -- round continues for other players until crash
     function cashOut() {
       if (phaseRef.current !== 'flying') return
       const m = multRef.current
@@ -461,26 +461,23 @@ export default function RocketmanDemoPage() {
   }
 
   return (
-    <div className="doc-page">
-      <div className="container">
-
-        {/* Breadcrumb */}
-        <nav className="doc-breadcrumb" aria-label="Breadcrumb">
-          <Link href="/sandbox" className="doc-breadcrumb__link">Sandbox</Link>
-          <span className="doc-breadcrumb__sep">/</span>
-          <Link href="/sandbox/rocketman" className="doc-breadcrumb__link">Rocketman</Link>
-          <span className="doc-breadcrumb__sep">/</span>
-          <span className="doc-breadcrumb__current">Demo</span>
-        </nav>
+    <DocLayout
+      title="Demo"
+      breadcrumbLabel="Rocketman"
+      breadcrumbHref="/sandbox/rocketman"
+      parentCrumb={{ label: 'Sandbox', href: '/sandbox' }}
+      footnote="🚀 Iteration 3 -- Animated demo | Orbit mode | Virtual bet | No backend yet"
+    >
+      <div>
 
         {/* Title */}
         <div className="mb-6 flex items-center gap-3">
-          <h1 className="text-xl font-bold tracking-heading">Rocketman — Live demo</h1>
+          <h2 className="text-xl font-bold tracking-tight">Rocketman -- Live demo</h2>
           <Badge
             variant="outline"
             className="border-brand/30 bg-brand-bg text-2xs text-brand"
           >
-            🛸 Orbit · ×10 jackpot
+            🛸 Orbit | ×10 jackpot
           </Badge>
         </div>
 
@@ -489,7 +486,7 @@ export default function RocketmanDemoPage() {
           isCrashed ? 'border-destructive/40' : 'border-border'
         }`}>
 
-          {/* Left — player list */}
+          {/* Left -- player list */}
           <div className="w-52 shrink-0 border-r border-border">
             <div className="border-b border-border px-3 py-2.5">
               <p className="text-2xs font-bold uppercase tracking-widest text-muted-foreground">
@@ -509,11 +506,11 @@ export default function RocketmanDemoPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {/* YOU row — always first */}
+                {/* YOU row -- always first */}
                 <TableRow className="bg-brand-bg/30 hover:bg-brand-bg/40">
                   <TableCell className="text-xs font-bold text-brand">you</TableCell>
                   <TableCell className="text-right text-xs font-semibold text-foreground">
-                    {!isIdle ? `$${betAmount.toFixed(2)}` : <span className="text-muted-foreground/30">—</span>}
+                    {!isIdle ? `$${betAmount.toFixed(2)}` : <span className="text-muted-foreground/30">--</span>}
                   </TableCell>
                   <TableCell className="text-right text-xs">
                     {(isCashedOut || (isCrashed && cashedAt !== null) || (isResults && roundResult?.myCashedAt !== null)) ? (
@@ -527,7 +524,7 @@ export default function RocketmanDemoPage() {
                     ) : isCountdown ? (
                       <span className="text-3xs text-muted-foreground">waiting</span>
                     ) : (
-                      <span className="text-muted-foreground/30">—</span>
+                      <span className="text-muted-foreground/30">--</span>
                     )}
                   </TableCell>
                 </TableRow>
@@ -541,7 +538,7 @@ export default function RocketmanDemoPage() {
                     <TableCell className="text-right text-xs text-foreground">
                       {p.bet !== null
                         ? `$${p.bet.toFixed(2)}`
-                        : <span className="text-muted-foreground/30">—</span>}
+                        : <span className="text-muted-foreground/30">--</span>}
                     </TableCell>
                     <TableCell className="text-right text-xs">
                       {p.status === 'cashed_out' && p.cashedAt !== null ? (
@@ -551,7 +548,7 @@ export default function RocketmanDemoPage() {
                       ) : p.status === 'in' ? (
                         <span className="animate-pulse text-3xs text-brand">flying</span>
                       ) : (
-                        <span className="text-muted-foreground/30">—</span>
+                        <span className="text-muted-foreground/30">--</span>
                       )}
                     </TableCell>
                   </TableRow>
@@ -560,7 +557,7 @@ export default function RocketmanDemoPage() {
             </Table>
           </div>
 
-          {/* Right — SVG canvas */}
+          {/* Right -- SVG canvas */}
           <div className="relative flex-1">
             <div className="absolute right-3 top-3 z-10">
               <Badge
@@ -607,7 +604,7 @@ export default function RocketmanDemoPage() {
                 />
               ))}
 
-              {/* Grid — высотные метки */}
+              {/* Grid -- высотные метки */}
               {GRID_MULTS.map(m => {
                 const gy = gridLineY(m)
                 const isJackpot = m === MAX_MULT
@@ -630,7 +627,7 @@ export default function RocketmanDemoPage() {
                       fontWeight={isJackpot ? 700 : 500}
                       fontFamily="system-ui, sans-serif"
                     >
-                      {label}{isJackpot ? ' — Orbit is reached' : ''}
+                      {label}{isJackpot ? ' -- Orbit is reached' : ''}
                     </text>
                   </g>
                 )
@@ -660,7 +657,7 @@ export default function RocketmanDemoPage() {
                     >{(roundResult?.crashPoint ?? mult) >= MAX_MULT ? '🏆' : '💥'}</text>
                   ) : (
                     <g transform={`translate(${rocketX}, ${rocketY}) rotate(${rocketAng}) translate(0, -32)`}>
-                      {/* ── Depo Rocketman — custom rocket silhouette ── */}
+                      {/* ── Depo Rocketman -- custom rocket silhouette ── */}
                       {/* Nose cone */}
                       <path d="M0,-52 C-2,-52 -10,-42 -10,-28 L10,-28 C10,-42 2,-52 0,-52 Z" fill="var(--color-chart-4)" />
                       {/* Nose collar stripe */}
@@ -716,7 +713,7 @@ export default function RocketmanDemoPage() {
                 </text>
               )}
 
-              {/* Countdown — progress bar + timer */}
+              {/* Countdown -- progress bar + timer */}
               {isCountdown && (
                 <g>
                   {/* Label */}
@@ -727,7 +724,7 @@ export default function RocketmanDemoPage() {
                     style={{ fill: 'var(--color-muted-foreground)' }}
                     fontFamily="system-ui, sans-serif"
                   >
-                    ROUND {sessionRoundRef.current} OF {SESSION_SIZE} · STARTING IN
+                    ROUND {sessionRoundRef.current} OF {SESSION_SIZE} | STARTING IN
                   </text>
                   {/* Timer number */}
                   <text
@@ -748,7 +745,7 @@ export default function RocketmanDemoPage() {
                     style={{ fill: 'var(--color-border)' }}
                     opacity={0.35}
                   />
-                  {/* Progress bar fill — shrinks left to right */}
+                  {/* Progress bar fill -- shrinks left to right */}
                   <rect
                     x={60} y={H / 2 + 38}
                     width={Math.max(0, (countdown / COUNTDOWN_S) * (W - 120))}
@@ -780,7 +777,7 @@ export default function RocketmanDemoPage() {
           isCrashed ? 'border-destructive/40' : 'border-border'
         }`}>
 
-          {/* Bet selector — shown when idle or countdown */}
+          {/* Bet selector -- shown when idle or countdown */}
           {(isIdle || isCountdown) && (
             <div className="flex flex-wrap items-center gap-2 border-b border-border px-5 py-3">
               <span className="text-2xs font-bold uppercase tracking-widest text-muted-foreground">
@@ -903,7 +900,7 @@ export default function RocketmanDemoPage() {
               </>
             )}
 
-            {/* CASHED OUT — waiting for crash */}
+            {/* CASHED OUT -- waiting for crash */}
             {isCashedOut && (
               <>
                 <div className="flex-1">
@@ -1121,11 +1118,7 @@ export default function RocketmanDemoPage() {
           )
         })()}
 
-        <div className="doc-footnote">
-          🚀 Iteration 3 — Animated demo · Orbit mode · Virtual bet · No backend yet
-        </div>
-
       </div>
-    </div>
+    </DocLayout>
   )
 }

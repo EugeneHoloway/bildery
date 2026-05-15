@@ -1,11 +1,12 @@
 'use client'
 
 import { useState } from 'react'
-import Link from 'next/link'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 import { Sparkles } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { DocLayout } from '@/components/doc/DocLayout'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -95,45 +96,45 @@ const METHODOLOGY = [
     score: 'Revenue Health',
     description: 'How effectively the operator generates and captures revenue.',
     components: [
-      { metric: 'Payment Success Rate', weight: '30%', formula: '(v − 65) / 30',   explain: 'min 65% — payment system is effectively broken below this; max 95% — practical ceiling due to fraud rejections and bank limits' },
-      { metric: 'GGR / Active Player',  weight: '25%', formula: '(v − 25) / 85',   explain: 'min €25 — barely covers per-player operating costs; max €110 — upper bound for mass-market (VIP excluded)' },
-      { metric: 'Bonus ROI',            weight: '25%', formula: 'v / 3.5',          explain: 'min 0 — promotions burn budget with zero return; max 3.5x — rarely exceeded with healthy wagering requirements' },
-      { metric: 'Avg Deposit Size',     weight: '10%', formula: '(v − 25) / 75',   explain: 'min €25 — typical platform minimum deposit; max €100 — above this is niche high-roller, not mass market' },
-      { metric: 'FTD Conversion',       weight: '10%', formula: '(v − 0.5) / 4.5', explain: 'min 0.5% — below this traffic is junk or onboarding is broken; max 5% — top operators with strong brand and optimised flow' },
+      { metric: 'Payment Success Rate', weight: '30%', formula: '(v − 65) / 30',   explain: 'min 65% -- payment system is effectively broken below this; max 95% -- practical ceiling due to fraud rejections and bank limits' },
+      { metric: 'GGR / Active Player',  weight: '25%', formula: '(v − 25) / 85',   explain: 'min €25 -- barely covers per-player operating costs; max €110 -- upper bound for mass-market (VIP excluded)' },
+      { metric: 'Bonus ROI',            weight: '25%', formula: 'v / 3.5',          explain: 'min 0 -- promotions burn budget with zero return; max 3.5x -- rarely exceeded with healthy wagering requirements' },
+      { metric: 'Avg Deposit Size',     weight: '10%', formula: '(v − 25) / 75',   explain: 'min €25 -- typical platform minimum deposit; max €100 -- above this is niche high-roller, not mass market' },
+      { metric: 'FTD Conversion',       weight: '10%', formula: '(v − 0.5) / 4.5', explain: 'min 0.5% -- below this traffic is junk or onboarding is broken; max 5% -- top operators with strong brand and optimised flow' },
     ],
-    threshold: 'Good ≥ 70 · At risk 45–69 · Critical < 45',
+    threshold: 'Good ≥ 70 | At risk 45–69 | Critical < 45',
   },
   {
     score: 'Retention Score',
     description: 'How well the operator keeps and re-engages its player base.',
     components: [
-      { metric: 'Month 1 Churn (inv.)', weight: '45%', formula: '(55 − v) / 40', explain: 'inverted: lower churn = higher score. min 15% — best-in-class retention; max 55% — operator is effectively losing its entire base monthly' },
-      { metric: 'Reactivation Rate',    weight: '35%', formula: '(v − 5) / 35',  explain: 'min 5% — lapsed player base is essentially unrecoverable; max 40% — strong win-back campaigns with personalised offers' },
-      { metric: 'Deposit Conversion',   weight: '20%', formula: '(v − 50) / 45', explain: 'min 50% — half of registered users never deposit, severe funnel break; max 95% — near-perfect onboarding and payment flow' },
+      { metric: 'Month 1 Churn (inv.)', weight: '45%', formula: '(55 − v) / 40', explain: 'inverted: lower churn = higher score. min 15% -- best-in-class retention; max 55% -- operator is effectively losing its entire base monthly' },
+      { metric: 'Reactivation Rate',    weight: '35%', formula: '(v − 5) / 35',  explain: 'min 5% -- lapsed player base is essentially unrecoverable; max 40% -- strong win-back campaigns with personalised offers' },
+      { metric: 'Deposit Conversion',   weight: '20%', formula: '(v − 50) / 45', explain: 'min 50% -- half of registered users never deposit, severe funnel break; max 95% -- near-perfect onboarding and payment flow' },
     ],
-    threshold: 'Good ≥ 70 · At risk 45–69 · Critical < 45',
+    threshold: 'Good ≥ 70 | At risk 45–69 | Critical < 45',
   },
   {
     score: 'Risk Level',
     description: 'Aggregate risk exposure across critical failure points. Higher = more risk.',
     components: [
       { metric: 'Payment Success (inv.)', weight: '30%', formula: '(95 − v) / 30',   explain: 'inverted: lower success = higher risk. Range 65–95%; each point below 82% (benchmark floor) directly destroys deposit revenue' },
-      { metric: 'Month 1 Churn',          weight: '25%', formula: '(v − 15) / 40',   explain: 'min 15% — best-case churn baseline; max 55% — catastrophic retention failure. Above 40% is the critical threshold' },
+      { metric: 'Month 1 Churn',          weight: '25%', formula: '(v − 15) / 40',   explain: 'min 15% -- best-case churn baseline; max 55% -- catastrophic retention failure. Above 40% is the critical threshold' },
       { metric: 'Bonus ROI (inv.)',        weight: '20%', formula: '(3.5 − v) / 3.5', explain: 'inverted: below 1.0x operator loses money on every promotion. Range 0–3.5x; below 1.2x is considered a systemic risk' },
       { metric: 'FTD Conversion (inv.)',   weight: '15%', formula: '(3.5 − v) / 3',   explain: 'inverted: low FTD signals broken acquisition funnel. Range 0.5–3.5%; below 2% indicates critical top-of-funnel failure' },
-      { metric: 'Support Tickets',         weight: '10%', formula: '(v − 1) / 11',    explain: 'min 1 ticket/100 — near-perfect product; max 12 — systemic product or payment issues. Above 7 is flagged as a systemic problem' },
+      { metric: 'Support Tickets',         weight: '10%', formula: '(v − 1) / 11',    explain: 'min 1 ticket/100 -- near-perfect product; max 12 -- systemic product or payment issues. Above 7 is flagged as a systemic problem' },
     ],
-    threshold: 'Low risk < 30 · Moderate 30–59 · High risk ≥ 60',
+    threshold: 'Low risk < 30 | Moderate 30–59 | High risk ≥ 60',
   },
   {
     score: 'Overall Score',
     description: 'Composite of all three scores, weighted by business impact.',
     components: [
-      { metric: 'Revenue Health',   weight: '40%', formula: 'direct',        explain: 'largest weight — revenue generation is the primary business objective' },
+      { metric: 'Revenue Health',   weight: '40%', formula: 'direct',        explain: 'largest weight -- revenue generation is the primary business objective' },
       { metric: 'Retention Score',  weight: '35%', formula: 'direct',        explain: 'retention directly drives LTV and reduces CAC payback period' },
       { metric: '100 − Risk Level', weight: '25%', formula: 'inverted risk', explain: 'risk is inverted so a low-risk operator contributes positively to overall health' },
     ],
-    threshold: 'Good ≥ 70 · At risk 45–69 · Critical < 45',
+    threshold: 'Good ≥ 70 | At risk 45–69 | Critical < 45',
   },
 ]
 
@@ -173,7 +174,7 @@ export default function RevenueIntelligencePage() {
     await new Promise(r => setTimeout(r, 1200))
     setResult({
       scores: computeScores(values),
-      top_action: 'Fix payment routing first — resolving 71% success rate could recover 20%+ lost revenue immediately.',
+      top_action: 'Fix payment routing first -- resolving 71% success rate could recover 20%+ lost revenue immediately.',
       insights: [
         { type: 'critical', tag: 'Payment Failure Crisis',        text: '71% payment success rate is costing ~29% of deposit attempts. Audit PSP routing immediately and add 2 backup providers.' },
         { type: 'critical', tag: 'Bonus Budget Burning',          text: '0.9x bonus ROI means losing money on every promotion. Cap bonus at 15% of first deposit and add 5x wagering requirement.' },
@@ -185,28 +186,18 @@ export default function RevenueIntelligencePage() {
   }
 
   return (
-    <div className="doc-page">
-      <div className="container">
-
-        {/* Breadcrumb */}
-        <nav className="doc-breadcrumb" aria-label="Breadcrumb">
-          <Link href="/sandbox" className="doc-breadcrumb__link">Sandbox</Link>
-          <span className="doc-breadcrumb__sep">/</span>
-          <span className="doc-breadcrumb__current">Revenue Intelligence | Depo44</span>
-        </nav>
-
-        {/* Hero */}
-        <div className="doc-hero">
-          <h1 className="doc-hero__title">Revenue Intelligence | Depo44</h1>
-          <div className="doc-hero__tags">
-            <span className="sandbox-card__tag">iGaming</span>
-            <span className="sandbox-card__tag">AI Prototype</span>
-            <span className="sandbox-card__tag">Revenue</span>
-          </div>
-          <p className="doc-hero__description">
-            Enter 9 operator KPIs and get AI-generated revenue health scores, risk assessment, and prioritized action recommendations. | Prototype v0.1
-          </p>
-        </div>
+    <DocLayout
+      title="Revenue Intelligence | Depo44"
+      breadcrumbLabel="Sandbox"
+      breadcrumbHref="/sandbox"
+      tags={[
+        { label: 'iGaming',      type: 'tag' },
+        { label: 'AI Prototype', type: 'tag' },
+        { label: 'Revenue',      type: 'tag' },
+      ]}
+      description="Enter 9 operator KPIs and get AI-generated revenue health scores, risk assessment, and prioritized action recommendations. | Prototype v0.1"
+      footnote="iGaming AI Prototype -- Revenue Intelligence | Author: Yevhenii Holovei | Scope: Operator KPI Analysis | API integration pending"
+    >
 
         {/* Metrics grid */}
         <div className="mb-8 grid grid-cols-2 gap-2.5 sm:grid-cols-3">
@@ -250,7 +241,7 @@ export default function RevenueIntelligencePage() {
           <div className="mb-10 rounded-lg border border-border border-l-2 border-l-destructive bg-card px-4 py-3.5">
             <p className="mb-1.5 text-2xs font-semibold text-destructive">Error</p>
             <p className="text-sm leading-relaxed text-foreground">
-              Could not connect to AI service. Direct browser access requires a server-side proxy — coming soon.
+              Could not connect to AI service. Direct browser access requires a server-side proxy -- coming soon.
               {errorMsg ? ` (${errorMsg})` : ''}
             </p>
           </div>
@@ -263,24 +254,24 @@ export default function RevenueIntelligencePage() {
             <div className="mb-6 flex items-center gap-2.5 border-b border-border pb-4">
               <span className={cn('size-[7px] shrink-0 rounded-full', dotClass(result.scores.overall))} />
               <p className="text-xs text-muted-foreground">
-                AI Analysis Complete — {new Date().toLocaleTimeString()}
+                AI Analysis Complete -- {new Date().toLocaleTimeString()}
               </p>
             </div>
 
             {/* Score cards */}
-            <div className="doc-kpi-row">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-14">
               {SCORE_CARDS.map(s => {
                 const status = s.invert
                   ? result.scores[s.key] < 30 ? 'Low risk' : result.scores[s.key] < 60 ? 'Moderate risk' : 'High risk'
                   : result.scores[s.key] >= 70 ? 'Good' : result.scores[s.key] >= 45 ? 'At risk' : 'Critical'
                 return (
-                  <div key={s.key} className="doc-kpi">
-                    <span className={cn('doc-kpi__value', scoreColorClass(result.scores[s.key], s.invert))}>
+                  <Card key={s.key} className="flex flex-col gap-1 p-5">
+                    <span className={cn('text-2xl font-bold tracking-tight', scoreColorClass(result.scores[s.key], s.invert))}>
                       {result.scores[s.key]}
                     </span>
-                    <span className="doc-kpi__label">{s.label}</span>
-                    <span className="doc-kpi__note">{status}</span>
-                  </div>
+                    <span className="text-xs font-semibold text-foreground">{s.label}</span>
+                    <span className="text-xs text-muted-foreground">{status}</span>
+                  </Card>
                 )
               })}
             </div>
@@ -346,11 +337,6 @@ export default function RevenueIntelligencePage() {
           </>
         )}
 
-        <div className="doc-footnote">
-          📋 iGaming AI Prototype — Revenue Intelligence · Author: Yevhenii Holovei · Scope: Operator KPI Analysis · API integration pending
-        </div>
-
-      </div>
-    </div>
+    </DocLayout>
   )
 }

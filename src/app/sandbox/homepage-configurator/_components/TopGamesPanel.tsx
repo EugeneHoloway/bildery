@@ -32,9 +32,9 @@ export function TopGamesPanel() {
             <Select defaultValue="sessions">
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="sessions">Most sessions — last 7 days</SelectItem>
-                <SelectItem value="ggr">Highest GGR — last 24h</SelectItem>
-                <SelectItem value="players">Most unique players — last 30 days</SelectItem>
+                <SelectItem value="sessions">Most sessions -- last 7 days</SelectItem>
+                <SelectItem value="ggr">Highest GGR -- last 24h</SelectItem>
+                <SelectItem value="players">Most unique players -- last 30 days</SelectItem>
               </SelectContent>
             </Select>
           </FieldGroup>

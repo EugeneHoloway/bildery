@@ -1,19 +1,33 @@
+import { type LucideIcon } from 'lucide-react'
+import { Card } from '@/components/ui/card'
+
 interface FeatureItem {
-  icon: string
+  icon: LucideIcon | string
   title: string
   text: string
 }
 
 export function FeatureGrid({ items }: { items: FeatureItem[] }) {
   return (
-    <div className="doc-card-grid">
-      {items.map((item) => (
-        <div key={item.title} className="doc-feature-card">
-          <span className="doc-feature-card__icon">{item.icon}</span>
-          <strong className="doc-feature-card__title">{item.title}</strong>
-          <p className="doc-feature-card__text">{item.text}</p>
-        </div>
-      ))}
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
+      {items.map((item) => {
+        const isEmoji = typeof item.icon === 'string'
+        const Icon = isEmoji ? null : (item.icon as LucideIcon)
+        return (
+          <Card key={item.title} className="flex flex-col gap-3 p-4 min-w-0">
+            <div className="size-8 rounded-xl bg-muted flex items-center justify-center">
+              {isEmoji
+                ? <span className="text-base leading-none">{item.icon as string}</span>
+                : Icon && <Icon className="size-4 text-muted-foreground" />
+              }
+            </div>
+            <div className="flex flex-col gap-1">
+              <span className="text-sm font-bold">{item.title}</span>
+              <p className="text-xs text-muted-foreground leading-relaxed">{item.text}</p>
+            </div>
+          </Card>
+        )
+      })}
     </div>
   )
 }

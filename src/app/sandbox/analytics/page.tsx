@@ -1,86 +1,115 @@
 'use client'
 
-// Allow CSS custom properties (e.g. --c) in style objects
-declare module 'react' {
-  interface CSSProperties {
-    [key: `--${string}`]: string | number | undefined
-  }
-}
-
 import { useEffect, useState } from 'react'
-import Link from 'next/link'
-import { supabase } from '@/lib/supabase'
 import {
   AreaChart, Area, BarChart, Bar, LineChart, Line,
   XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, Cell,
-} from 'recharts';
+} from 'recharts'
+import { cn } from '@/lib/utils'
+import { Card } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { supabase } from '@/lib/supabase'
+import { DocLayout }  from '@/components/doc/DocLayout'
+import { DocSection } from '@/components/doc/DocSection'
+import { DocBlock }   from '@/components/doc/DocBlock'
+import { Callout }    from '@/components/doc/Callout'
+import { DocTable, DocTableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/doc/DocTable'
 
 function fmt(n: string | number | null | undefined) {
-  if (n == null) return '—';
-  return Number(n).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+  if (n == null) return '--'
+  return Number(n).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 })
 }
 
 function fmtMonth(iso: string | null | undefined) {
-  if (!iso) return '—';
-  const d = new Date(iso);
-  return d.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+  if (!iso) return '--'
+  return new Date(iso).toLocaleDateString('en-US', { month: 'short', year: '2-digit' })
 }
 
 function getDateFilter(range: string) {
-  const now = new Date();
-  if (range === '30d') return new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
-  if (range === '90d') return new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000).toISOString();
-  return null;
+  const now = new Date()
+  if (range === '30d') return new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString()
+  if (range === '90d') return new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000).toISOString()
+  return null
 }
 
-const COLORS = ['var(--color-chart-1)', 'var(--color-chart-3)', 'var(--color-chart-2)', 'var(--color-chart-5)', 'var(--color-chart-4)'];
+const COLORS = ['var(--color-chart-1)', 'var(--color-chart-3)', 'var(--color-chart-2)', 'var(--color-chart-5)', 'var(--color-chart-4)']
 
-interface TooltipPayloadItem {
-  dataKey: string
-  name: string
-  value: number
-  color: string
-}
+// ── Shared chart primitives ────────────────────────────────────────────────────
 
-function RevenueTooltip({ active, payload, label }: { active?: boolean; payload?: TooltipPayloadItem[]; label?: string }) {
-  if (!active || !payload?.length) return null;
+function ChartTooltip({ active, payload, label, renderValue }: {
+  active?: boolean
+  payload?: Array<{ dataKey: string; name?: string; value: number; color?: string; fill?: string }>
+  label?: string
+  renderValue: (p: { dataKey: string; name?: string; value: number; color?: string; fill?: string }) => string
+}) {
+  if (!active || !payload?.length) return null
   return (
-    <div className="stm-tooltip">
-      <span className="stm-tooltip__label">{label}</span>
-      {payload.map((p) => (
-        <span key={p.dataKey} className="stm-tooltip__value" style={{ color: p.color }}>
-          {p.name}: €{fmt(p.value)}
+    <div className="flex flex-col gap-0.5 px-3 py-2 border border-border rounded-lg bg-card shadow-sm text-xs">
+      <span className="text-muted-foreground">{label}</span>
+      {payload.map((p, i) => (
+        <span key={i} className="font-bold" style={{ color: p.color ?? p.fill }}>
+          {renderValue(p)}
         </span>
       ))}
     </div>
-  );
+  )
 }
 
-function BarTooltip({ active, payload, label }: { active?: boolean; payload?: TooltipPayloadItem[]; label?: string }) {
-  if (!active || !payload?.length) return null;
+function ChartLegend({ items }: { items: { color: string; label: string }[] }) {
   return (
-    <div className="stm-tooltip">
-      <span className="stm-tooltip__label">{label}</span>
-      <span className="stm-tooltip__value">GGR: €{fmt(payload[0]?.value)}</span>
+    <div className="flex flex-wrap gap-4 px-2 pt-2">
+      {items.map(item => (
+        <span key={item.label} className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
+          <span className="inline-block w-5 h-0.5 rounded-full flex-shrink-0" style={{ background: item.color }} />
+          {item.label}
+        </span>
+      ))}
     </div>
-  );
+  )
 }
+
+// ── Retention percentage badge ─────────────────────────────────────────────────
+
+function retentionClass(pct: number): string {
+  if (pct >= 50) return 'bg-success-bg text-success'
+  if (pct > 0)   return 'bg-warning-bg text-warning'
+  return 'bg-subtle text-muted-foreground'
+}
+
+// ── RFM segment badge ──────────────────────────────────────────────────────────
+
+const RFM_SEG_CLASS: Record<string, string> = {
+  'Champions':    'bg-brand-bg text-brand',
+  'Loyal':        'bg-success-bg text-success',
+  'Promising':    'bg-info-bg text-info',
+  'New Players':  'bg-success-bg text-success',
+  'At Risk':      'bg-warning-bg text-warning',
+  'Lost':         'bg-destructive-bg text-destructive',
+}
+
+function scoreClass(s: number): string {
+  if (s >= 4) return 'text-success font-medium'
+  if (s <= 2) return 'text-destructive font-medium'
+  return 'text-warning font-medium'
+}
+
+// ── Page ───────────────────────────────────────────────────────────────────────
 
 export default function AnalyticsPage() {
-  const [monthly, setMonthly]       = useState<any[]>([]);
-  const [byCategory, setByCategory] = useState<any[]>([]);
-  const [byProvider, setByProvider] = useState<any[]>([]);
-  const [players, setPlayers]       = useState<any[]>([]);
-  const [topGames, setTopGames]     = useState<any[]>([]);
-  const [txMonthly, setTxMonthly]   = useState<any[]>([]);
-  const [cohorts, setCohorts]       = useState<any[]>([]);
-  const [rfm, setRfm]               = useState<any[]>([]);
-  const [rfmSummary, setRfmSummary] = useState<any[]>([]);
-  const [dateRange, setDateRange]   = useState('all');
-  const [loading, setLoading]       = useState(true);
-  const [ltv, setLtv] = useState<any[]>([]);
-  const [ltvCurve, setLtvCurve] = useState<any>({ data: [], cohorts: [] });
+  const [monthly,     setMonthly]     = useState<any[]>([])
+  const [byCategory,  setByCategory]  = useState<any[]>([])
+  const [byProvider,  setByProvider]  = useState<any[]>([])
+  const [players,     setPlayers]     = useState<any[]>([])
+  const [topGames,    setTopGames]    = useState<any[]>([])
+  const [txMonthly,   setTxMonthly]   = useState<any[]>([])
+  const [cohorts,     setCohorts]     = useState<any[]>([])
+  const [rfm,         setRfm]         = useState<any[]>([])
+  const [rfmSummary,  setRfmSummary]  = useState<any[]>([])
+  const [dateRange,   setDateRange]   = useState('all')
+  const [loading,     setLoading]     = useState(true)
+  const [ltv,         setLtv]         = useState<any[]>([])
+  const [ltvCurve,    setLtvCurve]    = useState<any>({ data: [], cohorts: [] })
 
   useEffect(() => {
     async function load() {
@@ -95,673 +124,535 @@ export default function AnalyticsPage() {
         supabase.from('v_rfm_segments').select('*').order('monetary', { ascending: false }),
         supabase.from('v_ltv_cohorts').select('*'),
         supabase.from('v_ltv_curve').select('*'),
-      ]);
+      ])
 
-      setMonthly(
-        (m.data || []).map((r) => ({ ...r, month: fmtMonth(r.month), raw_date: r.month }))
-      );
-      setByCategory(cat.data || []);
-      setByProvider(prov.data || []);
-      setPlayers(pl.data || []);
-      setTopGames(games.data || []);
-      setTxMonthly(
-        (tx.data || []).map((r) => ({ ...r, month: fmtMonth(r.month) }))
-      );
-      setCohorts(coh.data || []);
+      setMonthly((m.data || []).map(r => ({ ...r, month: fmtMonth(r.month), raw_date: r.month })))
+      setByCategory(cat.data || [])
+      setByProvider(prov.data || [])
+      setPlayers(pl.data || [])
+      setTopGames(games.data || [])
+      setTxMonthly((tx.data || []).map(r => ({ ...r, month: fmtMonth(r.month) })))
+      setCohorts(coh.data || [])
 
-      const rfmRows = rfmData.data || [];
-      setRfm(rfmRows);
+      const rfmRows = rfmData.data || []
+      setRfm(rfmRows)
 
-      const summary: Record<string, { segment: string; count: number; total: number; paying: number }> = {};
-      rfmRows.forEach((r) => {
-        if (!summary[r.segment]) {
-          summary[r.segment] = { segment: r.segment, count: 0, total: 0, paying: 0 };
-        }
-        summary[r.segment].count  += 1;
-        summary[r.segment].total  += Number(r.monetary);
-        summary[r.segment].paying += Number(r.deposit_count) > 0 ? 1 : 0;
-      });
+      const summary: Record<string, { segment: string; count: number; total: number; paying: number }> = {}
+      rfmRows.forEach(r => {
+        if (!summary[r.segment]) summary[r.segment] = { segment: r.segment, count: 0, total: 0, paying: 0 }
+        summary[r.segment].count  += 1
+        summary[r.segment].total  += Number(r.monetary)
+        summary[r.segment].paying += Number(r.deposit_count) > 0 ? 1 : 0
+      })
       setRfmSummary(
         Object.values(summary)
-          .map((s) => ({
-            ...s,
-            avg_ggr: Math.round(s.total / s.count),
-            arppu:   s.paying > 0 ? Math.round(s.total / s.paying) : 0,
-          }))
-          .sort((a, b) => b.avg_ggr - a.avg_ggr)
-      );
-      
-      setLtv(ltvData.data || []);
+          .map(s => ({ ...s, avg_ggr: Math.round(s.total / s.count), arppu: s.paying > 0 ? Math.round(s.total / s.paying) : 0 }))
+          .sort((a, b) => b.avg_ggr - a.avg_ggr),
+      )
 
-      // трансформируем для LineChart — каждая когорта как отдельная series
-const curveRaw = ltvCurveData.data || [];
-const cohortNames = [...new Set(curveRaw.map(r => r.cohort))];
-// строим массив точек по week_day
-const allWeeks = [...new Set(curveRaw.map(r => r.week_day))].sort((a,b) => a - b);
-const curveData = allWeeks.map(week => {
-  const point: Record<string, string | number | null> = { week: `W${Math.round(week/7)}` };
-  cohortNames.forEach(c => {
-    const row = curveRaw.find(r => r.cohort === c && r.week_day === week);
-    point[c] = row ? Number(row.cumulative_arpu) : null;
-  });
-  return point;
-});
-setLtvCurve({ data: curveData, cohorts: cohortNames });
-      
+      setLtv(ltvData.data || [])
 
-      setLoading(false);
-      
+      const curveRaw = ltvCurveData.data || []
+      const cohortNames = [...new Set(curveRaw.map((r: any) => r.cohort))]
+      const allWeeks = [...new Set(curveRaw.map((r: any) => r.week_day))].sort((a: any, b: any) => a - b)
+      const curveData = allWeeks.map(week => {
+        const point: Record<string, any> = { week: `W${Math.round((week as number) / 7)}` }
+        cohortNames.forEach(c => {
+          const row = curveRaw.find((r: any) => r.cohort === c && r.week_day === week)
+          point[c as string] = row ? Number(row.cumulative_arpu) : null
+        })
+        return point
+      })
+      setLtvCurve({ data: curveData, cohorts: cohortNames })
+
+      setLoading(false)
     }
-    load();
-  }, []);
+    load()
+  }, [])
 
-  // txChart
+  // ── Derived data ─────────────────────────────────────────────────────────────
+
   type TxMonth = { month: string; deposits: number; withdrawals: number }
-  const txMapSorted: Record<string, TxMonth> = {};
-  txMonthly.forEach((r) => {
-    if (!txMapSorted[r.month]) txMapSorted[r.month] = { month: r.month, deposits: 0, withdrawals: 0 };
-    if (r.type === 'deposit')    txMapSorted[r.month].deposits    = Number(r.total_amount);
-    if (r.type === 'withdrawal') txMapSorted[r.month].withdrawals = Number(r.total_amount);
-  });
-  const MONTH_ORDER = ['Oct','Nov','Dec','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep'];
+  const txMapSorted: Record<string, TxMonth> = {}
+  txMonthly.forEach(r => {
+    if (!txMapSorted[r.month]) txMapSorted[r.month] = { month: r.month, deposits: 0, withdrawals: 0 }
+    if (r.type === 'deposit')    txMapSorted[r.month].deposits    = Number(r.total_amount)
+    if (r.type === 'withdrawal') txMapSorted[r.month].withdrawals = Number(r.total_amount)
+  })
+  const MONTH_ORDER = ['Oct','Nov','Dec','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep']
   const sortByMonth = (a: TxMonth, b: TxMonth) => {
-    const [am, ay] = a.month.split(' ');
-    const [bm, by] = b.month.split(' ');
-    return ay !== by ? Number(ay) - Number(by) : MONTH_ORDER.indexOf(am) - MONTH_ORDER.indexOf(bm);
-  };
-  const txChart = Object.values(txMapSorted).sort(sortByMonth);
+    const [am, ay] = a.month.split(' ')
+    const [bm, by] = b.month.split(' ')
+    return ay !== by ? Number(ay) - Number(by) : MONTH_ORDER.indexOf(am) - MONTH_ORDER.indexOf(bm)
+  }
+  const txChart = Object.values(txMapSorted).sort(sortByMonth)
 
-  // filters
-  const since = getDateFilter(dateRange);
+  const since = getDateFilter(dateRange)
+  const filteredMonthly = since ? monthly.filter(r => new Date(r.raw_date) >= new Date(since)) : monthly
+  const filteredTxChart = since ? (() => {
+    const sinceDate = new Date(since)
+    const filtered = txMonthly.filter(r => {
+      const match = monthly.find(m => m.month === r.month)
+      return match ? new Date(match.raw_date) >= sinceDate : true
+    })
+    const map: Record<string, TxMonth> = {}
+    filtered.forEach(r => {
+      if (!map[r.month]) map[r.month] = { month: r.month, deposits: 0, withdrawals: 0 }
+      if (r.type === 'deposit')    map[r.month].deposits    = Number(r.total_amount)
+      if (r.type === 'withdrawal') map[r.month].withdrawals = Number(r.total_amount)
+    })
+    return Object.values(map).sort(sortByMonth)
+  })() : txChart
 
-  const filteredMonthly = since
-    ? monthly.filter((r) => new Date(r.raw_date) >= new Date(since))
-    : monthly;
-
-  const filteredTxChart = since
-    ? (() => {
-        const sinceDate = new Date(since);
-        const filtered = txMonthly.filter((r) => {
-          const match = monthly.find((m) => m.month === r.month);
-          return match ? new Date(match.raw_date) >= sinceDate : true;
-        });
-        const map: Record<string, TxMonth> = {};
-        filtered.forEach((r) => {
-          if (!map[r.month]) map[r.month] = { month: r.month, deposits: 0, withdrawals: 0 };
-          if (r.type === 'deposit')    map[r.month].deposits    = Number(r.total_amount);
-          if (r.type === 'withdrawal') map[r.month].withdrawals = Number(r.total_amount);
-        });
-        return Object.values(map).sort(sortByMonth);
-      })()
-    : txChart;
-
-  const filteredTotalGGR      = filteredMonthly.reduce((s, r) => s + Number(r.ggr), 0);
-  const filteredTotalBets     = filteredMonthly.reduce((s, r) => s + Number(r.total_bets), 0);
-  const filteredTotalDeposits = filteredTxChart.reduce((s, r) => s + Number(r.deposits || 0), 0);
-  const activePlayers         = players.filter((p) => p.status === 'active').length;
+  const filteredTotalGGR      = filteredMonthly.reduce((s, r) => s + Number(r.ggr), 0)
+  const filteredTotalBets     = filteredMonthly.reduce((s, r) => s + Number(r.total_bets), 0)
+  const filteredTotalDeposits = filteredTxChart.reduce((s, r) => s + Number(r.deposits || 0), 0)
+  const activePlayers         = players.filter(p => p.status === 'active').length
 
   const segmentCount = players.reduce<Record<string, number>>((acc, p) => {
-    const tier = p.vip_tier || 'standard';
-    acc[tier] = (acc[tier] || 0) + 1;
-    return acc;
-  }, {});
-  const segmentData = Object.entries(segmentCount).map(([name, value]) => ({ name, value }));
+    const tier = p.vip_tier || 'standard'
+    acc[tier] = (acc[tier] || 0) + 1
+    return acc
+  }, {})
+  const segmentData = Object.entries(segmentCount).map(([name, value]) => ({ name, value }))
 
   if (loading) {
     return (
-      <div className="doc-page">
+      <div className="py-10 pb-20">
         <div className="container">
-          <p style={{ color: 'var(--color-muted-foreground)', padding: '4rem 0' }}>Loading analytics…</p>
+          <p className="text-muted-foreground py-16">Loading analytics…</p>
         </div>
       </div>
-    );
+    )
   }
 
   return (
-    <div className="doc-page">
-      <div className="container">
+    <DocLayout
+      title="Analytics Dashboard | iGaming"
+      breadcrumbLabel="Sandbox"
+      breadcrumbHref="/sandbox"
+      tags={[
+        { label: 'Live Data',          type: 'status' },
+        { label: 'Supabase',           type: 'tag'    },
+        { label: 'iGaming Backoffice', type: 'tag'    },
+        { label: 'Concept',            type: 'tag'    },
+      ]}
+      description="Operator analytics prototype -- revenue, player activity, game performance and deposits pulled live from Supabase | Mock dataset | By Yevhenii Holovei"
+      footnote="Analytics Dashboard | iGaming Backoffice Concept | Data: Supabase mock dataset | Author: Yevhenii Holovei | April 2026"
+    >
 
-        <nav className="doc-breadcrumb" aria-label="Breadcrumb">
-          <Link href="/sandbox" className="doc-breadcrumb__link">Sandbox</Link>
-          <span className="doc-breadcrumb__sep">/</span>
-          <span className="doc-breadcrumb__current">Analytics Dashboard · iGaming</span>
-        </nav>
-
-        <div className="doc-hero">
-          <h1 className="doc-hero__title">Analytics Dashboard · iGaming</h1>
-          <div className="doc-hero__tags">
-            <span className="sandbox-card__status">Live Data</span>
-            <span className="sandbox-card__tag">Supabase</span>
-            <span className="sandbox-card__tag">iGaming Backoffice</span>
-            <span className="sandbox-card__tag">Concept</span>
-          </div>
-          <p className="doc-hero__description">
-            Operator analytics prototype — revenue, player activity, game performance and deposits pulled live from Supabase · Mock dataset · By Yevhenii Holovei
-          </p>
-        </div>
-
-        <div style={{ display: 'flex', gap: '8px', margin: '0 0 1.5rem', flexWrap: 'wrap' }}>
-          {[
-            { key: 'all', label: 'All time' },
-            { key: '90d', label: 'Last 90 days' },
-            { key: '30d', label: 'Last 30 days' },
-          ].map((opt) => (
-            <button
-              key={opt.key}
-              onClick={() => setDateRange(opt.key)}
-              className={dateRange === opt.key ? 'stm-range-tab stm-range-tab--active' : 'stm-range-tab'}
-            >
-              {opt.label}
-            </button>
-          ))}
-        </div>
-
-        <div className="doc-kpi-row">
-          <div className="doc-kpi">
-            <span className="doc-kpi__value">€{fmt(filteredTotalGGR)}</span>
-            <span className="doc-kpi__label">Total GGR</span>
-            <span className="doc-kpi__note">bets − wins</span>
-          </div>
-          <div className="doc-kpi">
-            <span className="doc-kpi__value">€{fmt(filteredTotalBets)}</span>
-            <span className="doc-kpi__label">Total Bets Volume</span>
-            <span className="doc-kpi__note">gross wagered</span>
-          </div>
-          <div className="doc-kpi">
-            <span className="doc-kpi__value">€{fmt(filteredTotalDeposits)}</span>
-            <span className="doc-kpi__label">Total Deposits</span>
-            <span className="doc-kpi__note">all currencies</span>
-          </div>
-          <div className="doc-kpi">
-            <span className="doc-kpi__value">{activePlayers}</span>
-            <span className="doc-kpi__label">Active Players</span>
-            <span className="doc-kpi__note">status = active</span>
-          </div>
-        </div>
-
-        {/* 01 Revenue */}
-        <section className="doc-section">
-          <div className="doc-section__header">
-            <span className="doc-section__num">01</span>
-            <h2 className="doc-section__title">Revenue Overview</h2>
-          </div>
-          <div className="doc-block">
-            <h3 className="doc-block__title">GGR &amp; NGR by month</h3>
-            <p className="doc-block__subtitle">GGR = bets − wins · NGR = GGR − bonuses issued</p>
-            <div className="stm-chart-wrap">
-              <ResponsiveContainer width="100%" height={240}>
-                <AreaChart data={filteredMonthly} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="ggrGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="var(--color-chart-1)" stopOpacity={0.18} />
-                      <stop offset="95%" stopColor="var(--color-chart-1)" stopOpacity={0} />
-                    </linearGradient>
-                    <linearGradient id="ngrGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="var(--color-chart-2)" stopOpacity={0.18} />
-                      <stop offset="95%" stopColor="var(--color-chart-2)" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
-                  <XAxis dataKey="month" tick={{ fontSize: 11, fill: 'var(--color-muted-foreground)' }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fontSize: 11, fill: 'var(--color-muted-foreground)' }} axisLine={false} tickLine={false} tickFormatter={(v) => `€${v}`} />
-                  <Tooltip content={<RevenueTooltip />} />
-                  <Area type="monotone" dataKey="ggr" name="GGR" stroke="var(--color-chart-1)" strokeWidth={2} fill="url(#ggrGrad)" dot={false} />
-                  <Area type="monotone" dataKey="ngr" name="NGR" stroke="var(--color-chart-2)" strokeWidth={2} fill="url(#ngrGrad)" dot={false} />
-                </AreaChart>
-              </ResponsiveContainer>
-              <div className="stm-legend">
-                <span className="stm-legend__item" style={{ '--c': 'var(--color-chart-1)' }}>GGR</span>
-                <span className="stm-legend__item" style={{ '--c': 'var(--color-chart-2)' }}>NGR</span>
-              </div>
-            </div>
-          </div>
-          <div className="doc-block">
-            <h3 className="doc-block__title">GGR by game category</h3>
-            <div className="stm-chart-wrap">
-              <ResponsiveContainer width="100%" height={200}>
-                <BarChart data={byCategory} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
-                  <XAxis dataKey="game_category" tick={{ fontSize: 11, fill: 'var(--color-muted-foreground)' }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fontSize: 11, fill: 'var(--color-muted-foreground)' }} axisLine={false} tickLine={false} tickFormatter={(v) => `€${v}`} />
-                  <Tooltip content={<BarTooltip />} />
-                  <Bar dataKey="ggr" radius={[4,4,0,0]}>
-                    {byCategory.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="doc-table-wrap" style={{ marginTop: '1rem' }}>
-              <table className="doc-table">
-                <thead>
-                  <tr><th>Category</th><th>GGR</th><th>Total bets</th><th>Hold %</th><th>Players</th></tr>
-                </thead>
-                <tbody>
-                  {byCategory.map((r) => (
-                    <tr key={r.game_category}>
-                      <td><strong>{r.game_category}</strong></td>
-                      <td>€{fmt(r.ggr)}</td>
-                      <td>€{fmt(r.total_bets)}</td>
-                      <td>{fmt(r.hold_pct)}%</td>
-                      <td>{r.players}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-          <div className="doc-block">
-            <h3 className="doc-block__title">GGR by provider</h3>
-            <div className="doc-table-wrap">
-              <table className="doc-table">
-                <thead>
-                  <tr><th>Provider</th><th>GGR</th><th>Bets</th><th>Rounds</th><th>Hold %</th></tr>
-                </thead>
-                <tbody>
-                  {byProvider.map((r) => (
-                    <tr key={r.provider}>
-                      <td><strong>{r.provider}</strong></td>
-                      <td>€{fmt(r.ggr)}</td>
-                      <td>€{fmt(r.total_bets)}</td>
-                      <td>{r.bet_count}</td>
-                      <td>{fmt(r.hold_pct)}%</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </section>
-
-        {/* 02 Deposits */}
-        <section className="doc-section">
-          <div className="doc-section__header">
-            <span className="doc-section__num">02</span>
-            <h2 className="doc-section__title">Deposits &amp; Withdrawals</h2>
-          </div>
-          <div className="doc-block">
-            <h3 className="doc-block__title">Volume by month</h3>
-            <p className="doc-block__subtitle">Deposits vs withdrawals · all payment methods</p>
-            <div className="stm-chart-wrap">
-              <ResponsiveContainer width="100%" height={220}>
-                <BarChart data={filteredTxChart} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
-                  <XAxis dataKey="month" tick={{ fontSize: 11, fill: 'var(--color-muted-foreground)' }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fontSize: 11, fill: 'var(--color-muted-foreground)' }} axisLine={false} tickLine={false} tickFormatter={(v) => `€${v}`} />
-                  <Tooltip formatter={(v: string | number) => [`€${fmt(v)}`]} />
-                  <Bar dataKey="deposits"    name="Deposits"    fill="var(--color-chart-1)" radius={[4,4,0,0]} />
-                  <Bar dataKey="withdrawals" name="Withdrawals" fill="var(--color-chart-3)" radius={[4,4,0,0]} />
-                </BarChart>
-              </ResponsiveContainer>
-              <div className="stm-legend">
-                <span className="stm-legend__item" style={{ '--c': 'var(--color-chart-1)' }}>Deposits</span>
-                <span className="stm-legend__item" style={{ '--c': 'var(--color-chart-3)' }}>Withdrawals</span>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* 03 Games */}
-        <section className="doc-section">
-          <div className="doc-section__header">
-            <span className="doc-section__num">03</span>
-            <h2 className="doc-section__title">Game Performance</h2>
-          </div>
-          <div className="doc-block">
-            <h3 className="doc-block__title">Top games by GGR</h3>
-            <div className="doc-table-wrap">
-              <table className="doc-table">
-                <thead>
-                  <tr><th>Game</th><th>Category</th><th>Provider</th><th>GGR</th><th>Rounds</th><th>Players</th><th>Hold %</th></tr>
-                </thead>
-                <tbody>
-                  {topGames.map((r) => (
-                    <tr key={r.game_id}>
-                      <td><strong>{r.game_id}</strong></td>
-                      <td>{r.game_category}</td>
-                      <td>{r.provider}</td>
-                      <td>€{fmt(r.ggr)}</td>
-                      <td>{r.rounds_played}</td>
-                      <td>{r.unique_players}</td>
-                      <td>{fmt(r.hold_pct)}%</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </section>
-
-        {/* 04 Players */}
-        <section className="doc-section">
-          <div className="doc-section__header">
-            <span className="doc-section__num">04</span>
-            <h2 className="doc-section__title">Player Overview</h2>
-          </div>
-          <div className="doc-block">
-            <h3 className="doc-block__title">Players by VIP tier</h3>
-            <div className="stm-chart-wrap">
-              <ResponsiveContainer width="100%" height={180}>
-                <BarChart data={segmentData} layout="vertical" margin={{ top: 4, right: 32, left: 16, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" horizontal={false} />
-                  <XAxis type="number" tick={{ fontSize: 11, fill: 'var(--color-muted-foreground)' }} axisLine={false} tickLine={false} />
-                  <YAxis type="category" dataKey="name" tick={{ fontSize: 11, fill: 'var(--color-muted-foreground)' }} axisLine={false} tickLine={false} width={64} />
-                  <Tooltip formatter={(v: string | number) => [v, 'players']} />
-                  <Bar dataKey="value" radius={[0,4,4,0]}>
-                    {segmentData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-          <div className="doc-block">
-            <h3 className="doc-block__title">Top players by GGR</h3>
-            <div className="doc-table-wrap">
-              <table className="doc-table">
-                <thead>
-                  <tr><th>#</th><th>Country</th><th>Channel</th><th>Tier</th><th>GGR</th><th>Deposits</th><th>Bets</th><th>Sessions</th><th>Status</th></tr>
-                </thead>
-                <tbody>
-                  {players.slice(0, 10).map((p, i) => (
-                    <tr key={p.player_id}>
-                      <td style={{ color: 'var(--color-muted-foreground)', fontSize: '12px' }}>{i + 1}</td>
-                      <td>{p.country}</td>
-                      <td>{p.channel}</td>
-                      <td><span className="sandbox-card__tag">{p.vip_tier}</span></td>
-                      <td><strong>€{fmt(p.player_ggr)}</strong></td>
-                      <td>€{fmt(p.total_deposits)}</td>
-                      <td>€{fmt(p.total_bets)}</td>
-                      <td>{p.session_count}</td>
-                      <td>
-                        <span className={p.status === 'active' ? 'sandbox-card__status' : 'sandbox-card__tag'}>
-                          {p.status}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </section>
-
-        {/* 05 Retention */}
-        <section className="doc-section">
-          <div className="doc-section__header">
-            <span className="doc-section__num">05</span>
-            <h2 className="doc-section__title">Retention Cohorts</h2>
-          </div>
-          <div className="doc-block">
-            <h3 className="doc-block__title">D1 / D7 / D30 retention by registration cohort</h3>
-            <p className="doc-block__subtitle">% of players who placed a bet within 1 / 7 / 30 days of registration</p>
-            <div className="doc-table-wrap">
-              <table className="doc-table">
-                <thead>
-                  <tr><th>Cohort</th><th>Size</th><th>D1</th><th>D1 %</th><th>D7</th><th>D7 %</th><th>D30</th><th>D30 %</th></tr>
-                </thead>
-                <tbody>
-                  {cohorts.map((r) => {
-                    const badge = (pct: string | number) => ({
-                      display: 'inline-block', padding: '2px 8px', borderRadius: '20px', fontSize: '12px',
-                      background: Number(pct) >= 50 ? 'var(--color-success-bg)' : Number(pct) > 0 ? 'var(--color-warning-bg)' : 'var(--color-subtle)',
-                      color:      Number(pct) >= 50 ? 'var(--color-success)' : Number(pct) > 0 ? 'var(--color-warning)' : 'var(--color-muted-foreground)',
-                    });
-                    return (
-                      <tr key={r.cohort}>
-                        <td><strong>{r.cohort}</strong></td>
-                        <td>{r.cohort_size}</td>
-                        <td>{r.d1}</td>
-                        <td><span style={badge(r.d1_pct)}>{r.d1_pct}%</span></td>
-                        <td>{r.d7}</td>
-                        <td><span style={badge(r.d7_pct)}>{r.d7_pct}%</span></td>
-                        <td>{r.d30}</td>
-                        <td><span style={badge(r.d30_pct)}>{r.d30_pct}%</span></td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </div>
-          <div className="doc-block">
-            <h3 className="doc-block__title">D7 &amp; D30 retention trend</h3>
-            <div className="stm-chart-wrap">
-              <ResponsiveContainer width="100%" height={220}>
-                <AreaChart
-                  data={cohorts.map((r) => ({ cohort: r.cohort, d7: Number(r.d7_pct), d30: Number(r.d30_pct) }))}
-                  margin={{ top: 8, right: 8, left: -16, bottom: 0 }}
-                >
-                  <defs>
-                    <linearGradient id="d7Grad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="var(--color-chart-1)" stopOpacity={0.15} />
-                      <stop offset="95%" stopColor="var(--color-chart-1)" stopOpacity={0} />
-                    </linearGradient>
-                    <linearGradient id="d30Grad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="var(--color-chart-2)" stopOpacity={0.15} />
-                      <stop offset="95%" stopColor="var(--color-chart-2)" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
-                  <XAxis dataKey="cohort" tick={{ fontSize: 11, fill: 'var(--color-muted-foreground)' }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fontSize: 11, fill: 'var(--color-muted-foreground)' }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v}%`} domain={[0, 100]} />
-                  <Tooltip formatter={(v: string | number) => [`${v}%`]} />
-                  <Area type="monotone" dataKey="d7"  name="D7"  stroke="var(--color-chart-1)" strokeWidth={2} fill="url(#d7Grad)"  dot={false} />
-                  <Area type="monotone" dataKey="d30" name="D30" stroke="var(--color-chart-2)" strokeWidth={2} fill="url(#d30Grad)" dot={false} />
-                </AreaChart>
-              </ResponsiveContainer>
-              <div className="stm-legend">
-                <span className="stm-legend__item" style={{ '--c': 'var(--color-chart-1)' }}>D7 retention</span>
-                <span className="stm-legend__item" style={{ '--c': 'var(--color-chart-2)' }}>D30 retention</span>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* 06 RFM */}
-        <section className="doc-section">
-          <div className="doc-section__header">
-            <span className="doc-section__num">06</span>
-            <h2 className="doc-section__title">RFM Segmentation</h2>
-          </div>
-          <div className="doc-block">
-            <h3 className="doc-block__title">Segments by player count &amp; avg GGR</h3>
-            <p className="doc-block__subtitle">R = days since last bet · F = betting days · M = GGR · scores 1–5</p>
-            <div className="stm-chart-wrap">
-              <ResponsiveContainer width="100%" height={200}>
-                <BarChart data={rfmSummary} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
-                  <XAxis dataKey="segment" tick={{ fontSize: 11, fill: 'var(--color-muted-foreground)' }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fontSize: 11, fill: 'var(--color-muted-foreground)' }} axisLine={false} tickLine={false} />
-                  <Tooltip
-                    content={({ active, payload, label }) => {
-                      if (!active || !payload?.length) return null;
-                      return (
-                        <div className="stm-tooltip">
-                          <span className="stm-tooltip__label">{label}</span>
-                          {payload.map((p) => (
-                            <span key={p.dataKey} className="stm-tooltip__value" style={{ color: p.fill }}>
-                              {p.dataKey === 'count'   && `Players: ${p.value}`}
-                              {p.dataKey === 'avg_ggr' && `Avg GGR: €${p.value}`}
-                            </span>
-                          ))}
-                        </div>
-                      );
-                    }}
-                  />
-                  <Bar dataKey="count"   name="Players" fill="var(--color-chart-1)" radius={[4,4,0,0]} />
-                  <Bar dataKey="avg_ggr" name="Avg GGR" fill="var(--color-chart-2)" radius={[4,4,0,0]} />
-                </BarChart>
-              </ResponsiveContainer>
-              <div className="stm-legend">
-                <span className="stm-legend__item" style={{ '--c': 'var(--color-chart-1)' }}>Players count</span>
-                <span className="stm-legend__item" style={{ '--c': 'var(--color-chart-2)' }}>Avg GGR (€)</span>
-              </div>
-            </div>
-          </div>
-          <div className="doc-block">
-            <h3 className="doc-block__title">Player detail by segment</h3>
-            <div className="doc-table-wrap">
-              <table className="doc-table">
-                <thead>
-                  <tr><th>Segment</th><th>Country</th><th>Channel</th><th>Tier</th><th>Recency</th><th>Frequency</th><th>GGR</th><th>R</th><th>F</th><th>M</th></tr>
-                </thead>
-                <tbody>
-                  {rfm.map((r, i) => {
-                    const segColors: Record<string, { bg: string; color: string }> = {
-                      Champions:    { bg: 'var(--color-brand-bg)',       color: 'var(--color-brand)'       },
-                      Loyal:        { bg: 'var(--color-success-bg)',     color: 'var(--color-success)'     },
-                      Promising:    { bg: 'var(--color-info-bg)',        color: 'var(--color-info)'        },
-                      'New Players':{ bg: 'var(--color-success-bg)',     color: 'var(--color-success)'     },
-                      'At Risk':    { bg: 'var(--color-warning-bg)',     color: 'var(--color-warning)'     },
-                      Lost:         { bg: 'var(--color-destructive-bg)', color: 'var(--color-destructive)' },
-                    };
-                    const sc = segColors[r.segment] || { bg: 'var(--color-subtle)', color: 'var(--color-muted-foreground)' };
-                    const scoreColor = (s: number) => s >= 4 ? 'var(--color-success)' : s <= 2 ? 'var(--color-destructive)' : 'var(--color-warning)';
-                    return (
-                      <tr key={i}>
-                        <td>
-                          <span style={{ display:'inline-block', padding:'2px 8px', borderRadius:'20px', fontSize:'12px', background: sc.bg, color: sc.color, fontWeight: 500 }}>
-                            {r.segment}
-                          </span>
-                        </td>
-                        <td>{r.country}</td>
-                        <td>{r.channel}</td>
-                        <td>{r.vip_tier}</td>
-                        <td>{r.recency_days}d ago</td>
-                        <td>{r.frequency} days</td>
-                        <td><strong>€{fmt(r.monetary)}</strong></td>
-                        <td style={{ color: scoreColor(r.r_score), fontWeight: 500 }}>{r.r_score}</td>
-                        <td style={{ color: scoreColor(r.f_score), fontWeight: 500 }}>{r.f_score}</td>
-                        <td style={{ color: scoreColor(r.m_score), fontWeight: 500 }}>{r.m_score}</td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </section>
-        {/* 07 LTV */}
-<section className="doc-section">
-  <div className="doc-section__header">
-    <span className="doc-section__num">07</span>
-    <h2 className="doc-section__title">LTV Curves by Cohort</h2>
-  </div>
-
-  <div className="doc-block">
-    <h3 className="doc-block__title">Cumulative ARPU over time</h3>
-    <p className="doc-block__subtitle">
-  Each line = one registration cohort · X = weeks since sign-up · Y = cumulative GGR per player · longer line = older cohort
-</p>
-    <div className="stm-chart-wrap">
-      <ResponsiveContainer width="100%" height={280}>
-        <AreaChart data={ltvCurve.data || []} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
-          <defs>
-            {(ltvCurve.cohorts as string[] || []).map((c: string, i: number) => (
-              <linearGradient key={c} id={`ltv${i}`} x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%"  stopColor={COLORS[i % COLORS.length]} stopOpacity={0.12} />
-                <stop offset="95%" stopColor={COLORS[i % COLORS.length]} stopOpacity={0} />
-              </linearGradient>
-            ))}
-          </defs>
-          <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
-          <XAxis
-  dataKey="week"
-  tick={{ fontSize: 11, fill: 'var(--color-muted-foreground)' }}
-  axisLine={false}
-  tickLine={false}
-  interval={2}
-  tickFormatter={(v) => v}
-/>
-          <YAxis tick={{ fontSize: 11, fill: 'var(--color-muted-foreground)' }} axisLine={false} tickLine={false} tickFormatter={(v) => `€${v}`} />
-          <Tooltip
-            content={({ active, payload, label }) => {
-              if (!active || !payload?.length) return null;
-              return (
-                <div className="stm-tooltip">
-                  <span className="stm-tooltip__label">{label}</span>
-                  {payload.filter(p => p.value != null).map((p) => (
-                    <span key={p.dataKey} className="stm-tooltip__value" style={{ color: p.color }}>
-                      {p.dataKey}: €{fmt(p.value as string | number)}
-                    </span>
-                  ))}
-                </div>
-              );
-            }}
-          />
-          {(ltvCurve.cohorts as string[] || []).map((c: string, i: number) => (
-            <Area
-              key={c}
-              type="monotone"
-              dataKey={c}
-              name={c}
-              stroke={COLORS[i % COLORS.length]}
-              strokeWidth={2}
-              fill={`url(#ltv${i})`}
-              dot={false}
-              connectNulls={false}
-            />
-          ))}
-        </AreaChart>
-      </ResponsiveContainer>
-      <div className="stm-legend" style={{ flexWrap: 'wrap' }}>
-        {(ltvCurve.cohorts as string[] || []).map((c: string, i: number) => (
-          <span key={c} className="stm-legend__item" style={{ '--c': COLORS[i % COLORS.length] }}>{c}</span>
+      {/* Date range filter */}
+      <div className="flex gap-1.5 flex-wrap mb-6">
+        {[{ key: 'all', label: 'All time' }, { key: '90d', label: 'Last 90 days' }, { key: '30d', label: 'Last 30 days' }].map(opt => (
+          <button
+            key={opt.key}
+            onClick={() => setDateRange(opt.key)}
+            className={cn(
+              'px-2.5 py-1 rounded-md border text-xs font-semibold transition-all',
+              dateRange === opt.key
+                ? 'bg-foreground text-background border-foreground'
+                : 'bg-transparent text-muted-foreground border-border hover:text-foreground',
+            )}
+          >
+            {opt.label}
+          </button>
         ))}
       </div>
-    </div>
-    <div className="doc-callout doc-callout--primary" style={{ marginTop: '1rem' }}>
-      <strong>How to read this chart:</strong> steeper slope = faster monetisation · flat line = player stopped playing · gap between cohorts = acquisition quality difference
-    </div>
-  </div>
 
-  <div className="doc-block">
-    <h3 className="doc-block__title">Cohort summary</h3>
-    <div className="doc-table-wrap">
-      <table className="doc-table">
-        <thead>
-          <tr>
-            <th>Cohort</th>
-            <th>Players</th>
-            <th>Total GGR</th>
-            <th>ARPU (lifetime)</th>
-            <th>ARPU D30</th>
-            <th>ARPU D90</th>
-            <th>Predicted LTV</th>
-          </tr>
-        </thead>
-        <tbody>
-          {ltv.map((r) => {
-            const predictedLtv = Math.round(Number(r.arpu || 0) * 1.8);
-            return (
-              <tr key={r.cohort}>
-                <td><strong>{r.cohort}</strong></td>
-                <td>{r.cohort_size}</td>
-                <td>€{fmt(r.total_ggr)}</td>
-                <td>€{fmt(r.arpu)}</td>
-                <td>€{fmt(r.arpu_d30 || 0)}</td>
-                <td>€{fmt(r.arpu_d90 || 0)}</td>
-                <td>
-                  <span className="inline-block rounded-full bg-brand-bg px-2 py-0.5 text-xs font-medium text-brand">
-                    €{fmt(predictedLtv)}
-                  </span>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </div>
-    <p style={{ fontSize: '12px', color: 'var(--color-muted-foreground)', marginTop: '8px' }}>
-      Predicted LTV = lifetime ARPU × 1.8 · simplified model · replace with regression in production
-    </p>
-  </div>
-</section>
-
-        <div className="doc-footnote">
-          Analytics Dashboard · iGaming Backoffice Concept · Data: Supabase mock dataset · Author: Yevhenii Holovei · April 2026
-        </div>
-
+      {/* KPIs */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-14">
+        {[
+          { value: `€${fmt(filteredTotalGGR)}`,      label: 'Total GGR',          note: 'bets − wins'    },
+          { value: `€${fmt(filteredTotalBets)}`,      label: 'Total Bets Volume',  note: 'gross wagered'  },
+          { value: `€${fmt(filteredTotalDeposits)}`,  label: 'Total Deposits',     note: 'all currencies' },
+          { value: String(activePlayers),             label: 'Active Players',     note: 'status = active'},
+        ].map(item => (
+          <Card key={item.label} className="flex flex-col gap-1 p-5">
+            <span className="text-2xl font-bold tracking-tight text-foreground">{item.value}</span>
+            <span className="text-xs font-semibold text-foreground">{item.label}</span>
+            <span className="text-xs text-muted-foreground">{item.note}</span>
+          </Card>
+        ))}
       </div>
-    </div>
-  );
+
+      {/* 01 Revenue */}
+      <DocSection num="01" title="Revenue Overview">
+
+        <DocBlock title="GGR & NGR by month" subtitle="GGR = bets − wins | NGR = GGR − bonuses issued">
+          <div className="border border-border rounded-xl p-4 bg-card mb-2">
+            <ResponsiveContainer width="100%" height={240}>
+              <AreaChart data={filteredMonthly} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="ggrGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%"  stopColor="var(--color-chart-1)" stopOpacity={0.18} />
+                    <stop offset="95%" stopColor="var(--color-chart-1)" stopOpacity={0} />
+                  </linearGradient>
+                  <linearGradient id="ngrGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%"  stopColor="var(--color-chart-2)" stopOpacity={0.18} />
+                    <stop offset="95%" stopColor="var(--color-chart-2)" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
+                <XAxis dataKey="month" tick={{ fontSize: 11, fill: 'var(--color-muted-foreground)' }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 11, fill: 'var(--color-muted-foreground)' }} axisLine={false} tickLine={false} tickFormatter={v => `€${v}`} />
+                <Tooltip content={<ChartTooltip renderValue={p => `${p.name ?? p.dataKey}: €${fmt(p.value)}`} />} />
+                <Area type="monotone" dataKey="ggr" name="GGR" stroke="var(--color-chart-1)" strokeWidth={2} fill="url(#ggrGrad)" dot={false} />
+                <Area type="monotone" dataKey="ngr" name="NGR" stroke="var(--color-chart-2)" strokeWidth={2} fill="url(#ngrGrad)" dot={false} />
+              </AreaChart>
+            </ResponsiveContainer>
+            <ChartLegend items={[{ color: 'var(--color-chart-1)', label: 'GGR' }, { color: 'var(--color-chart-2)', label: 'NGR' }]} />
+          </div>
+        </DocBlock>
+
+        <DocBlock title="GGR by game category">
+          <div className="border border-border rounded-xl p-4 bg-card mb-2">
+            <ResponsiveContainer width="100%" height={200}>
+              <BarChart data={byCategory} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
+                <XAxis dataKey="game_category" tick={{ fontSize: 11, fill: 'var(--color-muted-foreground)' }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 11, fill: 'var(--color-muted-foreground)' }} axisLine={false} tickLine={false} tickFormatter={v => `€${v}`} />
+                <Tooltip content={<ChartTooltip renderValue={p => `GGR: €${fmt(p.value)}`} />} />
+                <Bar dataKey="ggr" radius={[4,4,0,0]}>
+                  {byCategory.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+          <DocTable className="mt-4">
+            <DocTableHeader>
+              <TableRow><TableHead>Category</TableHead><TableHead>GGR</TableHead><TableHead>Total bets</TableHead><TableHead>Hold %</TableHead><TableHead>Players</TableHead></TableRow>
+            </DocTableHeader>
+            <TableBody>
+              {byCategory.map(r => (
+                <TableRow key={r.game_category}>
+                  <TableCell className="font-semibold">{r.game_category}</TableCell>
+                  <TableCell>€{fmt(r.ggr)}</TableCell>
+                  <TableCell>€{fmt(r.total_bets)}</TableCell>
+                  <TableCell>{fmt(r.hold_pct)}%</TableCell>
+                  <TableCell>{r.players}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </DocTable>
+        </DocBlock>
+
+        <DocBlock title="GGR by provider">
+          <DocTable>
+            <DocTableHeader>
+              <TableRow><TableHead>Provider</TableHead><TableHead>GGR</TableHead><TableHead>Bets</TableHead><TableHead>Rounds</TableHead><TableHead>Hold %</TableHead></TableRow>
+            </DocTableHeader>
+            <TableBody>
+              {byProvider.map(r => (
+                <TableRow key={r.provider}>
+                  <TableCell className="font-semibold">{r.provider}</TableCell>
+                  <TableCell>€{fmt(r.ggr)}</TableCell>
+                  <TableCell>€{fmt(r.total_bets)}</TableCell>
+                  <TableCell>{r.bet_count}</TableCell>
+                  <TableCell>{fmt(r.hold_pct)}%</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </DocTable>
+        </DocBlock>
+
+      </DocSection>
+
+      {/* 02 Deposits */}
+      <DocSection num="02" title="Deposits & Withdrawals">
+        <DocBlock title="Volume by month" subtitle="Deposits vs withdrawals | all payment methods">
+          <div className="border border-border rounded-xl p-4 bg-card mb-2">
+            <ResponsiveContainer width="100%" height={220}>
+              <BarChart data={filteredTxChart} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
+                <XAxis dataKey="month" tick={{ fontSize: 11, fill: 'var(--color-muted-foreground)' }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 11, fill: 'var(--color-muted-foreground)' }} axisLine={false} tickLine={false} tickFormatter={v => `€${v}`} />
+                <Tooltip formatter={(v: string | number) => [`€${fmt(v)}`]} />
+                <Bar dataKey="deposits"    name="Deposits"    fill="var(--color-chart-1)" radius={[4,4,0,0]} />
+                <Bar dataKey="withdrawals" name="Withdrawals" fill="var(--color-chart-3)" radius={[4,4,0,0]} />
+              </BarChart>
+            </ResponsiveContainer>
+            <ChartLegend items={[{ color: 'var(--color-chart-1)', label: 'Deposits' }, { color: 'var(--color-chart-3)', label: 'Withdrawals' }]} />
+          </div>
+        </DocBlock>
+      </DocSection>
+
+      {/* 03 Games */}
+      <DocSection num="03" title="Game Performance">
+        <DocBlock title="Top games by GGR">
+          <DocTable>
+            <DocTableHeader>
+              <TableRow><TableHead>Game</TableHead><TableHead>Category</TableHead><TableHead>Provider</TableHead><TableHead>GGR</TableHead><TableHead>Rounds</TableHead><TableHead>Players</TableHead><TableHead>Hold %</TableHead></TableRow>
+            </DocTableHeader>
+            <TableBody>
+              {topGames.map(r => (
+                <TableRow key={r.game_id}>
+                  <TableCell className="font-semibold">{r.game_id}</TableCell>
+                  <TableCell>{r.game_category}</TableCell>
+                  <TableCell>{r.provider}</TableCell>
+                  <TableCell>€{fmt(r.ggr)}</TableCell>
+                  <TableCell>{r.rounds_played}</TableCell>
+                  <TableCell>{r.unique_players}</TableCell>
+                  <TableCell>{fmt(r.hold_pct)}%</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </DocTable>
+        </DocBlock>
+      </DocSection>
+
+      {/* 04 Players */}
+      <DocSection num="04" title="Player Overview">
+
+        <DocBlock title="Players by VIP tier">
+          <div className="border border-border rounded-xl p-4 bg-card mb-2">
+            <ResponsiveContainer width="100%" height={180}>
+              <BarChart data={segmentData} layout="vertical" margin={{ top: 4, right: 32, left: 16, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" horizontal={false} />
+                <XAxis type="number" tick={{ fontSize: 11, fill: 'var(--color-muted-foreground)' }} axisLine={false} tickLine={false} />
+                <YAxis type="category" dataKey="name" tick={{ fontSize: 11, fill: 'var(--color-muted-foreground)' }} axisLine={false} tickLine={false} width={64} />
+                <Tooltip formatter={(v: string | number) => [v, 'players']} />
+                <Bar dataKey="value" radius={[0,4,4,0]}>
+                  {segmentData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </DocBlock>
+
+        <DocBlock title="Top players by GGR">
+          <DocTable>
+            <DocTableHeader>
+              <TableRow><TableHead>#</TableHead><TableHead>Country</TableHead><TableHead>Channel</TableHead><TableHead>Tier</TableHead><TableHead>GGR</TableHead><TableHead>Deposits</TableHead><TableHead>Bets</TableHead><TableHead>Sessions</TableHead><TableHead>Status</TableHead></TableRow>
+            </DocTableHeader>
+            <TableBody>
+              {players.slice(0, 10).map((p, i) => (
+                <TableRow key={p.player_id}>
+                  <TableCell className="text-xs text-muted-foreground">{i + 1}</TableCell>
+                  <TableCell>{p.country}</TableCell>
+                  <TableCell>{p.channel}</TableCell>
+                  <TableCell>
+                    <Badge variant="outline" className="bg-brand-bg text-brand border-brand/20 text-xs">
+                      {p.vip_tier}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="font-semibold">€{fmt(p.player_ggr)}</TableCell>
+                  <TableCell>€{fmt(p.total_deposits)}</TableCell>
+                  <TableCell>€{fmt(p.total_bets)}</TableCell>
+                  <TableCell>{p.session_count}</TableCell>
+                  <TableCell>
+                    <Badge
+                      variant="outline"
+                      className={p.status === 'active' ? 'bg-success-bg text-success border-success-border text-xs' : 'bg-brand-bg text-brand border-brand/20 text-xs'}
+                    >
+                      {p.status}
+                    </Badge>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </DocTable>
+        </DocBlock>
+
+      </DocSection>
+
+      {/* 05 Retention */}
+      <DocSection num="05" title="Retention Cohorts">
+
+        <DocBlock title="D1 / D7 / D30 retention by registration cohort" subtitle="% of players who placed a bet within 1 / 7 / 30 days of registration">
+          <DocTable>
+            <DocTableHeader>
+              <TableRow><TableHead>Cohort</TableHead><TableHead>Size</TableHead><TableHead>D1</TableHead><TableHead>D1 %</TableHead><TableHead>D7</TableHead><TableHead>D7 %</TableHead><TableHead>D30</TableHead><TableHead>D30 %</TableHead></TableRow>
+            </DocTableHeader>
+            <TableBody>
+              {cohorts.map(r => (
+                <TableRow key={r.cohort}>
+                  <TableCell className="font-semibold">{r.cohort}</TableCell>
+                  <TableCell>{r.cohort_size}</TableCell>
+                  <TableCell>{r.d1}</TableCell>
+                  <TableCell><span className={cn('inline-block px-2 py-0.5 rounded-full text-xs', retentionClass(Number(r.d1_pct)))}>{r.d1_pct}%</span></TableCell>
+                  <TableCell>{r.d7}</TableCell>
+                  <TableCell><span className={cn('inline-block px-2 py-0.5 rounded-full text-xs', retentionClass(Number(r.d7_pct)))}>{r.d7_pct}%</span></TableCell>
+                  <TableCell>{r.d30}</TableCell>
+                  <TableCell><span className={cn('inline-block px-2 py-0.5 rounded-full text-xs', retentionClass(Number(r.d30_pct)))}>{r.d30_pct}%</span></TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </DocTable>
+        </DocBlock>
+
+        <DocBlock title="D7 & D30 retention trend">
+          <div className="border border-border rounded-xl p-4 bg-card mb-2">
+            <ResponsiveContainer width="100%" height={220}>
+              <AreaChart
+                data={cohorts.map(r => ({ cohort: r.cohort, d7: Number(r.d7_pct), d30: Number(r.d30_pct) }))}
+                margin={{ top: 8, right: 8, left: -16, bottom: 0 }}
+              >
+                <defs>
+                  <linearGradient id="d7Grad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%"  stopColor="var(--color-chart-1)" stopOpacity={0.15} />
+                    <stop offset="95%" stopColor="var(--color-chart-1)" stopOpacity={0} />
+                  </linearGradient>
+                  <linearGradient id="d30Grad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%"  stopColor="var(--color-chart-2)" stopOpacity={0.15} />
+                    <stop offset="95%" stopColor="var(--color-chart-2)" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
+                <XAxis dataKey="cohort" tick={{ fontSize: 11, fill: 'var(--color-muted-foreground)' }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 11, fill: 'var(--color-muted-foreground)' }} axisLine={false} tickLine={false} tickFormatter={v => `${v}%`} domain={[0, 100]} />
+                <Tooltip formatter={(v: string | number) => [`${v}%`]} />
+                <Area type="monotone" dataKey="d7"  name="D7"  stroke="var(--color-chart-1)" strokeWidth={2} fill="url(#d7Grad)"  dot={false} />
+                <Area type="monotone" dataKey="d30" name="D30" stroke="var(--color-chart-2)" strokeWidth={2} fill="url(#d30Grad)" dot={false} />
+              </AreaChart>
+            </ResponsiveContainer>
+            <ChartLegend items={[{ color: 'var(--color-chart-1)', label: 'D7 retention' }, { color: 'var(--color-chart-2)', label: 'D30 retention' }]} />
+          </div>
+        </DocBlock>
+
+      </DocSection>
+
+      {/* 06 RFM */}
+      <DocSection num="06" title="RFM Segmentation">
+
+        <DocBlock title="Segments by player count & avg GGR" subtitle="R = days since last bet | F = betting days | M = GGR | scores 1–5">
+          <div className="border border-border rounded-xl p-4 bg-card mb-2">
+            <ResponsiveContainer width="100%" height={200}>
+              <BarChart data={rfmSummary} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
+                <XAxis dataKey="segment" tick={{ fontSize: 11, fill: 'var(--color-muted-foreground)' }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 11, fill: 'var(--color-muted-foreground)' }} axisLine={false} tickLine={false} />
+                <Tooltip
+                  content={({ active, payload, label }) => {
+                    if (!active || !payload?.length) return null
+                    return (
+                      <div className="flex flex-col gap-0.5 px-3 py-2 border border-border rounded-lg bg-card shadow-sm text-xs">
+                        <span className="text-muted-foreground">{label}</span>
+                        {payload.map(p => (
+                          <span key={p.dataKey as string} className="font-bold" style={{ color: p.fill as string }}>
+                            {p.dataKey === 'count'   && `Players: ${p.value}`}
+                            {p.dataKey === 'avg_ggr' && `Avg GGR: €${p.value}`}
+                          </span>
+                        ))}
+                      </div>
+                    )
+                  }}
+                />
+                <Bar dataKey="count"   name="Players" fill="var(--color-chart-1)" radius={[4,4,0,0]} />
+                <Bar dataKey="avg_ggr" name="Avg GGR" fill="var(--color-chart-2)" radius={[4,4,0,0]} />
+              </BarChart>
+            </ResponsiveContainer>
+            <ChartLegend items={[{ color: 'var(--color-chart-1)', label: 'Players count' }, { color: 'var(--color-chart-2)', label: 'Avg GGR (€)' }]} />
+          </div>
+        </DocBlock>
+
+        <DocBlock title="Player detail by segment">
+          <DocTable>
+            <DocTableHeader>
+              <TableRow><TableHead>Segment</TableHead><TableHead>Country</TableHead><TableHead>Channel</TableHead><TableHead>Tier</TableHead><TableHead>Recency</TableHead><TableHead>Frequency</TableHead><TableHead>GGR</TableHead><TableHead>R</TableHead><TableHead>F</TableHead><TableHead>M</TableHead></TableRow>
+            </DocTableHeader>
+            <TableBody>
+              {rfm.map((r, i) => (
+                <TableRow key={i}>
+                  <TableCell>
+                    <span className={cn('inline-flex px-2 py-0.5 rounded-full text-xs font-medium', RFM_SEG_CLASS[r.segment] ?? 'bg-subtle text-muted-foreground')}>
+                      {r.segment}
+                    </span>
+                  </TableCell>
+                  <TableCell>{r.country}</TableCell>
+                  <TableCell>{r.channel}</TableCell>
+                  <TableCell>{r.vip_tier}</TableCell>
+                  <TableCell>{r.recency_days}d ago</TableCell>
+                  <TableCell>{r.frequency} days</TableCell>
+                  <TableCell className="font-semibold">€{fmt(r.monetary)}</TableCell>
+                  <TableCell className={scoreClass(r.r_score)}>{r.r_score}</TableCell>
+                  <TableCell className={scoreClass(r.f_score)}>{r.f_score}</TableCell>
+                  <TableCell className={scoreClass(r.m_score)}>{r.m_score}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </DocTable>
+        </DocBlock>
+
+      </DocSection>
+
+      {/* 07 LTV */}
+      <DocSection num="07" title="LTV Curves by Cohort">
+
+        <DocBlock title="Cumulative ARPU over time" subtitle="Each line = one registration cohort | X = weeks since sign-up | Y = cumulative GGR per player | longer line = older cohort">
+          <div className="border border-border rounded-xl p-4 bg-card mb-2">
+            <ResponsiveContainer width="100%" height={280}>
+              <AreaChart data={ltvCurve.data || []} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
+                <defs>
+                  {(ltvCurve.cohorts as string[]).map((c, i) => (
+                    <linearGradient key={c} id={`ltv${i}`} x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%"  stopColor={COLORS[i % COLORS.length]} stopOpacity={0.12} />
+                      <stop offset="95%" stopColor={COLORS[i % COLORS.length]} stopOpacity={0} />
+                    </linearGradient>
+                  ))}
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
+                <XAxis dataKey="week" tick={{ fontSize: 11, fill: 'var(--color-muted-foreground)' }} axisLine={false} tickLine={false} interval={2} />
+                <YAxis tick={{ fontSize: 11, fill: 'var(--color-muted-foreground)' }} axisLine={false} tickLine={false} tickFormatter={v => `€${v}`} />
+                <Tooltip
+                  content={({ active, payload, label }) => {
+                    if (!active || !payload?.length) return null
+                    return (
+                      <div className="flex flex-col gap-0.5 px-3 py-2 border border-border rounded-lg bg-card shadow-sm text-xs">
+                        <span className="text-muted-foreground">{label}</span>
+                        {payload.filter(p => p.value != null).map(p => (
+                          <span key={p.dataKey as string} className="font-bold" style={{ color: p.color }}>
+                            {p.dataKey}: €{fmt(p.value as number)}
+                          </span>
+                        ))}
+                      </div>
+                    )
+                  }}
+                />
+                {(ltvCurve.cohorts as string[]).map((c, i) => (
+                  <Area key={c} type="monotone" dataKey={c} name={c} stroke={COLORS[i % COLORS.length]} strokeWidth={2} fill={`url(#ltv${i})`} dot={false} connectNulls={false} />
+                ))}
+              </AreaChart>
+            </ResponsiveContainer>
+            <ChartLegend items={(ltvCurve.cohorts as string[]).map((c, i) => ({ color: COLORS[i % COLORS.length], label: c }))} />
+          </div>
+          <Callout variant="primary" title="How to read this chart">
+            steeper slope = faster monetisation | flat line = player stopped playing | gap between cohorts = acquisition quality difference
+          </Callout>
+        </DocBlock>
+
+        <DocBlock title="Cohort summary">
+          <DocTable>
+            <DocTableHeader>
+              <TableRow><TableHead>Cohort</TableHead><TableHead>Players</TableHead><TableHead>Total GGR</TableHead><TableHead>ARPU (lifetime)</TableHead><TableHead>ARPU D30</TableHead><TableHead>ARPU D90</TableHead><TableHead>Predicted LTV</TableHead></TableRow>
+            </DocTableHeader>
+            <TableBody>
+              {ltv.map(r => {
+                const predictedLtv = Math.round(Number(r.arpu || 0) * 1.8)
+                return (
+                  <TableRow key={r.cohort}>
+                    <TableCell className="font-semibold">{r.cohort}</TableCell>
+                    <TableCell>{r.cohort_size}</TableCell>
+                    <TableCell>€{fmt(r.total_ggr)}</TableCell>
+                    <TableCell>€{fmt(r.arpu)}</TableCell>
+                    <TableCell>€{fmt(r.arpu_d30 || 0)}</TableCell>
+                    <TableCell>€{fmt(r.arpu_d90 || 0)}</TableCell>
+                    <TableCell>
+                      <span className="inline-block rounded-full bg-brand-bg px-2 py-0.5 text-xs font-medium text-brand">
+                        €{fmt(predictedLtv)}
+                      </span>
+                    </TableCell>
+                  </TableRow>
+                )
+              })}
+            </TableBody>
+          </DocTable>
+          <p className="text-xs text-muted-foreground mt-2">
+            Predicted LTV = lifetime ARPU × 1.8 | simplified model | replace with regression in production
+          </p>
+        </DocBlock>
+
+      </DocSection>
+
+    </DocLayout>
+  )
 }

@@ -16,10 +16,10 @@ export function SeoPanel() {
         <LangSwitcher value={lang} onChange={setLang} />
 
         <FieldGroup label="H1">
-          <Input defaultValue="Online Casino — Slots, Live Casino & Sports Betting" />
+          <Input defaultValue="Online Casino -- Slots, Live Casino & Sports Betting" />
         </FieldGroup>
         <FieldGroup label="Meta title">
-          <Input defaultValue="BetUp Casino — Play Slots, Live Games & Win Big" />
+          <Input defaultValue="BetUp Casino -- Play Slots, Live Games & Win Big" />
         </FieldGroup>
         <FieldGroup label="Meta description">
           <Textarea rows={2} defaultValue="Play 3000+ slots, live casino and sports betting at BetUp. Welcome bonus 225% up to €2000." />

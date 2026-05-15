@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import { Inter, Geist } from 'next/font/google'
 import './globals.css'
-import '@/styles/components.css'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
 import { BottomNav } from '@/components/layout/BottomNav'
@@ -40,7 +39,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ru" className={cn("font-sans", geist.variable)} suppressHydrationWarning>
-      <body>
+      <body suppressHydrationWarning>
         <ThemeProvider>
           {/* App shell: flex column, min-h-screen (mirrors .app-shell) */}
           <div className="flex min-h-screen flex-col">

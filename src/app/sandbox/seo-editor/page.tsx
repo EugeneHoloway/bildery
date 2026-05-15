@@ -52,7 +52,7 @@ interface GameCard {
 const TITLE_MAX = 60
 const DESC_MAX = 160
 
-const INITIAL_TITLE = 'Game Providers — BetUp Casino | Slots & Live Games'
+const INITIAL_TITLE = 'Game Providers -- BetUp Casino | Slots & Live Games'
 const INITIAL_DESC =
   'Explore 12 top game providers at BetUp Casino. Play 2000+ slots, live casino games and crash games from Pragmatic Play, Evolution, NetEnt and more.'
 const INITIAL_H1 = 'Game providers at BetUp Casino'
@@ -74,12 +74,12 @@ const GAMES: GameCard[] = [
 
 const AUDIT_ITEMS: AuditItem[] = [
   { status: 'ok',    text: 'H1 present and unique' },
-  { status: 'ok',    text: 'Title tag: 50 characters — good length' },
-  { status: 'ok',    text: 'Meta description: 148 characters — good length' },
-  { status: 'warn',  text: 'OG image not set — social shares will use fallback' },
+  { status: 'ok',    text: 'Title tag: 50 characters -- good length' },
+  { status: 'ok',    text: 'Meta description: 148 characters -- good length' },
+  { status: 'warn',  text: 'OG image not set -- social shares will use fallback' },
   { status: 'ok',    text: 'Page is indexable (robots: index, follow)' },
   { status: 'ok',    text: 'Page included in sitemap' },
-  { status: 'warn',  text: 'No structured data — consider adding JSON-LD' },
+  { status: 'warn',  text: 'No structured data -- consider adding JSON-LD' },
   { status: 'ok',    text: 'Canonical URL: self-referencing (correct)' },
   { status: 'error', text: 'DE and UA translations missing' },
 ]
@@ -174,9 +174,9 @@ export default function MockupSeoPage() {
               <Select defaultValue="main">
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="main">Yes — main menu</SelectItem>
-                  <SelectItem value="footer">Yes — footer only</SelectItem>
-                  <SelectItem value="hidden">No — hidden</SelectItem>
+                  <SelectItem value="main">Yes -- main menu</SelectItem>
+                  <SelectItem value="footer">Yes -- footer only</SelectItem>
+                  <SelectItem value="hidden">No -- hidden</SelectItem>
                 </SelectContent>
               </Select>
             </FieldGroup>
@@ -196,7 +196,7 @@ export default function MockupSeoPage() {
         {/* ── BASIC SEO ────────────────────────────────────────────────────── */}
         <TabsContent value="basic" className="flex flex-col gap-4 pt-6 max-w-[720px]">
           <LangSwitcher value={lang} onChange={setLang} />
-          <FieldGroup label="H1 — page heading" hint="shown on the page, 1 per page">
+          <FieldGroup label="H1 -- page heading" hint="shown on the page, 1 per page">
             <Input value={h1} onChange={(e) => setH1(e.target.value)} />
           </FieldGroup>
           <FieldGroup label="Title tag" hint="shown in browser tab and Google">
@@ -241,7 +241,7 @@ export default function MockupSeoPage() {
                 >
                   <h2 className="mb-1 mt-0.5 text-sm font-semibold">Top Game Providers at BetUp Casino</h2>
                   <p className="mb-1.5">
-                    BetUp Casino partners with 12 of the world's leading game studios, delivering over 2,000 slots, live casino tables, and crash games. From <strong>Pragmatic Play's</strong> iconic Sweet Bonanza to <strong>Evolution's</strong> live Lightning Roulette — every title is hand-picked for quality.
+                    BetUp Casino partners with 12 of the world's leading game studios, delivering over 2,000 slots, live casino tables, and crash games. From <strong>Pragmatic Play's</strong> iconic Sweet Bonanza to <strong>Evolution's</strong> live Lightning Roulette -- every title is hand-picked for quality.
                   </p>
                   <p>All providers are licensed, regularly audited for fairness, and offer games optimised for desktop and mobile.</p>
                 </div>
@@ -311,7 +311,7 @@ export default function MockupSeoPage() {
         {/* ── SOCIAL / OG ──────────────────────────────────────────────────── */}
         <TabsContent value="og" className="flex flex-col gap-4 pt-6 max-w-[720px]">
           <FieldGroup label="OG title" hint="shown when sharing link on social">
-            <Input defaultValue="Game Providers — BetUp Casino" />
+            <Input defaultValue="Game Providers -- BetUp Casino" />
           </FieldGroup>
           <FieldGroup label="OG description">
             <Textarea rows={2} defaultValue="Discover all game providers at BetUp. Slots, live casino and more from the world's top studios." />
@@ -323,7 +323,7 @@ export default function MockupSeoPage() {
               </div>
               <div className="border-t bg-muted/50 px-3 py-2.5">
                 <p className="text-2xs uppercase tracking-wider text-muted-foreground">BETUP.COM</p>
-                <p className="mt-0.5 text-sm font-medium">Game Providers — BetUp Casino</p>
+                <p className="mt-0.5 text-sm font-medium">Game Providers -- BetUp Casino</p>
                 <p className="text-xs text-muted-foreground">Discover all game providers at BetUp.</p>
               </div>
             </div>
@@ -375,9 +375,9 @@ export default function MockupSeoPage() {
               <Select defaultValue="high">
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="high">0.8 — high</SelectItem>
-                  <SelectItem value="normal">0.5 — normal</SelectItem>
-                  <SelectItem value="low">0.3 — low</SelectItem>
+                  <SelectItem value="high">0.8 -- high</SelectItem>
+                  <SelectItem value="normal">0.5 -- normal</SelectItem>
+                  <SelectItem value="low">0.3 -- low</SelectItem>
                 </SelectContent>
               </Select>
             </FieldGroup>
@@ -397,7 +397,7 @@ export default function MockupSeoPage() {
             <Select defaultValue="auto">
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="auto">Auto — generate from active languages</SelectItem>
+                <SelectItem value="auto">Auto -- generate from active languages</SelectItem>
                 <SelectItem value="manual">Manual</SelectItem>
                 <SelectItem value="disabled">Disabled</SelectItem>
               </SelectContent>
