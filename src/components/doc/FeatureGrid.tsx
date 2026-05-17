@@ -7,9 +7,12 @@ interface FeatureItem {
   text: string
 }
 
-export function FeatureGrid({ items }: { items: FeatureItem[] }) {
+export function FeatureGrid({ items, cols }: { items: FeatureItem[]; cols?: 2 | 3 }) {
+  const colClass = (cols ?? 2) === 3
+    ? 'grid-cols-1 sm:grid-cols-3'
+    : 'grid-cols-1 md:grid-cols-2'
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
+    <div className={`grid ${colClass} gap-3 mb-6`}>
       {items.map((item) => {
         const isEmoji = typeof item.icon === 'string'
         const Icon = isEmoji ? null : (item.icon as LucideIcon)

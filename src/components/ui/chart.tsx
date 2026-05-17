@@ -137,7 +137,7 @@ function ChartTooltipContent({
                   ) : (
                     !hideIndicator && (
                       <div className={cn("shrink-0 rounded-[2px] border-(--color-border) bg-(--color-bg)",
-                          indicator === "dot" && "size-2.5 rounded-full",
+                          indicator === "dot" && "size-2.5",
                           indicator === "line" && "w-1",
                           indicator === "dashed" && "w-0 border-(--color-bg) border-dashed bg-transparent")}
                         style={{ "--color-bg": indicatorColor, "--color-border": indicatorColor } as React.CSSProperties}
@@ -202,6 +202,31 @@ function ChartLegendContent({
   )
 }
 
+// ─── Area defaults ────────────────────────────────────────────────────────────
+//  Spread onto every <Area> for consistent style across the project:
+//  <Area {...areaDefaults} dataKey="price" stroke="var(--color-price)" fill="url(#fillPrice)" />
+
+export const areaDefaults = {
+  type: "natural",
+  strokeWidth: 1,
+  dot: false,
+  fillOpacity: 0.4,
+} as const
+
+// ─── Gradient def ─────────────────────────────────────────────────────────────
+//  Renders a <linearGradient> inside <defs>. Use id to reference via fill="url(#id)".
+//  Example:
+//    <defs><AreaGradientDef id="fillPrice" colorVar="var(--color-price)" /></defs>
+
+export function AreaGradientDef({ id, colorVar }: { id: string; colorVar: string }) {
+  return (
+    <linearGradient id={id} x1="0" y1="0" x2="0" y2="1">
+      <stop offset="5%"  stopColor={colorVar} stopOpacity={0.8} />
+      <stop offset="95%" stopColor={colorVar} stopOpacity={0.1} />
+    </linearGradient>
+  )
+}
+
 // ─── Helper ───────────────────────────────────────────────────────────────────
 
 function getPayloadConfigFromPayload(config: ChartConfig, payload: unknown, key: string) {
@@ -219,4 +244,5 @@ function getPayloadConfigFromPayload(config: ChartConfig, payload: unknown, key:
 export {
   ChartContainer, ChartTooltip, ChartTooltipContent,
   ChartLegend, ChartLegendContent, ChartStyle,
+  AreaGradientDef, areaDefaults,
 }

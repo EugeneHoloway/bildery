@@ -8,8 +8,11 @@ interface AbCell {
 }
 
 export function DocAbGrid({ cells }: { cells: AbCell[] }) {
+  const colClass = cells.length <= 2
+    ? 'grid-cols-1 sm:grid-cols-2'
+    : 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3'
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-5">
+    <div className={`grid ${colClass} gap-3 mb-5`}>
       {cells.map((cell) => (
         <Card key={cell.label} className="flex flex-col gap-1.5 p-4">
           <div className="flex items-center justify-between">

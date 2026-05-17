@@ -9,6 +9,7 @@ import { DocScenarios } from '@/components/doc/DocScenarios'
 import { DocRisks }     from '@/components/doc/DocRisks'
 import { DocAbGrid }    from '@/components/doc/DocAbGrid'
 import { DocTable, DocTableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/doc/DocTable'
+import { Lock, TrendingDown, Banknote, Mail, BarChart2, Dices, ShieldAlert } from 'lucide-react'
 
 export default function Page({ children }) {
   return (
@@ -23,7 +24,7 @@ export default function Page({ children }) {
         { label: 'PM Test Task',    type: 'tag' },
       ]}
       description="Mission-driven loyalty template for Shopify merchants | Replacing closed-loop points with blockchain-tokenized rewards and behavioral engagement missions | By Yevhenii Holovei"
-      footnote="📋 PM Test Task -- Enable3 x Shopify | Author: Yevhenii Holovei | Initiative: Shopify Growth Loop | Scope: Loyalty Template, Behavioral Segmentation, Web3 Tokenization | April 2026"
+      footnote="PM Test Task -- Enable3 x Shopify | Author: Yevhenii Holovei | Initiative: Shopify Growth Loop | Scope: Loyalty Template, Behavioral Segmentation, Web3 Tokenization | April 2026"
     >
       {children}
     </DocLayout>
@@ -41,10 +42,10 @@ export default function Page({ children }) {
 
 <DocBlock title="Why Existing Loyalty Programs Fail" subtitle="Four structural problems that the Shopify App Store has not solved">
   <FeatureGrid items={[
-    { icon: '🔒', title: 'Loyalty Rewards Locked in Closed Systems',  text: 'Points are locked inside merchant-controlled programs and can only be used in narrowly defined reward scenarios. Customers do not truly own these rewards, which limits perceived value and weakens long-term retention.' },
-    { icon: '📉', title: 'One-Time Buyers Dominate the Base',          text: 'Only 27–28% of Shopify customers ever make a second purchase. The 30-day post-purchase window -- when propensity to return is highest -- is consistently wasted: no visible goal, no mission, no reason to act.' },
-    { icon: '💸', title: 'Discount Dependency Erodes Margin',          text: 'The most popular retention mechanic is the promo code. The structural problem: discounts train customers to wait for the next offer rather than return out of genuine preference.' },
-    { icon: '📬', title: 'No Behavioral Layer',                        text: 'A first-time buyer, a lapsed VIP, and a brand advocate all receive the same communication. Without behavioral segmentation, mass discounts become the only lever -- simultaneously eroding margin and reinforcing dependency.' },
+    { icon: Lock,          title: 'Loyalty Rewards Locked in Closed Systems',  text: 'Points are locked inside merchant-controlled programs and can only be used in narrowly defined reward scenarios. Customers do not truly own these rewards, which limits perceived value and weakens long-term retention.' },
+    { icon: TrendingDown,  title: 'One-Time Buyers Dominate the Base',          text: 'Only 27–28% of Shopify customers ever make a second purchase. The 30-day post-purchase window -- when propensity to return is highest -- is consistently wasted: no visible goal, no mission, no reason to act.' },
+    { icon: Banknote,      title: 'Discount Dependency Erodes Margin',          text: 'The most popular retention mechanic is the promo code. The structural problem: discounts train customers to wait for the next offer rather than return out of genuine preference.' },
+    { icon: Mail,          title: 'No Behavioral Layer',                        text: 'A first-time buyer, a lapsed VIP, and a brand advocate all receive the same communication. Without behavioral segmentation, mass discounts become the only lever -- simultaneously eroding margin and reinforcing dependency.' },
   ]} />
 </DocBlock>
 
@@ -76,10 +77,10 @@ export default function Page({ children }) {
 </DocBlock>
 
 <DocBlock title="What Makes This Architecturally Different" subtitle="Three behavioral mechanics that no closed-loop Shopify competitor replicates">
-  <FeatureGrid items={[
-    { icon: '📊', title: 'Endowed Progress Effect',    text: 'Customers always see their current points balance and distance to the next tier. "300 points left to Silver" is a more effective return trigger than any discount code. Partial progress creates a compulsion to complete.' },
-    { icon: '🎲', title: 'Variable Reward Schedule',   text: 'Not every mission yields the same points. Bonus multipliers, time-limited challenges, and surprise rewards sustain engagement through unpredictability -- the same mechanism behind high-retention consumer apps.' },
-    { icon: '⚠️', title: 'Status Loss Aversion',       text: 'After 90 days of inactivity, instead of an immediate downgrade, a triggered notification fires: "Your Gold status is at risk. Complete any mission to keep it." Loss aversion is a consistently stronger motivator than equivalent gain.' },
+  <FeatureGrid cols={3} items={[
+    { icon: BarChart2,   title: 'Endowed Progress Effect',    text: 'Customers always see their current points balance and distance to the next tier. "300 points left to Silver" is a more effective return trigger than any discount code. Partial progress creates a compulsion to complete.' },
+    { icon: Dices,       title: 'Variable Reward Schedule',   text: 'Not every mission yields the same points. Bonus multipliers, time-limited challenges, and surprise rewards sustain engagement through unpredictability -- the same mechanism behind high-retention consumer apps.' },
+    { icon: ShieldAlert, title: 'Status Loss Aversion',       text: 'After 90 days of inactivity, instead of an immediate downgrade, a triggered notification fires: "Your Gold status is at risk. Complete any mission to keep it." Loss aversion is a consistently stronger motivator than equivalent gain.' },
   ]} />
 </DocBlock>
 

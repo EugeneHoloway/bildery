@@ -58,11 +58,11 @@ const techCards: SandboxCardData[] = [
 const marketCards: SandboxCardData[] = [
   {
     id: 'stm',
-    tag: 'STM',
-    title: 'EBITDA and other details',
+    tag: 'Markets',
+    title: 'STM Analysis',
     description:
       'Gross margin, performance, EBITDA, Revenue, rating summary and price target scenarios.',
-    status: 'Feb. 2026',
+    status: 'Share',
 
     sections: 9,
     href: '/sandbox/stm',
@@ -73,7 +73,7 @@ const mockupCards: SandboxCardData[] = [
   {
     id: 'homepage-configurator',
     tag: 'iGaming Backoffice',
-    title: 'Homepage configurator',
+    title: 'Homepage Configurator',
     description:
       'Page section manager for iGaming operator backoffice. Banner slider, game sections (auto/manual), providers row, live bets feed and SEO text.',
     status: 'BetUp',
@@ -84,7 +84,7 @@ const mockupCards: SandboxCardData[] = [
   {
     id: 'page-manager',
     tag: 'iGaming Backoffice',
-    title: 'Page manager',
+    title: 'Page Manager',
     description:
       'Create, hide and delete custom pages. Includes Game Providers page with logo grid, layout toggle and per-page settings.',
     status: 'BetUp',
@@ -95,7 +95,7 @@ const mockupCards: SandboxCardData[] = [
   {
     id: 'seo-editor',
     tag: 'iGaming Backoffice',
-    title: 'SEO editor',
+    title: 'SEO Editor',
     description:
       'Per-page SEO tab: H1, title tag, meta description with live SERP preview, Open Graph, advanced settings and audit checklist.',
     status: 'BetUp',

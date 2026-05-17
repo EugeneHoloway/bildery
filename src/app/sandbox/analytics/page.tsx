@@ -2,18 +2,26 @@
 
 import { useEffect, useState } from 'react'
 import {
-  AreaChart, Area, BarChart, Bar, LineChart, Line,
-  XAxis, YAxis, CartesianGrid, Tooltip,
-  ResponsiveContainer, Cell,
+  AreaChart, Area, BarChart, Bar,
+  XAxis, YAxis, CartesianGrid,
 } from 'recharts'
 import { cn } from '@/lib/utils'
-import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { Card, CardContent } from '@/components/ui/card'
 import { supabase } from '@/lib/supabase'
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent,
+  AreaGradientDef,
+  areaDefaults,
+  type ChartConfig,
+} from '@/components/ui/chart'
 import { DocLayout }  from '@/components/doc/DocLayout'
 import { DocSection } from '@/components/doc/DocSection'
 import { DocBlock }   from '@/components/doc/DocBlock'
-import { Callout }    from '@/components/doc/Callout'
 import { DocTable, DocTableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/doc/DocTable'
 
 function fmt(n: string | number | null | undefined) {
@@ -33,59 +41,25 @@ function getDateFilter(range: string) {
   return null
 }
 
-const COLORS = ['var(--color-chart-1)', 'var(--color-chart-3)', 'var(--color-chart-2)', 'var(--color-chart-5)', 'var(--color-chart-4)']
+const CHART_COLOR_KEYS = ['chart-1', 'chart-3', 'chart-2', 'chart-5', 'chart-4'] as const
 
-// ── Shared chart primitives ────────────────────────────────────────────────────
+// ── Retention badge ────────────────────────────────────────────────────────────
 
-function ChartTooltip({ active, payload, label, renderValue }: {
-  active?: boolean
-  payload?: Array<{ dataKey: string; name?: string; value: number; color?: string; fill?: string }>
-  label?: string
-  renderValue: (p: { dataKey: string; name?: string; value: number; color?: string; fill?: string }) => string
-}) {
-  if (!active || !payload?.length) return null
-  return (
-    <div className="flex flex-col gap-0.5 px-3 py-2 border border-border rounded-lg bg-card shadow-sm text-xs">
-      <span className="text-muted-foreground">{label}</span>
-      {payload.map((p, i) => (
-        <span key={i} className="font-bold" style={{ color: p.color ?? p.fill }}>
-          {renderValue(p)}
-        </span>
-      ))}
-    </div>
-  )
-}
-
-function ChartLegend({ items }: { items: { color: string; label: string }[] }) {
-  return (
-    <div className="flex flex-wrap gap-4 px-2 pt-2">
-      {items.map(item => (
-        <span key={item.label} className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
-          <span className="inline-block w-5 h-0.5 rounded-full flex-shrink-0" style={{ background: item.color }} />
-          {item.label}
-        </span>
-      ))}
-    </div>
-  )
-}
-
-// ── Retention percentage badge ─────────────────────────────────────────────────
-
-function retentionClass(pct: number): string {
-  if (pct >= 50) return 'bg-success-bg text-success'
-  if (pct > 0)   return 'bg-warning-bg text-warning'
-  return 'bg-subtle text-muted-foreground'
+function retentionBadgeClass(pct: number): string {
+  if (pct >= 50) return 'bg-success-bg text-success border-success-border'
+  if (pct > 0)   return 'bg-warning-bg text-warning border-warning-border'
+  return 'bg-subtle text-muted-foreground border-subtle-border'
 }
 
 // ── RFM segment badge ──────────────────────────────────────────────────────────
 
 const RFM_SEG_CLASS: Record<string, string> = {
-  'Champions':    'bg-brand-bg text-brand',
-  'Loyal':        'bg-success-bg text-success',
-  'Promising':    'bg-info-bg text-info',
-  'New Players':  'bg-success-bg text-success',
-  'At Risk':      'bg-warning-bg text-warning',
-  'Lost':         'bg-destructive-bg text-destructive',
+  'Champions':   'bg-brand-bg text-brand border-brand/20',
+  'Loyal':       'bg-success-bg text-success border-success-border',
+  'Promising':   'bg-info-bg text-info border-info-border',
+  'New Players': 'bg-success-bg text-success border-success-border',
+  'At Risk':     'bg-warning-bg text-warning border-warning-border',
+  'Lost':        'bg-destructive-bg text-destructive border-destructive/20',
 }
 
 function scoreClass(s: number): string {
@@ -93,6 +67,28 @@ function scoreClass(s: number): string {
   if (s <= 2) return 'text-destructive font-medium'
   return 'text-warning font-medium'
 }
+
+// ── Chart configs ─────────────────────────────────────────────────────────────
+
+const revenueChartConfig = {
+  ggr: { label: 'GGR', color: 'var(--color-chart-1)' },
+  ngr: { label: 'NGR', color: 'var(--color-chart-2)' },
+} satisfies ChartConfig
+
+const retentionChartConfig = {
+  d7:  { label: 'D7 retention',  color: 'var(--color-chart-1)' },
+  d30: { label: 'D30 retention', color: 'var(--color-chart-2)' },
+} satisfies ChartConfig
+
+const depositChartConfig = {
+  deposits:    { label: 'Deposits',    color: 'var(--color-chart-1)' },
+  withdrawals: { label: 'Withdrawals', color: 'var(--color-chart-3)' },
+} satisfies ChartConfig
+
+const rfmSegChartConfig = {
+  count:   { label: 'Players',  color: 'var(--color-chart-1)' },
+  avg_ggr: { label: 'Avg GGR', color: 'var(--color-chart-2)' },
+} satisfies ChartConfig
 
 // ── Page ───────────────────────────────────────────────────────────────────────
 
@@ -108,12 +104,10 @@ export default function AnalyticsPage() {
   const [rfmSummary,  setRfmSummary]  = useState<any[]>([])
   const [dateRange,   setDateRange]   = useState('all')
   const [loading,     setLoading]     = useState(true)
-  const [ltv,         setLtv]         = useState<any[]>([])
-  const [ltvCurve,    setLtvCurve]    = useState<any>({ data: [], cohorts: [] })
 
   useEffect(() => {
     async function load() {
-      const [m, cat, prov, pl, games, tx, coh, rfmData, ltvData, ltvCurveData] = await Promise.all([
+      const [m, cat, prov, pl, games, tx, coh, rfmData] = await Promise.all([
         supabase.from('v_revenue_monthly').select('*'),
         supabase.from('v_revenue_by_category').select('*'),
         supabase.from('v_revenue_by_provider').select('*'),
@@ -122,12 +116,13 @@ export default function AnalyticsPage() {
         supabase.from('v_transactions_monthly').select('*'),
         supabase.from('v_retention_cohorts').select('*'),
         supabase.from('v_rfm_segments').select('*').order('monetary', { ascending: false }),
-        supabase.from('v_ltv_cohorts').select('*'),
-        supabase.from('v_ltv_curve').select('*'),
       ])
 
       setMonthly((m.data || []).map(r => ({ ...r, month: fmtMonth(r.month), raw_date: r.month })))
-      setByCategory(cat.data || [])
+      setByCategory((cat.data || []).map((r: any, i: number) => ({
+        ...r,
+        fill: `var(--color-${CHART_COLOR_KEYS[i % CHART_COLOR_KEYS.length]})`,
+      })))
       setByProvider(prov.data || [])
       setPlayers(pl.data || [])
       setTopGames(games.data || [])
@@ -149,21 +144,6 @@ export default function AnalyticsPage() {
           .map(s => ({ ...s, avg_ggr: Math.round(s.total / s.count), arppu: s.paying > 0 ? Math.round(s.total / s.paying) : 0 }))
           .sort((a, b) => b.avg_ggr - a.avg_ggr),
       )
-
-      setLtv(ltvData.data || [])
-
-      const curveRaw = ltvCurveData.data || []
-      const cohortNames = [...new Set(curveRaw.map((r: any) => r.cohort))]
-      const allWeeks = [...new Set(curveRaw.map((r: any) => r.week_day))].sort((a: any, b: any) => a - b)
-      const curveData = allWeeks.map(week => {
-        const point: Record<string, any> = { week: `W${Math.round((week as number) / 7)}` }
-        cohortNames.forEach(c => {
-          const row = curveRaw.find((r: any) => r.cohort === c && r.week_day === week)
-          point[c as string] = row ? Number(row.cumulative_arpu) : null
-        })
-        return point
-      })
-      setLtvCurve({ data: curveData, cohorts: cohortNames })
 
       setLoading(false)
     }
@@ -214,7 +194,30 @@ export default function AnalyticsPage() {
     acc[tier] = (acc[tier] || 0) + 1
     return acc
   }, {})
-  const segmentData = Object.entries(segmentCount).map(([name, value]) => ({ name, value }))
+  const categoryChartConfig: ChartConfig = {
+    ggr: { label: 'GGR' },
+    ...Object.fromEntries(
+      byCategory.map((r: any, i: number) => [r.game_category, {
+        label: r.game_category ? r.game_category.charAt(0).toUpperCase() + r.game_category.slice(1) : r.game_category,
+        color: `var(--color-${CHART_COLOR_KEYS[i % CHART_COLOR_KEYS.length]})`,
+      }])
+    ),
+  }
+
+  const segmentData = Object.entries(segmentCount).map(([name, value], i) => ({
+    name,
+    value,
+    fill: `var(--color-${CHART_COLOR_KEYS[i % CHART_COLOR_KEYS.length]})`,
+  }))
+  const vipChartConfig: ChartConfig = {
+    value: { label: 'Players' },
+    ...Object.fromEntries(
+      segmentData.map((d, i) => [d.name, {
+        label: d.name.charAt(0).toUpperCase() + d.name.slice(1),
+        color: `var(--color-${CHART_COLOR_KEYS[i % CHART_COLOR_KEYS.length]})`,
+      }])
+    ),
+  }
 
   if (loading) {
     return (
@@ -262,13 +265,13 @@ export default function AnalyticsPage() {
       {/* KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-14">
         {[
-          { value: `€${fmt(filteredTotalGGR)}`,      label: 'Total GGR',          note: 'bets − wins'    },
-          { value: `€${fmt(filteredTotalBets)}`,      label: 'Total Bets Volume',  note: 'gross wagered'  },
-          { value: `€${fmt(filteredTotalDeposits)}`,  label: 'Total Deposits',     note: 'all currencies' },
-          { value: String(activePlayers),             label: 'Active Players',     note: 'status = active'},
+          { value: `€${fmt(filteredTotalGGR)}`,      label: 'Total GGR',         note: 'bets − wins'     },
+          { value: `€${fmt(filteredTotalBets)}`,      label: 'Total Bets Volume', note: 'gross wagered'   },
+          { value: `€${fmt(filteredTotalDeposits)}`,  label: 'Total Deposits',    note: 'all currencies'  },
+          { value: String(activePlayers),             label: 'Active Players',    note: 'status = active' },
         ].map(item => (
           <Card key={item.label} className="flex flex-col gap-1 p-5">
-            <span className="text-2xl font-bold tracking-tight text-foreground">{item.value}</span>
+            <span className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">{item.value}</span>
             <span className="text-xs font-semibold text-foreground">{item.label}</span>
             <span className="text-xs text-muted-foreground">{item.note}</span>
           </Card>
@@ -279,53 +282,55 @@ export default function AnalyticsPage() {
       <DocSection num="01" title="Revenue Overview">
 
         <DocBlock title="GGR & NGR by month" subtitle="GGR = bets − wins | NGR = GGR − bonuses issued">
-          <div className="border border-border rounded-xl p-4 bg-card mb-2">
-            <ResponsiveContainer width="100%" height={240}>
-              <AreaChart data={filteredMonthly} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
-                <defs>
-                  <linearGradient id="ggrGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%"  stopColor="var(--color-chart-1)" stopOpacity={0.18} />
-                    <stop offset="95%" stopColor="var(--color-chart-1)" stopOpacity={0} />
-                  </linearGradient>
-                  <linearGradient id="ngrGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%"  stopColor="var(--color-chart-2)" stopOpacity={0.18} />
-                    <stop offset="95%" stopColor="var(--color-chart-2)" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
-                <XAxis dataKey="month" tick={{ fontSize: 11, fill: 'var(--color-muted-foreground)' }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fontSize: 11, fill: 'var(--color-muted-foreground)' }} axisLine={false} tickLine={false} tickFormatter={v => `€${v}`} />
-                <Tooltip content={<ChartTooltip renderValue={p => `${p.name ?? p.dataKey}: €${fmt(p.value)}`} />} />
-                <Area type="monotone" dataKey="ggr" name="GGR" stroke="var(--color-chart-1)" strokeWidth={2} fill="url(#ggrGrad)" dot={false} />
-                <Area type="monotone" dataKey="ngr" name="NGR" stroke="var(--color-chart-2)" strokeWidth={2} fill="url(#ngrGrad)" dot={false} />
-              </AreaChart>
-            </ResponsiveContainer>
-            <ChartLegend items={[{ color: 'var(--color-chart-1)', label: 'GGR' }, { color: 'var(--color-chart-2)', label: 'NGR' }]} />
-          </div>
+          <Card>
+            <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
+              <ChartContainer config={revenueChartConfig} className="h-[240px] w-full">
+                <AreaChart data={filteredMonthly} margin={{ top: 8, right: 24, left: -16, bottom: 0 }}>
+                  <defs>
+                    <AreaGradientDef id="ggrGrad" colorVar="var(--color-ggr)" />
+                    <AreaGradientDef id="ngrGrad" colorVar="var(--color-ngr)" />
+                  </defs>
+                  <CartesianGrid vertical={false} />
+                  <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} interval="preserveStartEnd" />
+                  <YAxis tickLine={false} axisLine={false} tickFormatter={v => `€${v}`} />
+                  <ChartTooltip
+                    cursor={false}
+                    content={<ChartTooltipContent hideLabel={false} indicator="dot" />}
+                  />
+                  <Area {...areaDefaults} dataKey="ggr" stroke="var(--color-ggr)" fill="url(#ggrGrad)" />
+                  <Area {...areaDefaults} dataKey="ngr" stroke="var(--color-ngr)" fill="url(#ngrGrad)" />
+                  <ChartLegend content={<ChartLegendContent />} />
+                </AreaChart>
+              </ChartContainer>
+            </CardContent>
+          </Card>
         </DocBlock>
 
         <DocBlock title="GGR by game category">
-          <div className="border border-border rounded-xl p-4 bg-card mb-2">
-            <ResponsiveContainer width="100%" height={200}>
-              <BarChart data={byCategory} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
-                <XAxis dataKey="game_category" tick={{ fontSize: 11, fill: 'var(--color-muted-foreground)' }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fontSize: 11, fill: 'var(--color-muted-foreground)' }} axisLine={false} tickLine={false} tickFormatter={v => `€${v}`} />
-                <Tooltip content={<ChartTooltip renderValue={p => `GGR: €${fmt(p.value)}`} />} />
-                <Bar dataKey="ggr" radius={[4,4,0,0]}>
-                  {byCategory.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-          <DocTable className="mt-4">
+          <Card className="mb-4">
+            <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
+              <ChartContainer config={categoryChartConfig} className="h-[200px] w-full">
+                <BarChart data={byCategory} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
+                  <CartesianGrid vertical={false} />
+                  <XAxis dataKey="game_category" tickLine={false} axisLine={false} tickMargin={10} tickFormatter={v => v.charAt(0).toUpperCase() + v.slice(1)} />
+                  <YAxis tickLine={false} axisLine={false} tickFormatter={v => `€${v}`} />
+                  <ChartTooltip
+                    cursor={false}
+                    content={<ChartTooltipContent hideLabel={false} indicator="dot" />}
+                  />
+                  <Bar dataKey="ggr" radius={8} />
+                </BarChart>
+              </ChartContainer>
+            </CardContent>
+          </Card>
+          <DocTable>
             <DocTableHeader>
               <TableRow><TableHead>Category</TableHead><TableHead>GGR</TableHead><TableHead>Total bets</TableHead><TableHead>Hold %</TableHead><TableHead>Players</TableHead></TableRow>
             </DocTableHeader>
             <TableBody>
               {byCategory.map(r => (
                 <TableRow key={r.game_category}>
-                  <TableCell className="font-semibold">{r.game_category}</TableCell>
+                  <TableCell className="font-semibold">{r.game_category.charAt(0).toUpperCase() + r.game_category.slice(1)}</TableCell>
                   <TableCell>€{fmt(r.ggr)}</TableCell>
                   <TableCell>€{fmt(r.total_bets)}</TableCell>
                   <TableCell>{fmt(r.hold_pct)}%</TableCell>
@@ -360,19 +365,24 @@ export default function AnalyticsPage() {
       {/* 02 Deposits */}
       <DocSection num="02" title="Deposits & Withdrawals">
         <DocBlock title="Volume by month" subtitle="Deposits vs withdrawals | all payment methods">
-          <div className="border border-border rounded-xl p-4 bg-card mb-2">
-            <ResponsiveContainer width="100%" height={220}>
-              <BarChart data={filteredTxChart} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
-                <XAxis dataKey="month" tick={{ fontSize: 11, fill: 'var(--color-muted-foreground)' }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fontSize: 11, fill: 'var(--color-muted-foreground)' }} axisLine={false} tickLine={false} tickFormatter={v => `€${v}`} />
-                <Tooltip formatter={(v: string | number) => [`€${fmt(v)}`]} />
-                <Bar dataKey="deposits"    name="Deposits"    fill="var(--color-chart-1)" radius={[4,4,0,0]} />
-                <Bar dataKey="withdrawals" name="Withdrawals" fill="var(--color-chart-3)" radius={[4,4,0,0]} />
-              </BarChart>
-            </ResponsiveContainer>
-            <ChartLegend items={[{ color: 'var(--color-chart-1)', label: 'Deposits' }, { color: 'var(--color-chart-3)', label: 'Withdrawals' }]} />
-          </div>
+          <Card>
+            <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
+              <ChartContainer config={depositChartConfig} className="h-[220px] w-full">
+                <BarChart data={filteredTxChart} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
+                  <CartesianGrid vertical={false} />
+                  <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} interval="preserveStartEnd" />
+                  <YAxis tickLine={false} axisLine={false} tickFormatter={v => `€${v}`} />
+                  <ChartTooltip
+                    cursor={false}
+                    content={<ChartTooltipContent hideLabel={false} indicator="dot" />}
+                  />
+                  <Bar dataKey="deposits"    fill="var(--color-deposits)"    radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="withdrawals" fill="var(--color-withdrawals)" radius={[4, 4, 0, 0]} />
+                  <ChartLegend content={<ChartLegendContent />} />
+                </BarChart>
+              </ChartContainer>
+            </CardContent>
+          </Card>
         </DocBlock>
       </DocSection>
 
@@ -387,7 +397,7 @@ export default function AnalyticsPage() {
               {topGames.map(r => (
                 <TableRow key={r.game_id}>
                   <TableCell className="font-semibold">{r.game_id}</TableCell>
-                  <TableCell>{r.game_category}</TableCell>
+                  <TableCell>{r.game_category ? r.game_category.charAt(0).toUpperCase() + r.game_category.slice(1) : '—'}</TableCell>
                   <TableCell>{r.provider}</TableCell>
                   <TableCell>€{fmt(r.ggr)}</TableCell>
                   <TableCell>{r.rounds_played}</TableCell>
@@ -404,19 +414,28 @@ export default function AnalyticsPage() {
       <DocSection num="04" title="Player Overview">
 
         <DocBlock title="Players by VIP tier">
-          <div className="border border-border rounded-xl p-4 bg-card mb-2">
-            <ResponsiveContainer width="100%" height={180}>
-              <BarChart data={segmentData} layout="vertical" margin={{ top: 4, right: 32, left: 16, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" horizontal={false} />
-                <XAxis type="number" tick={{ fontSize: 11, fill: 'var(--color-muted-foreground)' }} axisLine={false} tickLine={false} />
-                <YAxis type="category" dataKey="name" tick={{ fontSize: 11, fill: 'var(--color-muted-foreground)' }} axisLine={false} tickLine={false} width={64} />
-                <Tooltip formatter={(v: string | number) => [v, 'players']} />
-                <Bar dataKey="value" radius={[0,4,4,0]}>
-                  {segmentData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
+          <Card className="mb-2">
+            <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
+              <ChartContainer config={vipChartConfig} className="h-[180px] w-full">
+                <BarChart data={segmentData} layout="vertical" margin={{ top: 4, right: 16, left: 16, bottom: 0 }}>
+                  <XAxis type="number" dataKey="value" hide />
+                  <YAxis
+                    type="category"
+                    dataKey="name"
+                    tickLine={false}
+                    axisLine={false}
+                    width={72}
+                    tickFormatter={v => v.charAt(0).toUpperCase() + v.slice(1)}
+                  />
+                  <ChartTooltip
+                    cursor={false}
+                    content={<ChartTooltipContent hideLabel={false} indicator="dot" />}
+                  />
+                  <Bar dataKey="value" radius={5} />
+                </BarChart>
+              </ChartContainer>
+            </CardContent>
+          </Card>
         </DocBlock>
 
         <DocBlock title="Top players by GGR">
@@ -431,8 +450,8 @@ export default function AnalyticsPage() {
                   <TableCell>{p.country}</TableCell>
                   <TableCell>{p.channel}</TableCell>
                   <TableCell>
-                    <Badge variant="outline" className="bg-brand-bg text-brand border-brand/20 text-xs">
-                      {p.vip_tier}
+                    <Badge variant="outline" className="bg-brand-bg text-brand border-brand/20">
+                      {p.vip_tier ? p.vip_tier.charAt(0).toUpperCase() + p.vip_tier.slice(1) : '—'}
                     </Badge>
                   </TableCell>
                   <TableCell className="font-semibold">€{fmt(p.player_ggr)}</TableCell>
@@ -442,9 +461,9 @@ export default function AnalyticsPage() {
                   <TableCell>
                     <Badge
                       variant="outline"
-                      className={p.status === 'active' ? 'bg-success-bg text-success border-success-border text-xs' : 'bg-brand-bg text-brand border-brand/20 text-xs'}
+                      className={p.status === 'active' ? 'bg-success-bg text-success border-success-border' : 'bg-brand-bg text-brand border-brand/20'}
                     >
-                      {p.status}
+                      {p.status ? p.status.charAt(0).toUpperCase() + p.status.slice(1) : '—'}
                     </Badge>
                   </TableCell>
                 </TableRow>
@@ -469,11 +488,17 @@ export default function AnalyticsPage() {
                   <TableCell className="font-semibold">{r.cohort}</TableCell>
                   <TableCell>{r.cohort_size}</TableCell>
                   <TableCell>{r.d1}</TableCell>
-                  <TableCell><span className={cn('inline-block px-2 py-0.5 rounded-full text-xs', retentionClass(Number(r.d1_pct)))}>{r.d1_pct}%</span></TableCell>
+                  <TableCell>
+                    <Badge variant="outline" className={retentionBadgeClass(Number(r.d1_pct))}>{r.d1_pct}%</Badge>
+                  </TableCell>
                   <TableCell>{r.d7}</TableCell>
-                  <TableCell><span className={cn('inline-block px-2 py-0.5 rounded-full text-xs', retentionClass(Number(r.d7_pct)))}>{r.d7_pct}%</span></TableCell>
+                  <TableCell>
+                    <Badge variant="outline" className={retentionBadgeClass(Number(r.d7_pct))}>{r.d7_pct}%</Badge>
+                  </TableCell>
                   <TableCell>{r.d30}</TableCell>
-                  <TableCell><span className={cn('inline-block px-2 py-0.5 rounded-full text-xs', retentionClass(Number(r.d30_pct)))}>{r.d30_pct}%</span></TableCell>
+                  <TableCell>
+                    <Badge variant="outline" className={retentionBadgeClass(Number(r.d30_pct))}>{r.d30_pct}%</Badge>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -481,32 +506,31 @@ export default function AnalyticsPage() {
         </DocBlock>
 
         <DocBlock title="D7 & D30 retention trend">
-          <div className="border border-border rounded-xl p-4 bg-card mb-2">
-            <ResponsiveContainer width="100%" height={220}>
-              <AreaChart
-                data={cohorts.map(r => ({ cohort: r.cohort, d7: Number(r.d7_pct), d30: Number(r.d30_pct) }))}
-                margin={{ top: 8, right: 8, left: -16, bottom: 0 }}
-              >
-                <defs>
-                  <linearGradient id="d7Grad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%"  stopColor="var(--color-chart-1)" stopOpacity={0.15} />
-                    <stop offset="95%" stopColor="var(--color-chart-1)" stopOpacity={0} />
-                  </linearGradient>
-                  <linearGradient id="d30Grad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%"  stopColor="var(--color-chart-2)" stopOpacity={0.15} />
-                    <stop offset="95%" stopColor="var(--color-chart-2)" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
-                <XAxis dataKey="cohort" tick={{ fontSize: 11, fill: 'var(--color-muted-foreground)' }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fontSize: 11, fill: 'var(--color-muted-foreground)' }} axisLine={false} tickLine={false} tickFormatter={v => `${v}%`} domain={[0, 100]} />
-                <Tooltip formatter={(v: string | number) => [`${v}%`]} />
-                <Area type="monotone" dataKey="d7"  name="D7"  stroke="var(--color-chart-1)" strokeWidth={2} fill="url(#d7Grad)"  dot={false} />
-                <Area type="monotone" dataKey="d30" name="D30" stroke="var(--color-chart-2)" strokeWidth={2} fill="url(#d30Grad)" dot={false} />
-              </AreaChart>
-            </ResponsiveContainer>
-            <ChartLegend items={[{ color: 'var(--color-chart-1)', label: 'D7 retention' }, { color: 'var(--color-chart-2)', label: 'D30 retention' }]} />
-          </div>
+          <Card>
+            <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
+              <ChartContainer config={retentionChartConfig} className="h-[220px] w-full">
+                <AreaChart
+                  data={cohorts.map(r => ({ cohort: r.cohort, d7: Number(r.d7_pct), d30: Number(r.d30_pct) }))}
+                  margin={{ top: 8, right: 8, left: -16, bottom: 0 }}
+                >
+                  <defs>
+                    <AreaGradientDef id="d7Grad"  colorVar="var(--color-d7)"  />
+                    <AreaGradientDef id="d30Grad" colorVar="var(--color-d30)" />
+                  </defs>
+                  <CartesianGrid vertical={false} />
+                  <XAxis dataKey="cohort" tickLine={false} axisLine={false} tickMargin={8} interval="preserveStartEnd" />
+                  <YAxis tickLine={false} axisLine={false} tickFormatter={v => `${v}%`} domain={[0, 110]} ticks={[0, 25, 50, 75, 100]} />
+                  <ChartTooltip
+                    cursor={false}
+                    content={<ChartTooltipContent hideLabel={false} indicator="dot" />}
+                  />
+                  <Area {...areaDefaults} dataKey="d7"  stroke="var(--color-d7)"  fill="url(#d7Grad)"  />
+                  <Area {...areaDefaults} dataKey="d30" stroke="var(--color-d30)" fill="url(#d30Grad)" />
+                  <ChartLegend content={<ChartLegendContent />} />
+                </AreaChart>
+              </ChartContainer>
+            </CardContent>
+          </Card>
         </DocBlock>
 
       </DocSection>
@@ -515,34 +539,46 @@ export default function AnalyticsPage() {
       <DocSection num="06" title="RFM Segmentation">
 
         <DocBlock title="Segments by player count & avg GGR" subtitle="R = days since last bet | F = betting days | M = GGR | scores 1–5">
-          <div className="border border-border rounded-xl p-4 bg-card mb-2">
-            <ResponsiveContainer width="100%" height={200}>
-              <BarChart data={rfmSummary} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
-                <XAxis dataKey="segment" tick={{ fontSize: 11, fill: 'var(--color-muted-foreground)' }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fontSize: 11, fill: 'var(--color-muted-foreground)' }} axisLine={false} tickLine={false} />
-                <Tooltip
-                  content={({ active, payload, label }) => {
-                    if (!active || !payload?.length) return null
-                    return (
-                      <div className="flex flex-col gap-0.5 px-3 py-2 border border-border rounded-lg bg-card shadow-sm text-xs">
-                        <span className="text-muted-foreground">{label}</span>
-                        {payload.map(p => (
-                          <span key={p.dataKey as string} className="font-bold" style={{ color: p.fill as string }}>
-                            {p.dataKey === 'count'   && `Players: ${p.value}`}
-                            {p.dataKey === 'avg_ggr' && `Avg GGR: €${p.value}`}
-                          </span>
-                        ))}
-                      </div>
-                    )
-                  }}
-                />
-                <Bar dataKey="count"   name="Players" fill="var(--color-chart-1)" radius={[4,4,0,0]} />
-                <Bar dataKey="avg_ggr" name="Avg GGR" fill="var(--color-chart-2)" radius={[4,4,0,0]} />
-              </BarChart>
-            </ResponsiveContainer>
-            <ChartLegend items={[{ color: 'var(--color-chart-1)', label: 'Players count' }, { color: 'var(--color-chart-2)', label: 'Avg GGR (€)' }]} />
-          </div>
+          <Card className="mb-2">
+            <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
+              <ChartContainer config={rfmSegChartConfig} className="h-[220px] w-full">
+                <BarChart data={rfmSummary} margin={{ top: 8, right: 8, left: -16, bottom: 32 }}>
+                  <CartesianGrid vertical={false} />
+                  <XAxis
+                    dataKey="segment"
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={8}
+                    angle={-30}
+                    textAnchor="end"
+                    tick={{ fontSize: 11 }}
+                    interval={0}
+                  />
+                  <YAxis tickLine={false} axisLine={false} />
+                  <ChartTooltip
+                    cursor={false}
+                    content={
+                      <ChartTooltipContent
+                        hideLabel={false}
+                        indicator="dot"
+                        formatter={(value, name, item) => (
+                          <>
+                            <div className="size-2.5 shrink-0 rounded-[2px]" style={{ background: item.color }} />
+                            <span className="text-muted-foreground">{name === 'avg_ggr' ? 'Avg GGR' : 'Players'}</span>
+                            <span className="ml-auto font-mono font-medium tabular-nums text-foreground">
+                              {name === 'avg_ggr' ? `€${value}` : value}
+                            </span>
+                          </>
+                        )}
+                      />
+                    }
+                  />
+                  <Bar dataKey="count"   fill="var(--color-count)"   radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="avg_ggr" fill="var(--color-avg_ggr)" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ChartContainer>
+            </CardContent>
+          </Card>
         </DocBlock>
 
         <DocBlock title="Player detail by segment">
@@ -554,13 +590,13 @@ export default function AnalyticsPage() {
               {rfm.map((r, i) => (
                 <TableRow key={i}>
                   <TableCell>
-                    <span className={cn('inline-flex px-2 py-0.5 rounded-full text-xs font-medium', RFM_SEG_CLASS[r.segment] ?? 'bg-subtle text-muted-foreground')}>
+                    <Badge variant="outline" className={cn(RFM_SEG_CLASS[r.segment] ?? 'bg-subtle text-muted-foreground border-subtle-border')}>
                       {r.segment}
-                    </span>
+                    </Badge>
                   </TableCell>
                   <TableCell>{r.country}</TableCell>
                   <TableCell>{r.channel}</TableCell>
-                  <TableCell>{r.vip_tier}</TableCell>
+                  <TableCell>{r.vip_tier ? r.vip_tier.charAt(0).toUpperCase() + r.vip_tier.slice(1) : '—'}</TableCell>
                   <TableCell>{r.recency_days}d ago</TableCell>
                   <TableCell>{r.frequency} days</TableCell>
                   <TableCell className="font-semibold">€{fmt(r.monetary)}</TableCell>
@@ -571,84 +607,46 @@ export default function AnalyticsPage() {
               ))}
             </TableBody>
           </DocTable>
-        </DocBlock>
 
-      </DocSection>
-
-      {/* 07 LTV */}
-      <DocSection num="07" title="LTV Curves by Cohort">
-
-        <DocBlock title="Cumulative ARPU over time" subtitle="Each line = one registration cohort | X = weeks since sign-up | Y = cumulative GGR per player | longer line = older cohort">
-          <div className="border border-border rounded-xl p-4 bg-card mb-2">
-            <ResponsiveContainer width="100%" height={280}>
-              <AreaChart data={ltvCurve.data || []} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
-                <defs>
-                  {(ltvCurve.cohorts as string[]).map((c, i) => (
-                    <linearGradient key={c} id={`ltv${i}`} x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%"  stopColor={COLORS[i % COLORS.length]} stopOpacity={0.12} />
-                      <stop offset="95%" stopColor={COLORS[i % COLORS.length]} stopOpacity={0} />
-                    </linearGradient>
-                  ))}
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
-                <XAxis dataKey="week" tick={{ fontSize: 11, fill: 'var(--color-muted-foreground)' }} axisLine={false} tickLine={false} interval={2} />
-                <YAxis tick={{ fontSize: 11, fill: 'var(--color-muted-foreground)' }} axisLine={false} tickLine={false} tickFormatter={v => `€${v}`} />
-                <Tooltip
-                  content={({ active, payload, label }) => {
-                    if (!active || !payload?.length) return null
-                    return (
-                      <div className="flex flex-col gap-0.5 px-3 py-2 border border-border rounded-lg bg-card shadow-sm text-xs">
-                        <span className="text-muted-foreground">{label}</span>
-                        {payload.filter(p => p.value != null).map(p => (
-                          <span key={p.dataKey as string} className="font-bold" style={{ color: p.color }}>
-                            {p.dataKey}: €{fmt(p.value as number)}
-                          </span>
-                        ))}
-                      </div>
-                    )
-                  }}
-                />
-                {(ltvCurve.cohorts as string[]).map((c, i) => (
-                  <Area key={c} type="monotone" dataKey={c} name={c} stroke={COLORS[i % COLORS.length]} strokeWidth={2} fill={`url(#ltv${i})`} dot={false} connectNulls={false} />
-                ))}
-              </AreaChart>
-            </ResponsiveContainer>
-            <ChartLegend items={(ltvCurve.cohorts as string[]).map((c, i) => ({ color: COLORS[i % COLORS.length], label: c }))} />
+          <div className="mt-4 rounded-xl border border-border bg-subtle px-4 py-3 text-xs text-muted-foreground space-y-2">
+            <p className="font-semibold text-foreground">RFM scoring thresholds</p>
+            <div className="grid grid-cols-1 gap-1 sm:grid-cols-3">
+              <div>
+                <span className="font-medium text-foreground">R -- Recency</span> (days since last bet)
+                <div className="mt-1 space-y-0.5">
+                  <div><span className="font-mono text-success font-medium">5</span> -- ≤ 14 days</div>
+                  <div><span className="font-mono text-success font-medium">4</span> -- 15–30 days</div>
+                  <div><span className="font-mono text-warning font-medium">3</span> -- 31–60 days</div>
+                  <div><span className="font-mono text-warning font-medium">2</span> -- 61–90 days</div>
+                  <div><span className="font-mono text-destructive font-medium">1</span> -- &gt; 90 days</div>
+                </div>
+              </div>
+              <div>
+                <span className="font-medium text-foreground">F -- Frequency</span> (unique betting days)
+                <div className="mt-1 space-y-0.5">
+                  <div><span className="font-mono text-success font-medium">5</span> -- ≥ 5 days</div>
+                  <div><span className="font-mono text-success font-medium">4</span> -- 4 days</div>
+                  <div><span className="font-mono text-warning font-medium">3</span> -- 3 days</div>
+                  <div><span className="font-mono text-warning font-medium">2</span> -- 2 days</div>
+                  <div><span className="font-mono text-destructive font-medium">1</span> -- 1 day</div>
+                </div>
+              </div>
+              <div>
+                <span className="font-medium text-foreground">M -- Monetary</span> (player GGR)
+                <div className="mt-1 space-y-0.5">
+                  <div><span className="font-mono text-success font-medium">5</span> -- ≥ €200</div>
+                  <div><span className="font-mono text-success font-medium">4</span> -- €100–199</div>
+                  <div><span className="font-mono text-warning font-medium">3</span> -- €50–99</div>
+                  <div><span className="font-mono text-warning font-medium">2</span> -- €20–49</div>
+                  <div><span className="font-mono text-destructive font-medium">1</span> -- &lt; €20</div>
+                </div>
+              </div>
+            </div>
+            <p className="pt-1 border-t border-border">
+              <span className="font-medium text-foreground">Segments: </span>
+              Champions (R≥4, F≥4, M≥4) · Loyal (R≥3, F≥3, M≥3) · New Players (R≥4, F≤2) · At Risk (R≤2, F≥3) · Lost (R≤2, F≤2) · Promising (все остальные)
+            </p>
           </div>
-          <Callout variant="primary" title="How to read this chart">
-            steeper slope = faster monetisation | flat line = player stopped playing | gap between cohorts = acquisition quality difference
-          </Callout>
-        </DocBlock>
-
-        <DocBlock title="Cohort summary">
-          <DocTable>
-            <DocTableHeader>
-              <TableRow><TableHead>Cohort</TableHead><TableHead>Players</TableHead><TableHead>Total GGR</TableHead><TableHead>ARPU (lifetime)</TableHead><TableHead>ARPU D30</TableHead><TableHead>ARPU D90</TableHead><TableHead>Predicted LTV</TableHead></TableRow>
-            </DocTableHeader>
-            <TableBody>
-              {ltv.map(r => {
-                const predictedLtv = Math.round(Number(r.arpu || 0) * 1.8)
-                return (
-                  <TableRow key={r.cohort}>
-                    <TableCell className="font-semibold">{r.cohort}</TableCell>
-                    <TableCell>{r.cohort_size}</TableCell>
-                    <TableCell>€{fmt(r.total_ggr)}</TableCell>
-                    <TableCell>€{fmt(r.arpu)}</TableCell>
-                    <TableCell>€{fmt(r.arpu_d30 || 0)}</TableCell>
-                    <TableCell>€{fmt(r.arpu_d90 || 0)}</TableCell>
-                    <TableCell>
-                      <span className="inline-block rounded-full bg-brand-bg px-2 py-0.5 text-xs font-medium text-brand">
-                        €{fmt(predictedLtv)}
-                      </span>
-                    </TableCell>
-                  </TableRow>
-                )
-              })}
-            </TableBody>
-          </DocTable>
-          <p className="text-xs text-muted-foreground mt-2">
-            Predicted LTV = lifetime ARPU × 1.8 | simplified model | replace with regression in production
-          </p>
         </DocBlock>
 
       </DocSection>

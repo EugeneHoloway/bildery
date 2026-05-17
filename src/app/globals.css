@@ -62,7 +62,7 @@
   --color-subtle-border: hsl(220 9% 84%);
 
   /* === Chart colors === */
-  --color-chart-1: hsl(239 84% 67%);   /* indigo — brand */
+  --color-chart-1: hsl(217 91% 60%);   /* blue */
   --color-chart-2: hsl(142 71% 45%);   /* green */
   --color-chart-3: hsl(32 95% 55%);    /* amber */
   --color-chart-4: hsl(199 89% 48%);   /* cyan */
@@ -139,7 +139,7 @@
   --color-subtle-border: hsl(0 0% 26%);
 
   /* === Chart colors (dark) === */
-  --color-chart-1: hsl(239 70% 72%);   /* indigo lighter */
+  --color-chart-1: hsl(217 85% 68%);   /* blue lighter */
   --color-chart-2: hsl(142 55% 52%);   /* green lighter */
   --color-chart-3: hsl(32 90% 62%);    /* amber lighter */
   --color-chart-4: hsl(199 80% 58%);   /* cyan lighter */

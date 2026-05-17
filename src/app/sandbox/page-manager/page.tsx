@@ -115,9 +115,9 @@ export default function MockupPagesPage() {
     <PageShell
       breadcrumbs={[
         { label: "Sandbox", href: "/sandbox" },
-        { label: "Page manager" },
+        { label: "Page Manager" },
       ]}
-      title="Page manager"
+      title="Page Manager"
       description="Create, configure and publish pages. Manage URL slugs, visibility, SEO and content."
     >
       <Separator className="mb-8" />

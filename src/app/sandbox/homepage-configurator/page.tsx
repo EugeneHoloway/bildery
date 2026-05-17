@@ -239,9 +239,9 @@ export default function MockupHomepagePage() {
     <PageShell
       breadcrumbs={[
         { label: "Sandbox", href: "/sandbox" },
-        { label: "Homepage configurator" },
+        { label: "Homepage Configurator" },
       ]}
-      title="Homepage configurator"
+      title="Homepage Configurator"
       description="Configure sections of the casino homepage. Toggle visibility, reorder blocks, and edit content."
     >
       <Separator className="mb-6" />

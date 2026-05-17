@@ -2,17 +2,30 @@
 
 import { useState } from 'react'
 import {
-  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  AreaChart, Area, XAxis, YAxis, CartesianGrid,
 } from 'recharts'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
-import { DocLayout } from '@/components/doc/DocLayout'
-import { DocSection } from '@/components/doc/DocSection'
-import { DocBlock } from '@/components/doc/DocBlock'
-import { KpiRow } from '@/components/doc/KpiRow'
-import { DocRisks } from '@/components/doc/DocRisks'
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent,
+  AreaGradientDef,
+  areaDefaults,
+  type ChartConfig,
+} from '@/components/ui/chart'
+import { DocLayout }    from '@/components/doc/DocLayout'
+import { DocSection }   from '@/components/doc/DocSection'
+import { DocBlock }     from '@/components/doc/DocBlock'
+import { KpiRow }       from '@/components/doc/KpiRow'
+import { DocRisks }     from '@/components/doc/DocRisks'
 import { DocScenarios } from '@/components/doc/DocScenarios'
 import { DocTable, DocTableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/doc/DocTable'
+
+// ─── Chart data ───────────────────────────────────────────────────────────────
 
 const priceHistory = {
   '1Y': [
@@ -48,38 +61,27 @@ const gmHistory = [
   { q: 'Q1 26', forecast: 37.2 },
 ]
 
-function ChartTooltip({ active, payload, label, formatter }: {
-  active?: boolean
-  payload?: Array<{ value: number; color?: string; name?: string }>
-  label?: string
-  formatter: (v: number) => string
-}) {
-  if (!active || !payload?.length) return null
-  return (
-    <div className="flex flex-col gap-0.5 px-3 py-2 border border-border rounded-lg bg-card shadow-sm text-xs">
-      <span className="text-muted-foreground">{label}</span>
-      {payload.map((p, i) => (
-        <span key={i} className="font-bold" style={{ color: p.color }}>
-          {p.name ? `${p.name}: ` : ''}{formatter(p.value)}
-        </span>
-      ))}
-    </div>
-  )
-}
+// ─── Chart configs ────────────────────────────────────────────────────────────
 
-function LegendItem({ color, label, dashed }: { color: string; label: string; dashed?: boolean }) {
-  return (
-    <span className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
-      <span
-        className="inline-block w-5 h-0.5 rounded-full flex-shrink-0"
-        style={{ background: dashed
-          ? `repeating-linear-gradient(90deg, ${color} 0, ${color} 5px, transparent 5px, transparent 9px)`
-          : color }}
-      />
-      {label}
-    </span>
-  )
-}
+const priceChartConfig = {
+  price: {
+    label: 'STM Price (€)',
+    color: 'var(--color-chart-1)',
+  },
+} satisfies ChartConfig
+
+const gmChartConfig = {
+  actual: {
+    label: 'Actual',
+    color: 'var(--color-chart-1)',
+  },
+  forecast: {
+    label: 'Forecast',
+    color: 'var(--color-chart-3)',
+  },
+} satisfies ChartConfig
+
+// ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function STMPage() {
   const [priceRange, setPriceRange] = useState('1Y')
@@ -95,13 +97,13 @@ export default function STMPage() {
         { label: 'Semiconductors',    type: 'tag' },
       ]}
       description="Power semiconductors, SiC, MEMS, MCU | Headquartered in Geneva"
-      footnote="⚠️ For educational and research purposes only. Not financial advice. Fundamental data reflects FY2025 reported figures. All investments carry risk. Consult a qualified financial advisor before making investment decisions."
+      footnote="For educational and research purposes only. Not financial advice. Fundamental data reflects FY2025 reported figures. All investments carry risk. Consult a qualified financial advisor before making investment decisions."
     >
 
       {/* Live Price Block */}
       <div className="border border-border rounded-2xl bg-card p-5 mb-10">
         <div className="flex items-center justify-between flex-wrap gap-2 mb-4">
-          <span className="text-[0.7rem] font-bold tracking-widest uppercase text-muted-foreground">
+          <span className="text-xs font-bold tracking-widest uppercase text-muted-foreground">
             Live Price | Euronext Paris: STMPA
           </span>
           <span className="text-xs text-muted-foreground bg-subtle px-2.5 py-1 rounded-full">
@@ -116,7 +118,7 @@ export default function STMPage() {
             { label: 'Day Low',    value: '--' },
           ].map(item => (
             <div key={item.label} className="flex flex-col gap-0.5">
-              <span className="text-[0.72rem] text-muted-foreground font-medium">{item.label}</span>
+              <span className="text-xs text-muted-foreground font-medium">{item.label}</span>
               <span className="text-lg font-semibold tracking-tight">{item.value}</span>
             </div>
           ))}
@@ -125,56 +127,79 @@ export default function STMPage() {
 
       {/* 01 – Price History */}
       <DocSection num="01" title="Price History">
-        <div className="mb-8">
-          <div className="flex items-center justify-between flex-wrap gap-2 mb-4">
-            <p className="text-sm text-muted-foreground">Daily closes | Euronext Paris: STMPA</p>
-            <div className="flex gap-1">
-              {(['1Y', '3Y', '5Y'] as const).map(r => (
-                <button
-                  key={r}
-                  onClick={() => setPriceRange(r)}
-                  className={cn(
-                    'px-2.5 py-1 rounded-md border text-xs font-semibold transition-all',
-                    priceRange === r
-                      ? 'bg-foreground text-background border-foreground'
-                      : 'bg-transparent text-muted-foreground border-border hover:text-foreground',
-                  )}
+        <DocBlock>
+          <Card className="pt-0">
+            <CardHeader className="flex items-center gap-2 space-y-0 border-b py-4 sm:flex-row">
+              <p className="flex-1 text-sm text-muted-foreground">Daily closes | Euronext Paris: STMPA</p>
+              <div className="flex gap-1">
+                {(['1Y', '3Y', '5Y'] as const).map(r => (
+                  <button
+                    key={r}
+                    onClick={() => setPriceRange(r)}
+                    className={cn(
+                      'px-2.5 py-1 rounded-md border text-xs font-semibold transition-all',
+                      priceRange === r
+                        ? 'bg-foreground text-background border-foreground'
+                        : 'bg-transparent text-muted-foreground border-border hover:text-foreground',
+                    )}
+                  >
+                    {r}
+                  </button>
+                ))}
+              </div>
+            </CardHeader>
+            <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
+              <ChartContainer config={priceChartConfig} className="h-[240px] w-full">
+                <AreaChart
+                  data={priceHistory[priceRange as keyof typeof priceHistory]}
+                  margin={{ top: 8, right: 8, left: -16, bottom: 0 }}
                 >
-                  {r}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div className="border border-border rounded-xl p-4 bg-card">
-            <ResponsiveContainer width="100%" height={240}>
-              <AreaChart
-                data={priceHistory[priceRange as keyof typeof priceHistory]}
-                margin={{ top: 8, right: 8, left: -16, bottom: 0 }}
-              >
-                <defs>
-                  <linearGradient id="priceGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%"  stopColor="var(--color-chart-1)" stopOpacity={0.15} />
-                    <stop offset="95%" stopColor="var(--color-chart-1)" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
-                <XAxis dataKey="date" tick={{ fontSize: 11, fill: 'var(--color-muted-foreground)' }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fontSize: 11, fill: 'var(--color-muted-foreground)' }} axisLine={false} tickLine={false} tickFormatter={v => `€${v}`} domain={['auto', 'auto']} />
-                <Tooltip content={<ChartTooltip formatter={v => `€${v.toFixed(2)}`} />} />
-                <Area type="monotone" dataKey="price" stroke="var(--color-chart-1)" strokeWidth={2} fill="url(#priceGrad)" dot={false} />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
+                  <defs>
+                    <AreaGradientDef id="fillPrice" colorVar="var(--color-price)" />
+                  </defs>
+                  <CartesianGrid vertical={false} />
+                  <XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={8} />
+                  <YAxis tickLine={false} axisLine={false} tickFormatter={v => `€${v}`} domain={['auto', 'auto']} />
+                  <ChartTooltip
+                    cursor={false}
+                    content={
+                      <ChartTooltipContent
+                        hideLabel={false}
+                        indicator="dot"
+                        formatter={(value) => (
+                          <>
+                            <div className="size-2.5 shrink-0 rounded-[2px]" style={{ background: 'var(--color-price)' }} />
+                            <div className="flex flex-1 justify-between items-center leading-none gap-2">
+                              <span className="text-muted-foreground">Price</span>
+                              <span className="font-mono font-medium tabular-nums text-foreground">
+                                €{Number(value).toFixed(2)}
+                              </span>
+                            </div>
+                          </>
+                        )}
+                      />
+                    }
+                  />
+                  <Area
+                    {...areaDefaults}
+                    dataKey="price"
+                    stroke="var(--color-price)"
+                    fill="url(#fillPrice)"
+                  />
+                </AreaChart>
+              </ChartContainer>
+            </CardContent>
+          </Card>
+        </DocBlock>
       </DocSection>
 
       {/* 02 – Key Financials */}
       <DocSection num="02" title="Key Financials -- FY2025">
         <KpiRow items={[
-          { value: '$11.8B', label: 'FY2025 Revenue',       note: '▼ 11.1% YoY'         },
-          { value: '33.9%',  label: 'Gross Margin (FY25)', note: "▼ from 39.3% in '24"  },
-          { value: '8.45×',  label: 'EV/EBITDA',           note: 'vs TXN 22×, ADI 28×' },
-          { value: '4.8×',   label: 'P/S Ratio (peer avg)', note: 'STM trading at discount' },
+          { value: '$11.8B', label: 'FY2025 Revenue',        note: '▼ 11.1% YoY'          },
+          { value: '33.9%',  label: 'Gross Margin (FY25)',   note: "▼ from 39.3% in '24"   },
+          { value: '8.45×',  label: 'EV/EBITDA',             note: 'vs TXN 22×, ADI 28×'  },
+          { value: '4.8×',   label: 'P/S Ratio (peer avg)',  note: 'STM trading at discount' },
         ]} />
       </DocSection>
 
@@ -183,24 +208,28 @@ export default function STMPage() {
         <DocBlock title="Revenue trends & operating margins">
           <DocTable>
             <DocTableHeader>
-              <TableRow><TableHead>Segment</TableHead><TableHead>FY2025 Trend</TableHead><TableHead>Q3 Op. Margin</TableHead></TableRow>
+              <TableRow>
+                <TableHead>Segment</TableHead>
+                <TableHead>FY2025 Trend</TableHead>
+                <TableHead>Q3 Op. Margin</TableHead>
+              </TableRow>
             </DocTableHeader>
             <TableBody>
               {[
-                ['Analog, MEMS & Sensors', '+7.5% YoY',   '15.4%'],
-                ['Power & Discrete (SiC)', '−31.6% YoY',  '−15.6%'],
-                ['Embedded Processing (MCU)', '+1.2% YoY', '16.5%'],
-                ['Overall Company',          '−11.1% YoY', '6.8% (non-GAAP)'],
+                ['Analog, MEMS & Sensors',    '+7.5% YoY',   '15.4%'],
+                ['Power & Discrete (SiC)',    '−31.6% YoY',  '−15.6%'],
+                ['Embedded Processing (MCU)', '+1.2% YoY',   '16.5%'],
+                ['Overall Company',           '−11.1% YoY',  '6.8% (non-GAAP)'],
               ].map(([seg, trend, margin]) => (
                 <TableRow key={seg}>
                   <TableCell className="font-semibold">{seg}</TableCell>
                   <TableCell>
-                    <span className={cn('font-semibold', trend.startsWith('+') ? 'text-success' : 'text-destructive')}>
+                    <span className={cn(trend.startsWith('+') ? 'text-success' : 'text-destructive')}>
                       {trend}
                     </span>
                   </TableCell>
                   <TableCell>
-                    <span className={cn(margin.startsWith('−') ? 'text-destructive font-semibold' : '')}>
+                    <span className={cn(margin.startsWith('−') ? 'text-destructive' : '')}>
                       {margin}
                     </span>
                   </TableCell>
@@ -216,20 +245,28 @@ export default function STMPage() {
         <DocBlock subtitle="Semiconductor sector benchmarks">
           <DocTable>
             <DocTableHeader>
-              <TableRow><TableHead>Company</TableHead><TableHead>Ticker</TableHead><TableHead>P/S (×)</TableHead><TableHead>EV/EBITDA</TableHead><TableHead>Gross Margin</TableHead></TableRow>
+              <TableRow>
+                <TableHead>Company</TableHead>
+                <TableHead>Ticker</TableHead>
+                <TableHead>P/S (×)</TableHead>
+                <TableHead>EV/EBITDA</TableHead>
+                <TableHead>Gross Margin</TableHead>
+              </TableRow>
             </DocTableHeader>
             <TableBody>
               {[
-                ['STMicroelectronics', 'STMPA',   '--',      '8.45×', '33.9%', true],
-                ['Texas Instruments',  'TXN',     '9.53×',  '22.18×','57.5%', false],
-                ['Analog Devices',     'ADI',     '12.40×', '28.43×','63.1%', false],
-                ['NXP Semiconductors', 'NXPI',    '4.79×',  '16.52×','55.4%', false],
-                ['Sector Avg',         '--',       '4.8×',   '~18×',  '~55%',  false],
+                ['STMicroelectronics', 'STMPA', '--',     '8.45×',  '33.9%', true],
+                ['Texas Instruments',  'TXN',   '9.53×', '22.18×', '57.5%', false],
+                ['Analog Devices',     'ADI',   '12.40×','28.43×', '63.1%', false],
+                ['NXP Semiconductors', 'NXPI',  '4.79×', '16.52×', '55.4%', false],
+                ['Sector Avg',         '--',    '4.8×',  '~18×',   '~55%',  false],
               ].map(([company, ticker, ps, ev, gm, highlight]) => (
-                <TableRow key={String(company)} className={highlight ? 'bg-brand-bg [&>td]:font-semibold' : ''}>
+                <TableRow key={String(company)}>
                   <TableCell className="font-semibold">{company}</TableCell>
                   <TableCell><code>{ticker}</code></TableCell>
-                  <TableCell>{ps}</TableCell><TableCell>{ev}</TableCell><TableCell>{gm}</TableCell>
+                  <TableCell>{ps}</TableCell>
+                  <TableCell>{ev}</TableCell>
+                  <TableCell>{gm}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -240,32 +277,63 @@ export default function STMPage() {
       {/* 05 – Gross Margin */}
       <DocSection num="05" title="Gross Margin Trajectory">
         <DocBlock subtitle="Quarterly actuals vs forecast">
-          <div className="border border-border rounded-xl p-4 bg-card mb-2">
-            <ResponsiveContainer width="100%" height={220}>
-              <AreaChart data={gmHistory} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
-                <defs>
-                  <linearGradient id="actualGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%"  stopColor="var(--color-chart-1)" stopOpacity={0.15} />
-                    <stop offset="95%" stopColor="var(--color-chart-1)" stopOpacity={0} />
-                  </linearGradient>
-                  <linearGradient id="forecastGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%"  stopColor="var(--color-chart-3)" stopOpacity={0.15} />
-                    <stop offset="95%" stopColor="var(--color-chart-3)" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
-                <XAxis dataKey="q" tick={{ fontSize: 11, fill: 'var(--color-muted-foreground)' }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fontSize: 11, fill: 'var(--color-muted-foreground)' }} axisLine={false} tickLine={false} tickFormatter={v => `${v}%`} domain={[28, 44]} />
-                <Tooltip content={<ChartTooltip formatter={v => `${v}%`} />} />
-                <Area type="monotone" dataKey="actual"   stroke="var(--color-chart-1)" strokeWidth={2} fill="url(#actualGrad)"   dot={false} connectNulls={false} />
-                <Area type="monotone" dataKey="forecast" stroke="var(--color-chart-3)" strokeWidth={2} strokeDasharray="5 4" fill="url(#forecastGrad)" dot={false} connectNulls={false} />
-              </AreaChart>
-            </ResponsiveContainer>
-            <div className="flex gap-4 px-2 pt-2">
-              <LegendItem color="var(--color-chart-1)" label="Actual" />
-              <LegendItem color="var(--color-chart-3)" label="Forecast" dashed />
-            </div>
-          </div>
+          <Card>
+            <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
+              <ChartContainer config={gmChartConfig} className="h-[220px] w-full">
+                <AreaChart
+                  data={gmHistory}
+                  margin={{ top: 8, right: 8, left: -16, bottom: 0 }}
+                >
+                  <defs>
+                    <AreaGradientDef id="fillActual"   colorVar="var(--color-actual)" />
+                    <AreaGradientDef id="fillForecast" colorVar="var(--color-forecast)" />
+                  </defs>
+                  <CartesianGrid vertical={false} />
+                  <XAxis dataKey="q" tickLine={false} axisLine={false} tickMargin={8} />
+                  <YAxis tickLine={false} axisLine={false} tickFormatter={v => `${v}%`} domain={[28, 44]} />
+                  <ChartTooltip
+                    cursor={false}
+                    content={
+                      <ChartTooltipContent
+                        hideLabel={false}
+                        indicator="dot"
+                        formatter={(value, name) => (
+                          <>
+                            <div
+                              className="size-2.5 shrink-0 rounded-[2px]"
+                              style={{ background: name === 'actual' ? 'var(--color-actual)' : 'var(--color-forecast)' }}
+                            />
+                            <div className="flex flex-1 justify-between items-center leading-none gap-2">
+                              <span className="text-muted-foreground capitalize">{name}</span>
+                              <span className="font-mono font-medium tabular-nums text-foreground">
+                                {Number(value).toFixed(1)}%
+                              </span>
+                            </div>
+                          </>
+                        )}
+                      />
+                    }
+                  />
+                  <Area
+                    {...areaDefaults}
+                    dataKey="actual"
+                    stroke="var(--color-actual)"
+                    fill="url(#fillActual)"
+                    connectNulls={false}
+                  />
+                  <Area
+                    {...areaDefaults}
+                    dataKey="forecast"
+                    stroke="var(--color-forecast)"
+                    fill="url(#fillForecast)"
+                    strokeDasharray="5 4"
+                    connectNulls={false}
+                  />
+                  <ChartLegend content={<ChartLegendContent />} />
+                </AreaChart>
+              </ChartContainer>
+            </CardContent>
+          </Card>
         </DocBlock>
       </DocSection>
 
@@ -273,11 +341,11 @@ export default function STMPage() {
       <DocSection num="06" title="Risk Assessment">
         <DocBlock>
           <DocRisks items={[
-            { level: 'high',  badge: 'High',   title: 'SiC Revenue Decline',    text: 'Power & Discrete segment down 31.6% YoY. EV adoption slowdown and intensifying competition from Wolfspeed, Onsemi directly impact the highest-growth segment.' },
+            { level: 'high',  badge: 'High',   title: 'SiC Revenue Decline',      text: 'Power & Discrete segment down 31.6% YoY. EV adoption slowdown and intensifying competition from Wolfspeed, Onsemi directly impact the highest-growth segment.' },
             { level: 'high',  badge: 'High',   title: 'Gross Margin Compression', text: 'GM fell from 39.3% to 33.9% in FY2025. Recovery depends on cost program execution (€300–360M target) and volume recovery in SiC.' },
-            { level: 'watch', badge: 'Medium', title: 'Macro & Auto Cycle',       text: 'Automotive accounts for ~45% of revenue. Any further slowdown in EV ramp or ICE-to-EV transition delay extends the downcycle.' },
-            { level: 'watch', badge: 'Medium', title: 'Geopolitical Risk',        text: 'Manufacturing exposure in Crolles (France) and Catania (Italy). US-China trade tensions could affect customer supply chain decisions.' },
-            { level: 'low',   badge: 'Low',    title: 'Currency Impact',          text: 'Revenue reported in USD, listed in EUR. EUR/USD fluctuation creates P&L noise but is partially hedged operationally.' },
+            { level: 'watch', badge: 'Medium', title: 'Macro & Auto Cycle',        text: 'Automotive accounts for ~45% of revenue. Any further slowdown in EV ramp or ICE-to-EV transition delay extends the downcycle.' },
+            { level: 'watch', badge: 'Medium', title: 'Geopolitical Risk',         text: 'Manufacturing exposure in Crolles (France) and Catania (Italy). US-China trade tensions could affect customer supply chain decisions.' },
+            { level: 'low',   badge: 'Low',    title: 'Currency Impact',           text: 'Revenue reported in USD, listed in EUR. EUR/USD fluctuation creates P&L noise but is partially hedged operationally.' },
           ]} />
         </DocBlock>
       </DocSection>
@@ -298,24 +366,27 @@ export default function STMPage() {
         <DocBlock>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <h3 className="text-base font-bold mb-1">Rating Summary</h3>
+              <h3 className="text-base font-semibold mb-1">Rating Summary</h3>
               <DocTable>
                 <TableBody>
                   {[
-                    ['Rating',             <Badge key="hold" variant="outline" className="bg-success-bg text-success border-success-border">HOLD</Badge>],
-                    ['Conviction',          'Medium'],
-                    ['12M Price Target',    '€30'],
-                    ['Analyst Consensus',   '€27.0 (range €20–€36.75)'],
-                    ['Position Size',       '1.5%–3.5%'],
-                    ['Next Earnings',       'Apr 23, 2026'],
+                    ['Rating',           <Badge key="hold" variant="outline" className="bg-success-bg text-success border-success-border">Hold</Badge>],
+                    ['Conviction',        'Medium'],
+                    ['12M Price Target',  '€30'],
+                    ['Analyst Consensus', '€27.0 (range €20–€36.75)'],
+                    ['Position Size',     '1.5%–3.5%'],
+                    ['Next Earnings',     'Apr 23, 2026'],
                   ].map(([label, value]) => (
-                    <TableRow key={String(label)}><TableCell className="font-semibold">{label}</TableCell><TableCell>{value}</TableCell></TableRow>
+                    <TableRow key={String(label)}>
+                      <TableCell className="font-semibold">{label}</TableCell>
+                      <TableCell>{value}</TableCell>
+                    </TableRow>
                   ))}
                 </TableBody>
               </DocTable>
             </div>
             <div>
-              <h3 className="text-base font-bold mb-1">Technical Levels</h3>
+              <h3 className="text-base font-semibold mb-1">Technical Levels</h3>
               <DocTable>
                 <TableBody>
                   {[
@@ -326,7 +397,10 @@ export default function STMPage() {
                     ['200-DMA',      '€22.9'],
                     ['52-Wk Range',  '€18 – €39'],
                   ].map(([label, value]) => (
-                    <TableRow key={String(label)}><TableCell className="font-semibold">{label}</TableCell><TableCell>{value}</TableCell></TableRow>
+                    <TableRow key={String(label)}>
+                      <TableCell className="font-semibold">{label}</TableCell>
+                      <TableCell>{value}</TableCell>
+                    </TableRow>
                   ))}
                 </TableBody>
               </DocTable>
@@ -340,15 +414,15 @@ export default function STMPage() {
         <DocBlock>
           <div className="flex flex-col gap-2">
             {[
-              { date: 'Apr 23, 2026',   title: 'Q1 2026 Earnings' },
-              { date: 'H1 2026',        title: 'SiC 4th-Gen Ramp' },
-              { date: '2026 Ongoing',   title: 'Mfg Cost Program (€300–360M)' },
-              { date: 'H2 2026',        title: 'Semi Cycle Recovery' },
-              { date: '2026–27',        title: 'NXP MEMS Integration' },
-              { date: '2026+',          title: 'AI Datacenter Power' },
+              { date: 'Apr 23, 2026', title: 'Q1 2026 Earnings' },
+              { date: 'H1 2026',      title: 'SiC 4th-Gen Ramp' },
+              { date: '2026 Ongoing', title: 'Mfg Cost Program (€300–360M)' },
+              { date: 'H2 2026',      title: 'Semi Cycle Recovery' },
+              { date: '2026–27',      title: 'NXP MEMS Integration' },
+              { date: '2026+',        title: 'AI Datacenter Power' },
             ].map(c => (
-              <div key={c.title} className="flex items-start gap-4 px-4 py-3 bg-card border border-border rounded-xl">
-                <span className="text-xs font-bold text-muted-foreground shrink-0 min-w-[100px] pt-0.5">
+              <div key={c.title} className="flex items-start gap-4 px-4 py-3 bg-card border border-border rounded-2xl">
+                <span className="text-xs font-bold text-muted-foreground shrink-0 min-w-24 pt-0.5">
                   {c.date}
                 </span>
                 <span className="text-sm font-bold">{c.title}</span>

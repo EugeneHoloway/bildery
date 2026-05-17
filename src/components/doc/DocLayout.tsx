@@ -17,6 +17,8 @@ interface Props {
   breadcrumbHref: string
   /** Optional extra ancestor crumb inserted before breadcrumbLabel */
   parentCrumb?: Crumb
+  /** Extra element rendered to the right of h1 (e.g. language switcher) */
+  titleExtra?: React.ReactNode
   tags?: Tag[]
   description?: string
   footnote?: string
@@ -28,6 +30,7 @@ export function DocLayout({
   breadcrumbLabel,
   breadcrumbHref,
   parentCrumb,
+  titleExtra,
   tags,
   description,
   footnote,
@@ -35,7 +38,7 @@ export function DocLayout({
 }: Props) {
   return (
     <div className="py-10 pb-20">
-      <div className="container">
+      <div className="container px-4">
 
         <nav className="flex items-center gap-2 mb-8 text-sm text-muted-foreground" aria-label="Breadcrumb">
           {parentCrumb && (
@@ -54,7 +57,10 @@ export function DocLayout({
         </nav>
 
         <div className="mb-10">
-          <h1 className="text-xl font-bold tracking-tight mb-3">{title}</h1>
+          <div className="flex items-start justify-between gap-4 mb-3">
+            <h1 className="text-xl font-bold tracking-tight">{title}</h1>
+            {titleExtra && <div className="flex-shrink-0">{titleExtra}</div>}
+          </div>
           {description && (
             <p className="text-base leading-relaxed text-muted-foreground mb-4 max-w-2xl">{description}</p>
           )}

@@ -113,11 +113,11 @@ export default function SubSubPage() {
 
         <DocBlock title="Weekly Dashboard" subtitle="One page, five blocks -- shown to founders every Monday; PM owns the narrative next to the numbers">
           <DocRisks items={[
-            { level: 'high',  title: 'Top-line',          text: 'Signups, activations, paid, MRR, churn. WoW deltas.' },
-            { level: 'high',  title: 'Funnel Heatmap',    text: 'Conversion rate between each of the 7 funnel steps, coloured by delta vs 4-week rolling average.' },
-            { level: 'watch', title: 'Cohort Retention',  text: '1/7/14/30-day retention for last 8 weekly cohorts.' },
-            { level: 'watch', title: 'Experiments Ledger', text: 'Every live test -- hypothesis, metric, lift, ship/no-ship decision.' },
-            { level: 'low',   title: 'Qualitative Pulse', text: '3 direct quotes from users this week (interview, support, churn survey). Counteracts decoration-bias in the numbers.' },
+            { level: 'high',  badge: 'Metrics',      title: 'Top-line',           text: 'Signups, activations, paid, MRR, churn. WoW deltas.' },
+            { level: 'high',  badge: 'Funnel',       title: 'Funnel Heatmap',     text: 'Conversion rate between each of the 7 funnel steps, coloured by delta vs 4-week rolling average.' },
+            { level: 'watch', badge: 'Retention',    title: 'Cohort Retention',   text: '1/7/14/30-day retention for last 8 weekly cohorts.' },
+            { level: 'watch', badge: 'Experiments',  title: 'Experiments Ledger', text: 'Every live test -- hypothesis, metric, lift, ship/no-ship decision.' },
+            { level: 'low',   badge: 'Qual Signal',  title: 'Qualitative Pulse',  text: '3 direct quotes from users this week (interview, support, churn survey). Counteracts decoration-bias in the numbers.' },
           ]} />
         </DocBlock>
 
@@ -166,9 +166,7 @@ export default function SubSubPage() {
       {/* Section 04 */}
       <DocSection num="04" title="90-Day Execution Plan">
 
-        <DocBlock subtitle="Each month builds on learnings from the previous one. Theme progression: Diagnose → Convert → Scale. Traffic is not scaled until the funnel produces repeatable paid conversion." />
-
-        <DocBlock>
+        <DocBlock subtitle="Each month builds on learnings from the previous one. Theme progression: Diagnose → Convert → Scale. Traffic is not scaled until the funnel produces repeatable paid conversion.">
           <DocScenarios items={[
             { label: 'Month 1', value: 'Diagnose', sub: 'Stop the leaks | Get to 2 paying customers', note: 'Week 1: Set up full funnel, pull cohort data, stand up weekly dashboard. Week 1–2: 10 user interviews (5 active, 5 churned) + session replays. Week 2–3: Concierge activation (H5) -- 20 signups, offer 30-min setup call. Week 2–4: Ship H1 (narrow onboarding) and H7 (qualify signups). Week 4: Diagnosis memo + ICP definition alignment with founders.' },
             { label: 'Month 2', value: 'Convert',  sub: 'Install a repeatable monetization loop', note: 'Week 5–6: Trial mechanic experiment (H2 or H6) -- trigger paid trial on activation event. Week 6–7: 2 copy/UX iterations on pricing page; A/B test tier order, headline, social proof. Week 7–8: Ship H3 ($49 Creator tier) as pricing-page test first. Weekly: 2 user interviews, 1 experiment shipped, 1 killed.', highlight: true },
@@ -263,9 +261,9 @@ export default function SubSubPage() {
 
         <DocBlock title="As the Only PM: How I Organize Growth Work">
           <DocRisks items={[
-            { level: 'high',  title: 'One Theme / Goal per Month, Not Ten', text: 'Growth work fragments fast. One theme per month (Month 1: Diagnose; Month 2: Convert; Month 3: Optimize) -- say no to everything outside it.' },
-            { level: 'high',  title: 'Public Experiment Ledger',             text: 'Every experiment has an owner, a hypothesis, a single metric, a decision rule, and a ship date. Nothing runs longer than 2 weeks without a decision.' },
-            { level: 'watch', title: 'Evidence Over Opinion',                text: 'Every roadmap change must be backed by a data point OR a user interview. Founder intuition is a hypothesis, not a conclusion.' },
+            { level: 'high',  badge: 'Focus',     title: 'One Theme / Goal per Month, Not Ten', text: 'Growth work fragments fast. One theme per month (Month 1: Diagnose; Month 2: Convert; Month 3: Optimize) -- say no to everything outside it.' },
+            { level: 'high',  badge: 'Process',   title: 'Public Experiment Ledger',             text: 'Every experiment has an owner, a hypothesis, a single metric, a decision rule, and a ship date. Nothing runs longer than 2 weeks without a decision.' },
+            { level: 'watch', badge: 'Principle', title: 'Evidence Over Opinion',                text: 'Every roadmap change must be backed by a data point OR a user interview. Founder intuition is a hypothesis, not a conclusion.' },
           ]} />
         </DocBlock>
 
