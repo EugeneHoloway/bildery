@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 
 export interface SandboxCardData {
   id: string
@@ -14,20 +15,26 @@ export interface SandboxCardData {
 
 export function SandboxCard({ card }: { card: SandboxCardData }) {
   return (
-    <Link
-      href={card.href}
+    <div
       className={cn(
         // Layout
-        'flex flex-col justify-between gap-4',
+        'relative flex flex-col justify-between gap-4',
         'min-h-72 p-4 rounded-2xl',
         // Visual
         'bg-card border border-border',
-        'shadow-[0_1px_2px_rgba(16,24,40,0.04)]',
+        'shadow-sm',
         // Interaction
-        'cursor-pointer transition-[border-color,box-shadow] duration-200',
-        'hover:border-subtle-border hover:shadow-[0_4px_16px_rgba(16,24,40,0.08)]',
+        'transition-[border-color,box-shadow] duration-200',
+        'hover:border-subtle-border hover:shadow-md',
       )}
     >
+      {/* Stretched link — makes the whole card clickable */}
+      <Link
+        href={card.href}
+        className="absolute inset-0 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        aria-label={`View ${card.title}`}
+      />
+
       {/* Top */}
       <div className="flex flex-col gap-3">
         <div className="flex items-start justify-between gap-3">
@@ -41,7 +48,7 @@ export function SandboxCard({ card }: { card: SandboxCardData }) {
           </div>
           <Badge
             variant="secondary"
-            className="shrink-0"
+            className="relative z-10 shrink-0"
           >
             {card.tag}
           </Badge>
@@ -57,10 +64,10 @@ export function SandboxCard({ card }: { card: SandboxCardData }) {
         <Badge variant="outline">
           {card.status}
         </Badge>
-        <span className="shrink-0 inline-flex items-center rounded-lg bg-foreground px-3 h-8 text-sm font-medium text-background">
-          View details
-        </span>
+        <Button asChild className="relative z-10">
+          <Link href={card.href}>View details</Link>
+        </Button>
       </div>
-    </Link>
+    </div>
   )
 }

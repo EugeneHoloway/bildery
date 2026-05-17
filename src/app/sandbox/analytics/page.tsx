@@ -209,6 +209,10 @@ export default function AnalyticsPage() {
     value,
     fill: `var(--color-${CHART_COLOR_KEYS[i % CHART_COLOR_KEYS.length]})`,
   }))
+
+  /** tier name → same CSS var that the chart uses, e.g. "var(--color-chart-1)" */
+  const tierFillMap = Object.fromEntries(segmentData.map(d => [d.name, d.fill]))
+
   const vipChartConfig: ChartConfig = {
     value: { label: 'Players' },
     ...Object.fromEntries(
@@ -450,9 +454,21 @@ export default function AnalyticsPage() {
                   <TableCell>{p.country}</TableCell>
                   <TableCell>{p.channel}</TableCell>
                   <TableCell>
-                    <Badge variant="outline" className="bg-brand-bg text-brand border-brand/20">
-                      {p.vip_tier ? p.vip_tier.charAt(0).toUpperCase() + p.vip_tier.slice(1) : '—'}
-                    </Badge>
+                    {(() => {
+                      const c = tierFillMap[p.vip_tier] ?? 'var(--color-brand)'
+                      return (
+                        <Badge
+                          variant="outline"
+                          style={{
+                            color: c,
+                            backgroundColor: `color-mix(in srgb, ${c} 12%, transparent)`,
+                            borderColor: `color-mix(in srgb, ${c} 25%, transparent)`,
+                          }}
+                        >
+                          {p.vip_tier ? p.vip_tier.charAt(0).toUpperCase() + p.vip_tier.slice(1) : '—'}
+                        </Badge>
+                      )
+                    })()}
                   </TableCell>
                   <TableCell className="font-semibold">€{fmt(p.player_ggr)}</TableCell>
                   <TableCell>€{fmt(p.total_deposits)}</TableCell>
@@ -587,7 +603,23 @@ export default function AnalyticsPage() {
                   </TableCell>
                   <TableCell>{r.country}</TableCell>
                   <TableCell>{r.channel}</TableCell>
-                  <TableCell>{r.vip_tier ? r.vip_tier.charAt(0).toUpperCase() + r.vip_tier.slice(1) : '—'}</TableCell>
+                  <TableCell>
+                    {r.vip_tier ? (() => {
+                      const c = tierFillMap[r.vip_tier] ?? 'var(--color-brand)'
+                      return (
+                        <Badge
+                          variant="outline"
+                          style={{
+                            color: c,
+                            backgroundColor: `color-mix(in srgb, ${c} 12%, transparent)`,
+                            borderColor: `color-mix(in srgb, ${c} 25%, transparent)`,
+                          }}
+                        >
+                          {r.vip_tier.charAt(0).toUpperCase() + r.vip_tier.slice(1)}
+                        </Badge>
+                      )
+                    })() : '—'}
+                  </TableCell>
                   <TableCell>{r.recency_days}d ago</TableCell>
                   <TableCell>{r.frequency} days</TableCell>
                   <TableCell className="font-semibold">€{fmt(r.monetary)}</TableCell>

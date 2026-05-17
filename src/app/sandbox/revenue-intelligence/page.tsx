@@ -4,13 +4,16 @@ import { useState } from 'react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Sparkles } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { DocLayout } from '@/components/doc/DocLayout'
+import { DocLayout }  from '@/components/doc/DocLayout'
+import { DocBlock }   from '@/components/doc/DocBlock'
+import { DocRisks }   from '@/components/doc/DocRisks'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
-type InsightType = 'critical' | 'warning' | 'good' | 'info'
+type InsightType = 'high' | 'watch' | 'good' | 'info'
 
 interface Scores {
   revenue_health: number
@@ -19,7 +22,7 @@ interface Scores {
   overall: number
 }
 
-interface Insight { type: InsightType; tag: string; text: string }
+interface Insight { type: InsightType; title: string; text: string }
 
 interface AnalysisResult { scores: Scores; insights: Insight[]; top_action: string }
 
@@ -52,13 +55,6 @@ const SCORE_CARDS = [
   { key: 'overall',         label: 'Overall Score',   invert: false },
 ] as const
 
-/** Tailwind classes for each insight type */
-const INSIGHT_CLASSES: Record<InsightType, { wrapper: string; tag: string }> = {
-  critical: { wrapper: 'border-l-2 border-l-destructive bg-destructive-bg', tag: 'text-destructive'  },
-  warning:  { wrapper: 'border-l-2 border-l-warning bg-warning-bg',         tag: 'text-warning'      },
-  good:     { wrapper: 'border-l-2 border-l-success bg-success-bg',         tag: 'text-success'      },
-  info:     { wrapper: 'border-l-2 border-l-brand bg-brand-bg',             tag: 'text-brand'        },
-}
 
 // ── Score calculation ─────────────────────────────────────────────────────────
 
@@ -176,10 +172,10 @@ export default function RevenueIntelligencePage() {
       scores: computeScores(values),
       top_action: 'Fix payment routing first -- resolving 71% success rate could recover 20%+ lost revenue immediately.',
       insights: [
-        { type: 'critical', tag: 'Payment Failure Crisis',        text: '71% payment success rate is costing ~29% of deposit attempts. Audit PSP routing immediately and add 2 backup providers.' },
-        { type: 'critical', tag: 'Bonus Budget Burning',          text: '0.9x bonus ROI means losing money on every promotion. Cap bonus at 15% of first deposit and add 5x wagering requirement.' },
-        { type: 'critical', tag: 'Churn Destroying Base',         text: '43% month-1 churn is 8 points above critical threshold. Launch day-7 and day-14 triggered retention emails with 10% reload offer.' },
-        { type: 'warning',  tag: 'Reactivation Far Below Benchmark', text: '12% reactivation vs 18% minimum benchmark. Deploy 30-day lapsed player SMS campaign with €5 free spin no-deposit incentive.' },
+        { type: 'high',  title: 'Payment Failure Crisis',            text: '71% payment success rate is costing ~29% of deposit attempts. Audit PSP routing immediately and add 2 backup providers.' },
+        { type: 'high',  title: 'Bonus Budget Burning',              text: '0.9x bonus ROI means losing money on every promotion. Cap bonus at 15% of first deposit and add 5x wagering requirement.' },
+        { type: 'high',  title: 'Churn Destroying Base',             text: '43% month-1 churn is 8 points above critical threshold. Launch day-7 and day-14 triggered retention emails with 10% reload offer.' },
+        { type: 'watch', title: 'Reactivation Far Below Benchmark',  text: '12% reactivation vs 18% minimum benchmark. Deploy 30-day lapsed player SMS campaign with €5 free spin no-deposit incentive.' },
       ],
     })
     setLoading(false)
@@ -203,7 +199,7 @@ export default function RevenueIntelligencePage() {
         <div className="mb-8 grid grid-cols-2 gap-2.5 sm:grid-cols-3">
           {METRICS.map(m => (
             <div key={m.key}
-              className="rounded-2xl border border-border bg-card px-4 py-3.5 shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition-[border-color,box-shadow] duration-200 hover:border-subtle-border hover:shadow-[0_4px_16px_rgba(16,24,40,0.08)]"
+              className="rounded-2xl border border-border bg-card px-4 py-3.5 shadow-sm transition-[border-color,box-shadow] duration-200 hover:border-subtle-border hover:shadow-md"
             >
               <p className="mb-2 text-xs text-muted-foreground">{m.label}</p>
               <div className="flex items-center gap-1.5">
@@ -216,7 +212,7 @@ export default function RevenueIntelligencePage() {
                 />
                 <span className="shrink-0 text-xs text-muted-foreground">{m.unit}</span>
               </div>
-              <p className="mt-1.5 text-2xs text-muted-foreground/60">bench: {m.bench}</p>
+              <p className="mt-1.5 text-xs text-muted-foreground/60">bench: {m.bench}</p>
             </div>
           ))}
         </div>
@@ -224,7 +220,7 @@ export default function RevenueIntelligencePage() {
         {/* Analyze button */}
         <div className="mb-10 flex justify-center">
           <Button disabled={loading} onClick={runAnalysis}>
-            <Sparkles data-icon="inline-start" /> Analyze &amp; Generate Insights
+            <Sparkles className="size-4" /> Analyze &amp; Generate Insights
           </Button>
         </div>
 
@@ -238,12 +234,13 @@ export default function RevenueIntelligencePage() {
 
         {/* Error */}
         {errorMsg !== null && (
-          <div className="mb-10 rounded-lg border border-border border-l-2 border-l-destructive bg-card px-4 py-3.5">
-            <p className="mb-1.5 text-2xs font-semibold text-destructive">Error</p>
-            <p className="text-sm leading-relaxed text-foreground">
-              Could not connect to AI service. Direct browser access requires a server-side proxy -- coming soon.
-              {errorMsg ? ` (${errorMsg})` : ''}
-            </p>
+          <div className="mb-10">
+            <DocRisks items={[{
+              level: 'high',
+              title: 'Connection Error',
+              badge: 'Error',
+              text: `Could not connect to AI service. Direct browser access requires a server-side proxy -- coming soon.${errorMsg ? ` (${errorMsg})` : ''}`,
+            }]} />
           </div>
         )}
 
@@ -252,7 +249,7 @@ export default function RevenueIntelligencePage() {
           <>
             {/* Output header */}
             <div className="mb-6 flex items-center gap-2.5 border-b border-border pb-4">
-              <span className={cn('size-[7px] shrink-0 rounded-full', dotClass(result.scores.overall))} />
+              <span className={cn('size-2 shrink-0 rounded-full', dotClass(result.scores.overall))} />
               <p className="text-xs text-muted-foreground">
                 AI Analysis Complete -- {new Date().toLocaleTimeString()}
               </p>
@@ -266,7 +263,7 @@ export default function RevenueIntelligencePage() {
                   : result.scores[s.key] >= 70 ? 'Good' : result.scores[s.key] >= 45 ? 'At risk' : 'Critical'
                 return (
                   <Card key={s.key} className="flex flex-col gap-1 p-5">
-                    <span className={cn('text-2xl font-bold tracking-tight', scoreColorClass(result.scores[s.key], s.invert))}>
+                    <span className={cn('text-xl sm:text-2xl font-bold tracking-tight', scoreColorClass(result.scores[s.key], s.invert))}>
                       {result.scores[s.key]}
                     </span>
                     <span className="text-xs font-semibold text-foreground">{s.label}</span>
@@ -276,63 +273,64 @@ export default function RevenueIntelligencePage() {
               })}
             </div>
 
-            {/* Top action */}
-            <div className="mb-3 border-l-2 border-l-brand px-4 py-3">
-              <p className="mb-1 text-2xs font-semibold text-brand">Top Priority Action</p>
-              <p className="text-sm leading-relaxed text-foreground">{result.top_action}</p>
-            </div>
-
-            {/* Insights */}
-            {result.insights.map((ins, i) => {
-              const c = INSIGHT_CLASSES[ins.type]
-              return (
-                <div key={i} className={cn('mb-3 rounded-sm px-4 py-3', c.wrapper)}>
-                  <p className={cn('mb-1 text-2xs font-semibold uppercase tracking-wider', c.tag)}>{ins.tag}</p>
-                  <p className="text-sm leading-relaxed text-foreground">{ins.text}</p>
-                </div>
-              )
-            })}
+            {/* Findings & Recommendations */}
+            <DocBlock title="Findings & Recommendations">
+              <DocRisks
+                items={[
+                  {
+                    level: 'high',
+                    title: 'Top Priority Action',
+                    badge: 'Act First',
+                    text: result.top_action,
+                  },
+                  ...result.insights.map(ins => ({
+                    level: ins.type,
+                    title: ins.title,
+                    text: ins.text,
+                  })),
+                ]}
+              />
+            </DocBlock>
 
             {/* Methodology */}
-            <div className="mt-12 border-t border-border pt-8">
-              <h2 className="mb-1 text-base font-bold tracking-tight">How scores are calculated</h2>
-              <p className="mb-6 text-sm leading-relaxed text-muted-foreground">
-                Each score is a weighted average of normalized metrics. Every metric is mapped to a 0–100 scale using its realistic min/max range, then multiplied by its weight.{' '}
-                <strong className="font-semibold text-foreground">v</strong> = the value you entered for that metric.
-              </p>
-
-              <div className="grid grid-cols-1 gap-4 tablet:grid-cols-2">
-                {METHODOLOGY.map(m => (
-                  <div key={m.score} className="rounded-2xl border border-border bg-card px-6 py-5">
-                    <p className="mb-1 text-sm font-bold">{m.score}</p>
-                    <p className="mb-4 text-xs leading-normal text-muted-foreground">{m.description}</p>
-
-                    <table className="w-full border-collapse text-xs">
-                      <thead>
-                        <tr className="border-b border-border">
-                          <th className="pb-1.5 text-left font-semibold text-muted-foreground">Metric</th>
-                          <th className="pb-1.5 text-right font-semibold text-muted-foreground">Weight</th>
-                          <th className="pb-1.5 text-right font-semibold text-muted-foreground">Formula × 100</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {m.components.map((c, i) => (
-                          <tr key={i} className="border-b border-border">
-                            <td className="py-2">
-                              <p className="text-xs text-foreground">{c.metric}</p>
-                              <p className="mt-0.5 text-2xs leading-relaxed text-muted-foreground">{c.explain}</p>
-                            </td>
-                            <td className="py-2 pl-3 text-right align-top whitespace-nowrap text-muted-foreground">{c.weight}</td>
-                            <td className="py-2 pl-3 text-right align-top whitespace-nowrap tabular-nums text-muted-foreground">{c.formula}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-
-                    <p className="mt-3 text-2xs text-muted-foreground/70">{m.threshold}</p>
-                  </div>
-                ))}
-              </div>
+            <div className="mt-12 border-t border-border pt-2">
+              <DocBlock
+                title="How Scores Are Calculated"
+                subtitle="Each score is a weighted average of normalized metrics. Every metric is mapped to a 0–100 scale using its realistic min/max range, then multiplied by its weight. v = the value you entered for that metric."
+              >
+                <div className="grid grid-cols-1 gap-4 tablet:grid-cols-2">
+                  {METHODOLOGY.map(m => (
+                    <Card key={m.score} className="p-6">
+                      <p className="mb-1 text-sm font-bold">{m.score}</p>
+                      <p className="mb-4 text-xs leading-normal text-muted-foreground">{m.description}</p>
+                      <div className="overflow-x-auto">
+                        <Table>
+                          <TableHeader className="bg-muted/50">
+                            <TableRow>
+                              <TableHead>Metric</TableHead>
+                              <TableHead className="text-right">Weight</TableHead>
+                              <TableHead className="text-right">Formula × 100</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {m.components.map((c, i) => (
+                              <TableRow key={i}>
+                                <TableCell>
+                                  <p className="text-xs text-foreground">{c.metric}</p>
+                                  <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">{c.explain}</p>
+                                </TableCell>
+                                <TableCell className="text-right align-top whitespace-nowrap text-muted-foreground">{c.weight}</TableCell>
+                                <TableCell className="text-right align-top whitespace-nowrap tabular-nums text-muted-foreground">{c.formula}</TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </div>
+                      <p className="mt-3 text-xs text-muted-foreground/70">{m.threshold}</p>
+                    </Card>
+                  ))}
+                </div>
+              </DocBlock>
             </div>
           </>
         )}

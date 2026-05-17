@@ -2,7 +2,7 @@ import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 
 interface Risk {
-  level: 'high' | 'watch' | 'low'
+  level: 'high' | 'watch' | 'good' | 'info' | 'low'
   badge?: string
   title: string
   text: string
@@ -13,14 +13,24 @@ const levelConfig: Record<
   { label: string; containerClass: string; badgeClass: string }
 > = {
   high: {
-    label: 'Highest Priority',
+    label: 'Critical',
     containerClass: 'border-destructive bg-destructive-bg',
     badgeClass: 'bg-destructive-bg text-destructive border-destructive/30',
   },
   watch: {
-    label: 'Watch Closely',
+    label: 'Warning',
     containerClass: 'border-warning-border bg-warning-bg',
     badgeClass: 'bg-warning-bg text-warning border-warning-border',
+  },
+  good: {
+    label: 'Positive',
+    containerClass: 'border-success-border bg-success-bg',
+    badgeClass: 'bg-success-bg text-success border-success-border',
+  },
+  info: {
+    label: 'Info',
+    containerClass: 'bg-card',
+    badgeClass: 'bg-brand-bg text-brand border-brand/20',
   },
   low: {
     label: 'Low',
