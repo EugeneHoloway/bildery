@@ -541,19 +541,10 @@ export default function AnalyticsPage() {
         <DocBlock title="Segments by player count & avg GGR" subtitle="R = days since last bet | F = betting days | M = GGR | scores 1–5">
           <Card className="mb-2">
             <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
-              <ChartContainer config={rfmSegChartConfig} className="h-[220px] w-full">
-                <BarChart data={rfmSummary} margin={{ top: 8, right: 8, left: -16, bottom: 32 }}>
+              <ChartContainer config={rfmSegChartConfig} className="h-[200px] w-full">
+                <BarChart data={rfmSummary} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
                   <CartesianGrid vertical={false} />
-                  <XAxis
-                    dataKey="segment"
-                    tickLine={false}
-                    axisLine={false}
-                    tickMargin={8}
-                    angle={-30}
-                    textAnchor="end"
-                    tick={{ fontSize: 11 }}
-                    interval={0}
-                  />
+                  <XAxis dataKey="segment" tickLine={false} axisLine={false} tickMargin={8} />
                   <YAxis tickLine={false} axisLine={false} />
                   <ChartTooltip
                     cursor={false}
