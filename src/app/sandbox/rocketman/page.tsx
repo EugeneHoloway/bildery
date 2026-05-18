@@ -6,15 +6,26 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
-import { Play } from 'lucide-react'
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import { Play, Orbit, Moon, Globe2, Loader2, Check, CircleAlert, type LucideIcon } from 'lucide-react'
+import { BarChart, Bar, XAxis, YAxis } from 'recharts'
 import { cn } from '@/lib/utils'
 import { DocLayout } from '@/components/doc/DocLayout'
+import { ChartContainer, ChartTooltip, type ChartConfig } from '@/components/ui/chart'
 
 // ── Mode config ────────────────────────────────────────────────────────────────
 
 interface ModeConfig {
   id: string
-  emoji: string
+  Icon: LucideIcon
   name: string
   jackpot: string
   houseEdge: number
@@ -24,9 +35,9 @@ interface ModeConfig {
 }
 
 const MODES: ModeConfig[] = [
-  { id: 'orbit', emoji: '🛸', name: 'Orbit', jackpot: '×10',  houseEdge: 0.04, maxPayout: 10,  color: 'var(--color-chart-4)',    targets: [1.5, 2, 3, 5, 10] },
-  { id: 'moon',  emoji: '🌙', name: 'Moon',  jackpot: '×50',  houseEdge: 0.03, maxPayout: 50,  color: 'var(--color-warning)',    targets: [2, 5, 10, 25, 50] },
-  { id: 'mars',  emoji: '🔴', name: 'Mars',  jackpot: '×100', houseEdge: 0.02, maxPayout: 100, color: 'var(--color-destructive)', targets: [5, 10, 25, 50, 100] },
+  { id: 'orbit', Icon: Orbit,  name: 'Orbit', jackpot: '×10',  houseEdge: 0.04, maxPayout: 10,  color: 'var(--color-chart-4)',    targets: [1.5, 2, 3, 5, 10] },
+  { id: 'moon',  Icon: Moon,   name: 'Moon',  jackpot: '×50',  houseEdge: 0.03, maxPayout: 50,  color: 'var(--color-warning)',    targets: [2, 5, 10, 25, 50] },
+  { id: 'mars',  Icon: Globe2, name: 'Mars',  jackpot: '×100', houseEdge: 0.02, maxPayout: 100, color: 'var(--color-destructive)', targets: [5, 10, 25, 50, 100] },
 ]
 
 const PLAYER_COUNTS = [1, 10, 100, 1000]
@@ -123,15 +134,14 @@ function usdPlain(n: number) {
   return (n * 100).toFixed(1) + '¢'
 }
 
-function SelectorButton({ active, color, onClick, children }: { active: boolean; color?: string; onClick: () => void; children: React.ReactNode }) {
+function SelectorButton({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
   return (
     <button
       onClick={onClick}
       className={cn(
-        'rounded-lg border text-xs font-semibold transition-colors px-3.5 py-1.5',
+        'px-2.5 py-1 rounded-md border text-xs font-semibold cursor-pointer transition-all',
         active ? 'bg-foreground text-background border-foreground' : 'bg-transparent text-muted-foreground border-border hover:text-foreground',
       )}
-      style={active && color ? { background: 'transparent', borderColor: color, color } : undefined}
     >
       {children}
     </button>
@@ -163,11 +173,9 @@ export default function RocketmanPage() {
     setTimeout(() => { setResult(runSimulation(activeMode, simCount, betAmount)); setRunning(false) }, 30)
   }, [activeMode, simCount, betAmount])
 
-  const maxBucket = result ? Math.max(...result.buckets) : 1
-
   return (
     <DocLayout
-      title="Rocketman 🚀"
+      title="Rocketman"
       breadcrumbLabel="Sandbox"
       breadcrumbHref="/sandbox"
       tags={[
@@ -177,12 +185,12 @@ export default function RocketmanPage() {
         { label: 'Built in public',type: 'tag' },
       ]}
       description="A provably fair crash game with a space theme. Rocket flies -- multiplier grows. Cash out before it explodes. Three modes with different volatility and jackpots. Built solo as a side project alongside Depo44."
-      footnote="🚀 Rocketman -- Crash Game | Side project by Yevhenii Holovei | Built in public alongside Depo44"
+      footnote="Rocketman -- Crash Game | Side project by Yevhenii Holovei | Built in public alongside Depo44"
     >
 
       {/* Status */}
       <div className="flex items-center gap-2.5 px-4 py-3 border border-border rounded-xl bg-card mb-10">
-        <div className="size-[7px] shrink-0 rounded-full bg-warning" />
+        <div className="size-2 shrink-0 rounded-full bg-warning" />
         <p className="text-sm text-muted-foreground">
           Status: <strong className="text-foreground">In development</strong>
           &nbsp;|&nbsp; Current: Iteration 3 done -- animated game loop live
@@ -198,12 +206,9 @@ export default function RocketmanPage() {
             Live multiplier, cash out button, 5-phase state machine, auto-restart with 5s countdown.
           </p>
         </div>
-        <Link
-          href="/sandbox/rocketman/demo"
-          className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-xl bg-brand px-[18px] py-2 text-sm font-bold text-primary-foreground no-underline"
-        >
-          🚀 Open demo
-        </Link>
+        <Button asChild className="shrink-0">
+          <Link href="/sandbox/rocketman/demo">Open demo</Link>
+        </Button>
       </div>
 
       {/* ── MATH SIMULATOR ─────────────────────────────────────────────────── */}
@@ -215,18 +220,19 @@ export default function RocketmanPage() {
         </p>
 
         {/* Mode selector */}
-        <div className="flex gap-2 flex-wrap mb-5">
+        <div className="flex gap-1.5 flex-wrap mb-5">
           {MODES.map(m => (
             <button
               key={m.id}
               onClick={() => { setActiveModeId(m.id); setResult(null) }}
               className={cn(
-                'rounded-xl border px-4 py-2 text-xs font-semibold cursor-pointer transition-colors',
-                activeModeId === m.id ? 'bg-card' : 'bg-transparent text-muted-foreground',
+                'px-2.5 py-1 rounded-md border text-xs font-semibold cursor-pointer transition-all',
+                activeModeId === m.id
+                  ? 'bg-foreground text-background border-foreground'
+                  : 'bg-transparent text-muted-foreground border-border hover:text-foreground',
               )}
-              style={activeModeId === m.id ? { borderColor: m.color, color: m.color } : { borderColor: 'var(--color-border)' }}
             >
-              {m.emoji} {m.name} {m.jackpot}
+              {m.name} {m.jackpot}
             </button>
           ))}
         </div>
@@ -240,7 +246,7 @@ export default function RocketmanPage() {
             { label: 'Jackpot',     value: activeMode.jackpot },
           ].map(p => (
             <div key={p.label}>
-              <p className="text-[11px] text-muted-foreground mb-0.5">{p.label}</p>
+              <p className="text-xs text-muted-foreground mb-0.5">{p.label}</p>
               <p className="text-sm font-bold">{p.value}</p>
             </div>
           ))}
@@ -294,10 +300,7 @@ export default function RocketmanPage() {
         {/* Loading */}
         {running && (
           <div className="flex items-center gap-2.5 text-sm text-muted-foreground py-4">
-            <div
-              className="size-3.5 shrink-0 rounded-full border border-border animate-spin"
-              style={{ borderTopColor: activeMode.color }}
-            />
+            <Loader2 className="size-4 shrink-0 animate-spin" />
             Simulating {playerCount.toLocaleString()} players × {roundCount.toLocaleString()} rounds ({simCount.toLocaleString()} events)…
           </div>
         )}
@@ -318,9 +321,9 @@ export default function RocketmanPage() {
                   { label: 'Profit per round',    value: usdPlain(result.operatorPerRound),note: `target ${usdPlain(betAmount * activeMode.houseEdge)}`,             highlight: false },
                 ].map(s => (
                   <Card key={s.label} className="flex flex-col justify-between p-4 min-h-[120px]">
-                    <p className="text-[11px] text-muted-foreground mb-2">{s.label}</p>
+                    <p className="text-xs text-muted-foreground mb-2">{s.label}</p>
                     <p className={cn('text-xl font-extrabold tracking-tight mb-auto', s.highlight ? 'text-success' : 'text-foreground')}>{s.value}</p>
-                    <p className="text-[11px] text-muted-foreground mt-2">{s.note}</p>
+                    <p className="text-xs text-muted-foreground mt-2">{s.note}</p>
                   </Card>
                 ))}
               </div>
@@ -336,88 +339,119 @@ export default function RocketmanPage() {
                 { label: 'Jackpot reached',        value: pct(result.buckets[result.buckets.length - 2] / result.n + (result.mode.maxPayout <= 100 ? result.buckets[result.buckets.length - 2] / result.n : 0), 2), sub: 'max win ' + usdPlain(betAmount * activeMode.maxPayout), expected: pct((1 - activeMode.houseEdge) / activeMode.maxPayout, 2), ok: true },
               ].map(s => (
                 <Card key={s.label} className="p-4">
-                  <p className="text-[11px] text-muted-foreground mb-2">{s.label}</p>
+                  <p className="text-xs text-muted-foreground mb-2">{s.label}</p>
                   <p className="text-xl font-extrabold tracking-tight mb-0.5">{s.value}</p>
-                  <p className="text-[11px] mb-1.5" style={{ color: activeMode.color }}>{s.sub}</p>
-                  <div className="flex items-center gap-1 text-[11px]">
+                  <p className="text-xs mb-1.5" style={{ color: activeMode.color }}>{s.sub}</p>
+                  <div className="flex items-center gap-1 text-xs">
                     <span className="text-muted-foreground">expected {s.expected}</span>
-                    <span className={cn('font-semibold', s.ok ? 'text-success' : 'text-warning')}>{s.ok ? '✓' : '~'}</span>
+                    {s.ok
+                      ? <Check className="size-3 text-success" />
+                      : <CircleAlert className="size-3 text-warning" />
+                    }
                   </div>
                 </Card>
               ))}
             </div>
 
             {/* RTP table */}
-            <Card className="p-5 mb-6">
-              <p className="text-sm font-semibold mb-3">Auto-cashout analysis -- bet {usdPlain(betAmount)} per round</p>
-              <div className="overflow-x-auto">
-                <table className="w-full border-collapse text-xs">
-                  <thead>
-                    <tr className="border-b border-border">
-                      {['Cash out at', 'Win rate', 'Empirical RTP', 'Player avg/round', 'Operator / 1K rounds'].map(h => (
-                        <th key={h} className="pb-2 text-left font-semibold text-muted-foreground whitespace-nowrap pr-3">{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {result.targetStats.map(ts => (
-                      <tr key={ts.target} className="border-b border-border">
-                        <td className="py-2 pr-3 font-bold" style={{ color: activeMode.color }}>×{ts.target}</td>
-                        <td className="py-2 pr-3 text-muted-foreground">{pct(ts.winRate)}</td>
-                        <td className="py-2 pr-3 font-semibold">{pct(ts.empiricalRtp)}</td>
-                        <td className={cn('py-2 pr-3 font-semibold', ts.avgReturnPerRound >= 0 ? 'text-success' : 'text-destructive')}>{usd(ts.avgReturnPerRound)}</td>
-                        <td className="py-2 text-success font-semibold">+{usdPlain(ts.operatorPerRound * 1000)}</td>
-                      </tr>
+            <p className="text-sm font-semibold mb-3">Auto-cashout analysis -- bet {usdPlain(betAmount)} per round</p>
+            <Card className="mb-6 overflow-hidden">
+              <Table>
+                <TableHeader className="bg-muted/50">
+                  <TableRow>
+                    {['Cash out at', 'Win rate', 'Empirical RTP', 'Player avg/round', 'Operator / 1K rounds'].map(h => (
+                      <TableHead key={h} className="text-xs">{h}</TableHead>
                     ))}
-                  </tbody>
-                </table>
-              </div>
-              <p className="text-[11px] text-muted-foreground mt-2.5 opacity-70">
-                * "Player avg/round" = net per round for a player always cashing out at this target. Negative = loses on average (expected by design). "Operator / 1K rounds" = operator margin per 1,000 rounds at this bet size.
-              </p>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {result.targetStats.map(ts => (
+                    <TableRow key={ts.target}>
+                      <TableCell className="text-xs font-bold" style={{ color: activeMode.color }}>×{ts.target}</TableCell>
+                      <TableCell className="text-xs text-muted-foreground">{pct(ts.winRate)}</TableCell>
+                      <TableCell className="text-xs font-semibold">{pct(ts.empiricalRtp)}</TableCell>
+                      <TableCell className={cn('text-xs font-semibold', ts.avgReturnPerRound >= 0 ? 'text-success' : 'text-destructive')}>{usd(ts.avgReturnPerRound)}</TableCell>
+                      <TableCell className="text-xs text-success font-semibold">+{usdPlain(ts.operatorPerRound * 1000)}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+                <TableCaption className="text-left text-xs px-3 pb-3 opacity-70">
+                  * &quot;Player avg/round&quot; = net per round for a player always cashing out at this target. Negative = loses on average (expected by design). &quot;Operator / 1K rounds&quot; = operator margin per 1,000 rounds at this bet size.
+                </TableCaption>
+              </Table>
             </Card>
 
             {/* Crash distribution histogram */}
             <Card className="p-5">
               <p className="text-sm font-semibold mb-1">Crash distribution -- {result.n.toLocaleString()} rounds</p>
-              <p className="text-[11px] text-muted-foreground mb-4">
-                "If riding to crash" column shows what a {usdPlain(betAmount)} bet returns if player stays until crash lands in that range.
+              <p className="text-xs text-muted-foreground mb-4">
+                Hover a bar to see share, rounds, and return if player rides to crash.
               </p>
+              {(() => {
+                const histData = BUCKETS
+                  .map((b, i) => {
+                    const count = result.buckets[i]
+                    if (count === 0) return null
+                    const avgCrash = count > 0 ? result.bucketSums[i] / count : b.mid
+                    const ridingReturn = i === 0 ? -betAmount : (avgCrash - 1) * betAmount
+                    return {
+                      range: b.label,
+                      count,
+                      shareStr: pct(count / result.n),
+                      ridingStr: (ridingReturn >= 0 ? '+' : '') + usdPlain(ridingReturn),
+                      ridingPos: ridingReturn >= 0,
+                    }
+                  })
+                  .filter((d): d is NonNullable<typeof d> => d !== null)
 
-              <div className="flex items-center gap-2.5 mb-1.5 text-[10px] text-muted-foreground">
-                <span className="w-20 text-right shrink-0">Range</span>
-                <div className="flex-1" />
-                <span className="w-12 text-right shrink-0">Share</span>
-                <span className="w-16 text-right shrink-0">Rounds</span>
-                <span className="w-20 text-right shrink-0">If riding</span>
-              </div>
+                const histConfig: ChartConfig = { count: { label: 'Rounds', color: activeMode.color } }
 
-              <div className="flex flex-col gap-1.5">
-                {BUCKETS.map((b, i) => {
-                  const count = result.buckets[i]
-                  if (count === 0) return null
-                  const share = count / result.n
-                  const barWidth = (count / maxBucket) * 100
-                  const avgCrash = count > 0 ? result.bucketSums[i] / count : b.mid
-                  const ridingReturn = i === 0 ? -betAmount : (avgCrash - 1) * betAmount
-                  return (
-                    <div key={b.label} className="flex items-center gap-2.5">
-                      <span className="w-20 text-[11px] text-muted-foreground text-right shrink-0">{b.label}</span>
-                      <div className="flex-1 h-[18px] bg-subtle rounded overflow-hidden">
-                        <div
-                          className="h-full rounded transition-[width_0.4s_ease]"
-                          style={{ width: barWidth + '%', background: activeMode.color, opacity: 0.65 }}
-                        />
-                      </div>
-                      <span className="w-12 text-[11px] text-muted-foreground text-right shrink-0">{pct(share)}</span>
-                      <span className="w-16 text-[11px] text-muted-foreground text-right shrink-0">{count.toLocaleString()}</span>
-                      <span className={cn('w-20 text-[11px] font-semibold text-right shrink-0', ridingReturn >= 0 ? 'text-success' : 'text-destructive')}>
-                        {ridingReturn >= 0 ? '+' : ''}{usdPlain(ridingReturn)}
-                      </span>
-                    </div>
-                  )
-                })}
-              </div>
+                return (
+                  <ChartContainer config={histConfig} style={{ height: `${histData.length * 36 + 8}px` }} className="w-full">
+                    <BarChart data={histData} layout="vertical" margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
+                      <YAxis
+                        dataKey="range"
+                        type="category"
+                        tickLine={false}
+                        axisLine={false}
+                        tickMargin={8}
+                        width={60}
+                        tick={{ fontSize: 12 }}
+                      />
+                      <XAxis dataKey="count" type="number" hide />
+                      <ChartTooltip
+                        cursor={false}
+                        content={({ active, payload }) => {
+                          if (!active || !payload?.length) return null
+                          const d = payload[0].payload as typeof histData[0]
+                          return (
+                            <div className="rounded-lg border bg-background px-3 py-2 text-xs shadow-md">
+                              <p className="font-semibold mb-1.5">{d.range}</p>
+                              <div className="flex flex-col gap-1">
+                                <div className="flex items-center justify-between gap-6">
+                                  <span className="text-muted-foreground">Rounds</span>
+                                  <span className="font-mono font-medium">{d.count.toLocaleString()}</span>
+                                </div>
+                                <div className="flex items-center justify-between gap-6">
+                                  <span className="text-muted-foreground">Share</span>
+                                  <span className="font-mono">{d.shareStr}</span>
+                                </div>
+                                <div className="flex items-center justify-between gap-6">
+                                  <span className="text-muted-foreground">If riding</span>
+                                  <span className={cn('font-mono font-medium', d.ridingPos ? 'text-success' : 'text-destructive')}>
+                                    {d.ridingStr}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          )
+                        }}
+                      />
+                      <Bar dataKey="count" fill="var(--color-count)" radius={4} />
+                    </BarChart>
+                  </ChartContainer>
+                )
+              })()}
             </Card>
           </>
         )}
@@ -433,12 +467,14 @@ export default function RocketmanPage() {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {MODES.map(m => (
             <Card key={m.id} className="p-5">
-              <div className="text-3xl mb-3">{m.emoji}</div>
+              <div className="mb-3 flex size-10 items-center justify-center rounded-xl bg-muted">
+                <m.Icon className="size-5 text-muted-foreground" />
+              </div>
               <div className="flex items-baseline gap-2 mb-1">
                 <span className="text-sm font-bold">{m.name}</span>
                 <span className="text-sm font-bold" style={{ color: m.color }}>{m.jackpot}</span>
               </div>
-              <p className="text-[11px] text-muted-foreground mb-2">
+              <p className="text-xs text-muted-foreground mb-2">
                 RTP {pct(1 - m.houseEdge)} | House edge {pct(m.houseEdge)}
               </p>
               <p className="text-xs text-muted-foreground leading-relaxed">
@@ -469,8 +505,8 @@ export default function RocketmanPage() {
                 <span className="text-sm font-semibold mr-2">{item.label}</span>
                 <span className="text-sm text-muted-foreground">{item.desc}</span>
               </div>
-              {item.status === 'done' && <span className="text-[11px] text-success font-semibold">Done</span>}
-              {item.status === 'next' && <span className="text-[11px] text-warning font-semibold">Next</span>}
+              {item.status === 'done' && <span className="text-xs text-success font-semibold">Done</span>}
+              {item.status === 'next' && <span className="text-xs text-warning font-semibold">Next</span>}
             </div>
           ))}
         </div>
@@ -484,7 +520,7 @@ export default function RocketmanPage() {
             <Card key={i} className="p-5">
               <div className="flex items-center gap-2.5 mb-1.5">
                 <span className="text-xs font-bold">{entry.version}</span>
-                <span className="text-[11px] text-muted-foreground">{entry.date}</span>
+                <span className="text-xs text-muted-foreground">{entry.date}</span>
               </div>
               <p className="text-sm font-semibold mb-1">{entry.title}</p>
               <p className="text-sm text-muted-foreground leading-relaxed">{entry.notes}</p>
@@ -492,8 +528,6 @@ export default function RocketmanPage() {
           ))}
         </div>
       </section>
-
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
 
     </DocLayout>
   )

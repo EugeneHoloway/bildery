@@ -8,10 +8,13 @@ import {
   Table,
   TableBody,
   TableCell,
+  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { Rocket, X } from 'lucide-react'
+import { ConfettiButton } from './ConfettiButton'
 import { DocLayout } from '@/components/doc/DocLayout'
 
 // ── Canvas constants ───────────────────────────────────────────────────────────
@@ -462,24 +465,15 @@ export default function RocketmanDemoPage() {
 
   return (
     <DocLayout
-      title="Demo"
+      title="Animated demo"
       breadcrumbLabel="Rocketman"
       breadcrumbHref="/sandbox/rocketman"
       parentCrumb={{ label: 'Sandbox', href: '/sandbox' }}
-      footnote="🚀 Iteration 3 -- Animated demo | Orbit mode | Virtual bet | No backend yet"
+      tags={[{ label: 'Orbit', type: 'tag' }, { label: '×10 jackpot', type: 'tag' }, { label: 'Iteration 3', type: 'tag' }]}
+      description="Interactive crash game. Orbit mode -- ×10 jackpot. 10 rounds per session. Virtual bets, no backend."
+      footnote="Iteration 3 -- Animated demo | Orbit mode | Virtual bet | No backend yet"
     >
       <div>
-
-        {/* Title */}
-        <div className="mb-6 flex items-center gap-3">
-          <h2 className="text-xl font-bold tracking-tight">Rocketman -- Live demo</h2>
-          <Badge
-            variant="outline"
-            className="border-brand/30 bg-brand-bg text-2xs text-brand"
-          >
-            🛸 Orbit | ×10 jackpot
-          </Badge>
-        </div>
 
         {/* ── Game panel ──────────────────────────────────────────────────────── */}
         <div className={`mb-4 flex overflow-hidden rounded-2xl border bg-card transition-colors duration-500 ${
@@ -489,26 +483,26 @@ export default function RocketmanDemoPage() {
           {/* Left -- player list */}
           <div className="w-52 shrink-0 border-r border-border">
             <div className="border-b border-border px-3 py-2.5">
-              <p className="text-2xs font-bold uppercase tracking-widest text-muted-foreground">
+              <p className="text-xs text-muted-foreground">
                 Total bank
               </p>
               <p className="text-sm font-extrabold text-foreground">${totalBank.toFixed(2)}</p>
-              <p className="mt-0.5 text-3xs text-muted-foreground">
+              <p className="mt-0.5 text-xs text-muted-foreground">
                 {isIdle ? '9 players' : `${livePlayers.filter(p => p.bet !== null).length + 1} of 9 placed bets`}
               </p>
             </div>
             <Table>
               <TableHeader>
-                <TableRow className="hover:bg-transparent">
-                  <TableHead className="text-3xs">User</TableHead>
-                  <TableHead className="text-right text-3xs">Bet</TableHead>
-                  <TableHead className="text-right text-3xs">Result</TableHead>
+                <TableRow>
+                  <TableHead className="text-xs">User</TableHead>
+                  <TableHead className="text-right text-xs">Bet</TableHead>
+                  <TableHead className="text-right text-xs">Result</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {/* YOU row -- always first */}
-                <TableRow className="bg-brand-bg/30 hover:bg-brand-bg/40">
-                  <TableCell className="text-xs font-bold text-brand">you</TableCell>
+                <TableRow>
+                  <TableCell className="text-xs font-bold">You</TableCell>
                   <TableCell className="text-right text-xs font-semibold text-foreground">
                     {!isIdle ? `$${betAmount.toFixed(2)}` : <span className="text-muted-foreground/30">--</span>}
                   </TableCell>
@@ -518,11 +512,11 @@ export default function RocketmanDemoPage() {
                         ×{(cashedAt ?? roundResult?.myCashedAt ?? 0).toFixed(2)}
                       </span>
                     ) : (isCrashed && cashedAt === null) || (isResults && roundResult?.myCashedAt === null) ? (
-                      <span className="font-bold text-destructive">✗</span>
+                      <X className="size-3 text-destructive ml-auto" />
                     ) : isFlying ? (
-                      <span className="animate-pulse text-3xs text-brand">flying</span>
+                      <span className="animate-pulse text-xs text-muted-foreground">flying</span>
                     ) : isCountdown ? (
-                      <span className="text-3xs text-muted-foreground">waiting</span>
+                      <span className="text-xs text-muted-foreground">waiting</span>
                     ) : (
                       <span className="text-muted-foreground/30">--</span>
                     )}
@@ -544,9 +538,9 @@ export default function RocketmanDemoPage() {
                       {p.status === 'cashed_out' && p.cashedAt !== null ? (
                         <span className="font-bold text-success">×{p.cashedAt.toFixed(2)}</span>
                       ) : p.status === 'crashed' ? (
-                        <span className="font-bold text-destructive">✗</span>
+                        <X className="size-3 text-destructive ml-auto" />
                       ) : p.status === 'in' ? (
-                        <span className="animate-pulse text-3xs text-brand">flying</span>
+                        <span className="animate-pulse text-xs text-muted-foreground">flying</span>
                       ) : (
                         <span className="text-muted-foreground/30">--</span>
                       )}
@@ -562,7 +556,7 @@ export default function RocketmanDemoPage() {
             <div className="absolute right-3 top-3 z-10">
               <Badge
                 variant="secondary"
-                className="text-3xs uppercase tracking-wider text-muted-foreground"
+                className="text-xs text-muted-foreground"
               >
                 Orbit target ×10
               </Badge>
@@ -648,14 +642,27 @@ export default function RocketmanDemoPage() {
                   />
                   <circle cx={rocketX} cy={rocketY} r={22} fill={curveColor} opacity={0.10} />
                   {/* Rocket / crash / jackpot icon */}
-                  {(isCrashed || isResults) ? (
-                    <text
-                      x={isResults ? multToX(roundResult?.crashPoint ?? MAX_MULT) : rocketX}
-                      y={(isResults ? multToVisualY(roundResult?.crashPoint ?? MAX_MULT) : rocketY) + 8}
-                      textAnchor="middle" fontSize={26}
-                      className="select-none"
-                    >{(roundResult?.crashPoint ?? mult) >= MAX_MULT ? '🏆' : '💥'}</text>
-                  ) : (
+                  {(isCrashed || isResults) ? (() => {
+                    const isJackpot = (roundResult?.crashPoint ?? mult) >= MAX_MULT
+                    const cx = isResults ? multToX(roundResult?.crashPoint ?? MAX_MULT) : rocketX
+                    const cy = isResults ? multToVisualY(roundResult?.crashPoint ?? MAX_MULT) : rocketY
+                    return (
+                      <g transform={`translate(${cx.toFixed(1)}, ${cy.toFixed(1)})`}>
+                        <circle r={18} fill={isJackpot ? 'var(--color-warning)' : 'var(--color-destructive)'} opacity={0.2} />
+                        {isJackpot ? (
+                          <path
+                            d="M0,-10 L2.4,-3.3 L9.5,-3.1 L4.1,1.3 L5.9,9 L0,5 L-5.9,9 L-4.1,1.3 L-9.5,-3.1 L-2.4,-3.3 Z"
+                            fill="var(--color-warning)"
+                          />
+                        ) : (
+                          <>
+                            <line x1={-7} y1={-7} x2={7} y2={7} stroke="var(--color-destructive)" strokeWidth={2.5} strokeLinecap="round" />
+                            <line x1={7} y1={-7} x2={-7} y2={7} stroke="var(--color-destructive)" strokeWidth={2.5} strokeLinecap="round" />
+                          </>
+                        )}
+                      </g>
+                    )
+                  })() : (
                     <g transform={`translate(${rocketX}, ${rocketY}) rotate(${rocketAng}) translate(0, -32)`}>
                       {/* ── Depo Rocketman -- custom rocket silhouette ── */}
                       {/* Nose cone */}
@@ -720,11 +727,11 @@ export default function RocketmanDemoPage() {
                   <text
                     x={W / 2} y={H / 2 - 28}
                     textAnchor="middle"
-                    fontSize={11} fontWeight={600} letterSpacing="0.1em"
+                    fontSize={11} fontWeight={500}
                     style={{ fill: 'var(--color-muted-foreground)' }}
                     fontFamily="system-ui, sans-serif"
                   >
-                    ROUND {sessionRoundRef.current} OF {SESSION_SIZE} | STARTING IN
+                    Round {sessionRoundRef.current} of {SESSION_SIZE} · Starting in
                   </text>
                   {/* Timer number */}
                   <text
@@ -780,21 +787,21 @@ export default function RocketmanDemoPage() {
           {/* Bet selector -- shown when idle or countdown */}
           {(isIdle || isCountdown) && (
             <div className="flex flex-wrap items-center gap-2 border-b border-border px-5 py-3">
-              <span className="text-2xs font-bold uppercase tracking-widest text-muted-foreground">
-                Bet
+              <span className="text-xs text-muted-foreground shrink-0">
+                Bet per round:
               </span>
               {BET_OPTS.map(v => (
-                <button
+                <ConfettiButton
                   key={v}
                   onClick={() => handleBetPreset(v)}
                   className={`rounded-lg border px-3 py-1 text-xs font-bold transition-colors ${
                     betAmount === v && customBet === ''
-                      ? 'border-brand bg-brand-bg text-brand'
-                      : 'border-border text-muted-foreground hover:border-brand/40 hover:text-foreground'
+                      ? 'bg-foreground text-background border-foreground'
+                      : 'bg-transparent text-muted-foreground border-border hover:text-foreground'
                   }`}
                 >
                   ${v.toFixed(2)}
-                </button>
+                </ConfettiButton>
               ))}
               <Input
                 type="number" min="0.01" step="0.01" placeholder="Custom $"
@@ -812,7 +819,7 @@ export default function RocketmanDemoPage() {
             {isIdle && (
               <>
                 <div className="flex-1">
-                  <p className="mb-1 text-2xs font-semibold uppercase tracking-widest text-muted-foreground">
+                  <p className="mb-1 text-xs text-muted-foreground">
                     {sessionComplete ? 'Session complete' : 'Ready to play'}
                   </p>
                   <p className="text-2xl font-extrabold tracking-tight text-foreground">
@@ -826,10 +833,10 @@ export default function RocketmanDemoPage() {
                 </p>
                 <Button
                   size="lg"
-                  className="h-11 px-10 font-extrabold tracking-tight"
                   onClick={() => actions.current.launch()}
                 >
-                  🚀 {sessionComplete ? 'Next session' : 'Launch'}
+                  <Rocket />
+                  {sessionComplete ? 'Next session' : 'Launch'}
                 </Button>
               </>
             )}
@@ -838,7 +845,7 @@ export default function RocketmanDemoPage() {
             {isCountdown && (
               <>
                 <div className="flex-1">
-                  <p className="mb-1 text-2xs font-semibold uppercase tracking-widest text-muted-foreground">
+                  <p className="mb-1 text-xs text-muted-foreground">
                     Your bet
                   </p>
                   <p className="text-2xl font-extrabold tracking-tight text-foreground">
@@ -846,7 +853,7 @@ export default function RocketmanDemoPage() {
                   </p>
                 </div>
                 <div className="flex-1">
-                  <p className="mb-1 text-2xs font-semibold uppercase tracking-widest text-muted-foreground">
+                  <p className="mb-1 text-xs text-muted-foreground">
                     Starting in
                   </p>
                   <p className="text-2xl font-extrabold tracking-tight text-foreground">
@@ -856,7 +863,6 @@ export default function RocketmanDemoPage() {
                 <p className="flex-1 text-sm text-muted-foreground">Players placing bets…</p>
                 <Button
                   size="lg" variant="outline"
-                  className="h-11 px-6 font-bold"
                   disabled={isStopping}
                   onClick={() => actions.current.stop()}
                 >
@@ -869,7 +875,7 @@ export default function RocketmanDemoPage() {
             {isFlying && (
               <>
                 <div className="flex-1">
-                  <p className="mb-1 text-2xs font-semibold uppercase tracking-widest text-muted-foreground">
+                  <p className="mb-1 text-xs text-muted-foreground">
                     Your bet
                   </p>
                   <p className="text-2xl font-extrabold tracking-tight text-foreground">
@@ -877,21 +883,19 @@ export default function RocketmanDemoPage() {
                   </p>
                 </div>
                 <div className="flex-1">
-                  <p className="mb-1 text-2xs font-semibold uppercase tracking-widest text-muted-foreground">
+                  <p className="mb-1 text-xs text-muted-foreground">
                     Current win
                   </p>
-                  <p className="text-2xl font-extrabold tracking-tight text-brand">${win}</p>
+                  <p className="text-2xl font-extrabold tracking-tight text-foreground">${win}</p>
                 </div>
                 <Button
                   size="lg"
-                  className="h-11 animate-pulse px-8 font-extrabold tracking-tight"
                   onClick={() => actions.current.cashOut()}
                 >
                   I&apos;m out ${win}
                 </Button>
                 <Button
                   size="lg" variant="outline"
-                  className="h-11 px-6 font-bold"
                   disabled={isStopping}
                   onClick={() => actions.current.stop()}
                 >
@@ -904,7 +908,7 @@ export default function RocketmanDemoPage() {
             {isCashedOut && (
               <>
                 <div className="flex-1">
-                  <p className="mb-1 text-2xs font-semibold uppercase tracking-widest text-muted-foreground">
+                  <p className="mb-1 text-xs text-muted-foreground">
                     You&apos;re out at
                   </p>
                   <p className="text-2xl font-extrabold tracking-tight text-foreground">
@@ -912,7 +916,7 @@ export default function RocketmanDemoPage() {
                   </p>
                 </div>
                 <div className="flex-1">
-                  <p className="mb-1 text-2xs font-semibold uppercase tracking-widest text-muted-foreground">
+                  <p className="mb-1 text-xs text-muted-foreground">
                     You won
                   </p>
                   <p className="text-2xl font-extrabold tracking-tight text-success">
@@ -922,7 +926,6 @@ export default function RocketmanDemoPage() {
                 <p className="text-sm text-muted-foreground">Waiting for crash…</p>
                 <Button
                   size="lg" variant="outline"
-                  className="h-11 px-6 font-bold"
                   disabled={isStopping}
                   onClick={() => actions.current.stop()}
                 >
@@ -935,7 +938,7 @@ export default function RocketmanDemoPage() {
             {isCrashed && (
               <>
                 <div className="flex-1">
-                  <p className="mb-1 text-2xs font-semibold uppercase tracking-widest text-muted-foreground">
+                  <p className="mb-1 text-xs text-muted-foreground">
                     {cashedAt ? 'Cashed out at' : 'Crashed at'}
                   </p>
                   <p className={`text-2xl font-extrabold tracking-tight ${cashedAt ? 'text-success' : 'text-destructive'}`}>
@@ -943,7 +946,7 @@ export default function RocketmanDemoPage() {
                   </p>
                 </div>
                 <div className="flex-1">
-                  <p className="mb-1 text-2xs font-semibold uppercase tracking-widest text-muted-foreground">
+                  <p className="mb-1 text-xs text-muted-foreground">
                     {cashedAt ? 'You won' : 'You lost'}
                   </p>
                   <p className={`text-2xl font-extrabold tracking-tight ${cashedAt ? 'text-success' : 'text-destructive'}`}>
@@ -968,7 +971,7 @@ export default function RocketmanDemoPage() {
               return (
                 <div className="flex w-full flex-wrap items-start gap-5">
                   <div className="min-w-[80px]">
-                    <p className="mb-0.5 text-3xs font-bold uppercase tracking-widest text-muted-foreground">
+                    <p className="mb-0.5 text-xs text-muted-foreground">
                       Crashed at
                     </p>
                     <p className="text-lg font-extrabold text-destructive">
@@ -976,20 +979,20 @@ export default function RocketmanDemoPage() {
                     </p>
                   </div>
                   <div className="min-w-[80px]">
-                    <p className="mb-0.5 text-3xs font-bold uppercase tracking-widest text-muted-foreground">
+                    <p className="mb-0.5 text-xs text-muted-foreground">
                       Your result
                     </p>
                     <p className={`text-lg font-extrabold ${roundResult.myProfit >= 0 ? 'text-success' : 'text-destructive'}`}>
                       {roundResult.myProfit >= 0 ? '+' : ''}${roundResult.myProfit.toFixed(2)}
                     </p>
                     {roundResult.myCashedAt !== null && (
-                      <p className="text-3xs text-muted-foreground">
+                      <p className="text-xs text-muted-foreground">
                         got back ${(roundResult.myBet * roundResult.myCashedAt).toFixed(2)}
                       </p>
                     )}
                   </div>
                   <div className="min-w-[80px]">
-                    <p className="mb-0.5 text-3xs font-bold uppercase tracking-widest text-muted-foreground">
+                    <p className="mb-0.5 text-xs text-muted-foreground">
                       Total bank
                     </p>
                     <p className="text-lg font-extrabold text-foreground">
@@ -997,30 +1000,29 @@ export default function RocketmanDemoPage() {
                     </p>
                   </div>
                   <div className="min-w-[80px]">
-                    <p className="mb-0.5 text-3xs font-bold uppercase tracking-widest text-muted-foreground">
+                    <p className="mb-0.5 text-xs text-muted-foreground">
                       Paid to winners
                     </p>
                     <p className="text-lg font-extrabold text-foreground">
                       ${totalPayout.toFixed(2)}
                     </p>
-                    <p className="text-3xs text-muted-foreground">gross return</p>
+                    <p className="text-xs text-muted-foreground">gross return</p>
                   </div>
                   <div className="min-w-[80px]">
-                    <p className="mb-0.5 text-3xs font-bold uppercase tracking-widest text-muted-foreground">
+                    <p className="mb-0.5 text-xs text-muted-foreground">
                       Provider earned
                     </p>
                     <p className={`text-lg font-extrabold ${providerEarned >= 0 ? 'text-success' : 'text-destructive'}`}>
                       {providerEarned >= 0 ? '+' : ''}${providerEarned.toFixed(2)}
                     </p>
-                    <p className="text-3xs text-muted-foreground">
+                    <p className="text-xs text-muted-foreground">
                       bank − payouts
                     </p>
                   </div>
-                  <div className="ml-auto flex items-center gap-2">
+                  <div className="ml-auto flex items-center gap-2 self-center">
                     <p className="text-xs text-muted-foreground">Next round in 5s…</p>
                     <Button
                       size="lg" variant="outline"
-                      className="h-11 px-6 font-bold"
                       disabled={isStopping}
                       onClick={() => actions.current.stop()}
                     >
@@ -1040,34 +1042,33 @@ export default function RocketmanDemoPage() {
           const gtProvider  = roundHistory.reduce((s, r) => s + r.providerEarned, 0)
           const gtMyProfit  = +roundHistory.reduce((s, r) => s + r.myProfit, 0).toFixed(2)
           return (
-            <div className="mb-10 overflow-hidden rounded-2xl border border-border bg-card">
-              {/* Header */}
-              <div className="flex items-center justify-between border-b border-border px-5 py-3">
-                <div>
-                  <p className="text-sm font-bold text-foreground">Session history</p>
-                  <p className="text-2xs text-muted-foreground">
-                    {sessionComplete
-                      ? `${SESSION_SIZE} rounds complete`
-                      : `Round ${roundHistory.length} of ${SESSION_SIZE}`}
-                  </p>
-                </div>
-                {sessionComplete && (
-                  <Badge variant="outline" className="border-success/40 bg-success/10 text-2xs text-success">
-                    Session complete
-                  </Badge>
-                )}
+            <>
+            <div className="mb-3 flex items-center justify-between">
+              <div>
+                <p className="text-sm font-semibold text-foreground">Session history</p>
+                <p className="text-xs text-muted-foreground">
+                  {sessionComplete
+                    ? `${SESSION_SIZE} rounds complete`
+                    : `Round ${roundHistory.length} of ${SESSION_SIZE}`}
+                </p>
               </div>
+              {sessionComplete && (
+                <Badge variant="outline" className="border-success/40 bg-success/10 text-xs text-success">
+                  Session complete
+                </Badge>
+              )}
+            </div>
 
-              {/* Table */}
+            <div className="mb-10 overflow-hidden rounded-2xl border border-border bg-card">
               <Table>
-                <TableHeader>
-                  <TableRow className="hover:bg-transparent">
-                    <TableHead className="w-10 text-3xs">#</TableHead>
-                    <TableHead className="text-3xs">Crash</TableHead>
-                    <TableHead className="text-right text-3xs">Bank</TableHead>
-                    <TableHead className="text-right text-3xs">Paid to winners</TableHead>
-                    <TableHead className="text-right text-3xs">Provider</TableHead>
-                    <TableHead className="text-right text-3xs">You</TableHead>
+                <TableHeader className="bg-muted/50">
+                  <TableRow>
+                    <TableHead className="w-10 text-xs">#</TableHead>
+                    <TableHead className="text-xs">Crash</TableHead>
+                    <TableHead className="text-right text-xs">Bank</TableHead>
+                    <TableHead className="text-right text-xs">Paid to winners</TableHead>
+                    <TableHead className="text-right text-xs">Provider</TableHead>
+                    <TableHead className="text-right text-xs">You</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -1093,28 +1094,23 @@ export default function RocketmanDemoPage() {
                   ))}
                 </TableBody>
                 {sessionComplete && (
-                  <tfoot>
-                    <tr className="border-t-2 border-border bg-muted/30 font-bold">
-                      <td className="px-3 py-3 text-xs font-bold text-foreground" colSpan={2}>
-                        Grand total
-                      </td>
-                      <td className="px-3 py-3 text-right text-xs font-bold text-foreground">
-                        ${gtBank.toFixed(2)}
-                      </td>
-                      <td className="px-3 py-3 text-right text-xs font-bold text-foreground">
-                        ${gtPaid.toFixed(2)}
-                      </td>
-                      <td className={`px-3 py-3 text-right text-xs font-bold ${gtProvider >= 0 ? 'text-success' : 'text-destructive'}`}>
+                  <TableFooter>
+                    <TableRow>
+                      <TableCell colSpan={2} className="text-xs font-bold text-foreground">Grand total</TableCell>
+                      <TableCell className="text-right text-xs font-bold text-foreground">${gtBank.toFixed(2)}</TableCell>
+                      <TableCell className="text-right text-xs font-bold text-foreground">${gtPaid.toFixed(2)}</TableCell>
+                      <TableCell className={`text-right text-xs font-bold ${gtProvider >= 0 ? 'text-success' : 'text-destructive'}`}>
                         {gtProvider >= 0 ? '+' : ''}${gtProvider.toFixed(2)}
-                      </td>
-                      <td className={`px-3 py-3 text-right text-xs font-bold ${gtMyProfit >= 0 ? 'text-success' : 'text-destructive'}`}>
+                      </TableCell>
+                      <TableCell className={`text-right text-xs font-bold ${gtMyProfit >= 0 ? 'text-success' : 'text-destructive'}`}>
                         {gtMyProfit >= 0 ? '+' : ''}${gtMyProfit.toFixed(2)}
-                      </td>
-                    </tr>
-                  </tfoot>
+                      </TableCell>
+                    </TableRow>
+                  </TableFooter>
                 )}
               </Table>
             </div>
+            </>
           )
         })()}
 
