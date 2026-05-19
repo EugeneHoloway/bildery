@@ -42,6 +42,7 @@ export default function Page() {
       ]}
       description="[TBA]"
     >
+      {null}
     </DocLayout>
   )
 }
