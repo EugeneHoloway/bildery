@@ -1,17 +1,15 @@
-import type { Metadata } from 'next'
-import { SandboxCard, type SandboxCardData } from '@/components/SandboxCard'
+'use client'
 
-export const metadata: Metadata = {
-  title: 'Sandbox',
-  description: 'Work-in-progress projects, test tasks, and exploratory documents.',
-}
+import { useState } from 'react'
+import { cn } from '@/lib/utils'
+import { SandboxCard, type SandboxCardData } from '@/components/SandboxCard'
 
 // ─── Data ────────────────────────────────────────────────────────────────────
 
 const techCards: SandboxCardData[] = [
   {
     id: 'liki24',
-    tag: 'PM Task',
+    tag: 'Tech Task',
     title: 'Autoship & Save',
     description:
       'ROI-positive retention initiative for a marketplace. Covers initiative selection, target segment, LTV hypothesis, UX flow, ROI model, risk assessment, and A/B test design.',
@@ -22,7 +20,7 @@ const techCards: SandboxCardData[] = [
   },
   {
     id: 'tips',
-    tag: 'PM Task',
+    tag: 'Tech Task',
     title: 'Expert Rating System',
     description:
       'Expert Rating System for sports portal. Rating algorythm approach, Baessyan model calc, exceptions and edge cases.',
@@ -33,7 +31,7 @@ const techCards: SandboxCardData[] = [
   },
   {
     id: 'enable3',
-    tag: 'PM Task',
+    tag: 'Tech Task',
     title: 'Shopify Growth Loop',
     description:
       'Mission-driven loyalty template for Shopify merchants. Covers ecosystem challenges, behavioral mechanics, mission categories, RFM segmentation, reward structure, and merchant value communication.',
@@ -44,7 +42,7 @@ const techCards: SandboxCardData[] = [
   },
   {
     id: 'subsub',
-    tag: 'PM Task',
+    tag: 'Tech Task',
     title: '1K Signups, 0 Revenue',
     description:
       'Growth PM diagnosis and 90-day plan for SubSub: a YouTube creator monetization platform. Covers funnel analysis, activation gap, hypothesis prioritization, unit economics, and experiment roadmap.',
@@ -72,7 +70,7 @@ const marketCards: SandboxCardData[] = [
 const mockupCards: SandboxCardData[] = [
   {
     id: 'homepage-configurator',
-    tag: 'iGaming Backoffice',
+    tag: 'Prototype',
     title: 'Homepage Configurator',
     description:
       'Page section manager for iGaming operator backoffice. Banner slider, game sections (auto/manual), providers row, live bets feed and SEO text.',
@@ -83,7 +81,7 @@ const mockupCards: SandboxCardData[] = [
   },
   {
     id: 'page-manager',
-    tag: 'iGaming Backoffice',
+    tag: 'Prototype',
     title: 'Page Manager',
     description:
       'Create, hide and delete custom pages. Includes Game Providers page with logo grid, layout toggle and per-page settings.',
@@ -94,7 +92,7 @@ const mockupCards: SandboxCardData[] = [
   },
   {
     id: 'seo-editor',
-    tag: 'iGaming Backoffice',
+    tag: 'Prototype',
     title: 'SEO Editor',
     description:
       'Per-page SEO tab: H1, title tag, meta description with live SERP preview, Open Graph, advanced settings and audit checklist.',
@@ -105,7 +103,7 @@ const mockupCards: SandboxCardData[] = [
   },
   {
     id: 'analytics',
-    tag: 'iGaming Backoffice',
+    tag: 'Analytics',
     title: 'Analytics Dashboard',
     description:
       'Operator analytics prototype with live Supabase data. Revenue GGR/NGR, deposits & withdrawals, top games by hold %, and player segmentation by VIP tier.',
@@ -116,11 +114,11 @@ const mockupCards: SandboxCardData[] = [
   },
   {
     id: 'revenue-intelligence',
-    tag: 'iGaming',
+    tag: 'Analytics',
     title: 'AI Revenue Intelligence',
     description:
       'Enter 9 operator KPIs - FTD rate, churn, bonus ROI, payment success - and get AI-generated revenue health scores, risk assessment, and prioritized actions.',
-    status: 'Depo44',
+    status: 'iGaming',
 
     sections: 1,
     href: '/sandbox/revenue-intelligence',
@@ -163,7 +161,18 @@ function SandboxSection({
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
+const FILTER_OPTIONS = [
+  { key: 'all',        label: 'All' },
+  { key: 'Tech Task',  label: 'Tech Task' },
+  { key: 'Analytics',  label: 'Analytics' },
+  { key: 'Markets',    label: 'Markets' },
+  { key: 'Prototype',  label: 'Prototype' },
+  { key: 'Game',       label: 'Game' },
+]
+
 export default function SandboxPage() {
+  const [filter, setFilter] = useState('all')
+
   return (
     <div className="py-12 pb-20">
       <div className="mx-auto max-w-[1240px] px-4">
@@ -173,16 +182,33 @@ export default function SandboxPage() {
           <h1 className="mb-2 text-xl font-bold tracking-heading">
             Sandbox
           </h1>
-          <p className="text-base leading-relaxed text-muted-foreground">
+          <p className="mb-4 text-base leading-relaxed text-muted-foreground">
             Work-in-progress projects, test tasks, and exploratory documents.
           </p>
+          <div className="flex gap-1.5 flex-wrap">
+            {FILTER_OPTIONS.map(opt => (
+              <button
+                key={opt.key}
+                onClick={() => setFilter(opt.key)}
+                className={cn(
+                  'px-2.5 py-1 rounded-md border text-xs font-semibold transition-all',
+                  filter === opt.key
+                    ? 'bg-foreground text-background border-foreground'
+                    : 'bg-transparent text-muted-foreground border-border hover:text-foreground',
+                )}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
         </div>
 
-        {/* Sections */}
-        <div className="space-y-12">
-          <SandboxSection title="Tech tasks" cards={techCards} />
-          <SandboxSection title="Markets" cards={marketCards} />
-          <SandboxSection title="Mockups" cards={mockupCards} />
+        <div className="grid grid-cols-1 gap-4 tablet:grid-cols-2 desktop:grid-cols-4">
+          {[...techCards, ...marketCards, ...mockupCards]
+            .filter(card => filter === 'all' || card.tag === filter)
+            .map((card) => (
+              <SandboxCard key={card.id} card={card} />
+            ))}
         </div>
 
       </div>
