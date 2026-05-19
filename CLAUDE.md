@@ -1,5 +1,10 @@
 # Bildery — правила для Claude
 
+## Рабочая директория
+Основной проект всегда находится по пути `/Users/eugene/Downloads/Bildery/`.
+Все правки файлов делать **только** там, даже если сессия открыта в worktree.
+
+
 ## Стек
 - **Next.js 15**, **React 19**, **TypeScript**
 - **Tailwind CSS v4.2**

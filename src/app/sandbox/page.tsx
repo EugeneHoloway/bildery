@@ -4,9 +4,19 @@ import { useState } from 'react'
 import { cn } from '@/lib/utils'
 import { SandboxCard, type SandboxCardData } from '@/components/SandboxCard'
 
-// ─── Data ────────────────────────────────────────────────────────────────────
+// ─── Data (newest first) ─────────────────────────────────────────────────────
 
-const techCards: SandboxCardData[] = [
+const cards: SandboxCardData[] = [
+  {
+    id: 'brand-canvas',
+    tag: 'Prototype',
+    title: 'Brand Canvas',
+    description: '[TBA]',
+    status: 'iGaming',
+
+    sections: 0,
+    href: '/sandbox/brand-canvas',
+  },
   {
     id: 'buki',
     tag: 'Tech Task',
@@ -61,9 +71,6 @@ const techCards: SandboxCardData[] = [
     sections: 6,
     href: '/sandbox/subsub',
   },
-]
-
-const marketCards: SandboxCardData[] = [
   {
     id: 'stm',
     tag: 'Markets',
@@ -75,9 +82,6 @@ const marketCards: SandboxCardData[] = [
     sections: 9,
     href: '/sandbox/stm',
   },
-]
-
-const mockupCards: SandboxCardData[] = [
   {
     id: 'homepage-configurator',
     tag: 'Prototype',
@@ -214,7 +218,7 @@ export default function SandboxPage() {
         </div>
 
         <div className="grid grid-cols-1 gap-4 tablet:grid-cols-2 desktop:grid-cols-4">
-          {[...techCards, ...marketCards, ...mockupCards]
+          {cards
             .filter(card => filter === 'all' || card.tag === filter)
             .map((card) => (
               <SandboxCard key={card.id} card={card} />
