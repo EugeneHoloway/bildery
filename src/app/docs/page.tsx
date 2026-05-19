@@ -117,7 +117,7 @@ export default function DocsPage() {
 
   return (
     <div className="py-12 pb-20">
-      <div className="mx-auto max-w-[1240px] px-4">
+      <div className="mx-auto max-w-screen-xl px-4">
 
         {/* Page header */}
         <div className="mb-10 flex items-start justify-between gap-4">

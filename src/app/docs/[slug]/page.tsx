@@ -139,7 +139,7 @@ export default function DocEditorPage() {
 
   if (loading) return (
     <div className="py-10 pb-20">
-      <div className="mx-auto max-w-[1240px] px-4">
+      <div className="mx-auto max-w-screen-xl px-4">
         <p className="py-4 text-sm text-muted-foreground">Loading...</p>
       </div>
     </div>
@@ -147,7 +147,7 @@ export default function DocEditorPage() {
 
   if (notFound) return (
     <div className="py-10 pb-20">
-      <div className="mx-auto max-w-[1240px] px-4">
+      <div className="mx-auto max-w-screen-xl px-4">
         <p className="py-4 text-sm text-muted-foreground">
           Document not found.{' '}
           <Link href="/docs" className="text-brand underline">
@@ -160,7 +160,7 @@ export default function DocEditorPage() {
 
   return (
     <div className="py-10 pb-20">
-      <div className="mx-auto max-w-[1240px] px-4">
+      <div className="mx-auto max-w-screen-xl px-4">
 
         {/* Breadcrumb */}
         <nav className="mb-8 flex items-center gap-2 text-sm text-muted-foreground" aria-label="Breadcrumb">

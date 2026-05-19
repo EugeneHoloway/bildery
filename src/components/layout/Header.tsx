@@ -75,7 +75,7 @@ export function Header() {
           'bg-background/85 backdrop-blur-md',
         )}
       >
-        <div className="mx-auto flex h-full max-w-[1240px] items-center justify-between gap-6 px-4">
+        <div className="mx-auto flex h-full max-w-screen-xl items-center justify-between gap-6 px-4">
 
           {/* Logo */}
           <Link

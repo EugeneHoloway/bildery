@@ -21,7 +21,7 @@ interface PageShellProps {
 
 /**
  * Стандартная обёртка страницы: breadcrumb + заголовок + описание + контент.
- * Заголовок и контент всегда в отдельных контейнерах — оба ограничены max-w-[1240px].
+ * Заголовок и контент всегда в отдельных контейнерах — оба ограничены max-w-screen-xl.
  * Используется на всех основных страницах Bildery.
  */
 export function PageShell({
@@ -35,7 +35,7 @@ export function PageShell({
   return (
     <div className={cn("flex flex-col py-12 pb-20", className)}>
       {/* Заголовок */}
-      <div className="mx-auto w-full max-w-[1240px] px-4">
+      <div className="mx-auto w-full max-w-screen-xl px-4">
         {breadcrumbs && breadcrumbs.length > 0 && (
           <nav className="mb-6 flex items-center gap-1 text-sm text-muted-foreground">
             {breadcrumbs.map((crumb, i) => {
@@ -69,7 +69,7 @@ export function PageShell({
       </div>
 
       {/* Контент — горизонтальные отступы на ответственности children */}
-      <div className="mx-auto w-full max-w-[1240px]">
+      <div className="mx-auto w-full max-w-screen-xl">
         {children}
       </div>
     </div>

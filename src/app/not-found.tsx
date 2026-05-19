@@ -3,7 +3,7 @@ import Link from 'next/link'
 export default function NotFound() {
   return (
     <div className="py-12 pb-20">
-      <div className="mx-auto max-w-[1240px] px-4 tablet:px-4">
+      <div className="mx-auto max-w-screen-xl px-4 tablet:px-4">
         <div className="mb-10">
           <h1 className="mb-2 text-xl font-bold tracking-heading">
             404

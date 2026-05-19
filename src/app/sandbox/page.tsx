@@ -8,6 +8,16 @@ import { SandboxCard, type SandboxCardData } from '@/components/SandboxCard'
 
 const techCards: SandboxCardData[] = [
   {
+    id: 'buki',
+    tag: 'Tech Task',
+    title: 'Audit',
+    description: '[TBA]',
+    status: 'Buki',
+
+    sections: 4,
+    href: '/sandbox/buki',
+  },
+  {
     id: 'liki24',
     tag: 'Tech Task',
     title: 'Autoship & Save',
@@ -175,7 +185,7 @@ export default function SandboxPage() {
 
   return (
     <div className="py-12 pb-20">
-      <div className="mx-auto max-w-[1240px] px-4">
+      <div className="mx-auto max-w-screen-xl px-4">
 
         {/* Page header */}
         <div className="mb-10">
