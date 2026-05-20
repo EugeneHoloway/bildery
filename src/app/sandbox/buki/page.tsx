@@ -110,7 +110,6 @@ export default function Page() {
             <DocRisks items={[
               {
                 level: 'high',
-                badge: 'Problem 1',
                 title: ua ? 'Нульова відповідальність учня (Trial)' : 'Zero Student Accountability (Trial)',
                 text: ua
                   ? "Безкоштовне пробне заняття без жодних зобов'язань знижує сприйняту цінність. Учні не мають фінансового якоря, що підтверджував би намір."
@@ -118,7 +117,6 @@ export default function Page() {
               },
               {
                 level: 'high',
-                badge: 'Problem 2',
                 title: ua ? 'Слабка механіка конверсії після триалу (Payment)' : 'Weak Post-Trial Conversion Mechanics (Payment)',
                 text: ua
                   ? 'Платформа не контролює конверсію Trial→Payment. Залежність від якості репетитора. Підозра на домовленості поза платформою між репетиторами і учнями.'
@@ -126,7 +124,6 @@ export default function Page() {
               },
               {
                 level: 'watch',
-                badge: 'Problem 3',
                 title: ua ? 'Відсутність персоналізованих рекомендацій (Prospect)' : 'No Personalized Recommendations (Prospect)',
                 text: ua
                   ? 'Репетитори представлені як пасивний список із фільтрами. Платформа не використовує інтелектуальне звуження за цілями, рівнем і розкладом учня.'
@@ -294,6 +291,7 @@ export default function Page() {
             <DocTableHeader>
               <TableRow>
                 <TableHead>{ua ? 'Ініціатива' : 'Initiative'}</TableHead>
+                <TableHead>Priority</TableHead>
                 <TableHead>Impact</TableHead>
                 <TableHead>Effort</TableHead>
                 <TableHead>RICE</TableHead>
@@ -311,12 +309,11 @@ export default function Page() {
                   </div>
                 </TableCell>
                 <TableCell>
-                  <Badge variant="outline" className="bg-brand-bg text-brand border-brand/30 text-xs pointer-events-none">
-                    Medium +2–3%
-                  </Badge>
+                  <Badge variant="outline" className="bg-brand-bg text-brand border-brand/30 text-xs pointer-events-none">Medium</Badge>
                 </TableCell>
+                <TableCell className="text-sm font-medium">+2–3%</TableCell>
                 <TableCell className="text-sm">{ua ? '1 тиждень' : '1 week'}</TableCell>
-                <TableCell><strong>160</strong></TableCell>
+                <TableCell>160</TableCell>
                 <TableCell>M1</TableCell>
               </TableRow>
               <TableRow>
@@ -329,10 +326,9 @@ export default function Page() {
                   </div>
                 </TableCell>
                 <TableCell>
-                  <Badge variant="outline" className="bg-subtle text-muted-foreground border-subtle-border text-xs pointer-events-none">
-                    Low +1–2%
-                  </Badge>
+                  <Badge variant="outline" className="bg-subtle text-muted-foreground border-subtle-border text-xs pointer-events-none">Low</Badge>
                 </TableCell>
+                <TableCell className="text-sm font-medium">+1–2%</TableCell>
                 <TableCell className="text-sm">{ua ? '1 тиждень' : '1 week'}</TableCell>
                 <TableCell>21</TableCell>
                 <TableCell>M1</TableCell>
@@ -347,10 +343,9 @@ export default function Page() {
                   </div>
                 </TableCell>
                 <TableCell>
-                  <Badge variant="outline" className="bg-brand-bg text-brand border-brand/30 text-xs pointer-events-none">
-                    Medium +2–3%
-                  </Badge>
+                  <Badge variant="outline" className="bg-brand-bg text-brand border-brand/30 text-xs pointer-events-none">Medium</Badge>
                 </TableCell>
+                <TableCell className="text-sm font-medium">+2–3%</TableCell>
                 <TableCell className="text-sm">{ua ? '2 тижні' : '2 weeks'}</TableCell>
                 <TableCell>70</TableCell>
                 <TableCell>M2</TableCell>
@@ -365,10 +360,9 @@ export default function Page() {
                   </div>
                 </TableCell>
                 <TableCell>
-                  <Badge variant="outline" className="bg-success-bg text-success border-success-border text-xs pointer-events-none">
-                    High +3–5%
-                  </Badge>
+                  <Badge variant="outline" className="bg-success-bg text-success border-success-border text-xs pointer-events-none">High</Badge>
                 </TableCell>
+                <TableCell className="text-sm font-medium">+3–5%</TableCell>
                 <TableCell className="text-sm">{ua ? '4 тижні' : '4 weeks'}</TableCell>
                 <TableCell>52</TableCell>
                 <TableCell>M3</TableCell>
@@ -383,10 +377,9 @@ export default function Page() {
                   </div>
                 </TableCell>
                 <TableCell>
-                  <Badge variant="outline" className="bg-success-bg text-success border-success-border text-xs pointer-events-none">
-                    Very High +4–6%
-                  </Badge>
+                  <Badge variant="outline" className="bg-warning-bg text-warning border-warning-border text-xs pointer-events-none">Very High</Badge>
                 </TableCell>
+                <TableCell className="text-sm font-medium">+4–6%</TableCell>
                 <TableCell className="text-sm">{ua ? '12 тижнів' : '12 weeks'}</TableCell>
                 <TableCell>20</TableCell>
                 <TableCell>M4–M6</TableCell>
