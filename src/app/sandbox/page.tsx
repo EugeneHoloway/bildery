@@ -20,8 +20,8 @@ const cards: SandboxCardData[] = [
   {
     id: 'buki',
     tag: 'Tech Task',
-    title: 'Audit',
-    description: '[TBA]',
+    title: 'Product Audit',
+    description: 'Funnel audit, growth strategy, and 6-month roadmap for BUKI.',
     status: 'Buki',
 
     sections: 4,
