@@ -13,9 +13,9 @@ const cards: SandboxCardData[] = [
     title: 'Brand Canvas',
     description: '[TBA]',
     status: 'iGaming',
-
     sections: 0,
     href: '/sandbox/brand-canvas',
+    languages: ['EN'],
   },
   {
     id: 'buki',
@@ -23,9 +23,17 @@ const cards: SandboxCardData[] = [
     title: 'Product Audit',
     description: 'Funnel audit, growth strategy, and 6-month roadmap for BUKI.',
     status: 'Buki',
-
     sections: 4,
     href: '/sandbox/buki',
+    highlight: {
+      label: 'Deliverables:',
+      bullets: [
+        'Funnel audit & conversion drop',
+        'Growth hypotheses, prioritized',
+        '6-month execution roadmap',
+      ],
+    },
+    languages: ['EN', 'UA'],
   },
   {
     id: 'liki24',
@@ -34,9 +42,17 @@ const cards: SandboxCardData[] = [
     description:
       'ROI-positive retention initiative for a marketplace. Covers initiative selection, target segment, LTV hypothesis, UX flow, ROI model, risk assessment, and A/B test design.',
     status: 'Liki24',
-
     sections: 8,
     href: '/sandbox/liki24',
+    highlight: {
+      label: 'Deliverables:',
+      bullets: [
+        'Initiative & target segment',
+        'LTV hypothesis & ROI model',
+        'A/B test design',
+      ],
+    },
+    languages: ['EN'],
   },
   {
     id: 'tips',
@@ -45,9 +61,17 @@ const cards: SandboxCardData[] = [
     description:
       'Expert Rating System for sports portal. Rating algorythm approach, Baessyan model calc, exceptions and edge cases.',
     status: 'Tips',
-
     sections: 8,
     href: '/sandbox/tips',
+    highlight: {
+      label: 'Deliverables:',
+      bullets: [
+        'Rating algorithm design',
+        'Bayesian model calculation',
+        'Edge cases & exceptions',
+      ],
+    },
+    languages: ['EN', 'UA'],
   },
   {
     id: 'enable3',
@@ -56,9 +80,17 @@ const cards: SandboxCardData[] = [
     description:
       'Mission-driven loyalty template for Shopify merchants. Covers ecosystem challenges, behavioral mechanics, mission categories, RFM segmentation, reward structure, and merchant value communication.',
     status: 'Enable3',
-
     sections: 5,
     href: '/sandbox/enable3',
+    highlight: {
+      label: 'Deliverables:',
+      bullets: [
+        'Behavioral loyalty mechanics',
+        'RFM segmentation & rewards',
+        'Merchant value communication',
+      ],
+    },
+    languages: ['EN'],
   },
   {
     id: 'subsub',
@@ -67,9 +99,17 @@ const cards: SandboxCardData[] = [
     description:
       'Growth PM diagnosis and 90-day plan for SubSub: a YouTube creator monetization platform. Covers funnel analysis, activation gap, hypothesis prioritization, unit economics, and experiment roadmap.',
     status: 'SubSub',
-
     sections: 6,
     href: '/sandbox/subsub',
+    highlight: {
+      label: 'Deliverables:',
+      bullets: [
+        'Funnel & activation gap analysis',
+        'Hypothesis prioritization',
+        '90-day experiment roadmap',
+      ],
+    },
+    languages: ['EN'],
   },
   {
     id: 'stm',
@@ -78,9 +118,17 @@ const cards: SandboxCardData[] = [
     description:
       'Gross margin, performance, EBITDA, Revenue, rating summary and price target scenarios.',
     status: 'Share',
-
     sections: 9,
     href: '/sandbox/stm',
+    highlight: {
+      label: 'Covers:',
+      bullets: [
+        'Gross margin & EBITDA metrics',
+        'Performance & revenue analysis',
+        'Price target scenarios',
+      ],
+    },
+    languages: ['EN'],
   },
   {
     id: 'homepage-configurator',
@@ -89,9 +137,17 @@ const cards: SandboxCardData[] = [
     description:
       'Page section manager for iGaming operator backoffice. Banner slider, game sections (auto/manual), providers row, live bets feed and SEO text.',
     status: 'BetUp',
-
     sections: 3,
     href: '/sandbox/homepage-configurator',
+    highlight: {
+      label: 'Covers:',
+      bullets: [
+        'Banner & game section manager',
+        'Providers row & live bets feed',
+        'SEO text per page',
+      ],
+    },
+    languages: ['EN'],
   },
   {
     id: 'page-manager',
@@ -100,9 +156,17 @@ const cards: SandboxCardData[] = [
     description:
       'Create, hide and delete custom pages. Includes Game Providers page with logo grid, layout toggle and per-page settings.',
     status: 'BetUp',
-
     sections: 2,
     href: '/sandbox/page-manager',
+    highlight: {
+      label: 'Covers:',
+      bullets: [
+        'Create, hide & delete pages',
+        'Game Providers logo grid',
+        'Per-page layout settings',
+      ],
+    },
+    languages: ['EN'],
   },
   {
     id: 'seo-editor',
@@ -111,9 +175,17 @@ const cards: SandboxCardData[] = [
     description:
       'Per-page SEO tab: H1, title tag, meta description with live SERP preview, Open Graph, advanced settings and audit checklist.',
     status: 'BetUp',
-
     sections: 4,
     href: '/sandbox/seo-editor',
+    highlight: {
+      label: 'Covers:',
+      bullets: [
+        'H1, title & meta description',
+        'Live SERP preview',
+        'Open Graph & audit checklist',
+      ],
+    },
+    languages: ['EN'],
   },
   {
     id: 'analytics',
@@ -122,9 +194,17 @@ const cards: SandboxCardData[] = [
     description:
       'Operator analytics prototype with live Supabase data. Revenue GGR/NGR, deposits & withdrawals, top games by hold %, and player segmentation by VIP tier.',
     status: 'BetUp',
-
     sections: 4,
     href: '/sandbox/analytics',
+    highlight: {
+      label: 'Covers:',
+      bullets: [
+        'Revenue GGR/NGR & deposits',
+        'Top games by hold %',
+        'VIP player segmentation',
+      ],
+    },
+    languages: ['EN'],
   },
   {
     id: 'revenue-intelligence',
@@ -133,9 +213,17 @@ const cards: SandboxCardData[] = [
     description:
       'Enter 9 operator KPIs - FTD rate, churn, bonus ROI, payment success - and get AI-generated revenue health scores, risk assessment, and prioritized actions.',
     status: 'iGaming',
-
     sections: 1,
     href: '/sandbox/revenue-intelligence',
+    highlight: {
+      label: 'Covers:',
+      bullets: [
+        '9 KPI inputs & health scores',
+        'AI risk assessment',
+        'Prioritized action plan',
+      ],
+    },
+    languages: ['EN'],
   },
   {
     id: 'rocketman',
@@ -144,9 +232,17 @@ const cards: SandboxCardData[] = [
     description:
       'A crash game with a space theme. Rocket flies higher -- multiplier grows. Cash out before it explodes. Three modes: Orbit (×10), Moon (×50), Mars (×100). Built with provably fair RNG.',
     status: 'Bildery',
-
     sections: 1,
     href: '/sandbox/rocketman',
+    highlight: {
+      label: 'Features:',
+      bullets: [
+        'Three modes: Orbit, Moon, Mars',
+        'Growing multiplier mechanic',
+        'Provably fair RNG',
+      ],
+    },
+    languages: ['EN'],
   },
 ]
 
