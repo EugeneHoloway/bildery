@@ -12,7 +12,9 @@ import {
   Crown,
   Gift,
   LayoutGrid,
+  Lock,
   RotateCcw,
+  Shield,
   Wallet,
   Zap,
 } from 'lucide-react'
@@ -26,6 +28,9 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Checkbox } from '@/components/ui/checkbox'
 import { cn } from '@/lib/utils'
 
 // ─── Topics nav ───────────────────────────────────────────────────────────────
@@ -209,10 +214,10 @@ const ONBOARDING_STEPS = [
   { label: 'Start to play',         description: null as string | null, done: false, current: false },
 ]
 
-const PAY_MAIN: { id: string; label: string; badge: string | null; Icon: ElementType }[] = [
-  { id: 'gpay',   label: 'Google Pay', badge: 'Most popular', Icon: Wallet     },
-  { id: 'card',   label: 'Card',       badge: null,           Icon: CreditCard },
-  { id: 'crypto', label: 'Crypto',     badge: null,           Icon: Bitcoin    },
+const PAY_MAIN: { id: string; label: string; badge: string | null; Icon: ElementType; logoSrc?: string }[] = [
+  { id: 'gpay',   label: 'Google Pay', badge: 'Most popular', Icon: Wallet,     logoSrc: '/logos/gpay-light.svg' },
+  { id: 'card',   label: 'Card',       badge: null,           Icon: CreditCard                                   },
+  { id: 'crypto', label: 'Crypto',     badge: null,           Icon: Bitcoin                                      },
 ]
 
 const PAY_MORE: { id: string; label: string; badge: string | null; Icon: ElementType }[] = [
@@ -245,11 +250,13 @@ function PaymentRow({
   label,
   badge,
   Icon,
+  logoSrc,
   onClick,
 }: {
   label: string
   badge: string | null
   Icon: ElementType
+  logoSrc?: string
   onClick?: () => void
 }) {
   return (
@@ -257,7 +264,10 @@ function PaymentRow({
       className="group flex w-full cursor-pointer items-center gap-3 rounded-2xl border border-border px-4 py-4 text-left transition-colors hover:bg-muted"
       onClick={onClick}
     >
-      <Icon className="size-5 shrink-0 text-foreground" />
+      {logoSrc
+        ? <img src={logoSrc} alt={label} className="h-5 w-auto shrink-0" />
+        : <Icon className="size-5 shrink-0 text-foreground" />
+      }
       <span className="flex-1 text-base font-semibold text-foreground">{label}</span>
       {badge && (
         <span className="rounded-full bg-success-bg px-2.5 py-0.5 text-xs font-medium text-success">
@@ -284,11 +294,15 @@ function DepositPill() {
 // ─── Onboarding section ───────────────────────────────────────────────────────
 
 function OnboardingSection() {
-  const [stepsOpen,   setStepsOpen]   = useState(false)
-  const [depositOpen, setDepositOpen] = useState(false)
-  const [showMore,    setShowMore]    = useState(false)
-  const [gpayOpen,    setGpayOpen]    = useState(false)
-  const [amountStr,   setAmountStr]   = useState('')
+  const [stepsOpen,       setStepsOpen]       = useState(false)
+  const [depositOpen,     setDepositOpen]     = useState(false)
+  const [showMore,        setShowMore]        = useState(false)
+  const [amountOpen,      setAmountOpen]      = useState(false)
+  const [activeMethod,    setActiveMethod]    = useState<'gpay' | 'card' | null>(null)
+  const [gpayConfirmOpen, setGpayConfirmOpen] = useState(false)
+  const [cardFormOpen,    setCardFormOpen]    = useState(false)
+  const [amountStr,       setAmountStr]       = useState('')
+  const [saveCard,        setSaveCard]        = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
   const amount       = parseInt(amountStr || '0', 10)
@@ -296,12 +310,12 @@ function OnboardingSection() {
   const showMinError = amountStr.length > 0 && amount > 0 && amount < 10
   const showMaxError = amount > 1000
 
-  // Auto-focus hidden input when Google Pay modal opens
+  // Auto-focus hidden input when amount modal opens
   useEffect(() => {
-    if (!gpayOpen) return
+    if (!amountOpen) return
     const t = setTimeout(() => inputRef.current?.focus(), 150)
     return () => clearTimeout(t)
-  }, [gpayOpen])
+  }, [amountOpen])
 
   function openDeposit() {
     setStepsOpen(false)
@@ -310,18 +324,45 @@ function OnboardingSection() {
 
   function openGpay() {
     setDepositOpen(false)
-    setGpayOpen(true)
+    setActiveMethod('gpay')
+    setAmountOpen(true)
   }
 
-  function backToDeposit() {
-    setGpayOpen(false)
+  function openCard() {
+    setDepositOpen(false)
+    setActiveMethod('card')
+    setAmountOpen(true)
+  }
+
+  function backFromAmount() {
+    setAmountOpen(false)
     setAmountStr('')
     setDepositOpen(true)
+  }
+
+  function continueFromAmount() {
+    setAmountOpen(false)
+    if (activeMethod === 'gpay') setGpayConfirmOpen(true)
+    else if (activeMethod === 'card') setCardFormOpen(true)
+  }
+
+  function backToAmount() {
+    setGpayConfirmOpen(false)
+    setCardFormOpen(false)
+    setAmountOpen(true)
   }
 
   function addAmount(add: number) {
     const next = parseInt(amountStr || '0', 10) + add
     setAmountStr(String(next))
+  }
+
+  function closeAll() {
+    setGpayConfirmOpen(false)
+    setCardFormOpen(false)
+    setAmountOpen(false)
+    setAmountStr('')
+    setSaveCard(false)
   }
 
   const progress = (CURRENT_STEP / TOTAL_STEPS) * 100
@@ -443,7 +484,12 @@ function OnboardingSection() {
                   label={m.label}
                   badge={m.badge}
                   Icon={m.Icon}
-                  onClick={m.id === 'gpay' ? openGpay : undefined}
+                  logoSrc={m.logoSrc}
+                  onClick={
+                    m.id === 'gpay' ? openGpay :
+                    m.id === 'card' ? openCard :
+                    undefined
+                  }
                 />
               ))}
 
@@ -467,14 +513,16 @@ function OnboardingSection() {
         </DialogContent>
       </Dialog>
 
-      {/* ── Google Pay amount dialog ─────────────────────────────────────────── */}
-      <Dialog open={gpayOpen} onOpenChange={(open) => { setGpayOpen(open); if (!open) setAmountStr('') }}>
+      {/* ── Amount entry dialog (shared: Google Pay & Card) ──────────────────── */}
+      <Dialog open={amountOpen} onOpenChange={(open) => { setAmountOpen(open); if (!open) setAmountStr('') }}>
         <DialogContent className="sm:max-w-sm">
-          <DialogTitle className="sr-only">Deposit with Google Pay</DialogTitle>
+          <DialogTitle className="sr-only">
+            {activeMethod === 'gpay' ? 'Deposit with Google Pay' : 'Deposit with Card'}
+          </DialogTitle>
 
-          {/* Back button — absolute, mirroring the close button on the right */}
+          {/* Back button */}
           <button
-            onClick={backToDeposit}
+            onClick={backFromAmount}
             className="absolute left-4 top-4 flex size-7 cursor-pointer items-center justify-center rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:outline-none"
             aria-label="Go back"
           >
@@ -549,6 +597,7 @@ function OnboardingSection() {
             <Button
               size="lg"
               disabled={!isValid}
+              onClick={continueFromAmount}
               className={cn(
                 'w-full',
                 isValid
@@ -556,7 +605,7 @@ function OnboardingSection() {
                   : 'bg-success/15 text-success/50 disabled:opacity-100',
               )}
             >
-              Continue with Google Pay
+              {activeMethod === 'gpay' ? 'Continue with Google Pay' : 'Continue with Card'}
             </Button>
 
             {/* Disclaimer */}
@@ -567,6 +616,221 @@ function OnboardingSection() {
                 This payment cannot be cancelled
               </span>
             </p>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Google Pay confirmation dialog ───────────────────────────────────── */}
+      <Dialog
+        open={gpayConfirmOpen}
+        onOpenChange={(open) => { setGpayConfirmOpen(open); if (!open) setAmountStr('') }}
+      >
+        <DialogContent className="sm:max-w-sm">
+          <DialogTitle className="sr-only">Confirm Google Pay deposit</DialogTitle>
+
+          {/* Back button */}
+          <button
+            onClick={backToAmount}
+            className="absolute left-4 top-4 flex size-7 cursor-pointer items-center justify-center rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:outline-none"
+            aria-label="Go back"
+          >
+            <ChevronLeft className="size-4" />
+          </button>
+
+          <div className="flex flex-col gap-6">
+            <DepositPill />
+
+            {/* Selected method row */}
+            <div className="flex items-center gap-3">
+              <div className="flex size-7 shrink-0 items-center justify-center rounded-full border-2 border-success">
+                <div className="size-2 rounded-full bg-success" />
+              </div>
+              <div className="flex items-center rounded-full border border-border px-3 py-1">
+                <img src="/logos/gpay-light.svg" alt="Google Pay" className="h-4 w-auto" />
+              </div>
+              <span className="text-base font-semibold text-success">Google Pay</span>
+            </div>
+
+            {/* Google Pay button mock — black per brand guidelines */}
+            <button className="flex h-14 w-full cursor-pointer items-center justify-center gap-3 rounded-lg bg-[#000] px-4 transition-opacity hover:opacity-90">
+              <img src="/logos/gpay-dark.svg" alt="Google Pay" className="h-6 w-auto shrink-0" />
+              <div className="h-5 w-px bg-white/20" />
+              <span className="rounded bg-blue-600 px-1.5 py-0.5 text-xs font-bold text-white">
+                VISA
+              </span>
+              <span className="text-sm text-white">···· 8908</span>
+            </button>
+
+            {/* Edit amount */}
+            <Button
+              variant="outline"
+              size="lg"
+              className="w-full"
+              onClick={backToAmount}
+            >
+              Edit amount
+            </Button>
+
+            {/* Not now */}
+            <button
+              onClick={closeAll}
+              className="cursor-pointer text-sm font-medium text-success transition-opacity hover:opacity-70"
+            >
+              Not now
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Card details dialog ──────────────────────────────────────────────── */}
+      <Dialog
+        open={cardFormOpen}
+        onOpenChange={(open) => { setCardFormOpen(open); if (!open) { setAmountStr(''); setSaveCard(false) } }}
+      >
+        <DialogContent className="sm:max-w-sm">
+          <DialogTitle className="sr-only">Card details</DialogTitle>
+
+          {/* Back button */}
+          <button
+            onClick={backToAmount}
+            className="absolute left-4 top-4 flex size-7 cursor-pointer items-center justify-center rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:outline-none"
+            aria-label="Go back"
+          >
+            <ChevronLeft className="size-4" />
+          </button>
+
+          <div className="flex flex-col gap-5">
+            <DepositPill />
+
+            {/* Selected method row */}
+            <div className="flex items-center gap-3">
+              <div className="flex size-7 shrink-0 items-center justify-center rounded-full border-2 border-success">
+                <div className="size-2 rounded-full bg-success" />
+              </div>
+              <div className="flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5">
+                <CreditCard className="size-3.5 text-foreground" />
+              </div>
+              <span className="text-base font-semibold text-success">Card</span>
+            </div>
+
+            {/* Form fields */}
+            <div className="flex flex-col gap-4">
+              {/* Cardholder name */}
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="card-name" className="text-sm text-muted-foreground">
+                  Cardholder name
+                </Label>
+                <Input
+                  id="card-name"
+                  type="text"
+                  autoComplete="cc-name"
+                  placeholder="Jane Smith"
+                  className="h-11"
+                />
+              </div>
+
+              {/* Card number */}
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="card-number" className="text-sm text-muted-foreground">
+                  Card number
+                </Label>
+                <div className="relative">
+                  <Input
+                    id="card-number"
+                    type="text"
+                    inputMode="numeric"
+                    autoComplete="cc-number"
+                    placeholder="0000 0000 0000 0000"
+                    className="h-11 pr-24"
+                  />
+                  <div className="absolute right-3 top-1/2 flex -translate-y-1/2 items-center gap-1.5">
+                    <span className="rounded px-1.5 py-0.5 text-xs font-bold text-white bg-blue-600">
+                      VISA
+                    </span>
+                    <span className="text-xs font-bold text-muted-foreground">MC</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Expiry + CVV */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="card-expiry" className="text-sm text-muted-foreground">
+                    Expiry date
+                  </Label>
+                  <Input
+                    id="card-expiry"
+                    type="text"
+                    inputMode="numeric"
+                    autoComplete="cc-exp"
+                    placeholder="MM / YY"
+                    className="h-11"
+                  />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="card-cvv" className="text-sm text-muted-foreground">
+                    Security code
+                  </Label>
+                  <Input
+                    id="card-cvv"
+                    type="text"
+                    inputMode="numeric"
+                    autoComplete="cc-csc"
+                    placeholder="CVV"
+                    className="h-11"
+                  />
+                </div>
+              </div>
+
+              {/* Save card */}
+              <div className="flex items-center gap-2.5">
+                <Checkbox
+                  id="save-card"
+                  checked={saveCard}
+                  onCheckedChange={(v) => setSaveCard(!!v)}
+                />
+                <Label
+                  htmlFor="save-card"
+                  className="cursor-pointer text-sm font-medium text-foreground"
+                >
+                  Save card for future deposits
+                </Label>
+              </div>
+            </div>
+
+            {/* Checkout.com secured note */}
+            <div className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
+              <Shield className="size-3.5 shrink-0" />
+              <span>Secured by</span>
+              <span className="font-semibold text-foreground">Checkout.com</span>
+            </div>
+
+            {/* Deposit CTA */}
+            <Button
+              size="lg"
+              className="w-full bg-success text-white hover:bg-success/90"
+            >
+              <Lock className="size-4" />
+              Deposit {amount > 0 ? `$${amountStr}` : ''}
+            </Button>
+
+            {/* Edit amount */}
+            <Button
+              variant="outline"
+              size="lg"
+              className="w-full"
+              onClick={backToAmount}
+            >
+              Edit amount
+            </Button>
+
+            {/* Not now */}
+            <button
+              onClick={closeAll}
+              className="cursor-pointer text-sm font-medium text-success transition-opacity hover:opacity-70"
+            >
+              Not now
+            </button>
           </div>
         </DialogContent>
       </Dialog>
