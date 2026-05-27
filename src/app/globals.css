@@ -3,6 +3,14 @@
 @theme {
   /* === Fonts === */
   --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
+  --font-display: var(--font-roboto-condensed), "Roboto Condensed", sans-serif;
+
+  /* === Type scale extensions === */
+  --text-2xs: 0.625rem; /* 10px — below Tailwind's text-xs (12px) */
+
+  /* === Animations === */
+  --animate-chevron-nudge: chevron-nudge 0.3s ease-out forwards;
+  --animate-blink: blink 1s step-end infinite;
 
   /* === Border radius === */
   --radius-sm: 0.25rem;   /* 4px */
@@ -14,6 +22,10 @@
   --breakpoint-tablet: 768px;
   --breakpoint-desktop: 1024px;
   --breakpoint-wide: 1440px;
+
+  /* === Card shadows === */
+  --shadow-card: 0 0 #0000;
+  --shadow-card-hover: 0 0 #0000;
 
   /* === Spacing === */
   --spacing-header-mobile: 64px;
@@ -86,6 +98,9 @@
   --color-serp-title: hsl(217 91% 45%);
   --color-serp-text: hsl(0 0% 33%);
 
+  /* === Crimson === */
+  --color-crimson: #d90091;
+
   /* === Warning (amber) === */
   --color-warning: hsl(32 95% 44%);
   --color-warning-bg: hsl(38 100% 95%);
@@ -95,6 +110,19 @@
   --color-info: hsl(213 94% 55%);
   --color-info-bg: hsl(214 100% 97%);
   --color-info-border: hsl(213 94% 80%);
+}
+
+/* === Keyframes === */
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+@keyframes chevron-nudge {
+  0%   { transform: translateX(0px); }
+  55%  { transform: translateX(5px); }
+  100% { transform: translateX(2px); }
 }
 
 /* === Dark theme === */
@@ -151,6 +179,9 @@
   --color-serp-title: hsl(217 80% 62%);
   --color-serp-text: hsl(0 0% 70%);
 
+  /* === Crimson (dark) === */
+  --color-crimson: #d90091;
+
   /* === Warning (dark) === */
   --color-warning: hsl(32 90% 60%);
   --color-warning-bg: hsl(32 50% 16%);
@@ -182,6 +213,12 @@
 }
 
 /* ── Layout utilities ─────────────────────────────────────────────────────── */
+@utility scrollbar-none {
+  &::-webkit-scrollbar { display: none; }
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 @utility container {
   max-width: 1280px;
   margin-inline: auto;
@@ -194,15 +231,16 @@
 /* ── TipTap / ProseMirror ─────────────────────────────────────────────────── */
 .ProseMirror {
   outline: none;
-  font-size: 0.95rem;
-  line-height: 1.75;
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.6;
   color: var(--color-foreground);
 }
 .ProseMirror h1 { font-size: 1.75rem; font-weight: 700; letter-spacing: -0.03em; margin: 1.2em 0 0.4em; }
 .ProseMirror h2 { font-size: 1.35rem; font-weight: 700; letter-spacing: -0.02em; margin: 1em 0 0.4em; }
 .ProseMirror p  { margin: 0 0 0.75em; }
-.ProseMirror ul,
-.ProseMirror ol { padding-left: 1.4em; margin: 0 0 0.75em; }
+.ProseMirror ul  { list-style-type: disc;    padding-left: 1.5em; margin: 0 0 0.75em; }
+.ProseMirror ol  { list-style-type: decimal; padding-left: 1.5em; margin: 0 0 0.75em; }
 .ProseMirror li { margin: 0.25em 0; }
 .ProseMirror blockquote {
   border-left: 3px solid var(--color-border);
@@ -219,6 +257,69 @@
 
 .ProseMirror strong { font-weight: 700; }
 .ProseMirror em     { font-style: italic; }
+.ProseMirror code {
+  font-family: var(--font-sans);
+  background: var(--color-muted);
+  border-radius: 0.25rem;
+  padding: 0.1em 0.3em;
+  font-size: 0.9em;
+}
+
+/* Table */
+.ProseMirror .tableWrapper {
+  overflow-x: auto;
+  margin: 0.75em 0;
+}
+.ProseMirror table {
+  border-collapse: collapse;
+  table-layout: fixed;
+  width: 100%;
+  font-size: 0.875rem;
+  overflow: hidden;
+}
+.ProseMirror th,
+.ProseMirror td {
+  border: 1px solid var(--color-border);
+  box-sizing: border-box;
+  min-width: 60px;
+  padding: 0.5em 0.75em;
+  position: relative;
+  vertical-align: middle;
+  text-align: left;
+}
+.ProseMirror th {
+  background: var(--color-muted);
+  font-weight: 600;
+}
+.ProseMirror td p,
+.ProseMirror th p {
+  margin: 0;
+}
+/* highlight selected cell */
+.ProseMirror .selectedCell::after {
+  background: var(--color-brand-bg);
+  content: '';
+  inset: 0;
+  opacity: 0.4;
+  pointer-events: none;
+  position: absolute;
+}
+/* column resize drag handle — added to DOM by plugin only when mouse is near border */
+.ProseMirror .column-resize-handle {
+  background-color: var(--color-brand);
+  bottom: -2px;
+  pointer-events: none;
+  position: absolute;
+  right: -2px;
+  top: 0;
+  width: 4px;
+  z-index: 20;
+}
+/* cursor while hovering over resize zone */
+.ProseMirror.resize-cursor {
+  cursor: ew-resize;
+  cursor: col-resize;
+}
 .ProseMirror p.is-editor-empty:first-child::before {
   content: attr(data-placeholder);
   float: left;

@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Inter, Geist } from 'next/font/google'
+import { Inter, Geist, Roboto_Condensed } from 'next/font/google'
 import './globals.css'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
@@ -8,6 +8,12 @@ import { ThemeProvider } from '@/components/ThemeProvider'
 import { cn } from "@/lib/utils";
 
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
+
+const robotoCondensed = Roboto_Condensed({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-roboto-condensed',
+});
 
 const inter = Inter({
   subsets: ['latin', 'cyrillic'],
@@ -38,7 +44,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="ru" className={cn("font-sans", geist.variable)} suppressHydrationWarning>
+    <html lang="ru" className={cn("font-sans", geist.variable, robotoCondensed.variable)} suppressHydrationWarning>
       <body suppressHydrationWarning>
         <ThemeProvider>
           {/* App shell: flex column, min-h-screen (mirrors .app-shell) */}

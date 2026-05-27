@@ -66,10 +66,10 @@ export function SandboxCard({ card }: { card: SandboxCardData }) {
         'min-h-72 p-4 rounded-2xl',
         // Visual
         'bg-card border border-border',
-        'shadow-sm',
+        'shadow-card',
         // Interaction
         'transition-all duration-200',
-        'hover:border-subtle-border hover:shadow-md',
+        'hover:border-subtle-border hover:shadow-card-hover',
       )}
     >
       {/* Stretched link — makes the whole card clickable */}

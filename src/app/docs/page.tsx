@@ -88,9 +88,9 @@ function DocCard({
         'flex flex-col justify-between gap-4',
         'min-h-72 p-4 rounded-2xl',
         'bg-card border border-border',
-        'shadow-[0_1px_2px_rgba(16,24,40,0.04)]',
+        'shadow-card',
         'transition-[border-color,box-shadow] duration-200',
-        'hover:border-subtle-border hover:shadow-[0_4px_16px_rgba(16,24,40,0.08)]',
+        'hover:border-subtle-border hover:shadow-card-hover',
       )}
     >
       {/* Top */}

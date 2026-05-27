@@ -199,7 +199,7 @@ export default function RevenueIntelligencePage() {
         <div className="mb-8 grid grid-cols-2 gap-2.5 sm:grid-cols-3">
           {METRICS.map(m => (
             <div key={m.key}
-              className="rounded-2xl border border-border bg-card px-4 py-3.5 shadow-sm transition-[border-color,box-shadow] duration-200 hover:border-subtle-border hover:shadow-md"
+              className="rounded-2xl border border-border bg-card px-4 py-3.5 shadow-card transition-[border-color,box-shadow] duration-200 hover:border-subtle-border hover:shadow-card-hover"
             >
               <p className="mb-2 text-xs text-muted-foreground">{m.label}</p>
               <div className="flex items-center gap-1.5">
