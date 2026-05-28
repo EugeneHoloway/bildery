@@ -23,6 +23,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -32,6 +33,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
 import { cn } from '@/lib/utils'
+import { useTheme } from 'next-themes'
 
 // ─── Topics nav ───────────────────────────────────────────────────────────────
 
@@ -49,9 +51,15 @@ const TOPICS = [
   'Table Games',
 ]
 
-const PROVIDERS = Array.from({ length: 10 }, (_, i) => `Provider #${i + 1}`)
+const PROVIDERS = [
+  { name: 'Depo44', logo: '/logos/depo44-logo.svg', logoDark: '/logos/depo44-logo-white.svg' },
+  { name: 'BetUp', logo: '/logos/betup-logo-black.svg', logoDark: '/logos/betup-logo.svg' },
+  ...Array.from({ length: 8 }, (_, i) => ({ name: `Provider #${i + 3}`, logo: null, logoDark: null })),
+]
 
 function ProvidersDialog() {
+  const { resolvedTheme } = useTheme()
+  const isDark = resolvedTheme === 'dark'
   return (
     <Dialog>
       <Tooltip>
@@ -71,14 +79,23 @@ function ProvidersDialog() {
       <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>Providers</DialogTitle>
+          <DialogDescription className="sr-only">Browse the full list of available game providers.</DialogDescription>
         </DialogHeader>
         <div className="grid grid-cols-3 gap-3 sm:grid-cols-5">
-          {PROVIDERS.map((name) => (
+          {PROVIDERS.map((provider) => (
             <div
-              key={name}
-              className="flex h-16 items-center justify-center rounded-xl border border-border bg-muted text-xs text-muted-foreground"
+              key={provider.name}
+              className="flex h-16 items-center justify-center rounded-xl border border-border bg-muted text-xs text-muted-foreground cursor-pointer hover:bg-accent hover:border-border transition-colors"
             >
-              {name}
+              {provider.logo ? (
+                <img
+                  src={isDark ? (provider.logoDark ?? provider.logo) : provider.logo}
+                  alt={provider.name}
+                  className="max-h-8 max-w-[80%] object-contain"
+                />
+              ) : (
+                provider.name
+              )}
             </div>
           ))}
         </div>
@@ -411,6 +428,7 @@ function OnboardingSection() {
             <DialogTitle className="text-center text-sm font-semibold">
               Get ready to play
             </DialogTitle>
+            <DialogDescription className="sr-only">Complete the required steps to finish setting up your account and start playing.</DialogDescription>
           </DialogHeader>
 
           <div className="flex flex-col gap-6">
@@ -465,6 +483,7 @@ function OnboardingSection() {
       <Dialog open={depositOpen} onOpenChange={(open) => { setDepositOpen(open); if (!open) setShowMore(false) }}>
         <DialogContent className="sm:max-w-sm">
           <DialogTitle className="sr-only">Deposit funds</DialogTitle>
+          <DialogDescription className="sr-only">Choose a payment method to fund your account.</DialogDescription>
 
           <div className="flex flex-col gap-5">
             <DepositPill />
@@ -519,6 +538,7 @@ function OnboardingSection() {
           <DialogTitle className="sr-only">
             {activeMethod === 'gpay' ? 'Deposit with Google Pay' : 'Deposit with Card'}
           </DialogTitle>
+          <DialogDescription className="sr-only">Enter the amount you'd like to deposit.</DialogDescription>
 
           {/* Back button */}
           <button
@@ -627,6 +647,7 @@ function OnboardingSection() {
       >
         <DialogContent className="sm:max-w-sm">
           <DialogTitle className="sr-only">Confirm Google Pay deposit</DialogTitle>
+          <DialogDescription className="sr-only">Review and confirm your deposit amount before completing the Google Pay transaction.</DialogDescription>
 
           {/* Back button */}
           <button
@@ -689,6 +710,7 @@ function OnboardingSection() {
       >
         <DialogContent className="sm:max-w-sm">
           <DialogTitle className="sr-only">Card details</DialogTitle>
+          <DialogDescription className="sr-only">Enter your card details to complete the deposit.</DialogDescription>
 
           {/* Back button */}
           <button

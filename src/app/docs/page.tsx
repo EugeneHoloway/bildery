@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose,
+  Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter, DialogClose,
 } from '@/components/ui/dialog'
 
 const PASSWORD = process.env.NEXT_PUBLIC_TODO_PASSWORD
@@ -257,6 +257,9 @@ function DocFormModal({
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>{isCreate ? 'New document' : 'Edit document'}</DialogTitle>
+          <DialogDescription className="sr-only">
+            {isCreate ? 'Fill in the details to create a new document.' : 'Update the details for this document.'}
+          </DialogDescription>
         </DialogHeader>
 
         <div className="flex flex-col gap-4 py-1">
