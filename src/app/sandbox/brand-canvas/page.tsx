@@ -561,9 +561,12 @@ function OnboardingSection() {
                 'font-bold tabular-nums tracking-tight text-6xl',
                 amount === 0 ? 'text-muted-foreground/40' : 'text-foreground',
               )}>
-                ${amountStr || '0'}
+                ${amount === 0 ? '' : amountStr}
               </span>
-              <span className="animate-blink ml-0.5 text-5xl font-light text-foreground/50">|</span>
+              <span className="animate-blink inline-block w-[2px] h-12 bg-foreground/60 align-middle" />
+              {amount === 0 && (
+                <span className="font-bold tabular-nums tracking-tight text-6xl text-muted-foreground/40">0</span>
+              )}
 
               {/* Invisible input captures keyboard events */}
               <input
