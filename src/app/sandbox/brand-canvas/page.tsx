@@ -51,7 +51,7 @@ const TOPICS = [
   'Table Games',
 ]
 
-const PROVIDERS = [
+const PROVIDERS: { name: string; logo: string | null; logoDark: string | null }[] = [
   { name: 'Depo44', logo: '/logos/depo44-logo.svg', logoDark: '/logos/depo44-logo-white.svg' },
   { name: 'BetUp', logo: '/logos/betup-logo-black.svg', logoDark: '/logos/betup-logo.svg' },
   ...Array.from({ length: 8 }, (_, i) => ({ name: `Provider #${i + 3}`, logo: null, logoDark: null })),
