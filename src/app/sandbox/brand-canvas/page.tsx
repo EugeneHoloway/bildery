@@ -6,13 +6,20 @@ import {
   ArrowRightLeft,
   Bitcoin,
   Check,
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
+  Clock,
+  Copy,
   CreditCard,
   Crown,
+  DollarSign,
+  Eye,
+  EyeOff,
   Gift,
   LayoutGrid,
   Lock,
+  RefreshCw,
   RotateCcw,
   Shield,
   Wallet,
@@ -34,6 +41,238 @@ import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
 import { cn } from '@/lib/utils'
 import { useTheme } from 'next-themes'
+
+// ─── Auth modals ──────────────────────────────────────────────────────────────
+
+function AuthPill({ label }: { label: string }) {
+  return (
+    <div className="flex justify-center">
+      <span className="rounded-full border border-border px-4 py-1 text-xs font-bold uppercase tracking-widest text-foreground">
+        {label}
+      </span>
+    </div>
+  )
+}
+
+function AuthModals() {
+  const [expiredOpen,  setExpiredOpen]  = useState(true)
+  const [loginOpen,    setLoginOpen]    = useState(false)
+  const [registerOpen, setRegisterOpen] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const [email,        setEmail]        = useState('')
+  const [password,     setPassword]     = useState('')
+
+  const loginEnabled = email.length > 0 && password.length > 0
+  const { resolvedTheme } = useTheme()
+  const isDark = resolvedTheme === 'dark'
+
+  function handleExpiredOk() {
+    setExpiredOpen(false)
+    setLoginOpen(true)
+  }
+
+  function handleCreateAccount() {
+    setLoginOpen(false)
+    setRegisterOpen(true)
+  }
+
+  function handleAlreadyHaveAccount() {
+    setRegisterOpen(false)
+    setLoginOpen(true)
+  }
+
+  const socialBtn = "flex h-12 w-full cursor-pointer items-center justify-center gap-3 rounded-xl bg-foreground px-4 text-sm font-semibold text-background transition-opacity hover:opacity-85"
+
+  return (
+    <>
+      {/* ── Expired session ─────────────────────────────────────────────────── */}
+      <Dialog open={expiredOpen} onOpenChange={setExpiredOpen}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogTitle className="sr-only">Expired Session</DialogTitle>
+          <DialogDescription className="sr-only">Your session has expired.</DialogDescription>
+
+          <div className="flex flex-col gap-5">
+            <AuthPill label="Session Expired" />
+
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Your session has expired. Please try logging in again. If it persists,
+              please clear your browser cache or{' '}
+              <span className="cursor-pointer font-medium text-brand underline underline-offset-2 hover:opacity-80 transition-opacity">
+                contact support
+              </span>
+              .
+            </p>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              You will be redirected to the login page, where you can login again to continue.
+            </p>
+            <Button
+              size="lg"
+              className="w-full bg-success text-white hover:bg-success/90"
+              onClick={handleExpiredOk}
+            >
+              Ok
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Login ───────────────────────────────────────────────────────────── */}
+      <Dialog open={loginOpen} onOpenChange={setLoginOpen}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogTitle className="sr-only">Log in</DialogTitle>
+          <DialogDescription className="sr-only">Log in to your account.</DialogDescription>
+
+          <div className="flex flex-col gap-4">
+            <AuthPill label="Log in" />
+
+            <div>
+              <h2 className="text-2xl font-bold text-foreground">Welcome back</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Log in to your account to continue playing.
+              </p>
+            </div>
+
+            {/* Social buttons */}
+            <button type="button" className={socialBtn}>
+              <img src="/logos/google-logo.svg" alt="Google" className="size-5 shrink-0" />
+              Continue with Google
+            </button>
+            <button type="button" className={socialBtn}>
+              <img src="/logos/Apple_logo_black.svg" alt="Apple" className={`h-5 w-auto shrink-0${isDark ? '' : ' invert'}`} />
+              Continue with Apple
+            </button>
+
+            {/* Divider */}
+            <div className="relative my-1 flex items-center">
+              <div className="flex-1 border-t border-border" />
+              <span className="mx-3 text-xs text-muted-foreground">or</span>
+              <div className="flex-1 border-t border-border" />
+            </div>
+
+            {/* Email + password */}
+            <div className="flex flex-col gap-2">
+              <Input
+                type="email"
+                placeholder="Email"
+                className="h-11"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+              <div className="relative">
+                <Input
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Password"
+                  className="h-11 pr-10"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                </button>
+              </div>
+            </div>
+
+            {/* Legal */}
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              By continuing, you acknowledge and agree to our legal terms,{' '}
+              <span className="font-semibold text-foreground">which we recommend reviewing</span>
+            </p>
+
+            {/* Log in CTA */}
+            <Button
+              size="lg"
+              disabled={!loginEnabled}
+              className={cn(
+                'h-11 w-full',
+                loginEnabled
+                  ? 'bg-success text-white hover:bg-success/90'
+                  : 'bg-success/20 text-success/50 disabled:opacity-100',
+              )}
+            >
+              Log in
+            </Button>
+
+            {/* Forgot password */}
+            <button
+              type="button"
+              className="flex h-11 w-full cursor-pointer items-center justify-center rounded-xl border border-border text-sm font-normal text-foreground transition-colors hover:bg-muted"
+            >
+              Forgot password?
+            </button>
+
+            {/* Create account link */}
+            <button
+              type="button"
+              onClick={handleCreateAccount}
+              className="text-sm font-semibold text-brand hover:opacity-80 transition-opacity cursor-pointer"
+            >
+              No account? Create one
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Register ────────────────────────────────────────────────────────── */}
+      <Dialog open={registerOpen} onOpenChange={setRegisterOpen}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogTitle className="sr-only">Create your account</DialogTitle>
+          <DialogDescription className="sr-only">Create a new account.</DialogDescription>
+
+          <div className="flex flex-col gap-4">
+            <AuthPill label="Sign up" />
+
+            <div>
+              <h2 className="text-2xl font-bold text-foreground">Create your account</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Join thousands playing games. Sign up in seconds.
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-3">
+              {/* Social buttons */}
+              <button type="button" className={socialBtn}>
+                <img src="/logos/google-logo.svg" alt="Google" className="size-5 shrink-0" />
+                Continue with Google
+              </button>
+              <button type="button" className={socialBtn}>
+                <img src="/logos/Apple_logo_black.svg" alt="Apple" className={`h-5 w-auto shrink-0${isDark ? '' : ' invert'}`} />
+                Continue with Apple
+              </button>
+
+              {/* Sign up with email */}
+              <button
+                type="button"
+                className="flex h-12 w-full cursor-pointer items-center justify-center gap-3 rounded-xl border border-border px-4 text-sm font-semibold text-foreground transition-colors hover:bg-muted"
+              >
+                Sign up with Email
+              </button>
+
+              {/* Already have account */}
+              <button
+                type="button"
+                onClick={handleAlreadyHaveAccount}
+                className="text-sm font-semibold text-brand hover:opacity-80 transition-opacity cursor-pointer"
+              >
+                Already have an account? Log in
+              </button>
+
+              {/* Legal */}
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                By continuing, you acknowledge and agree to our legal terms,{' '}
+                <span className="font-semibold text-foreground">which we recommend reviewing</span>
+              </p>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
+  )
+}
 
 // ─── Topics nav ───────────────────────────────────────────────────────────────
 
@@ -231,10 +470,11 @@ const ONBOARDING_STEPS = [
   { label: 'Start to play',         description: null as string | null, done: false, current: false },
 ]
 
-const PAY_MAIN: { id: string; label: string; badge: string | null; Icon: ElementType; logoSrc?: string }[] = [
-  { id: 'gpay',   label: 'Google Pay', badge: 'Most popular', Icon: Wallet,     logoSrc: '/logos/gpay-light.svg' },
-  { id: 'card',   label: 'Card',       badge: null,           Icon: CreditCard                                   },
-  { id: 'crypto', label: 'Crypto',     badge: null,           Icon: Bitcoin                                      },
+const PAY_MAIN: { id: string; label: string; badge: string | null; Icon: ElementType; logoSrc?: string; invertOnDark?: boolean }[] = [
+  { id: 'applepay', label: 'Apple Pay', badge: null,           Icon: Wallet,     logoSrc: '/logos/Apple_logo_black.svg', invertOnDark: true },
+  { id: 'gpay',     label: 'Google Pay', badge: 'Most popular', Icon: Wallet,   logoSrc: '/logos/gpay-light.svg'                            },
+  { id: 'card',     label: 'Card',       badge: null,           Icon: CreditCard                                                            },
+  { id: 'crypto',   label: 'Crypto',     badge: null,           Icon: Bitcoin                                                               },
 ]
 
 const PAY_MORE: { id: string; label: string; badge: string | null; Icon: ElementType }[] = [
@@ -268,12 +508,14 @@ function PaymentRow({
   badge,
   Icon,
   logoSrc,
+  logoClass,
   onClick,
 }: {
   label: string
   badge: string | null
   Icon: ElementType
   logoSrc?: string
+  logoClass?: string
   onClick?: () => void
 }) {
   return (
@@ -282,7 +524,7 @@ function PaymentRow({
       onClick={onClick}
     >
       {logoSrc
-        ? <img src={logoSrc} alt={label} className="h-5 w-auto shrink-0" />
+        ? <img src={logoSrc} alt={label} className={`h-5 w-auto shrink-0${logoClass ? ` ${logoClass}` : ''}`} />
         : <Icon className="size-5 shrink-0 text-foreground" />
       }
       <span className="flex-1 text-base font-semibold text-foreground">{label}</span>
@@ -311,13 +553,18 @@ function DepositPill() {
 // ─── Onboarding section ───────────────────────────────────────────────────────
 
 function OnboardingSection() {
+  const { resolvedTheme } = useTheme()
+  const isDark = resolvedTheme === 'dark'
+
   const [stepsOpen,       setStepsOpen]       = useState(false)
   const [depositOpen,     setDepositOpen]     = useState(false)
   const [showMore,        setShowMore]        = useState(false)
   const [amountOpen,      setAmountOpen]      = useState(false)
-  const [activeMethod,    setActiveMethod]    = useState<'gpay' | 'card' | null>(null)
+  const [activeMethod,    setActiveMethod]    = useState<'applepay' | 'gpay' | 'card' | null>(null)
   const [gpayConfirmOpen, setGpayConfirmOpen] = useState(false)
   const [cardFormOpen,    setCardFormOpen]    = useState(false)
+  const [wireOpen,        setWireOpen]        = useState(false)
+  const [copiedField,     setCopiedField]     = useState<string | null>(null)
   const [amountStr,       setAmountStr]       = useState('')
   const [saveCard,        setSaveCard]        = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -337,6 +584,24 @@ function OnboardingSection() {
   function openDeposit() {
     setStepsOpen(false)
     setDepositOpen(true)
+  }
+
+  function openWire() {
+    setDepositOpen(false)
+    setShowMore(false)
+    setWireOpen(true)
+  }
+
+  function copyField(id: string, value: string) {
+    navigator.clipboard.writeText(value).catch(() => {})
+    setCopiedField(id)
+    setTimeout(() => setCopiedField(null), 2000)
+  }
+
+  function openApplePay() {
+    setDepositOpen(false)
+    setActiveMethod('applepay')
+    setAmountOpen(true)
   }
 
   function openGpay() {
@@ -359,7 +624,7 @@ function OnboardingSection() {
 
   function continueFromAmount() {
     setAmountOpen(false)
-    if (activeMethod === 'gpay') setGpayConfirmOpen(true)
+    if (activeMethod === 'applepay' || activeMethod === 'gpay') setGpayConfirmOpen(true)
     else if (activeMethod === 'card') setCardFormOpen(true)
   }
 
@@ -377,6 +642,7 @@ function OnboardingSection() {
   function closeAll() {
     setGpayConfirmOpen(false)
     setCardFormOpen(false)
+    setWireOpen(false)
     setAmountOpen(false)
     setAmountStr('')
     setSaveCard(false)
@@ -387,7 +653,7 @@ function OnboardingSection() {
   return (
     <>
       {/* ── Banner ──────────────────────────────────────────────────────────── */}
-      <div className="flex items-center gap-4 rounded-2xl border border-border bg-card px-5 py-3.5">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-3 rounded-2xl border border-border bg-card px-5 py-3.5">
         <div className="shrink-0">
           <p className="text-2xs font-semibold uppercase tracking-widest text-muted-foreground">
             Get ready to play
@@ -408,12 +674,12 @@ function OnboardingSection() {
           </span>
         </div>
 
-        <div className="flex shrink-0 items-center gap-2">
-          <Button variant="outline" onClick={() => setStepsOpen(true)}>
+        <div className="flex w-full items-center gap-2 sm:w-auto sm:shrink-0">
+          <Button variant="outline" className="flex-1 sm:flex-none" onClick={() => setStepsOpen(true)}>
             View all steps
           </Button>
           <Button
-            className="bg-success text-white hover:bg-success/90"
+            className="flex-1 bg-success text-white hover:bg-success/90 sm:flex-none"
             onClick={() => setDepositOpen(true)}
           >
             Deposit funds
@@ -504,9 +770,11 @@ function OnboardingSection() {
                   badge={m.badge}
                   Icon={m.Icon}
                   logoSrc={m.logoSrc}
+                  logoClass={m.invertOnDark && isDark ? 'invert' : undefined}
                   onClick={
-                    m.id === 'gpay' ? openGpay :
-                    m.id === 'card' ? openCard :
+                    m.id === 'applepay' ? openApplePay :
+                    m.id === 'gpay'     ? openGpay :
+                    m.id === 'card'     ? openCard :
                     undefined
                   }
                 />
@@ -515,15 +783,21 @@ function OnboardingSection() {
               {!showMore ? (
                 <button
                   onClick={() => setShowMore(true)}
-                  className="flex w-full cursor-pointer items-center justify-center rounded-2xl border border-border px-4 py-4 text-base font-semibold text-foreground transition-colors hover:bg-muted"
+                  className="flex w-full cursor-pointer items-center justify-center rounded-2xl border border-border px-4 py-4 transition-colors hover:bg-muted"
                 >
-                  View more options
+                  <span className="text-base font-medium text-muted-foreground">View more options</span>
                 </button>
               ) : (
                 <>
                   <p className="px-1 pt-1 text-xs text-muted-foreground">Up to 1 business day</p>
                   {PAY_MORE.map((m) => (
-                    <PaymentRow key={m.id} label={m.label} badge={m.badge} Icon={m.Icon} />
+                    <PaymentRow
+                      key={m.id}
+                      label={m.label}
+                      badge={m.badge}
+                      Icon={m.Icon}
+                      onClick={m.id === 'wire' ? openWire : undefined}
+                    />
                   ))}
                 </>
               )}
@@ -628,7 +902,7 @@ function OnboardingSection() {
                   : 'bg-success/15 text-success/50 disabled:opacity-100',
               )}
             >
-              {activeMethod === 'gpay' ? 'Continue with Google Pay' : 'Continue with Card'}
+              {activeMethod === 'applepay' ? 'Continue with Apple Pay' : activeMethod === 'gpay' ? 'Continue with Google Pay' : 'Continue with Card'}
             </Button>
 
             {/* Disclaimer */}
@@ -649,8 +923,8 @@ function OnboardingSection() {
         onOpenChange={(open) => { setGpayConfirmOpen(open); if (!open) setAmountStr('') }}
       >
         <DialogContent className="sm:max-w-sm">
-          <DialogTitle className="sr-only">Confirm Google Pay deposit</DialogTitle>
-          <DialogDescription className="sr-only">Review and confirm your deposit amount before completing the Google Pay transaction.</DialogDescription>
+          <DialogTitle className="sr-only">Confirm {activeMethod === 'applepay' ? 'Apple Pay' : 'Google Pay'} deposit</DialogTitle>
+          <DialogDescription className="sr-only">Review and confirm your deposit amount before completing the {activeMethod === 'applepay' ? 'Apple Pay' : 'Google Pay'} transaction.</DialogDescription>
 
           {/* Back button */}
           <button
@@ -669,15 +943,23 @@ function OnboardingSection() {
               <div className="flex size-7 shrink-0 items-center justify-center rounded-full border-2 border-success">
                 <div className="size-2 rounded-full bg-success" />
               </div>
-              <div className="flex items-center rounded-full border border-border px-3 py-1">
-                <img src="/logos/gpay-light.svg" alt="Google Pay" className="h-4 w-auto" />
+              <div className="flex items-center rounded-full border border-border px-3 py-1.5">
+                {activeMethod === 'applepay'
+                  ? <img src="/logos/Apple_logo_black.svg" alt="Apple Pay" className={`h-4 w-auto${isDark ? ' invert' : ''}`} />
+                  : <img src="/logos/gpay-light.svg" alt="Google Pay" className="h-4 w-auto" />
+                }
               </div>
-              <span className="text-base font-semibold text-success">Google Pay</span>
+              <span className="text-base font-semibold text-success">
+                {activeMethod === 'applepay' ? 'Apple Pay' : 'Google Pay'}
+              </span>
             </div>
 
-            {/* Google Pay button mock — black per brand guidelines */}
+            {/* Pay button mock — black per brand guidelines */}
             <button className="flex h-14 w-full cursor-pointer items-center justify-center gap-3 rounded-lg bg-[#000] px-4 transition-opacity hover:opacity-90">
-              <img src="/logos/gpay-dark.svg" alt="Google Pay" className="h-6 w-auto shrink-0" />
+              {activeMethod === 'applepay'
+                ? <img src="/logos/Apple_logo_black.svg" alt="Apple Pay" className="h-6 w-auto shrink-0 invert" />
+                : <img src="/logos/gpay-dark.svg" alt="Google Pay" className="h-6 w-auto shrink-0" />
+              }
               <div className="h-5 w-px bg-white/20" />
               <span className="rounded bg-blue-600 px-1.5 py-0.5 text-xs font-bold text-white">
                 VISA
@@ -859,6 +1141,144 @@ function OnboardingSection() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* ── Wire transfer dialog ─────────────────────────────────────────────── */}
+      <Dialog open={wireOpen} onOpenChange={setWireOpen}>
+        <DialogContent className="flex max-h-[88svh] flex-col overflow-hidden sm:max-w-sm">
+          <DialogTitle className="sr-only">Wire transfer instructions</DialogTitle>
+          <DialogDescription className="sr-only">Bank wire transfer details.</DialogDescription>
+
+          {/* Back button */}
+          <button
+            onClick={() => { setWireOpen(false); setDepositOpen(true); setShowMore(true) }}
+            className="absolute left-4 top-4 flex size-7 cursor-pointer items-center justify-center rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:outline-none"
+            aria-label="Go back"
+          >
+            <ChevronLeft className="size-4" />
+          </button>
+
+          {/* Scrollable body */}
+          <div className="overflow-y-auto pr-1">
+            <div className="flex flex-col gap-5 pb-4 pt-2">
+              <DepositPill />
+
+              {/* Title */}
+              <div>
+                <h2 className="text-xl font-bold text-foreground">Send a wire from your bank</h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Submit this information to your bank to initiate a transfer.
+                </p>
+              </div>
+
+              {/* Info bullets */}
+              <div className="flex flex-col gap-3">
+                {[
+                  { Icon: DollarSign,   text: 'Wires must be sent in USD' },
+                  { Icon: RefreshCw,    text: 'Minimum $1,000. No maximum.' },
+                  { Icon: Clock,        text: 'Wires must be received by Kalshi Klear LLC before 4pm ET for attribution within one business day. They will be processed in the order received.' },
+                ].map(({ Icon, text }, i) => (
+                  <div key={i} className="flex items-start gap-3">
+                    <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-success/10">
+                      <Icon className="size-4 text-success" />
+                    </div>
+                    <p className="pt-1 text-sm text-muted-foreground">{text}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="border-t border-border" />
+
+              {/* Numbered fields */}
+              <div className="flex flex-col divide-y divide-border">
+
+                {/* 1. Account name */}
+                <div className="py-4">
+                  <p className="text-sm font-semibold text-foreground">
+                    1. Your bank account name{' '}
+                    <span className="text-brand">must match</span>
+                    {' '}your name on Kalshi:
+                  </p>
+                  <p className="mt-0.5 text-sm font-medium text-brand">Yevhenii Holovei</p>
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    Wires must come from an account matching your Kalshi account name. If your Kalshi account is in your name, send the wire from your personal account, not a third party's. If your Kalshi account is under your entity's name, send the wire from an account owned by and named after your entity.
+                  </p>
+                </div>
+
+                {/* 2–8: simple copy fields */}
+                {([
+                  { n: 2,  label: 'Recipient name',     value: 'Kalshi Klear LLC'                                      },
+                  { n: 3,  label: 'Recipient address',  value: '416 W 13th Street, Room 207, New York, NY 10014'       },
+                  { n: 4,  label: 'Final credit account', value: '3304242626'                                           },
+                  { n: 5,  label: 'Routing and transit', value: '121140399'                                             },
+                  { n: 6,  label: 'SWIFT code',         value: 'SVBKUS6S'                                              },
+                  { n: 7,  label: 'Bank name',          value: 'First Citizens Bank and Trust Co.'                     },
+                  { n: 8,  label: 'Bank address',       value: '239 Fayetteville St, Raleigh, NC 27601 United States'  },
+                ] as { n: number; label: string; value: string }[]).map(({ n, label, value }) => (
+                  <div key={n} className="flex items-center justify-between gap-3 py-4">
+                    <div>
+                      <p className="text-sm font-semibold text-foreground">{n}. {label}</p>
+                      <p className="mt-0.5 text-sm text-muted-foreground">{value}</p>
+                    </div>
+                    <button
+                      onClick={() => copyField(String(n), value)}
+                      className="shrink-0 cursor-pointer rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                    >
+                      {copiedField === String(n)
+                        ? <Check className="size-4 text-success" />
+                        : <Copy className="size-4" />
+                      }
+                    </button>
+                  </div>
+                ))}
+
+                {/* 9. Wire amount */}
+                <div className="flex items-center justify-between gap-3 py-4">
+                  <div>
+                    <p className="text-sm font-semibold text-foreground">9. Wire amount</p>
+                    <p className="mt-0.5 text-sm">
+                      <span className="text-brand">Minimum $1,000.</span>
+                      <span className="text-muted-foreground"> No maximum.</span>
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => copyField('9', 'Minimum $1,000. No maximum.')}
+                    className="shrink-0 cursor-pointer rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                  >
+                    {copiedField === '9'
+                      ? <Check className="size-4 text-success" />
+                      : <Copy className="size-4" />
+                    }
+                  </button>
+                </div>
+
+                {/* 10. Memo */}
+                <div className="flex items-start justify-between gap-3 py-4">
+                  <div>
+                    <p className="text-sm font-semibold text-foreground">
+                      10. Message to recipient / Memo{' '}
+                      <span className="text-brand">(Required)</span>
+                    </p>
+                    <p className="mt-0.5 text-sm font-medium text-brand">kalidq7so</p>
+                    <p className="mt-2 text-xs text-muted-foreground">
+                      Wires must be sent in USD. Can't find "Message to recipient / Memo"? Depending on your bank, it may be labeled as: Note, Description, Special Instructions, or Further Credit To.
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => copyField('10', 'kalidq7so')}
+                    className="shrink-0 cursor-pointer rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                  >
+                    {copiedField === '10'
+                      ? <Check className="size-4 text-success" />
+                      : <Copy className="size-4" />
+                    }
+                  </button>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   )
 }
@@ -889,6 +1309,8 @@ function Sidebar() {
 
 export default function Page() {
   return (
+    <>
+    <AuthModals />
     <DocLayout
       title="Brand Canvas"
       breadcrumbLabel="Sandbox"
@@ -906,5 +1328,6 @@ export default function Page() {
         <Sidebar />
       </div>
     </DocLayout>
+    </>
   )
 }
