@@ -148,7 +148,7 @@ export function OnboardingSection() {
   const [saveCard,        setSaveCard]        = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
-  const amount       = parseInt(amountStr || '0', 10)
+  const amount       = parseFloat(amountStr || '0') || 0
   const isValid      = amount >= 10 && amount <= 1000
   const showMinError = amountStr.length > 0 && amount > 0 && amount < 10
   const showMaxError = amount > 1000
@@ -214,8 +214,10 @@ export function OnboardingSection() {
   }
 
   function addAmount(add: number) {
-    const next = parseInt(amountStr || '0', 10) + add
-    setAmountStr(String(next))
+    const next = (parseFloat(amountStr || '0') || 0) + add
+    // preserve cents if already entered, otherwise show integer
+    const hasDecimals = amountStr.includes('.')
+    setAmountStr(hasDecimals ? next.toFixed(2) : String(next))
     setTimeout(() => inputRef.current?.focus(), 0)
   }
 
@@ -315,7 +317,7 @@ export function OnboardingSection() {
             </div>
 
             <Button
-              size="lg"
+              size="xl"
               className="w-full bg-success text-success-foreground hover:bg-success/90"
               onClick={openDeposit}
             >
@@ -419,7 +421,7 @@ export function OnboardingSection() {
               )}>
                 ${amount === 0 ? '' : amountStr}
               </span>
-              <span className="animate-blink inline-block w-[2px] h-12 bg-foreground/60 align-middle" />
+              <span className="animate-blink inline-block w-0.5 h-12 bg-foreground/60 align-middle" />
               {amount === 0 && (
                 <span className="font-bold tabular-nums tracking-tight text-6xl text-muted-foreground/40">0</span>
               )}
@@ -434,7 +436,19 @@ export function OnboardingSection() {
                 onChange={() => {}}
                 onKeyDown={(e) => {
                   if (e.key >= '0' && e.key <= '9') {
-                    if (amountStr.length < 4) setAmountStr(prev => prev + e.key)
+                    const dotIndex = amountStr.indexOf('.')
+                    if (dotIndex === -1) {
+                      // no decimal yet — max 4 digits (up to "1000")
+                      if (amountStr.length < 4) setAmountStr(prev => prev + e.key)
+                    } else {
+                      // after decimal — max 2 decimal places
+                      if (amountStr.length - dotIndex - 1 < 2) setAmountStr(prev => prev + e.key)
+                    }
+                  } else if (e.key === '.') {
+                    // allow dot only once and only after at least one digit
+                    if (amountStr.length > 0 && !amountStr.includes('.')) {
+                      setAmountStr(prev => prev + '.')
+                    }
                   } else if (e.key === 'Backspace') {
                     setAmountStr(prev => prev.slice(0, -1))
                   }
@@ -445,13 +459,15 @@ export function OnboardingSection() {
             {/* Quick-add buttons */}
             <div className="flex justify-center gap-3">
               {[10, 25, 50].map((val) => (
-                <button
+                <Button
                   key={val}
+                  variant="outline"
+                  size="sm"
                   onClick={() => addAmount(val)}
-                  className="cursor-pointer rounded-full border border-border px-5 py-2 text-sm font-semibold text-success transition-colors hover:bg-muted"
+                  className="text-success hover:text-success"
                 >
                   +${val}
-                </button>
+                </Button>
               ))}
             </div>
 
@@ -478,7 +494,7 @@ export function OnboardingSection() {
 
             {/* CTA */}
             <Button
-              size="lg"
+              size="xl"
               disabled={!isValid}
               onClick={continueFromAmount}
               className={cn(
@@ -556,8 +572,8 @@ export function OnboardingSection() {
             {/* Edit amount */}
             <Button
               variant="outline"
-              size="lg"
-              className="w-full"
+              size="xl"
+              className="w-full font-normal"
               onClick={backToAmount}
             >
               Edit amount
@@ -701,7 +717,7 @@ export function OnboardingSection() {
 
             {/* Deposit CTA */}
             <Button
-              size="lg"
+              size="xl"
               className="w-full bg-success text-success-foreground hover:bg-success/90"
             >
               <Lock className="size-4" />
@@ -711,8 +727,8 @@ export function OnboardingSection() {
             {/* Edit amount */}
             <Button
               variant="outline"
-              size="lg"
-              className="w-full"
+              size="xl"
+              className="w-full font-normal"
               onClick={backToAmount}
             >
               Edit amount

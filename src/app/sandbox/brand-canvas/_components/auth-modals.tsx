@@ -55,7 +55,7 @@ export function AuthModals() {
     <>
       {/* ── Expired session ─────────────────────────────────────────────────── */}
       <Dialog open={expiredOpen} onOpenChange={setExpiredOpen}>
-        <DialogContent className="sm:max-w-sm">
+        <DialogContent className="sm:max-w-sm" onOpenAutoFocus={(e) => e.preventDefault()}>
           <DialogTitle className="sr-only">Expired Session</DialogTitle>
           <DialogDescription className="sr-only">Your session has expired.</DialogDescription>
 
