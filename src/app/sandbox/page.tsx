@@ -8,6 +8,24 @@ import { SandboxCard, type SandboxCardData } from '@/components/SandboxCard'
 
 const cards: SandboxCardData[] = [
   {
+    id: 'payment-infra',
+    tag: 'Prototype',
+    title: 'Payment Infra',
+    description: '',
+    status: 'Infrastructure',
+    sections: 5,
+    href: '/sandbox/payment-infra',
+    highlight: {
+      label: 'Deliverables:',
+      bullets: [
+        'Overview',
+        'Delivery phases',
+        'Deep dive',
+      ],
+    },
+    languages: ['EN'],
+  },
+  {
     id: 'brand-canvas',
     tag: 'Prototype',
     title: 'Brand Canvas',
