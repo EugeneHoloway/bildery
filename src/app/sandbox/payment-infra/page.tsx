@@ -1,15 +1,30 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import type { ElementType } from 'react'
 import {
   CreditCard, Settings, RefreshCw, Lock, Shield, ArrowUpRight,
   Cpu, Link2, Repeat2, User, SlidersHorizontal, Plug, Zap,
   Plus, Wrench, Globe, Wallet, CheckCircle2, Gift, BarChart2,
   Tag, ArrowLeftRight, ArrowUpDown, ChevronDown,
-  LockOpen, Lock as LockIcon,
+  LockOpen, Lock as LockIcon, GripVertical, Pencil, Trash2, Check, X,
 } from 'lucide-react'
 import Link from 'next/link'
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core'
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+  useSortable,
+  arrayMove,
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 import { cn } from '@/lib/utils'
 import { supabase } from '@/lib/supabase'
 import { Badge }      from '@/components/ui/badge'
@@ -18,6 +33,7 @@ import { Checkbox }   from '@/components/ui/checkbox'
 import { Input }      from '@/components/ui/input'
 import { DocLayout }  from '@/components/doc/DocLayout'
 import { DocSection } from '@/components/doc/DocSection'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -30,6 +46,7 @@ interface NodeDef {
   accent?: boolean
   phases?: number[]
   href?: string
+  newTab?: boolean
 }
 
 const phaseBadgeColors: Record<number, { bg: string; text: string }> = {
@@ -69,9 +86,9 @@ const layers: LayerDef[] = [
     accentBorderCls: 'border-violet-500/30',
     accentTextCls:   'text-violet-500',
     nodes: [
-      { id: 'checkout', label: 'Checkout UI',    sub: 'Deposit | Withdrawal',         Icon: CreditCard, phases: [2]    },
+      { id: 'checkout', label: 'Checkout UI',    sub: 'Deposit | Withdrawal',         Icon: CreditCard, phases: [2],   href: '/sandbox/brand-canvas', newTab: true },
       { id: 'admin',    label: 'Admin Panel',    sub: 'PSP Management | Routing',     Icon: Settings,   phases: [4]    },
-      { id: 'status',   label: 'Status Polling', sub: 'Webhook events -- UI',         Icon: RefreshCw,  phases: [2]    },
+      { id: 'status',   label: 'Status Polling', sub: 'Webhook events -- UI',         Icon: RefreshCw,  phases: [2],   href: '/sandbox/payment-infra/status-polling' },
     ],
   },
   {
@@ -198,6 +215,34 @@ const routingDimensions = [
   { label: 'Cascade',   value: 'priority + health score', Icon: Link2            },
 ]
 
+// ─── Truncated label with tooltip ────────────────────────────────────────────
+
+function TruncatedLabel({ text }: { text: string }) {
+  const ref = useRef<HTMLSpanElement>(null)
+  const [truncated, setTruncated] = useState(false)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const check = () => setTruncated(el.scrollWidth > el.clientWidth)
+    check()
+    const ro = new ResizeObserver(check)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
+
+  return (
+    <Tooltip open={truncated ? undefined : false}>
+      <TooltipTrigger asChild>
+        <span ref={ref} className="truncate text-sm font-semibold leading-snug text-foreground">
+          {text}
+        </span>
+      </TooltipTrigger>
+      <TooltipContent side="top">{text}</TooltipContent>
+    </Tooltip>
+  )
+}
+
 // ─── Node card ────────────────────────────────────────────────────────────────
 
 function NodeCard({
@@ -226,8 +271,8 @@ function NodeCard({
         <Icon className="size-3.5" />
       </div>
       <div className="min-w-0 flex-1">
-        <div className="flex items-start justify-between gap-2">
-          <p className="text-sm font-semibold leading-snug text-foreground">{node.label}</p>
+        <div className="flex items-center justify-between gap-2 min-w-0">
+          <TruncatedLabel text={node.label} />
           {node.phases && node.phases.length > 0 && (
             <div className="flex gap-1 shrink-0">
               {node.phases.map(p => (
@@ -243,7 +288,7 @@ function NodeCard({
 
   if (node.href) {
     return (
-      <Link href={node.href} className={cardCls}>
+      <Link href={node.href} className={cardCls} {...(node.newTab ? { target: '_blank', rel: 'noopener noreferrer' } : {})}>
         {inner}
       </Link>
     )
@@ -273,7 +318,7 @@ function LayerCard({
         <div className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-muted text-xs font-bold text-muted-foreground tabular-nums">
           {index + 1}
         </div>
-        <span className="text-xs font-bold uppercase text-muted-foreground">
+        <span className="text-xs font-bold uppercase text-foreground">
           {layer.label}
         </span>
       </div>
@@ -447,6 +492,161 @@ interface PhaseItem {
 
 const PASSWORD = process.env.NEXT_PUBLIC_TODO_PASSWORD
 
+// ─── Sortable checklist item ──────────────────────────────────────────────────
+
+function SortableItem({
+  item,
+  isUnlocked,
+  onToggle,
+  onEdit,
+  onDelete,
+}: {
+  item: PhaseItem
+  isUnlocked: boolean
+  onToggle: (item: PhaseItem) => void
+  onEdit: (item: PhaseItem, text: string) => void
+  onDelete: (item: PhaseItem) => void
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
+    useSortable({ id: item.id, disabled: !isUnlocked })
+
+  const [editing, setEditing] = useState(false)
+  const [draft, setDraft] = useState(item.text)
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  function startEdit() {
+    setDraft(item.text)
+    setEditing(true)
+    setTimeout(() => inputRef.current?.focus(), 0)
+  }
+
+  function commitEdit() {
+    const trimmed = draft.trim()
+    if (trimmed && trimmed !== item.text) onEdit(item, trimmed)
+    setEditing(false)
+  }
+
+  function cancelEdit() {
+    setDraft(item.text)
+    setEditing(false)
+  }
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  }
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={cn(
+        'group flex items-center gap-2 rounded-lg py-0.5',
+        isDragging && 'z-10',
+      )}
+    >
+      {/* drag handle */}
+      {isUnlocked && (
+        <button
+          {...attributes}
+          {...listeners}
+          className="shrink-0 cursor-grab active:cursor-grabbing text-muted-foreground/30 hover:text-muted-foreground transition-colors touch-none"
+          tabIndex={-1}
+        >
+          <GripVertical className="size-4" />
+        </button>
+      )}
+
+      <Checkbox
+        checked={item.is_done}
+        onCheckedChange={() => isUnlocked && onToggle(item)}
+        className={cn('shrink-0', !isUnlocked && 'pointer-events-none')}
+      />
+
+      {editing ? (
+        <div className="flex flex-1 items-center gap-1">
+          <Input
+            ref={inputRef}
+            value={draft}
+            onChange={e => setDraft(e.target.value)}
+            onKeyDown={e => {
+              if (e.key === 'Enter') commitEdit()
+              if (e.key === 'Escape') cancelEdit()
+            }}
+            className="h-7 text-sm flex-1"
+          />
+          <Button variant="ghost" size="icon-sm" onClick={commitEdit} aria-label="Save">
+            <Check className="size-3.5" />
+          </Button>
+          <Button variant="ghost" size="icon-sm" onClick={cancelEdit} aria-label="Cancel">
+            <X className="size-3.5" />
+          </Button>
+        </div>
+      ) : (
+        <>
+          <span
+            className={cn(
+              'flex-1 text-sm leading-snug transition-colors text-foreground',
+              item.is_done && 'line-through text-muted-foreground',
+            )}
+          >
+            {item.text}
+          </span>
+          {isUnlocked && (
+            <div className="flex items-center gap-0.5 shrink-0">
+              <Button variant="ghost" size="icon-sm" onClick={startEdit} aria-label="Edit">
+                <Pencil className="size-3.5" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                className="hover:bg-destructive-bg hover:text-destructive"
+                onClick={() => onDelete(item)}
+                aria-label="Delete"
+              >
+                <Trash2 className="size-3.5" />
+              </Button>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  )
+}
+
+// ─── Add item input ───────────────────────────────────────────────────────────
+
+function AddItemInput({ onAdd }: { onAdd: (text: string) => void }) {
+  const [value, setValue] = useState('')
+
+  function submit() {
+    const trimmed = value.trim()
+    if (!trimmed) return
+    onAdd(trimmed)
+    setValue('')
+  }
+
+  return (
+    <div className="flex items-center gap-2 mt-2 pt-2 border-t border-border">
+      <Plus className="size-3.5 text-muted-foreground shrink-0" />
+      <Input
+        value={value}
+        onChange={e => setValue(e.target.value)}
+        onKeyDown={e => {
+          if (e.key === 'Enter') submit()
+          if (e.key === 'Escape') setValue('')
+        }}
+        placeholder="Add item…"
+        className="h-7 text-sm flex-1"
+      />
+      <Button size="sm" onClick={submit} disabled={!value.trim()} className="h-7 px-2.5 text-xs">
+        Add
+      </Button>
+    </div>
+  )
+}
+
 // ─── Page ────────────────────────────────────────────────────────────────────
 
 export default function Page() {
@@ -458,6 +658,8 @@ export default function Page() {
   const [showPassword, setShowPassword]   = useState(false)
   const [passwordInput, setPasswordInput] = useState('')
   const [passwordError, setPasswordError] = useState(false)
+
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }))
 
   useEffect(() => { fetchItems() }, [])
 
@@ -473,6 +675,47 @@ export default function Page() {
     if (!isUnlocked) return
     await supabase.from('phase_items').update({ is_done: !item.is_done }).eq('id', item.id)
     setItems(prev => prev.map(i => i.id === item.id ? { ...i, is_done: !i.is_done } : i))
+  }
+
+  async function editItem(item: PhaseItem, text: string) {
+    await supabase.from('phase_items').update({ text }).eq('id', item.id)
+    setItems(prev => prev.map(i => i.id === item.id ? { ...i, text } : i))
+  }
+
+  async function deleteItem(item: PhaseItem) {
+    await supabase.from('phase_items').delete().eq('id', item.id)
+    setItems(prev => prev.filter(i => i.id !== item.id))
+  }
+
+  async function addItem(phaseId: string, groupLabel: string | null, text: string) {
+    const siblings = items.filter(i => i.phase_id === phaseId && i.group_label === groupLabel)
+    const maxOrder = siblings.reduce((m, i) => Math.max(m, i.order ?? 0), 0)
+    const { data } = await supabase
+      .from('phase_items')
+      .insert({ phase_id: phaseId, group_label: groupLabel, text, is_done: false, order: maxOrder + 1 })
+      .select()
+      .single()
+    if (data) setItems(prev => [...prev, data])
+  }
+
+  async function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+
+    setItems(prev => {
+      const oldIndex = prev.findIndex(i => i.id === active.id)
+      const newIndex = prev.findIndex(i => i.id === over.id)
+      const next = arrayMove(prev, oldIndex, newIndex)
+      // persist new orders for affected phase/group
+      const movedItem = prev[oldIndex]
+      const siblings = next.filter(
+        i => i.phase_id === movedItem.phase_id && i.group_label === movedItem.group_label,
+      )
+      siblings.forEach((item, idx) => {
+        supabase.from('phase_items').update({ order: idx }).eq('id', item.id)
+      })
+      return next
+    })
   }
 
   function handleUnlock() {
@@ -683,61 +926,52 @@ export default function Page() {
                       <p className="text-xs text-muted-foreground mt-0.5">{phase.subtitle}</p>
                     )}
 
+                    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
                     {groups ? (
                       groups.map(group => (
                         <div key={group.label} className="mt-3">
                           <p className="text-xs font-semibold text-foreground mb-2">{group.label}</p>
-                          <div className="flex flex-col gap-1.5">
-                            {group.items.map(item => (
-                              <label
-                                key={item.id}
-                                className={cn(
-                                  'flex items-center gap-2',
-                                  isUnlocked ? 'cursor-pointer' : 'cursor-default pointer-events-none',
-                                )}
-                              >
-                                <Checkbox
-                                  checked={item.is_done}
-                                  onCheckedChange={() => toggleItem(item)}
-                                  className="shrink-0"
+                          <SortableContext items={group.items.map(i => i.id)} strategy={verticalListSortingStrategy}>
+                            <div className="flex flex-col gap-0.5">
+                              {group.items.map(item => (
+                                <SortableItem
+                                  key={item.id}
+                                  item={item}
+                                  isUnlocked={isUnlocked}
+                                  onToggle={toggleItem}
+                                  onEdit={editItem}
+                                  onDelete={deleteItem}
                                 />
-                                <span className={cn(
-                                  'text-sm leading-snug transition-colors',
-                                  'text-foreground', item.is_done && 'line-through',
-                                )}>
-                                  {item.text}
-                                </span>
-                              </label>
-                            ))}
-                          </div>
+                              ))}
+                            </div>
+                          </SortableContext>
+                          {isUnlocked && (
+                            <AddItemInput onAdd={text => addItem(phase.id, group.label, text)} />
+                          )}
                         </div>
                       ))
                     ) : (
-                      <div className="flex flex-col gap-1.5 mt-3">
-                        {(flatItems ?? []).map(item => (
-                          <div
-                            key={item.id}
-                            onClick={() => isUnlocked && toggleItem(item)}
-                            className={cn(
-                              'flex items-center gap-2',
-                              isUnlocked ? 'cursor-pointer' : 'cursor-default',
-                            )}
-                          >
-                            <Checkbox
-                              checked={item.is_done}
-                              onCheckedChange={() => isUnlocked && toggleItem(item)}
-                              className="shrink-0"
-                            />
-                            <span className={cn(
-                              'text-sm leading-snug transition-colors',
-                              'text-foreground', item.is_done && 'line-through',
-                            )}>
-                              {item.text}
-                            </span>
+                      <div className="mt-3">
+                        <SortableContext items={(flatItems ?? []).map(i => i.id)} strategy={verticalListSortingStrategy}>
+                          <div className="flex flex-col gap-0.5">
+                            {(flatItems ?? []).map(item => (
+                              <SortableItem
+                                key={item.id}
+                                item={item}
+                                isUnlocked={isUnlocked}
+                                onToggle={toggleItem}
+                                onEdit={editItem}
+                                onDelete={deleteItem}
+                              />
+                            ))}
                           </div>
-                        ))}
+                        </SortableContext>
+                        {isUnlocked && (
+                          <AddItemInput onAdd={text => addItem(phase.id, null, text)} />
+                        )}
                       </div>
                     )}
+                    </DndContext>
 
                     <div className="mt-4 flex items-baseline gap-2 rounded-xl bg-muted px-3 py-2.5">
                       <span className="text-xs font-semibold text-foreground shrink-0">Output:</span>
