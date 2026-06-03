@@ -5,7 +5,7 @@ import type { ElementType } from 'react'
 import {
   CreditCard, ArrowUpFromLine, AlertTriangle, Plug,
   Tag, Repeat2, Link2, WifiOff, Percent, ArrowLeftRight, Lock,
-  ArrowDown, X, Info,
+  ArrowDown, X, Info, Wallet, Globe, CheckCircle2,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { DocLayout }  from '@/components/doc/DocLayout'
@@ -378,7 +378,7 @@ function StateNode({ state, selected, onClick }: {
     <div
       onClick={() => onClick(state)}
       className={cn(
-        'border rounded-2xl p-3 cursor-pointer transition-all duration-200',
+        'border rounded-2xl p-3 transition-all duration-200',
         selected
           ? 'bg-muted border-foreground/30 shadow-card'
           : 'bg-card border-border shadow-card hover:border-subtle-border hover:shadow-card-hover',
@@ -533,50 +533,76 @@ function DepositTab({ selected, lang, onSelect }: {
 
       {/* H2H vs Invoice info boxes */}
       <div className="grid grid-cols-1 gap-3 tablet:grid-cols-2">
-        <div className="bg-card border border-border shadow-card rounded-2xl p-4">
-          <p className="text-sm font-bold leading-snug tracking-heading text-foreground mb-2">
-            {ua ? 'H2H метод' : 'H2H method'}
-          </p>
-          <p className="text-sm leading-relaxed text-muted-foreground">
-            {ua ? (
-              <>
-                Callback ТІЛЬКИ при успішному депозиті.<br />
-                Немає callback = немає оплати.<br />
-                Гравець платить будь-яку суму.<br />
-                Використовуй <code className="text-xs bg-muted rounded px-1.5 py-0.5 font-mono">amountReceive</code> для зарахування.
-              </>
-            ) : (
-              <>
-                Callback ONLY on successful deposit.<br />
-                No callback = no payment.<br />
-                Player pays any amount.<br />
-                Use <code className="text-xs bg-muted rounded px-1.5 py-0.5 font-mono">amountReceive</code> for crediting.
-              </>
-            )}
-          </p>
+
+        {/* H2H */}
+        <div className="border border-border rounded-2xl overflow-hidden">
+          <div className="px-4 py-3 bg-muted border-b border-border flex items-center gap-2">
+            <Wallet className="size-4 text-muted-foreground" />
+            <p className="text-sm font-bold text-foreground">H2H (Host-to-Host)</p>
+          </div>
+          <div className="px-4 py-3 bg-card flex flex-col gap-1.5">
+            {(ua ? [
+              'Callback ТІЛЬКИ при успішному депозиті.',
+              'Немає callback = немає оплати.',
+              'Гравець платить будь-яку суму.',
+            ] : [
+              'Callback ONLY on successful deposit.',
+              'No callback = no payment.',
+              'Player pays any amount.',
+            ]).map((line, i) => (
+              <div key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
+                <CheckCircle2 className="size-3.5 shrink-0 mt-0.5 text-success" />
+                {line}
+              </div>
+            ))}
+            <div className="flex items-start gap-2 text-sm text-muted-foreground">
+              <CheckCircle2 className="size-3.5 shrink-0 mt-0.5 text-success" />
+              {ua
+                ? <span>Використовуй <code className="text-xs bg-muted rounded px-1.5 py-0.5 font-mono">amountReceive</code> для зарахування</span>
+                : <span>Use <code className="text-xs bg-muted rounded px-1.5 py-0.5 font-mono">amountReceive</code> for crediting</span>
+              }
+            </div>
+          </div>
         </div>
-        <div className="bg-card border border-border shadow-card rounded-2xl p-4">
-          <p className="text-sm font-bold leading-snug tracking-heading text-foreground mb-2">
-            {ua ? 'Invoice метод' : 'Invoice method'}
-          </p>
-          <p className="text-sm leading-relaxed text-muted-foreground">
-            {ua ? (
-              <>
-                Фіксована сума.<br />
-                Статус <code className="text-xs bg-muted rounded px-1.5 py-0.5 font-mono">waiting</code> = часткова оплата.<br />
-                Статус <code className="text-xs bg-muted rounded px-1.5 py-0.5 font-mono">error</code> = закінчився або partial fail.<br />
-                Підтримує split оплату (USDT + BTC).
-              </>
-            ) : (
-              <>
-                Fixed amount.<br />
-                Status <code className="text-xs bg-muted rounded px-1.5 py-0.5 font-mono">waiting</code> = partial payment.<br />
-                Status <code className="text-xs bg-muted rounded px-1.5 py-0.5 font-mono">error</code> = expired or partial fail.<br />
-                Supports split payment (USDT + BTC).
-              </>
-            )}
-          </p>
+
+        {/* Invoice */}
+        <div className="border border-border rounded-2xl overflow-hidden">
+          <div className="px-4 py-3 bg-muted border-b border-border flex items-center gap-2">
+            <Globe className="size-4 text-muted-foreground" />
+            <p className="text-sm font-bold text-foreground">Invoice (Redirect)</p>
+          </div>
+          <div className="px-4 py-3 bg-card flex flex-col gap-1.5">
+            {(ua ? [
+              'Фіксована сума.',
+            ] : [
+              'Fixed amount.',
+            ]).map((line, i) => (
+              <div key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
+                <CheckCircle2 className="size-3.5 shrink-0 mt-0.5 text-success" />
+                {line}
+              </div>
+            ))}
+            <div className="flex items-start gap-2 text-sm text-muted-foreground">
+              <CheckCircle2 className="size-3.5 shrink-0 mt-0.5 text-success" />
+              {ua
+                ? <span>Статус <code className="text-xs bg-muted rounded px-1.5 py-0.5 font-mono">waiting</code> = часткова оплата</span>
+                : <span>Status <code className="text-xs bg-muted rounded px-1.5 py-0.5 font-mono">waiting</code> = partial payment</span>
+              }
+            </div>
+            <div className="flex items-start gap-2 text-sm text-muted-foreground">
+              <CheckCircle2 className="size-3.5 shrink-0 mt-0.5 text-success" />
+              {ua
+                ? <span>Статус <code className="text-xs bg-muted rounded px-1.5 py-0.5 font-mono">error</code> = закінчився або partial fail</span>
+                : <span>Status <code className="text-xs bg-muted rounded px-1.5 py-0.5 font-mono">error</code> = expired or partial fail</span>
+              }
+            </div>
+            <div className="flex items-start gap-2 text-sm text-muted-foreground">
+              <CheckCircle2 className="size-3.5 shrink-0 mt-0.5 text-success" />
+              {ua ? 'Підтримує split оплату (USDT + BTC).' : 'Supports split payment (USDT + BTC).'}
+            </div>
+          </div>
         </div>
+
       </div>
     </div>
   )

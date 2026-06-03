@@ -65,9 +65,9 @@ export function AuthModals() {
             <p className="text-sm text-muted-foreground leading-relaxed">
               Your session has expired. Please try logging in again. If it persists,
               please clear your browser cache or{' '}
-              <span className="cursor-pointer font-medium text-brand underline underline-offset-2 hover:opacity-80 transition-opacity">
+              <a href="#" className="font-medium text-brand underline underline-offset-2 hover:opacity-80 transition-opacity">
                 contact support
-              </span>
+              </a>
               .
             </p>
             <p className="text-sm text-muted-foreground leading-relaxed">

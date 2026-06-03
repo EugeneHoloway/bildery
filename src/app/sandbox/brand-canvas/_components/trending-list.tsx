@@ -27,10 +27,10 @@ const TRENDING_ITEMS = [
 export function TrendingList() {
   return (
     <div className="flex flex-1 flex-col">
-      <div className="group mb-5 mt-4 flex cursor-pointer items-center gap-1">
+      <button className="group mb-5 mt-4 flex items-center gap-1">
         <span className="font-display text-2xl font-medium text-foreground">Trending</span>
         <ChevronRight className="size-5 text-success transition-transform duration-200 group-hover:animate-chevron-nudge" />
-      </div>
+      </button>
 
       <div className="flex flex-col gap-5">
         {TRENDING_ITEMS.map((item) => (

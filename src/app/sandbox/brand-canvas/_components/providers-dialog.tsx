@@ -44,9 +44,9 @@ export function ProvidersDialog() {
         </DialogHeader>
         <div className="grid grid-cols-3 gap-3 sm:grid-cols-5">
           {PROVIDERS.map((provider) => (
-            <div
+            <button
               key={provider.name}
-              className="flex h-16 items-center justify-center rounded-xl border border-border bg-muted text-xs text-muted-foreground cursor-pointer hover:bg-accent hover:border-border transition-colors"
+              className="flex h-16 w-full items-center justify-center rounded-xl border border-border bg-muted text-xs text-muted-foreground hover:bg-accent hover:border-border transition-colors"
             >
               {provider.logo ? (
                 <img
@@ -57,7 +57,7 @@ export function ProvidersDialog() {
               ) : (
                 provider.name
               )}
-            </div>
+            </button>
           ))}
         </div>
       </DialogContent>

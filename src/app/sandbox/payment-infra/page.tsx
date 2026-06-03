@@ -6,7 +6,7 @@ import {
   CreditCard, Settings, RefreshCw, Lock, Shield, ArrowUpRight,
   Cpu, Link2, Repeat2, User, SlidersHorizontal, Plug, Zap,
   Plus, Wrench, Globe, Wallet, CheckCircle2, Gift, BarChart2,
-  Tag, ArrowLeftRight, ArrowUpDown, ChevronDown,
+  Tag, ArrowLeftRight, ArrowUpDown, ChevronDown, FileText,
   LockOpen, Lock as LockIcon, GripVertical, Pencil, Trash2, Check, X,
 } from 'lucide-react'
 import Link from 'next/link'
@@ -102,7 +102,7 @@ const layers: LayerDef[] = [
     accentBorderCls: 'border-sky-500/30',
     accentTextCls:   'text-sky-500',
     nodes: [
-      { id: 'auth',   label: 'Auth & Brand',    sub: 'JWT + Brand context',           Icon: Lock,         phases: [1]    },
+      { id: 'auth',   label: 'Auth & Brand',    sub: 'JWT + Brand context',           Icon: Lock,         phases: [1],   href: '/sandbox/payment-infra/auth-brand' },
       { id: 'rate',   label: 'Rate Limiting',   sub: 'Velocity checks',               Icon: Shield,       phases: [2]    },
       { id: 'router', label: 'Request Router',  sub: 'Deposit | Withdrawal routes',   Icon: ArrowUpRight, phases: [2]    },
     ],
@@ -137,7 +137,7 @@ const layers: LayerDef[] = [
     accentTextCls:   'text-emerald-500',
     nodes: [
       { id: 'interface', label: 'Unified Interface', sub: 'initiateDeposit | getStatus | handleWebhook', Icon: Plug,   wide: true, phases: [1],   href: '/sandbox/payment-infra/unified-interface' },
-      { id: 'adapter1',  label: 'PSP #1 Adapter',    sub: 'Your current provider',                      Icon: Zap,   accent: true, phases: [1] },
+      { id: 'adapter1',  label: 'PSP #1 Adapter',    sub: 'Your current provider',                      Icon: Zap,   accent: true, phases: [1], href: '/sandbox/payment-infra/psp1-adapter' },
       { id: 'adapter2',  label: 'PSP #2 Adapter',    sub: 'Next integration',                            Icon: Plus,                phases: [5] },
       { id: 'adapterN',  label: 'PSP #N Adapter',    sub: 'Pluggable',                                   Icon: Wrench,              phases: [5] },
     ],
@@ -153,7 +153,7 @@ const layers: LayerDef[] = [
     accentBorderCls: 'border-amber-500/30',
     accentTextCls:   'text-amber-500',
     nodes: [
-      { id: 'psp1', label: 'PSP #1 API', sub: 'Cards | Crypto',  Icon: Globe, accent: true, phases: [1] },
+      { id: 'psp1', label: 'PSP #1 API', sub: 'Cards | Crypto',  Icon: Globe, accent: true, phases: [1], href: '/sandbox/payment-infra/psp1-api' },
       { id: 'psp2', label: 'PSP #2 API', sub: 'e-Wallets',       Icon: Globe,              phases: [5] },
       { id: 'pspN', label: 'PSP #N API', sub: 'Local methods',   Icon: Globe,              phases: [5] },
     ],
@@ -348,13 +348,10 @@ function LayerCard({
 
 // ─── Delivery phases data ────────────────────────────────────────────────────
 
-interface PhaseGroup { label: string; items: string[] }
 interface Phase {
   id: string
   title: string
   subtitle?: string
-  items?: string[]
-  groups?: PhaseGroup[]
   output: string
   badgeCls: string
   badgeTextCls: string
@@ -367,13 +364,6 @@ const deliveryPhases: Phase[] = [
     badgeTextCls: 'text-slate-500',
     title: 'Architecture & Contracts',
     subtitle: 'Documents only -- no code',
-    items: [
-      'System Context diagram (C4) -- all components and connections',
-      'Transaction State Machine -- all statuses and transitions',
-      'Unified Payment Interface -- request/response types, error codes',
-      'Data model -- transactions, payment_methods, psp_configs, routing_rules tables',
-      'API contract frontend ↔ backend (deposit and withdrawal endpoints)',
-    ],
     output: 'FigJam with diagrams + Notion with contracts. All three parties have signed off.',
   },
   {
@@ -382,15 +372,6 @@ const deliveryPhases: Phase[] = [
     badgeTextCls: 'text-sky-500',
     title: 'Adapter Layer + First PSP',
     subtitle: 'Backend only -- frontend not needed yet',
-    items: [
-      'Implement IPaymentProvider interface',
-      'Write adapter for PSP #1 (your current provider)',
-      'Map its statuses → UnifiedStatus',
-      'Normalize PSP #1 webhooks',
-      'Basic error handling and timeouts',
-      'Idempotency mechanism (unique payment_id, duplicate protection)',
-      'Transaction state machine in code',
-    ],
     output: 'Deposit via PSP #1 is working. Adapter tests in place.',
   },
   {
@@ -399,27 +380,6 @@ const deliveryPhases: Phase[] = [
     badgeTextCls: 'text-amber-500',
     title: 'Orchestration Layer',
     subtitle: 'Backend continues, frontend starts in parallel',
-    groups: [
-      {
-        label: 'Backend:',
-        items: [
-          'Payment Orchestrator -- accepts request, selects PSP by routing rules',
-          'Basic routing: brand → geo → method → PSP',
-          'PSP config in database (not in code) -- brand, geo, methods, priority',
-          'Cascading -- fallback to next PSP on failure',
-          'Webhook receiver + event processing from PSP',
-          'Reconciliation job -- nightly status sync',
-        ],
-      },
-      {
-        label: 'Frontend (in parallel):',
-        items: [
-          'Checkout UI -- method list, deposit form',
-          'Polling or webhook transaction status',
-          'Handle all statuses (pending, success, failed, timeout)',
-        ],
-      },
-    ],
     output: 'Working end-to-end deposit flow with one PSP and basic routing.',
   },
   {
@@ -427,13 +387,6 @@ const deliveryPhases: Phase[] = [
     badgeCls: 'bg-emerald-500/10',
     badgeTextCls: 'text-emerald-500',
     title: 'Withdrawal + Compliance',
-    items: [
-      'Withdrawal flow (often more complex than deposit -- manual approval, queues)',
-      'Card-to-card rule -- withdrawal only to deposit method',
-      'Limits -- min/max, daily, velocity checks',
-      'KYC gate -- block withdrawal until verification',
-      'Pending withdrawal queue in admin panel',
-    ],
     output: 'Full payment cycle: deposit → play → withdraw.',
   },
   {
@@ -441,13 +394,6 @@ const deliveryPhases: Phase[] = [
     badgeCls: 'bg-violet-500/10',
     badgeTextCls: 'text-violet-500',
     title: 'Admin Panel',
-    items: [
-      'PSP Management -- add/disable, credentials, health status',
-      'Routing rules UI -- configure without deploy',
-      'Transaction search + manual retry / refund / void',
-      'Limits per brand / geo / method via UI',
-      'Basic analytics -- success rate, conversion by method',
-    ],
     output: 'Operations team can manage PSPs and routing without engineer involvement.',
   },
   {
@@ -455,13 +401,6 @@ const deliveryPhases: Phase[] = [
     badgeCls: 'bg-pink-500/10',
     badgeTextCls: 'text-pink-500',
     title: 'Personalization + Second PSP',
-    items: [
-      'Save BIN and preferred player method',
-      'Pre-fill last successful method in checkout',
-      'Saved instruments (if PSP supports tokenization)',
-      'Adapter for PSP #2 -- verify the interface is truly universal',
-      'A/B test payment methods (optional)',
-    ],
     output: 'Checkout conversion improves. Second PSP connected with zero interface changes.',
   },
   {
@@ -469,12 +408,6 @@ const deliveryPhases: Phase[] = [
     badgeCls: 'bg-orange-500/10',
     badgeTextCls: 'text-orange-500',
     title: 'Advanced Routing + Risk',
-    items: [
-      'Smart routing by success rate (dynamic PSP priority)',
-      'Fraud checks -- velocity, BIN checks, device fingerprint',
-      'FX / multi-currency',
-      'Fee tracking and P&L analytics',
-    ],
     output: 'Self-optimizing routing. Full risk and analytics layer.',
   },
 ]
@@ -859,9 +792,39 @@ export default function Page() {
       </DocSection>
       </div>
 
-      {/* ── Section 3: Delivery phases ───────────────────────────────────── */}
+      {/* ── Section 3: Reference Documents ─────────────────────────────── */}
       <div className="mt-6">
-      <DocSection num="3" title="Delivery Phases">
+      <DocSection num="3" title="Reference Documents">
+        <div className="grid grid-cols-1 gap-3 tablet:grid-cols-2 desktop:grid-cols-3">
+          {[
+            { label: 'Data Model',         sub: 'DB tables: transactions, psp_configs…',      href: '/sandbox/payment-infra/data-model',         phase: '0' },
+            { label: 'State Machine',      sub: 'PassimPay statuses → UnifiedStatus',        href: '/sandbox/payment-infra/state-machine',      phase: '1' },
+            { label: 'Unified Interface',  sub: 'IPaymentProvider types & API contract',      href: '/sandbox/payment-infra/unified-interface',  phase: '1' },
+            { label: 'Auth & Brand Spec',  sub: 'JWT validation & brand resolution',          href: '/sandbox/payment-infra/auth-brand',         phase: '1' },
+            { label: 'PSP #1 Adapter',     sub: 'PassimPay implementation spec',              href: '/sandbox/payment-infra/psp1-adapter',       phase: '1' },
+            { label: 'PSP #1 API',         sub: 'PassimPay service overview & onboarding',    href: '/sandbox/payment-infra/psp1-api',           phase: '1' },
+            { label: 'Status Polling',     sub: 'How frontend tracks transaction status',      href: '/sandbox/payment-infra/status-polling',     phase: '2' },
+          ].map(doc => (
+            <Link key={doc.href} href={doc.href} className="border border-border bg-card rounded-2xl p-3.5 flex items-start gap-2.5 hover:border-subtle-border hover:shadow-card-hover transition-all">
+              <div className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-muted text-muted-foreground">
+                <FileText className="size-3.5" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-sm font-semibold text-foreground truncate">{doc.label}</span>
+                  <Badge variant="secondary" className="shrink-0 text-xs">Phase {doc.phase}</Badge>
+                </div>
+                <p className="text-xs text-muted-foreground mt-0.5 leading-snug">{doc.sub}</p>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </DocSection>
+      </div>
+
+      {/* ── Section 4: Delivery phases ───────────────────────────────────── */}
+      <div className="mt-6">
+      <DocSection num="4" title="Delivery Phases">
 
         {/* Lock / Unlock bar */}
         <div className="flex items-center justify-end gap-2 mb-5">
@@ -896,13 +859,12 @@ export default function Page() {
         <div className="flex flex-col gap-4">
           {deliveryPhases.map((phase) => {
             const phaseItems = items.filter(i => i.phase_id === phase.id)
-            const groups = phase.groups
-              ? phase.groups.map(g => ({
-                  label: g.label,
-                  items: phaseItems.filter(i => i.group_label === g.label),
-                }))
+            const groupLabels = [...new Set(phaseItems.map(i => i.group_label).filter((g): g is string => g !== null))]
+            const hasGroups = groupLabels.length > 0
+            const groups = hasGroups
+              ? groupLabels.map(label => ({ label, items: phaseItems.filter(i => i.group_label === label) }))
               : null
-            const flatItems = phase.groups ? null : phaseItems
+            const flatItems = hasGroups ? null : phaseItems
 
             const doneCount  = phaseItems.filter(i => i.is_done).length
             const totalCount = phaseItems.length

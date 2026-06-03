@@ -20,11 +20,11 @@ function CategoryCard({
   iconClassName?: string
 }) {
   return (
-    <div className="group flex h-16 cursor-pointer items-center gap-3 rounded-2xl border border-border px-5 shadow-card transition-all duration-200 hover:border-subtle-border hover:shadow-card-hover">
+    <button className="group flex h-16 w-full cursor-pointer items-center gap-3 rounded-2xl border border-border px-5 shadow-card transition-all duration-200 hover:border-subtle-border hover:shadow-card-hover">
       <Icon className={`size-5 shrink-0 ${iconClassName}`} />
       <span className="flex-1 font-display text-xl font-medium text-foreground">{label}</span>
       <ChevronRight className={`size-5 shrink-0 transition-transform duration-200 group-hover:animate-chevron-nudge ${iconClassName}`} />
-    </div>
+    </button>
   )
 }
 
