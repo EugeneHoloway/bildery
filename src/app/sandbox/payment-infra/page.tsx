@@ -57,7 +57,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
-type PhaseFilter = number | 'all' | 'oos'
+type PhaseFilter = number | 'all' | 'oos' | 'next'
 
 interface NodeDef {
   id: string
@@ -66,7 +66,7 @@ interface NodeDef {
   Icon: ElementType
   wide?: boolean
   accent?: boolean
-  phases?: (number | 'oos')[]
+  phases?: (number | 'oos' | 'next')[]
   href?: string
   newTab?: boolean
 }
@@ -109,7 +109,7 @@ const layers: LayerDef[] = [
     accentTextCls:   'text-violet-500',
     nodes: [
       { id: 'checkout', label: 'Checkout UI',    sub: 'Deposit | Withdrawal',         Icon: CreditCard, phases: [2],   href: '/sandbox/brand-canvas', newTab: true },
-      { id: 'admin',    label: 'Admin Panel',    sub: 'PSP Management | Routing',     Icon: Settings,   phases: [4]    },
+      { id: 'admin',    label: 'Admin Panel',    sub: 'PSP Management | Routing',     Icon: Settings,   phases: [4],   href: '/sandbox/payment-infra/admin-panel' },
       { id: 'status',   label: 'Status Polling', sub: 'Webhook events -- UI',         Icon: RefreshCw,  phases: [2],   href: '/sandbox/payment-infra/status-polling' },
     ],
   },
@@ -143,8 +143,8 @@ const layers: LayerDef[] = [
       { id: 'orchestrator',    label: 'Payment Orchestrator', sub: 'Routing rules engine',          Icon: Cpu,               wide: true, phases: [2],   href: '/sandbox/payment-infra/orchestrator' },
       { id: 'cascade',         label: 'Cascade Manager',      sub: 'Failover PSP1 → PSP2 → PSP3',       Icon: Link2,                         phases: [2],   href: '/sandbox/payment-infra/cascade-manager' },
       { id: 'statemachine',    label: 'State Machine',        sub: 'INITIATED → PROCESSING → DONE',     Icon: Repeat2,                       phases: [1],   href: '/sandbox/payment-infra/state-machine' },
-      { id: 'personalization', label: 'Personalization',      sub: 'BIN + preferred method',        Icon: User,                          phases: [5]    },
-      { id: 'limits',          label: 'Limits & Rules',       sub: 'Min/max, velocity, KYC gate',   Icon: SlidersHorizontal,             phases: [3]    },
+      { id: 'personalization', label: 'Personalization',      sub: 'BIN + preferred method',        Icon: User,                          phases: [5],   href: '/sandbox/payment-infra/personalization' },
+      { id: 'limits',          label: 'Limits & Rules',       sub: 'Min/max, velocity, KYC gate',   Icon: SlidersHorizontal,             phases: [3],   href: '/sandbox/payment-infra/limits-rules' },
     ],
   },
   {
@@ -160,8 +160,7 @@ const layers: LayerDef[] = [
     nodes: [
       { id: 'interface', label: 'Unified Interface', sub: 'initiateDeposit | getStatus | handleWebhook', Icon: Plug,   wide: true, phases: [1],   href: '/sandbox/payment-infra/unified-interface' },
       { id: 'adapter1',  label: 'PSP #1 Adapter',    sub: 'Your current provider',                      Icon: Zap,   accent: true, phases: [1], href: '/sandbox/payment-infra/psp1-adapter' },
-      { id: 'adapter2',  label: 'PSP #2 Adapter',    sub: 'Next integration',                            Icon: Plus,                phases: [5] },
-      { id: 'adapterN',  label: 'PSP #N Adapter',    sub: 'Pluggable',                                   Icon: Wrench,              phases: [5] },
+      { id: 'add-psp',   label: 'How to add a PSP',  sub: 'Checklist for new integrations',              Icon: Wrench,              phases: ['next'],  href: '/sandbox/payment-infra/add-psp' },
     ],
   },
   {
@@ -176,8 +175,6 @@ const layers: LayerDef[] = [
     accentTextCls:   'text-amber-500',
     nodes: [
       { id: 'psp1', label: 'PSP #1 API', sub: 'Cards | Crypto',  Icon: Globe, accent: true, phases: [1], href: '/sandbox/payment-infra/psp1-api' },
-      { id: 'psp2', label: 'PSP #2 API', sub: 'e-Wallets',       Icon: Globe,              phases: [5] },
-      { id: 'pspN', label: 'PSP #N API', sub: 'Local methods',   Icon: Globe,              phases: [5] },
     ],
   },
   {
@@ -192,8 +189,8 @@ const layers: LayerDef[] = [
     accentTextCls:   'text-pink-500',
     nodes: [
       { id: 'wallet',         label: 'Wallet Engine', sub: 'Balance | ledger',    Icon: Wallet,       phases: [2], href: '/sandbox/payment-infra/wallet-engine' },
-      { id: 'kyc',            label: 'KYC | AML',     sub: 'Verification gates',  Icon: CheckCircle2, phases: [3] },
-      { id: 'bonus',          label: 'Bonus Engine',  sub: 'Wager | locks',       Icon: Gift,         phases: [3] },
+      { id: 'kyc',            label: 'KYC | AML',     sub: 'Verification gates',  Icon: CheckCircle2, phases: [3], href: '/sandbox/payment-infra/kyc-aml' },
+      { id: 'bonus',          label: 'Bonus Engine',  sub: 'Wager | locks',       Icon: Gift,         phases: [3], href: '/sandbox/payment-infra/bonus-engine' },
       { id: 'reconciliation', label: 'Reconciliation',sub: 'Nightly PSP sync',    Icon: BarChart2,    phases: [2], href: '/sandbox/payment-infra/reconciliation' },
     ],
   },
@@ -277,7 +274,11 @@ function NodeCard({
   phaseFilter: PhaseFilter
 }) {
   const { Icon } = node
-  const dimmed = phaseFilter !== 'all' && !(node.phases?.includes(phaseFilter as never))
+  const isOos  = node.phases?.every(p => p === 'oos')
+  const isNext = node.phases?.every(p => p === 'next')
+  const dimmed = phaseFilter === 'all'
+    ? !!isOos
+    : !(node.phases?.includes(phaseFilter as never))
 
 
   const cardCls = cn(
@@ -298,7 +299,7 @@ function NodeCard({
           {node.phases && node.phases.length > 0 && (
             <div className="flex gap-1 shrink-0">
               {node.phases.map(p => (
-                <Badge key={p} variant="secondary">Phase {p}</Badge>
+                <Badge key={p} variant="secondary">{p === 'oos' ? 'Out of scope' : p === 'next' ? 'Next' : `Phase ${p}`}</Badge>
               ))}
             </div>
           )}
@@ -725,15 +726,15 @@ export default function Page() {
           </button>
         ))}
         <button
-          onClick={() => setPhaseFilter(phaseFilter === 'oos' ? 'all' : 'oos')}
+          onClick={() => setPhaseFilter(phaseFilter === 'next' ? 'all' : 'next')}
           className={cn(
             'px-2.5 py-1 rounded-md border text-xs font-semibold transition-all',
-            phaseFilter === 'oos'
+            phaseFilter === 'next'
               ? 'bg-foreground text-background border-foreground'
               : 'bg-transparent text-muted-foreground border-border hover:text-foreground',
           )}
         >
-          Out of scope
+          Next
         </button>
       </div>
 
@@ -844,15 +845,21 @@ export default function Page() {
             { label: { en: 'Cascade Manager',     ua: 'Cascade Manager'      }, sub: { en: 'Failover logic: PSP1 → PSP2 → PSP3',            ua: 'Failover логіка: PSP1 → PSP2 → PSP3'         }, href: '/sandbox/payment-infra/cascade-manager', phase: '2' },
             { label: { en: 'Wallet Engine',       ua: 'Wallet Engine'        }, sub: { en: 'Balance: credit, debit, hold. Built on Orleans',  ua: 'Баланс: credit, debit, hold. Побудований на Orleans' }, href: '/sandbox/payment-infra/wallet-engine',   phase: '2' },
             { label: { en: 'Reconciliation',      ua: 'Reconciliation'       }, sub: { en: 'Nightly PSP sync, discrepancy detection & fix',   ua: 'Нічна синхронізація PSP, виявлення розбіжностей'     }, href: '/sandbox/payment-infra/reconciliation',  phase: '2' },
+            { label: { en: 'Limits & Rules',      ua: 'Limits & Rules'       }, sub: { en: 'Min/max, caps, KYC gates, RG, AML — rule engine',  ua: 'Min/max, ліміти, KYC-гейти, RG, AML — движок правил' }, href: '/sandbox/payment-infra/limits-rules',    phase: '3' },
+            { label: { en: 'KYC | AML',           ua: 'KYC | AML'            }, sub: { en: 'Identity verification, sanctions, AML monitoring',   ua: 'Верифікація особи, санкції, AML моніторинг'          }, href: '/sandbox/payment-infra/kyc-aml',         phase: '3' },
+            { label: { en: 'Bonus Engine',        ua: 'Bonus Engine'         }, sub: { en: 'Deposit match, wagering tracking, balance lock, expiry', ua: 'Депозит-матч, відстеження вейджеру, лок балансу'    }, href: '/sandbox/payment-infra/bonus-engine',    phase: '3' },
+            { label: { en: 'Admin Panel',         ua: 'Адмін Панель'         }, sub: { en: 'PSP, routing, methods, partners, compliance — control plane', ua: 'PSP, роутинг, методи, партнери, compliance — панель управління' }, href: '/sandbox/payment-infra/admin-panel', phase: '4' },
+            { label: { en: 'Personalization',     ua: 'Персоналізація'       }, sub: { en: 'BIN lookup, preferred method, GEO context, PSP success rate', ua: 'BIN lookup, кращий метод, GEO контекст, success rate PSP' }, href: '/sandbox/payment-infra/personalization', phase: '5' },
+            { label: { en: 'How to add a new PSP', ua: 'Як додати новий PSP' }, sub: { en: 'Checklist for integrating any new payment provider', ua: 'Чеклист для інтеграції нового платіжного провайдера' }, href: '/sandbox/payment-infra/add-psp', phase: 'next' },
           ].map(doc => (
-            <Link key={doc.href} href={doc.href} className={cn("border border-border bg-card rounded-2xl p-3.5 flex items-start gap-2.5 hover:border-subtle-border hover:shadow-card-hover transition-all", phaseFilter !== 'all' && phaseFilter !== (isNaN(Number(doc.phase)) ? doc.phase : Number(doc.phase)) && 'opacity-30')}>
+            <Link key={doc.href} href={doc.href} className={cn("border border-border bg-card rounded-2xl p-3.5 flex items-start gap-2.5 hover:border-subtle-border hover:shadow-card-hover transition-all", (() => { const p = isNaN(Number(doc.phase)) ? doc.phase : Number(doc.phase); return doc.phase === 'oos' ? phaseFilter !== 'oos' : doc.phase === 'next' ? (phaseFilter !== 'all' && phaseFilter !== 'next' as never) : phaseFilter !== 'all' && phaseFilter !== p })() && 'opacity-30')}>
               <div className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-muted text-muted-foreground">
                 <FileText className="size-3.5" />
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-sm font-semibold text-foreground truncate">{doc.label[lang]}</span>
-                  <Badge variant="secondary" className="shrink-0 text-xs">Phase {doc.phase}</Badge>
+                  <Badge variant="secondary" className="shrink-0 text-xs">{doc.phase === 'oos' ? 'Out of scope' : doc.phase === 'next' ? 'Next' : `Phase ${doc.phase}`}</Badge>
                 </div>
                 <p className="text-xs text-muted-foreground mt-0.5 leading-snug">{doc.sub[lang]}</p>
               </div>
