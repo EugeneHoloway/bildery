@@ -1,8 +1,15 @@
 'use client'
 
 import { useState } from 'react'
+import { Activity, ChevronDown, PackageOpen } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { SandboxCard, type SandboxCardData } from '@/components/SandboxCard'
+import { SandboxCard, type SandboxCardData, type CardStatus } from '@/components/SandboxCard'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 
 // ─── Data (newest first) ─────────────────────────────────────────────────────
 
@@ -12,7 +19,7 @@ const cards: SandboxCardData[] = [
     tag: 'Prototype',
     title: 'Payment Infra',
     description: '',
-    status: 'Infrastructure',
+    cardStatus: 'Done',
     sections: 5,
     href: '/sandbox/payment-infra',
     highlight: {
@@ -30,7 +37,7 @@ const cards: SandboxCardData[] = [
     tag: 'Prototype',
     title: 'Brand Canvas',
     description: '[TBA]',
-    status: 'iGaming',
+    cardStatus: 'In progress',
     sections: 0,
     href: '/sandbox/brand-canvas',
     languages: ['EN'],
@@ -40,7 +47,7 @@ const cards: SandboxCardData[] = [
     tag: 'Tech Task',
     title: 'Product Audit',
     description: 'Funnel audit, growth strategy, and 6-month roadmap for BUKI.',
-    status: 'Buki',
+    cardStatus: 'Done',
     sections: 4,
     href: '/sandbox/buki',
     highlight: {
@@ -59,7 +66,7 @@ const cards: SandboxCardData[] = [
     title: 'Autoship & Save',
     description:
       'ROI-positive retention initiative for a marketplace. Covers initiative selection, target segment, LTV hypothesis, UX flow, ROI model, risk assessment, and A/B test design.',
-    status: 'Liki24',
+    cardStatus: 'Done',
     sections: 8,
     href: '/sandbox/liki24',
     highlight: {
@@ -78,7 +85,7 @@ const cards: SandboxCardData[] = [
     title: 'Expert Rating System',
     description:
       'Expert Rating System for sports portal. Rating algorythm approach, Baessyan model calc, exceptions and edge cases.',
-    status: 'Tips',
+    cardStatus: 'Done',
     sections: 8,
     href: '/sandbox/tips',
     highlight: {
@@ -97,7 +104,7 @@ const cards: SandboxCardData[] = [
     title: 'Shopify Growth Loop',
     description:
       'Mission-driven loyalty template for Shopify merchants. Covers ecosystem challenges, behavioral mechanics, mission categories, RFM segmentation, reward structure, and merchant value communication.',
-    status: 'Enable3',
+    cardStatus: 'Done',
     sections: 5,
     href: '/sandbox/enable3',
     highlight: {
@@ -116,7 +123,7 @@ const cards: SandboxCardData[] = [
     title: '1K Signups, 0 Revenue',
     description:
       'Growth PM diagnosis and 90-day plan for SubSub: a YouTube creator monetization platform. Covers funnel analysis, activation gap, hypothesis prioritization, unit economics, and experiment roadmap.',
-    status: 'SubSub',
+    cardStatus: 'Done',
     sections: 6,
     href: '/sandbox/subsub',
     highlight: {
@@ -135,7 +142,7 @@ const cards: SandboxCardData[] = [
     title: 'STM Analysis',
     description:
       'Gross margin, performance, EBITDA, Revenue, rating summary and price target scenarios.',
-    status: 'Share',
+    cardStatus: 'Done',
     sections: 9,
     href: '/sandbox/stm',
     highlight: {
@@ -154,7 +161,7 @@ const cards: SandboxCardData[] = [
     title: 'Homepage Configurator',
     description:
       'Page section manager for iGaming operator backoffice. Banner slider, game sections (auto/manual), providers row, live bets feed and SEO text.',
-    status: 'BetUp',
+    cardStatus: 'Done',
     sections: 3,
     href: '/sandbox/homepage-configurator',
     highlight: {
@@ -173,7 +180,7 @@ const cards: SandboxCardData[] = [
     title: 'Page Manager',
     description:
       'Create, hide and delete custom pages. Includes Game Providers page with logo grid, layout toggle and per-page settings.',
-    status: 'BetUp',
+    cardStatus: 'Done',
     sections: 2,
     href: '/sandbox/page-manager',
     highlight: {
@@ -192,7 +199,7 @@ const cards: SandboxCardData[] = [
     title: 'SEO Editor',
     description:
       'Per-page SEO tab: H1, title tag, meta description with live SERP preview, Open Graph, advanced settings and audit checklist.',
-    status: 'BetUp',
+    cardStatus: 'Done',
     sections: 4,
     href: '/sandbox/seo-editor',
     highlight: {
@@ -211,7 +218,7 @@ const cards: SandboxCardData[] = [
     title: 'Analytics Dashboard',
     description:
       'Operator analytics prototype with live Supabase data. Revenue GGR/NGR, deposits & withdrawals, top games by hold %, and player segmentation by VIP tier.',
-    status: 'BetUp',
+    cardStatus: 'Done',
     sections: 4,
     href: '/sandbox/analytics',
     highlight: {
@@ -230,7 +237,7 @@ const cards: SandboxCardData[] = [
     title: 'AI Revenue Intelligence',
     description:
       'Enter 9 operator KPIs - FTD rate, churn, bonus ROI, payment success - and get AI-generated revenue health scores, risk assessment, and prioritized actions.',
-    status: 'iGaming',
+    cardStatus: 'Done',
     sections: 1,
     href: '/sandbox/revenue-intelligence',
     highlight: {
@@ -249,7 +256,7 @@ const cards: SandboxCardData[] = [
     title: 'Rocketman',
     description:
       'A crash game with a space theme. Rocket flies higher -- multiplier grows. Cash out before it explodes. Three modes: Orbit (×10), Moon (×50), Mars (×100). Built with provably fair RNG.',
-    status: 'Bildery',
+    cardStatus: 'In progress',
     sections: 1,
     href: '/sandbox/rocketman',
     highlight: {
@@ -298,8 +305,23 @@ const FILTER_OPTIONS = [
   { key: 'Game',       label: 'Game' },
 ]
 
+const STATUS_OPTIONS: { key: CardStatus | 'all'; label: string }[] = [
+  { key: 'all',         label: 'All statuses' },
+  { key: 'Initiated',   label: 'Initiated' },
+  { key: 'In progress', label: 'In progress' },
+  { key: 'Done',        label: 'Done' },
+]
+
 export default function SandboxPage() {
-  const [filter, setFilter] = useState('all')
+  const [filter, setFilter]       = useState('all')
+  const [statusFilter, setStatus] = useState<CardStatus | 'all'>('all')
+
+  const visibleCards = cards.filter(card =>
+    (filter === 'all' || card.tag === filter) &&
+    (statusFilter === 'all' || card.cardStatus === statusFilter)
+  )
+
+  const currentStatusLabel = STATUS_OPTIONS.find(o => o.key === statusFilter)?.label ?? 'Status'
 
   return (
     <div className="py-12 pb-20">
@@ -313,31 +335,80 @@ export default function SandboxPage() {
           <p className="mb-4 text-base leading-relaxed text-muted-foreground">
             Work-in-progress projects, test tasks, and exploratory documents.
           </p>
-          <div className="flex gap-1.5 flex-wrap">
-            {FILTER_OPTIONS.map(opt => (
-              <button
-                key={opt.key}
-                onClick={() => setFilter(opt.key)}
-                className={cn(
-                  'px-2.5 py-1 rounded-md border text-xs font-semibold transition-all',
-                  filter === opt.key
+
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex flex-col gap-1.5">
+              <span className="text-xs font-semibold text-foreground">Filter</span>
+              <div className="flex gap-1.5 flex-wrap">
+              {FILTER_OPTIONS.map(opt => (
+                <button
+                  key={opt.key}
+                  onClick={() => setFilter(opt.key)}
+                  className={cn(
+                    'px-2.5 py-1 rounded-md border text-xs font-semibold transition-all',
+                    filter === opt.key
+                      ? 'bg-foreground text-background border-foreground'
+                      : 'bg-transparent text-muted-foreground border-border hover:text-foreground',
+                  )}
+                >
+                  {opt.label}
+                </button>
+              ))}
+              </div>
+            </div>
+
+            {/* Status dropdown */}
+            <div className="flex flex-col gap-1.5">
+              <span className="text-xs font-semibold text-foreground">Status</span>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className={cn(
+                  'flex w-36 items-center justify-between gap-1.5 rounded-md border px-2.5 py-1 text-xs font-semibold transition-all',
+                  statusFilter !== 'all'
                     ? 'bg-foreground text-background border-foreground'
                     : 'bg-transparent text-muted-foreground border-border hover:text-foreground',
-                )}
-              >
-                {opt.label}
-              </button>
-            ))}
+                )}>
+                  <Activity className="size-3.5" />
+                  <span className="whitespace-nowrap">{statusFilter === 'all' ? 'All statuses' : currentStatusLabel}</span>
+                  <ChevronDown className="size-3" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="min-w-36">
+                {STATUS_OPTIONS.map(opt => (
+                  <DropdownMenuItem
+                    key={opt.key}
+                    onSelect={() => setStatus(opt.key)}
+                    className={cn(
+                      'text-xs',
+                      statusFilter === opt.key && 'font-semibold',
+                    )}
+                  >
+                    {opt.label}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+            </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 tablet:grid-cols-2 desktop:grid-cols-4">
-          {cards
-            .filter(card => filter === 'all' || card.tag === filter)
-            .map((card) => (
+        {visibleCards.length > 0 ? (
+          <div className="grid grid-cols-1 gap-4 tablet:grid-cols-2 desktop:grid-cols-4">
+            {visibleCards.map((card) => (
               <SandboxCard key={card.id} card={card} />
             ))}
-        </div>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center gap-3 py-20 text-center">
+            <div className="flex size-14 items-center justify-center rounded-xl bg-muted">
+              <PackageOpen className="size-7 text-muted-foreground" />
+            </div>
+            <p className="text-sm font-semibold text-foreground">No cards found</p>
+            <p className="text-sm text-muted-foreground">
+              No projects match the selected filters.
+            </p>
+          </div>
+        )}
 
       </div>
     </div>

@@ -3,18 +3,20 @@
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Check } from 'lucide-react'
+import { Activity, Check } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+
+export type CardStatus = 'Initiated' | 'In progress' | 'Done'
 
 export interface SandboxCardData {
   id: string
   tag: string
   title: string
   description: string
-  status: string
+  cardStatus: CardStatus
   sections: number
   href: string
   highlight?: {
@@ -134,9 +136,10 @@ export function SandboxCard({ card }: { card: SandboxCardData }) {
 
       {/* Footer */}
       <div className="-mx-4 -mb-4 flex items-center justify-between gap-3 rounded-b-2xl border-t border-border bg-subtle px-4 py-4">
-        <Badge variant="outline">
-          {card.status}
-        </Badge>
+        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+          <Activity className="size-3.5 shrink-0" />
+          <span className="font-medium">{card.cardStatus}</span>
+        </div>
         <Button asChild className="relative z-10">
           <Link href={card.href}>View details</Link>
         </Button>
