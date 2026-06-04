@@ -15,6 +15,25 @@ import {
 
 const cards: SandboxCardData[] = [
   {
+    id: 'lemon',
+    tag: 'Tech Task',
+    title: 'Vetting Flow Iteration',
+    description:
+      "PM test task for Lemon.io. Problem inventory, root-cause of Mark’s 50% false-positive rate, and a 4-week rubric hardening plan.",
+    cardStatus: 'Done',
+    sections: 4,
+    href: '/sandbox/lemon',
+    highlight: {
+      label: 'Deliverables:',
+      bullets: [
+        'Problem inventory (8 issues ranked)',
+        'Root cause & chain of reasoning',
+        '4-week hardening plan',
+      ],
+    },
+    languages: ['EN'],
+  },
+  {
     id: 'payment-infra',
     tag: 'Prototype',
     title: 'Payment Infra',
@@ -30,16 +49,24 @@ const cards: SandboxCardData[] = [
         'Deep dive',
       ],
     },
-    languages: ['EN'],
+    languages: ['EN', 'UA'],
   },
   {
     id: 'brand-canvas',
     tag: 'Prototype',
     title: 'Brand Canvas',
-    description: '[TBA]',
+    description: '',
     cardStatus: 'In progress',
     sections: 0,
     href: '/sandbox/brand-canvas',
+    highlight: {
+      label: 'Covers:',
+      bullets: [
+        'Brand positioning & value prop',
+        'Visual identity & tone of voice',
+        'Audience segments & messaging',
+      ],
+    },
     languages: ['EN'],
   },
   {
