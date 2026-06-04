@@ -42,7 +42,7 @@ function TruncatedBullet({ text, href }: { text: string; href: string }) {
   }, [])
 
   return (
-    <Tooltip open={truncated ? undefined : false}>
+    <Tooltip>
       <TooltipTrigger asChild>
         <span
           ref={ref}
@@ -52,7 +52,7 @@ function TruncatedBullet({ text, href }: { text: string; href: string }) {
           {text}
         </span>
       </TooltipTrigger>
-      <TooltipContent side="top">{text}</TooltipContent>
+      {truncated && <TooltipContent side="top">{text}</TooltipContent>}
     </Tooltip>
   )
 }

@@ -9,6 +9,26 @@ import {
   Tag, ArrowLeftRight, ArrowUpDown, ChevronDown, FileText,
   LockOpen, Lock as LockIcon, GripVertical, Pencil, Trash2, Check, X,
 } from 'lucide-react'
+
+// ─── Lang ─────────────────────────────────────────────────────────────────────
+
+type Lang = 'en' | 'ua'
+
+interface I18n { en: string; ua: string }
+
+function LangSwitcher({ lang, onChange }: { lang: Lang; onChange: (l: Lang) => void }) {
+  return (
+    <div className="flex items-center gap-0.5 rounded-lg border border-border bg-muted p-0.5">
+      {(['en', 'ua'] as Lang[]).map((l) => (
+        <button key={l} onClick={() => onChange(l)}
+          className={['px-2.5 py-1 rounded-md text-xs font-semibold transition-colors',
+            lang === l ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground',
+          ].join(' ')}
+        >{l.toUpperCase()}</button>
+      ))}
+    </div>
+  )
+}
 import Link from 'next/link'
 import {
   DndContext,
@@ -37,6 +57,8 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
+type PhaseFilter = number | 'all' | 'oos'
+
 interface NodeDef {
   id: string
   label: string
@@ -44,7 +66,7 @@ interface NodeDef {
   Icon: ElementType
   wide?: boolean
   accent?: boolean
-  phases?: number[]
+  phases?: (number | 'oos')[]
   href?: string
   newTab?: boolean
 }
@@ -103,8 +125,8 @@ const layers: LayerDef[] = [
     accentTextCls:   'text-sky-500',
     nodes: [
       { id: 'auth',   label: 'Auth & Brand',    sub: 'JWT + Brand context',           Icon: Lock,         phases: [1],   href: '/sandbox/payment-infra/auth-brand' },
-      { id: 'rate',   label: 'Rate Limiting',   sub: 'Velocity checks',               Icon: Shield,       phases: [2]    },
-      { id: 'router', label: 'Request Router',  sub: 'Deposit | Withdrawal routes',   Icon: ArrowUpRight, phases: [2]    },
+      { id: 'rate',   label: 'Rate Limiting',   sub: 'Velocity checks',               Icon: Shield,       phases: [2],   href: '/sandbox/payment-infra/rate-limiting' },
+      { id: 'router', label: 'Request Router',  sub: 'Deposit | Withdrawal routes',   Icon: ArrowUpRight, phases: [2],   href: '/sandbox/payment-infra/request-router' },
     ],
   },
   {
@@ -118,8 +140,8 @@ const layers: LayerDef[] = [
     accentBorderCls: 'border-amber-500/30',
     accentTextCls:   'text-amber-500',
     nodes: [
-      { id: 'orchestrator',    label: 'Payment Orchestrator', sub: 'Routing rules engine',          Icon: Cpu,               wide: true, phases: [2]    },
-      { id: 'cascade',         label: 'Cascade Manager',      sub: 'Failover PSP1 → PSP2 → PSP3',       Icon: Link2,                         phases: [2]    },
+      { id: 'orchestrator',    label: 'Payment Orchestrator', sub: 'Routing rules engine',          Icon: Cpu,               wide: true, phases: [2],   href: '/sandbox/payment-infra/orchestrator' },
+      { id: 'cascade',         label: 'Cascade Manager',      sub: 'Failover PSP1 → PSP2 → PSP3',       Icon: Link2,                         phases: [2],   href: '/sandbox/payment-infra/cascade-manager' },
       { id: 'statemachine',    label: 'State Machine',        sub: 'INITIATED → PROCESSING → DONE',     Icon: Repeat2,                       phases: [1],   href: '/sandbox/payment-infra/state-machine' },
       { id: 'personalization', label: 'Personalization',      sub: 'BIN + preferred method',        Icon: User,                          phases: [5]    },
       { id: 'limits',          label: 'Limits & Rules',       sub: 'Min/max, velocity, KYC gate',   Icon: SlidersHorizontal,             phases: [3]    },
@@ -169,10 +191,10 @@ const layers: LayerDef[] = [
     accentBorderCls: 'border-pink-500/30',
     accentTextCls:   'text-pink-500',
     nodes: [
-      { id: 'wallet',         label: 'Wallet Engine', sub: 'Balance | ledger',    Icon: Wallet,       phases: [2] },
+      { id: 'wallet',         label: 'Wallet Engine', sub: 'Balance | ledger',    Icon: Wallet,       phases: [2], href: '/sandbox/payment-infra/wallet-engine' },
       { id: 'kyc',            label: 'KYC | AML',     sub: 'Verification gates',  Icon: CheckCircle2, phases: [3] },
       { id: 'bonus',          label: 'Bonus Engine',  sub: 'Wager | locks',       Icon: Gift,         phases: [3] },
-      { id: 'reconciliation', label: 'Reconciliation',sub: 'Nightly PSP sync',    Icon: BarChart2,    phases: [2] },
+      { id: 'reconciliation', label: 'Reconciliation',sub: 'Nightly PSP sync',    Icon: BarChart2,    phases: [2], href: '/sandbox/payment-infra/reconciliation' },
     ],
   },
 ]
@@ -185,15 +207,15 @@ const interfaceMethods = [
   'getSupportedMethods(geo, currency) → Method[]',
 ]
 
-const depositFlow = [
-  'Player → Checkout UI',
-  ' → API Gateway (auth + brand)',
-  ' → Orchestrator (routing rules)',
-  ' → Cascade Manager (PSP select)',
-  ' → Adapter Layer (normalize)',
-  ' → PSP API (execute)',
-  '← Webhook → State Machine',
-  '← Balance update → Wallet',
+const depositFlow: I18n[] = [
+  { en: 'Player → Checkout UI',              ua: 'Гравець → Checkout UI'              },
+  { en: ' → API Gateway (auth + brand)',      ua: ' → API Gateway (auth + brand)'      },
+  { en: ' → Orchestrator (routing rules)',    ua: ' → Оркестратор (правила роутингу)'  },
+  { en: ' → Cascade Manager (PSP select)',    ua: ' → Cascade Manager (вибір PSP)'     },
+  { en: ' → Adapter Layer (normalize)',       ua: ' → Adapter Layer (нормалізація)'    },
+  { en: ' → PSP API (execute)',               ua: ' → PSP API (виконання)'             },
+  { en: '← Webhook → State Machine',         ua: '← Webhook → State Machine'          },
+  { en: '← Balance update → Wallet',         ua: '← Оновлення балансу → Wallet'       },
 ]
 
 const transactionStates = [
@@ -207,12 +229,12 @@ const transactionStates = [
 ]
 
 const routingDimensions = [
-  { label: 'Brand',     value: 'brand_id → PSP config',   Icon: Tag              },
-  { label: 'GEO',       value: 'country → methods + PSP', Icon: Globe            },
-  { label: 'Currency',  value: 'currency → PSP filter',   Icon: ArrowLeftRight   },
-  { label: 'Direction', value: 'deposit vs withdrawal',   Icon: ArrowUpDown      },
-  { label: 'Player',    value: 'BIN + last success',      Icon: User             },
-  { label: 'Cascade',   value: 'priority + health score', Icon: Link2            },
+  { label: { en: 'Brand',     ua: 'Бренд'    }, value: { en: 'brand_id → PSP config',   ua: 'brand_id → PSP config'       }, Icon: Tag            },
+  { label: { en: 'GEO',       ua: 'ГЕО'      }, value: { en: 'country → methods + PSP', ua: 'країна → методи + PSP'       }, Icon: Globe          },
+  { label: { en: 'Currency',  ua: 'Валюта'   }, value: { en: 'currency → PSP filter',   ua: 'валюта → фільтр PSP'         }, Icon: ArrowLeftRight },
+  { label: { en: 'Direction', ua: 'Напрямок' }, value: { en: 'deposit vs withdrawal',   ua: 'депозит vs виведення'        }, Icon: ArrowUpDown    },
+  { label: { en: 'Player',    ua: 'Гравець'  }, value: { en: 'BIN + last success',      ua: 'BIN + остання вдала операція'}, Icon: User           },
+  { label: { en: 'Cascade',   ua: 'Каскад'   }, value: { en: 'priority + health score', ua: 'пріоритет + health score'    }, Icon: Link2          },
 ]
 
 // ─── Truncated label with tooltip ────────────────────────────────────────────
@@ -232,13 +254,13 @@ function TruncatedLabel({ text }: { text: string }) {
   }, [])
 
   return (
-    <Tooltip open={truncated ? undefined : false}>
+    <Tooltip>
       <TooltipTrigger asChild>
         <span ref={ref} className="truncate text-sm font-semibold leading-snug text-foreground">
           {text}
         </span>
       </TooltipTrigger>
-      <TooltipContent side="top">{text}</TooltipContent>
+      {truncated && <TooltipContent side="top">{text}</TooltipContent>}
     </Tooltip>
   )
 }
@@ -252,10 +274,10 @@ function NodeCard({
 }: {
   node: NodeDef
   layer: LayerDef
-  phaseFilter: number | 'all'
+  phaseFilter: PhaseFilter
 }) {
   const { Icon } = node
-  const dimmed = phaseFilter !== 'all' && !(node.phases?.includes(phaseFilter))
+  const dimmed = phaseFilter !== 'all' && !(node.phases?.includes(phaseFilter as never))
 
 
   const cardCls = cn(
@@ -308,7 +330,7 @@ function LayerCard({
   layer: LayerDef
   index: number
   isLast: boolean
-  phaseFilter: number | 'all'
+  phaseFilter: PhaseFilter
 }) {
   return (
     <div>
@@ -350,9 +372,9 @@ function LayerCard({
 
 interface Phase {
   id: string
-  title: string
-  subtitle?: string
-  output: string
+  title: I18n
+  subtitle?: I18n
+  output: I18n
   badgeCls: string
   badgeTextCls: string
 }
@@ -362,53 +384,53 @@ const deliveryPhases: Phase[] = [
     id: '0',
     badgeCls: 'bg-slate-500/10',
     badgeTextCls: 'text-slate-500',
-    title: 'Architecture & Contracts',
-    subtitle: 'Documents only -- no code',
-    output: 'FigJam with diagrams + Notion with contracts. All three parties have signed off.',
+    title:    { en: 'Architecture & Contracts',  ua: 'Архітектура та контракти'        },
+    subtitle: { en: 'Documents only -- no code', ua: 'Тільки документи -- без коду'    },
+    output:   { en: 'FigJam with diagrams + Notion with contracts. All three parties have signed off.', ua: 'FigJam з діаграмами + Notion з контрактами. Всі три сторони підписали.' },
   },
   {
     id: '1',
     badgeCls: 'bg-sky-500/10',
     badgeTextCls: 'text-sky-500',
-    title: 'Adapter Layer + First PSP',
-    subtitle: 'Backend only -- frontend not needed yet',
-    output: 'Deposit via PSP #1 is working. Adapter tests in place.',
+    title:    { en: 'Adapter Layer + First PSP',              ua: 'Adapter Layer + Перший PSP'             },
+    subtitle: { en: 'Backend only -- frontend not needed yet', ua: 'Лише бекенд -- фронтенд ще не потрібен' },
+    output:   { en: 'Deposit via PSP #1 is working. Adapter tests in place.', ua: 'Депозит через PSP #1 працює. Тести адаптера написані.' },
   },
   {
     id: '2',
     badgeCls: 'bg-amber-500/10',
     badgeTextCls: 'text-amber-500',
-    title: 'Orchestration Layer',
-    subtitle: 'Backend continues, frontend starts in parallel',
-    output: 'Working end-to-end deposit flow with one PSP and basic routing.',
+    title:    { en: 'Orchestration Layer',                             ua: 'Orchestration Layer'                           },
+    subtitle: { en: 'Backend continues, frontend starts in parallel',  ua: 'Бекенд продовжується, фронтенд стартує паралельно' },
+    output:   { en: 'Working end-to-end deposit flow with one PSP and basic routing.', ua: 'Наскрізний флоу депозиту з одним PSP та базовим роутингом.' },
   },
   {
     id: '3',
     badgeCls: 'bg-emerald-500/10',
     badgeTextCls: 'text-emerald-500',
-    title: 'Withdrawal + Compliance',
-    output: 'Full payment cycle: deposit → play → withdraw.',
+    title:  { en: 'Withdrawal + Compliance', ua: 'Виведення + Комплаєнс' },
+    output: { en: 'Full payment cycle: deposit → play → withdraw.', ua: 'Повний платіжний цикл: депозит → гра → виведення.' },
   },
   {
     id: '4',
     badgeCls: 'bg-violet-500/10',
     badgeTextCls: 'text-violet-500',
-    title: 'Admin Panel',
-    output: 'Operations team can manage PSPs and routing without engineer involvement.',
+    title:  { en: 'Admin Panel', ua: 'Адмін панель' },
+    output: { en: 'Operations team can manage PSPs and routing without engineer involvement.', ua: 'Команда ops може керувати PSP та роутингом без участі інженерів.' },
   },
   {
     id: '5',
     badgeCls: 'bg-pink-500/10',
     badgeTextCls: 'text-pink-500',
-    title: 'Personalization + Second PSP',
-    output: 'Checkout conversion improves. Second PSP connected with zero interface changes.',
+    title:  { en: 'Personalization + Second PSP', ua: 'Персоналізація + Другий PSP' },
+    output: { en: 'Checkout conversion improves. Second PSP connected with zero interface changes.', ua: 'Конверсія чекауту покращується. Другий PSP підключається без змін інтерфейсу.' },
   },
   {
     id: '6',
     badgeCls: 'bg-orange-500/10',
     badgeTextCls: 'text-orange-500',
-    title: 'Advanced Routing + Risk',
-    output: 'Self-optimizing routing. Full risk and analytics layer.',
+    title:  { en: 'Advanced Routing + Risk', ua: 'Розширений роутинг + Ризик' },
+    output: { en: 'Self-optimizing routing. Full risk and analytics layer.', ua: 'Самооптимізований роутинг. Повний шар ризику та аналітики.' },
   },
 ]
 
@@ -583,7 +605,8 @@ function AddItemInput({ onAdd }: { onAdd: (text: string) => void }) {
 // ─── Page ────────────────────────────────────────────────────────────────────
 
 export default function Page() {
-  const [phaseFilter, setPhaseFilter]     = useState<number | 'all'>('all')
+  const [lang, setLang]                   = useState<Lang>('en')
+  const [phaseFilter, setPhaseFilter]     = useState<PhaseFilter>('all')
 
   // Supabase state
   const [items, setItems]                 = useState<PhaseItem[]>([])
@@ -669,8 +692,8 @@ export default function Page() {
       tags={[
         { label: 'Prototype',       type: 'tag'    },
         { label: 'Infrastructure',  type: 'status' },
-        { label: 'EN',              type: 'tag'    },
       ]}
+      titleExtra={<LangSwitcher lang={lang} onChange={setLang} />}
       footnote="DEPO44 | PAYMENT MODULE v1 | PHASE 0 ARCHITECTURE"
     >
 
@@ -701,10 +724,21 @@ export default function Page() {
             Phase {p}
           </button>
         ))}
+        <button
+          onClick={() => setPhaseFilter(phaseFilter === 'oos' ? 'all' : 'oos')}
+          className={cn(
+            'px-2.5 py-1 rounded-md border text-xs font-semibold transition-all',
+            phaseFilter === 'oos'
+              ? 'bg-foreground text-background border-foreground'
+              : 'bg-transparent text-muted-foreground border-border hover:text-foreground',
+          )}
+        >
+          Out of scope
+        </button>
       </div>
 
       {/* ── Section 1: Architecture diagram ─────────────────────────────── */}
-      <DocSection num="1" title="Architecture Overview">
+      <DocSection num="1" title={lang === 'ua' ? 'Огляд архітектури' : 'Architecture Overview'}>
         <div className="flex flex-col gap-3 mb-8">
           {layers.map((layer, i) => (
             <div key={layer.id}>
@@ -721,13 +755,13 @@ export default function Page() {
 
       {/* ── Section 2: Info cards ────────────────────────────────────────── */}
       <div className="mt-6">
-      <DocSection num="2" title="Key Flows & Reference">
+      <DocSection num="2" title={lang === 'ua' ? 'Ключові флоу та довідка' : 'Key Flows & Reference'}>
         <div className="grid grid-cols-1 gap-4 tablet:grid-cols-3">
 
           {/* Deposit flow */}
           <div className="border border-border rounded-2xl p-4">
             <p className="text-xs font-bold tracking-widest uppercase text-muted-foreground mb-4">
-              DEPOSIT FLOW
+              {lang === 'ua' ? 'ФЛОУ ДЕПОЗИТУ' : 'DEPOSIT FLOW'}
             </p>
             <div className="flex flex-col gap-1">
               {depositFlow.map((step, i) => (
@@ -739,7 +773,7 @@ export default function Page() {
                     'text-muted-foreground',
                     (i === 0 || i === depositFlow.length - 1) && 'font-semibold text-foreground',
                   )}>
-                    {step}
+                    {step[lang]}
                   </span>
                 </div>
               ))}
@@ -749,7 +783,7 @@ export default function Page() {
           {/* Transaction states */}
           <div className="border border-border rounded-2xl p-4">
             <p className="text-xs font-bold tracking-widest uppercase text-muted-foreground mb-4">
-              TRANSACTION STATES
+              {lang === 'ua' ? 'СТАНИ ТРАНЗАКЦІЇ' : 'TRANSACTION STATES'}
             </p>
             <div className="flex flex-col items-start gap-0">
               {transactionStates.map((s, i) => (
@@ -771,17 +805,17 @@ export default function Page() {
           {/* Routing dimensions */}
           <div className="border border-border rounded-2xl p-4">
             <p className="text-xs font-bold tracking-widest uppercase text-muted-foreground mb-4">
-              ROUTING DIMENSIONS
+              {lang === 'ua' ? 'ВИМІРИ РОУТИНГУ' : 'ROUTING DIMENSIONS'}
             </p>
             <div className="flex flex-col divide-y divide-border">
               {routingDimensions.map((r) => (
-                <div key={r.label} className="flex items-center gap-3 py-2.5 first:pt-0 last:pb-0">
+                <div key={r.label.en} className="flex items-center gap-3 py-2.5 first:pt-0 last:pb-0">
                   <div className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-muted text-muted-foreground">
                     <r.Icon className="size-3.5" />
                   </div>
                   <div className="min-w-0">
-                    <span className="text-xs font-semibold text-foreground">{r.label}</span>
-                    <span className="text-xs text-muted-foreground ml-2">{r.value}</span>
+                    <span className="text-xs font-semibold text-foreground">{r.label[lang]}</span>
+                    <span className="text-xs text-muted-foreground ml-2">{r.value[lang]}</span>
                   </div>
                 </div>
               ))}
@@ -794,27 +828,33 @@ export default function Page() {
 
       {/* ── Section 3: Reference Documents ─────────────────────────────── */}
       <div className="mt-6">
-      <DocSection num="3" title="Reference Documents">
+      <DocSection num="3" title={lang === 'ua' ? 'Референсні документи' : 'Reference Documents'}>
         <div className="grid grid-cols-1 gap-3 tablet:grid-cols-2 desktop:grid-cols-3">
           {[
-            { label: 'Data Model',         sub: 'DB tables: transactions, psp_configs…',      href: '/sandbox/payment-infra/data-model',         phase: '0' },
-            { label: 'State Machine',      sub: 'PassimPay statuses → UnifiedStatus',        href: '/sandbox/payment-infra/state-machine',      phase: '1' },
-            { label: 'Unified Interface',  sub: 'IPaymentProvider types & API contract',      href: '/sandbox/payment-infra/unified-interface',  phase: '1' },
-            { label: 'Auth & Brand Spec',  sub: 'JWT validation & brand resolution',          href: '/sandbox/payment-infra/auth-brand',         phase: '1' },
-            { label: 'PSP #1 Adapter',     sub: 'PassimPay implementation spec',              href: '/sandbox/payment-infra/psp1-adapter',       phase: '1' },
-            { label: 'PSP #1 API',         sub: 'PassimPay service overview & onboarding',    href: '/sandbox/payment-infra/psp1-api',           phase: '1' },
-            { label: 'Status Polling',     sub: 'How frontend tracks transaction status',      href: '/sandbox/payment-infra/status-polling',     phase: '2' },
+            { label: { en: 'Data Model',        ua: 'Модель даних'          }, sub: { en: 'DB tables: transactions, psp_configs…',    ua: 'Таблиці БД: transactions, psp_configs…'   }, href: '/sandbox/payment-infra/data-model',        phase: '0' },
+            { label: { en: 'State Machine',     ua: 'State Machine'         }, sub: { en: 'PassimPay statuses → UnifiedStatus',       ua: 'Статуси PassimPay → UnifiedStatus'         }, href: '/sandbox/payment-infra/state-machine',     phase: '1' },
+            { label: { en: 'Unified Interface', ua: 'Unified Interface'     }, sub: { en: 'IPaymentProvider types & API contract',    ua: 'Типи IPaymentProvider та API контракт'     }, href: '/sandbox/payment-infra/unified-interface', phase: '1' },
+            { label: { en: 'Auth & Brand Spec', ua: 'Auth & Brand Spec'     }, sub: { en: 'JWT validation & brand resolution',        ua: 'Валідація JWT та резолюція бренду'         }, href: '/sandbox/payment-infra/auth-brand',        phase: '1' },
+            { label: { en: 'PSP #1 Adapter',    ua: 'PSP #1 Адаптер'       }, sub: { en: 'PassimPay implementation spec',            ua: 'Специфікація реалізації PassimPay'         }, href: '/sandbox/payment-infra/psp1-adapter',      phase: '1' },
+            { label: { en: 'PSP #1 API',        ua: 'PSP #1 API'            }, sub: { en: 'PassimPay service overview & onboarding', ua: 'Огляд сервісу PassimPay та онбординг'      }, href: '/sandbox/payment-infra/psp1-api',          phase: '1' },
+            { label: { en: 'Status Polling',    ua: 'Status Polling'        }, sub: { en: 'How frontend tracks transaction status',  ua: 'Як фронтенд відстежує статус транзакції'   }, href: '/sandbox/payment-infra/status-polling',    phase: '2' },
+            { label: { en: 'Rate Limiting',     ua: 'Rate Limiting'         }, sub: { en: 'Velocity checks & abuse protection',       ua: 'Velocity checks та захист від зловживань'   }, href: '/sandbox/payment-infra/rate-limiting',     phase: '2' },
+            { label: { en: 'Request Router',      ua: 'Request Router'          }, sub: { en: 'Deposit & withdrawal endpoints + validation',  ua: 'Ендпоінти депозиту/виведення + валідація'    }, href: '/sandbox/payment-infra/request-router',  phase: '2' },
+            { label: { en: 'Payment Orchestrator', ua: 'Payment Orchestrator' }, sub: { en: 'PSP selection, routing rules, cascade logic',   ua: 'Вибір PSP, routing rules, логіка каскаду'    }, href: '/sandbox/payment-infra/orchestrator',    phase: '2' },
+            { label: { en: 'Cascade Manager',     ua: 'Cascade Manager'      }, sub: { en: 'Failover logic: PSP1 → PSP2 → PSP3',            ua: 'Failover логіка: PSP1 → PSP2 → PSP3'         }, href: '/sandbox/payment-infra/cascade-manager', phase: '2' },
+            { label: { en: 'Wallet Engine',       ua: 'Wallet Engine'        }, sub: { en: 'Balance: credit, debit, hold. Built on Orleans',  ua: 'Баланс: credit, debit, hold. Побудований на Orleans' }, href: '/sandbox/payment-infra/wallet-engine',   phase: '2' },
+            { label: { en: 'Reconciliation',      ua: 'Reconciliation'       }, sub: { en: 'Nightly PSP sync, discrepancy detection & fix',   ua: 'Нічна синхронізація PSP, виявлення розбіжностей'     }, href: '/sandbox/payment-infra/reconciliation',  phase: '2' },
           ].map(doc => (
-            <Link key={doc.href} href={doc.href} className="border border-border bg-card rounded-2xl p-3.5 flex items-start gap-2.5 hover:border-subtle-border hover:shadow-card-hover transition-all">
+            <Link key={doc.href} href={doc.href} className={cn("border border-border bg-card rounded-2xl p-3.5 flex items-start gap-2.5 hover:border-subtle-border hover:shadow-card-hover transition-all", phaseFilter !== 'all' && phaseFilter !== (isNaN(Number(doc.phase)) ? doc.phase : Number(doc.phase)) && 'opacity-30')}>
               <div className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-muted text-muted-foreground">
                 <FileText className="size-3.5" />
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-sm font-semibold text-foreground truncate">{doc.label}</span>
+                  <span className="text-sm font-semibold text-foreground truncate">{doc.label[lang]}</span>
                   <Badge variant="secondary" className="shrink-0 text-xs">Phase {doc.phase}</Badge>
                 </div>
-                <p className="text-xs text-muted-foreground mt-0.5 leading-snug">{doc.sub}</p>
+                <p className="text-xs text-muted-foreground mt-0.5 leading-snug">{doc.sub[lang]}</p>
               </div>
             </Link>
           ))}
@@ -824,7 +864,7 @@ export default function Page() {
 
       {/* ── Section 4: Delivery phases ───────────────────────────────────── */}
       <div className="mt-6">
-      <DocSection num="4" title="Delivery Phases">
+      <DocSection num="4" title={lang === 'ua' ? 'Фази розробки' : 'Delivery Phases'}>
 
         {/* Lock / Unlock bar */}
         <div className="flex items-center justify-end gap-2 mb-5">
@@ -832,7 +872,7 @@ export default function Page() {
             <div className="flex gap-2 flex-1 max-w-xs">
               <Input
                 type="password"
-                placeholder="Password"
+                placeholder={lang === 'ua' ? 'Пароль' : 'Password'}
                 value={passwordInput}
                 onChange={e => { setPasswordInput(e.target.value); setPasswordError(false) }}
                 onKeyDown={e => e.key === 'Enter' && handleUnlock()}
@@ -840,7 +880,7 @@ export default function Page() {
                 autoFocus
                 className="flex-1"
               />
-              <Button onClick={handleUnlock} size="sm">Unlock</Button>
+              <Button onClick={handleUnlock} size="sm">{lang === 'ua' ? 'Розблокувати' : 'Unlock'}</Button>
             </div>
           )}
           <Button
@@ -877,7 +917,7 @@ export default function Page() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-0.5">
-                      <div className={cn('text-sm font-bold', phase.badgeTextCls)}>{phase.title}</div>
+                      <div className={cn('text-sm font-bold', phase.badgeTextCls)}>{phase.title[lang]}</div>
                       {totalCount > 0 && (
                         <span className="text-xs text-muted-foreground tabular-nums">
                           {doneCount}/{totalCount}
@@ -885,7 +925,7 @@ export default function Page() {
                       )}
                     </div>
                     {phase.subtitle && (
-                      <p className="text-xs text-muted-foreground mt-0.5">{phase.subtitle}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">{phase.subtitle[lang]}</p>
                     )}
 
                     <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
@@ -936,8 +976,8 @@ export default function Page() {
                     </DndContext>
 
                     <div className="mt-4 flex items-baseline gap-2 rounded-xl bg-muted px-3 py-2.5">
-                      <span className="text-xs font-semibold text-foreground shrink-0">Output:</span>
-                      <span className="text-xs text-muted-foreground leading-relaxed">{phase.output}</span>
+                      <span className="text-xs font-semibold text-foreground shrink-0">{lang === 'ua' ? 'Результат:' : 'Output:'}</span>
+                      <span className="text-xs text-muted-foreground leading-relaxed">{phase.output[lang]}</span>
                     </div>
                   </div>
                 </div>

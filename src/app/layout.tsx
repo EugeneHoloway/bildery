@@ -44,7 +44,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="ru" className={cn("font-sans", geist.variable, robotoCondensed.variable)} suppressHydrationWarning>
+    <html lang="ru" className={cn("font-sans", geist.variable, robotoCondensed.variable)} suppressHydrationWarning data-scroll-behavior="smooth">
       <body suppressHydrationWarning>
         <ThemeProvider>
           {/* App shell: flex column, min-h-screen (mirrors .app-shell) */}

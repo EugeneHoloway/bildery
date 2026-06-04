@@ -73,7 +73,7 @@ const METHODS: Method[] = [
       ua: 'Бекенд сам пушить подію на фронтенд щойно надходить webhook від PassimPay. UI оновлюється миттєво.',
     },
     pros: [
-      { en: 'Instant update — no delay', ua: 'Миттєве оновлення — без затримки' },
+      { en: 'Instant update -- no delay', ua: 'Миттєве оновлення -- без затримки' },
       { en: 'No unnecessary requests', ua: 'Немає зайвих запитів' },
       { en: 'Better UX for the player', ua: 'Кращий UX для гравця' },
     ],
@@ -131,8 +131,8 @@ const NOTES: { Icon: typeof RefreshCw; text: I18n }[] = [
   {
     Icon: Clock,
     text: {
-      en: 'Recommended poll interval: 5–10 seconds. Do not poll faster than 3s — it adds unnecessary load.',
-      ua: 'Рекомендований інтервал polling: 5–10 секунд. Не поллити частіше ніж 3 с — це додає зайве навантаження.',
+      en: 'Recommended poll interval: 5–10 seconds. Do not poll faster than 3s -- it adds unnecessary load.',
+      ua: 'Рекомендований інтервал polling: 5–10 секунд. Не поллити частіше ніж 3 с -- це додає зайве навантаження.',
     },
   },
   {
@@ -145,8 +145,8 @@ const NOTES: { Icon: typeof RefreshCw; text: I18n }[] = [
   {
     Icon: RefreshCw,
     text: {
-      en: 'Also stop polling if the player leaves the page — avoid orphaned requests.',
-      ua: 'Також зупиняти polling якщо гравець покинув сторінку — уникати orphaned-запитів.',
+      en: 'Also stop polling if the player leaves the page -- avoid orphaned requests.',
+      ua: 'Також зупиняти polling якщо гравець покинув сторінку -- уникати orphaned-запитів.',
     },
   },
   {

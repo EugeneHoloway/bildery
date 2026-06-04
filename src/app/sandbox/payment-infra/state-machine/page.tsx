@@ -843,6 +843,147 @@ export default function Page() {
         {tab === 'normalization' && <NormalizationTab lang={lang} />}
 
       </DocSection>
+
+      {/* ── Section 2: What is State Machine ────────────────────────────── */}
+      <div className="mt-6">
+      <DocSection num="2" title={lang === 'ua' ? 'Що таке State Machine і кому потрібні стани' : 'What is State Machine and who needs states'}>
+
+        {/* Intro */}
+        <div className="border border-border bg-card rounded-2xl px-4 py-3 flex items-start gap-3 mb-6">
+          <Info className="size-4 shrink-0 mt-0.5 text-muted-foreground" />
+          <p className="text-sm text-foreground leading-relaxed">
+            {lang === 'ua'
+              ? <>State Machine -- це не UI-компонент і не таблиця налаштувань. Це <strong>правила в коді</strong> про те, в який стан може перейти транзакція і при якій події. Живе на бекенді.</>
+              : <>State Machine is not a UI component and not a settings table. It is <strong>rules in code</strong> about which state a transaction can transition to and on which event. Lives on the backend.</>
+            }
+          </p>
+        </div>
+
+        {/* Where states come from */}
+        <div className="mb-6">
+          <p className="text-xs font-bold uppercase tracking-wide text-foreground mb-3">
+            {lang === 'ua' ? 'Звідки беруться стани' : 'Where states come from'}
+          </p>
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            {lang === 'ua'
+              ? 'Стани прописані в коді як константи -- набір рядків (INITIATED, PROCESSING, COMPLETED тощо) плюс таблиця дозволених переходів: з якого стану в який можна переходити і при якій події (webhook від PSP, TTL job, ручна операція оператора). Ця сторінка -- документація цієї логіки, щоб всі три сторони (продукт, розробник, PSP) говорили однією мовою.'
+              : 'States are defined in code as constants -- a set of strings (INITIATED, PROCESSING, COMPLETED, etc.) plus a table of allowed transitions: from which state to which, and on which event (PSP webhook, TTL job, manual operator action). This page is documentation of that logic, so that all three parties (product, developer, PSP) speak the same language.'
+            }
+          </p>
+        </div>
+
+        {/* Who sees what */}
+        <div className="mb-6">
+          <p className="text-xs font-bold uppercase tracking-wide text-foreground mb-3">
+            {lang === 'ua' ? 'Хто бачить стани і в якому вигляді' : 'Who sees states and in what form'}
+          </p>
+          <div className="border border-border rounded-2xl overflow-hidden">
+            <DocTable>
+              <DocTableHeader>
+                <TableRow>
+                  <TableHead>{lang === 'ua' ? 'Сторона' : 'Party'}</TableHead>
+                  <TableHead>{lang === 'ua' ? 'Що бачить' : 'What they see'}</TableHead>
+                  <TableHead>{lang === 'ua' ? 'Звідки' : 'Source'}</TableHead>
+                </TableRow>
+              </DocTableHeader>
+              <TableBody>
+                {([
+                  {
+                    party:  { en: 'Player (frontend)',      ua: 'Гравець (фронтенд)'             },
+                    sees:   { en: 'Simplified status: "Waiting for payment", "Credited", "Error"', ua: 'Спрощений статус: "Очікуємо оплату", "Зараховано", "Помилка"' },
+                    source: { en: 'GET /payments/:id/status → UnifiedStatus → frontend maps to human-readable', ua: 'GET /payments/:id/status → UnifiedStatus → фронтенд маппить у зрозумілий текст' },
+                  },
+                  {
+                    party:  { en: 'Back office / ops',      ua: 'Бек-офіс / ops'                 },
+                    sees:   { en: 'Full UnifiedStatus + transition history from transaction_events', ua: 'Повний UnifiedStatus + історія переходів з transaction_events' },
+                    source: { en: 'DB query or internal dashboard (Phase 4)', ua: 'Запит до БД або внутрішній дашборд (Фаза 4)' },
+                  },
+                  {
+                    party:  { en: 'Developer',              ua: 'Розробник'                      },
+                    sees:   { en: 'Raw states in DB + full log in transaction_events',             ua: 'Сирі стани в БД + повний лог у transaction_events'          },
+                    source: { en: 'Direct DB access or logs',                                      ua: 'Прямий доступ до БД або логи'                               },
+                  },
+                  {
+                    party:  { en: 'PSP (PassimPay)',         ua: 'PSP (PassimPay)'                },
+                    sees:   { en: 'Their own statuses (approved, rejected, etc.)',                 ua: 'Свої статуси (approved, rejected тощо)'                     },
+                    source: { en: 'Webhook that PSP sends to us',                                  ua: 'Webhook який PSP надсилає нам'                              },
+                  },
+                ] as { party: {en:string;ua:string}; sees: {en:string;ua:string}; source: {en:string;ua:string} }[]).map((r, i) => (
+                  <TableRow key={i}>
+                    <TableCell className="text-sm font-medium text-foreground">{r.party[lang]}</TableCell>
+                    <TableCell className="text-sm text-muted-foreground">{r.sees[lang]}</TableCell>
+                    <TableCell className="text-sm text-muted-foreground">{r.source[lang]}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </DocTable>
+          </div>
+          <div className="mt-3 flex items-start gap-2 rounded-xl bg-muted px-3 py-2.5">
+            <Info className="size-3.5 shrink-0 mt-0.5 text-muted-foreground" />
+            <p className="text-xs text-muted-foreground leading-snug">
+              {lang === 'ua'
+                ? 'Webhook від PSP приходить з PSP-статусом (passimpay: approved) → State Machine маппить його у UnifiedStatus (COMPLETED) → оновлює transactions.status → пише подію у transaction_events.'
+                : 'A webhook from the PSP arrives with a PSP-status (passimpay: approved) → State Machine maps it to UnifiedStatus (COMPLETED) → updates transactions.status → writes an event to transaction_events.'
+              }
+            </p>
+          </div>
+        </div>
+
+        {/* Why UnifiedStatus layer */}
+        <div className="mb-6">
+          <p className="text-xs font-bold uppercase tracking-wide text-foreground mb-3">
+            {lang === 'ua' ? 'Навіщо потрібна прошарка UnifiedStatus' : 'Why the UnifiedStatus layer exists'}
+          </p>
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            {lang === 'ua'
+              ? 'Якщо завтра підключити PSP #2, у нього будуть свої статуси (paid, declined, hold). Фронтенд, бек-офіс та бізнес-логіка продовжують працювати з тими самими COMPLETED / FAILED -- нічого не змінюється. Адаптер PSP #2 просто маппить свої статуси у UnifiedStatus.'
+              : 'If PSP #2 is connected tomorrow, it will have its own statuses (paid, declined, hold). The frontend, back office and business logic keep working with the same COMPLETED / FAILED -- nothing changes. The PSP #2 adapter simply maps its statuses to UnifiedStatus.'
+            }
+          </p>
+        </div>
+
+        {/* Practical: what to do */}
+        <div>
+          <p className="text-xs font-bold uppercase tracking-wide text-foreground mb-3">
+            {lang === 'ua' ? 'Практично -- що треба зробити' : 'Practically -- what needs to be done'}
+          </p>
+          <div className="flex flex-col gap-2.5">
+            {([
+              {
+                who:  { en: 'Developer',         ua: 'Розробник'      },
+                what: { en: 'Implement stateMachine.transition(txId, newStatus, payload) that: verifies the transition is allowed → updates transactions.status → writes a record to transaction_events. Called from Orchestrator, Cascade Manager, webhook handler, and TTL job.', ua: 'Реалізувати stateMachine.transition(txId, newStatus, payload) яка: перевіряє що перехід дозволений → оновлює transactions.status → пише запис у transaction_events. Викликається з Orchestrator, Cascade Manager, webhook handler та TTL job.' },
+                phase: '1--2',
+              },
+              {
+                who:  { en: 'Back office (Phase 4)', ua: 'Бек-офіс (Фаза 4)' },
+                what: { en: 'Show the full log from transaction_events -- every transition is visible with timestamp and reason.', ua: 'Показувати повний лог з transaction_events -- кожен перехід видно з timestamp та причиною.' },
+                phase: '4',
+              },
+              {
+                who:  { en: 'Frontend',          ua: 'Фронтенд'       },
+                what: { en: 'Map UnifiedStatus to player-facing text. PENDING_CONFIRMATION → "Awaiting network confirmation". COMPLETED → "Credited".', ua: 'Маппити UnifiedStatus у текст для гравця. PENDING_CONFIRMATION → "Очікуємо підтвердження мережі". COMPLETED → "Зараховано".' },
+                phase: '2',
+              },
+            ] as { who: {en:string;ua:string}; what: {en:string;ua:string}; phase: string }[]).map((r, i) => (
+              <div key={i} className="border border-border rounded-2xl p-4 bg-card flex items-start gap-3">
+                <div className="flex size-6 shrink-0 items-center justify-center rounded-lg bg-muted text-xs font-bold text-muted-foreground tabular-nums mt-0.5">
+                  {i + 1}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-sm font-semibold text-foreground">{r.who[lang]}</span>
+                    <Badge variant="secondary" className="text-xs shrink-0">Phase {r.phase}</Badge>
+                  </div>
+                  <p className="text-xs text-muted-foreground leading-snug">{r.what[lang]}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+      </DocSection>
+      </div>
+
     </DocLayout>
   )
 }
