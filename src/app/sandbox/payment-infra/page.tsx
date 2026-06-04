@@ -423,15 +423,17 @@ const deliveryPhases: Phase[] = [
     id: '5',
     badgeCls: 'bg-pink-500/10',
     badgeTextCls: 'text-pink-500',
-    title:  { en: 'Personalization + Second PSP', ua: 'Персоналізація + Другий PSP' },
-    output: { en: 'Checkout conversion improves. Second PSP connected with zero interface changes.', ua: 'Конверсія чекауту покращується. Другий PSP підключається без змін інтерфейсу.' },
+    title:    { en: 'Personalization', ua: 'Персоналізація' },
+    subtitle: { en: 'Checkout becomes data-driven; next PSP process documented', ua: 'Чекаут стає data-driven; процес підключення наступного PSP задокументований' },
+    output:   { en: 'Checkout surfaces the right method first. Any future PSP can be added by following the documented checklist -- zero changes to orchestration or checkout.', ua: 'Чекаут показує правильний метод першим. Будь-який наступний PSP можна підключити за задокументованим чеклистом -- без змін в оркестрації або чекауті.' },
   },
   {
     id: '6',
     badgeCls: 'bg-orange-500/10',
     badgeTextCls: 'text-orange-500',
-    title:  { en: 'Advanced Routing + Risk', ua: 'Розширений роутинг + Ризик' },
-    output: { en: 'Self-optimizing routing. Full risk and analytics layer.', ua: 'Самооптимізований роутинг. Повний шар ризику та аналітики.' },
+    title:    { en: 'Advanced Routing + Risk', ua: 'Розширений роутинг + Ризик' },
+    subtitle: { en: 'Not planned yet -- scope TBD', ua: 'Не заплановано -- scope TBD' },
+    output:   { en: 'Self-optimizing routing based on real-time success rates. Full risk scoring and analytics layer. Scope and specs to be defined.', ua: 'Самооптимізований роутинг на основі success rates у реальному часі. Повний шар ризик-скорингу та аналітики. Scope та специфікації будуть визначені.' },
   },
 ]
 
