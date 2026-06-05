@@ -35,18 +35,18 @@ const cards: SandboxCardData[] = [
   },
   {
     id: 'payment-infra',
-    tag: 'Prototype',
-    title: 'Payment Infra',
+    tag: 'Architecture',
+    title: 'Payment module',
     description: '',
     cardStatus: 'Done',
     sections: 5,
-    href: '/sandbox/payment-infra',
+    href: '/sandbox/payment-architecture',
     highlight: {
       label: 'Deliverables:',
       bullets: [
         'Overview',
         'Delivery phases',
-        'Deep dive',
+        'Reference documents',
       ],
     },
     languages: ['EN', 'UA'],
@@ -324,12 +324,13 @@ function SandboxSection({
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 const FILTER_OPTIONS = [
-  { key: 'all',        label: 'All' },
-  { key: 'Tech Task',  label: 'Tech Task' },
-  { key: 'Analytics',  label: 'Analytics' },
-  { key: 'Markets',    label: 'Markets' },
-  { key: 'Prototype',  label: 'Prototype' },
-  { key: 'Game',       label: 'Game' },
+  { key: 'all',           label: 'All' },
+  { key: 'Tech Task',     label: 'Tech Task' },
+  { key: 'Analytics',     label: 'Analytics' },
+  { key: 'Markets',       label: 'Markets' },
+  { key: 'Prototype',     label: 'Prototype' },
+  { key: 'Architecture',  label: 'Architecture' },
+  { key: 'Game',          label: 'Game' },
 ]
 
 const STATUS_OPTIONS: { key: CardStatus | 'all'; label: string }[] = [
