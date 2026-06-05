@@ -57,16 +57,14 @@ export default function Page() {
 
       {/* ── Problem ─────────────────────────────────────────────────────────── */}
       <section className="pt-12 border-t border-border">
-        <div className="flex items-baseline gap-3 mb-7">
-          <h2 className="text-lg font-bold tracking-tight">
-            {ua ? 'Проблема' : 'Problem'}
-          </h2>
-        </div>
+        <p className="text-xs font-semibold uppercase tracking-widest text-foreground mb-6">
+          {ua ? 'Проблема' : 'Problem'}
+        </p>
         <DocBlock>
           <p className="text-sm text-muted-foreground leading-relaxed mb-4">
             {ua
-              ? <>Lemon.io використовує голосовий AI-скринер <strong className="text-foreground">Mark</strong> для кваліфікації розробників перед ручним рев'ю. Ціль -- <strong className="text-foreground">150 наймів/місяць</strong>. Поточний результат -- <strong className="text-foreground">104</strong> -- не через брак людей, а тому що Mark генерує більше повторної роботи, ніж усуває.</>
-              : <>Lemon.io runs a voice AI screener called <strong className="text-foreground">Mark</strong> to qualify developers before human review. The target is <strong className="text-foreground">150 hires/month</strong>. The current result is <strong className="text-foreground">104</strong> -- not because of headcount, but because Mark generates more rework than it eliminates.</>
+              ? <><a href="https://lemon.io" target="_blank" rel="noopener noreferrer nofollow" className="underline underline-offset-2 transition-colors hover:text-foreground">Lemon.io</a> використовує голосовий AI-скринер <strong className="text-foreground">Mark</strong> (provided by <a href="https://vapi.ai" target="_blank" rel="noopener noreferrer nofollow" className="underline underline-offset-2 transition-colors hover:text-foreground">vapi.ai</a>) для кваліфікації розробників перед ручним рев'ю. Ціль -- <strong className="text-foreground">150 наймів/місяць</strong>. Поточний результат -- <strong className="text-foreground">104</strong> -- не через брак людей, а тому що Mark генерує більше повторної роботи, ніж усуває.</>
+              : <><a href="https://lemon.io" target="_blank" rel="noopener noreferrer nofollow" className="underline underline-offset-2 transition-colors hover:text-foreground">Lemon.io</a> runs a voice AI screener called <strong className="text-foreground">Mark</strong> (provided by <a href="https://vapi.ai" target="_blank" rel="noopener noreferrer nofollow" className="underline underline-offset-2 transition-colors hover:text-foreground">vapi.ai</a>) to qualify developers before human review. The target is <strong className="text-foreground">150 hires/month</strong>. The current result is <strong className="text-foreground">104</strong> -- not because of headcount, but because Mark generates more rework than it eliminates.</>
             }
           </p>
           <ul className="flex flex-col gap-2.5">
@@ -112,7 +110,7 @@ export default function Page() {
 
       {/* ── Solution label + Section 01 (no border between them) ───────────── */}
       <section className="pt-12 border-t border-border">
-        <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-6">
+        <p className="text-xs font-semibold uppercase tracking-widest text-foreground mb-6">
           {ua ? 'Рішення' : 'Solution'}
         </p>
         <div className="flex items-baseline gap-3 mb-7">
@@ -175,7 +173,7 @@ export default function Page() {
               </TableRow>
               <TableRow>
                 <TableCell className="font-semibold">5</TableCell>
-                <TableCell>{ua ? 'Хибно-позитивні Mark Reject: 73% override rate на Mark Reject + Coderbyte Pass. Mark надто суворий до пауз і повторних запитань.' : 'Mark Reject false positives: 73% override rate on Mark Reject + Coderbyte Pass. Mark is overly strict on pauses and re-asks.'}</TableCell>
+                <TableCell>{ua ? <>Хибно-позитивні Mark Reject: 73% override rate на Mark Reject + <a href="https://coderbyte.com" target="_blank" rel="noopener noreferrer nofollow" className="underline underline-offset-2 transition-colors hover:text-foreground">Coderbyte</a> Pass. Mark надто суворий до пауз і повторних запитань.</> : <>Mark Reject false positives: 73% override rate on Mark Reject + <a href="https://coderbyte.com" target="_blank" rel="noopener noreferrer nofollow" className="underline underline-offset-2 transition-colors hover:text-foreground">Coderbyte</a> Pass. Mark is overly strict on pauses and re-asks.</>}</TableCell>
                 <TableCell>{ua ? 'Throughput (хибні відхилення)' : 'Throughput (false rejects)'}</TableCell>
                 <TableCell>{ua ? "11 з 15 overridden · Андрій: пауза 8 сек → Mark позначив 'shady'" : '11 of 15 overridden · Andrii: 8-sec pause → Mark flagged "shady"'}</TableCell>
                 <TableCell>{ua ? '±1 тиждень (критерії Reject + regression test)' : '±1 week (Reject criteria + regression test)'}</TableCell>

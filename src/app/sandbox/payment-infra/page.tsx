@@ -8,6 +8,7 @@ import {
   Plus, Wrench, Globe, Wallet, CheckCircle2, Gift, BarChart2,
   Tag, ArrowLeftRight, ArrowUpDown, ChevronDown, FileText,
   LockOpen, Lock as LockIcon, GripVertical, Pencil, Trash2, Check, X,
+  ShieldAlert,
 } from 'lucide-react'
 
 // ─── Lang ─────────────────────────────────────────────────────────────────────
@@ -188,10 +189,11 @@ const layers: LayerDef[] = [
     accentBorderCls: 'border-pink-500/30',
     accentTextCls:   'text-pink-500',
     nodes: [
-      { id: 'wallet',         label: 'Wallet Engine', sub: 'Balance | ledger',    Icon: Wallet,       phases: [2], href: '/sandbox/payment-infra/wallet-engine' },
-      { id: 'kyc',            label: 'KYC | AML',     sub: 'Verification gates',  Icon: CheckCircle2, phases: [3], href: '/sandbox/payment-infra/kyc-aml' },
-      { id: 'bonus',          label: 'Bonus Engine',  sub: 'Wager | locks',       Icon: Gift,         phases: [3], href: '/sandbox/payment-infra/bonus-engine' },
-      { id: 'reconciliation', label: 'Reconciliation',sub: 'Nightly PSP sync',    Icon: BarChart2,    phases: [2], href: '/sandbox/payment-infra/reconciliation' },
+      { id: 'wallet',         label: 'Wallet Engine',        sub: 'Balance | ledger',           Icon: Wallet,       phases: [2], href: '/sandbox/payment-infra/wallet-engine' },
+      { id: 'kyc',            label: 'KYC | AML',            sub: 'Verification gates',         Icon: CheckCircle2, phases: [3], href: '/sandbox/payment-infra/kyc-aml' },
+      { id: 'bonus',          label: 'Bonus Engine',         sub: 'Wager | locks',              Icon: Gift,         phases: [3], href: '/sandbox/payment-infra/bonus-engine' },
+      { id: 'reconciliation', label: 'Reconciliation',       sub: 'Nightly PSP sync',           Icon: BarChart2,    phases: [2], href: '/sandbox/payment-infra/reconciliation' },
+      { id: 'chargeback',     label: 'Chargeback Management',sub: 'Disputes | evidence | rates', Icon: ShieldAlert,  phases: [4], href: '/sandbox/payment-infra/chargeback' },
     ],
   },
 ]
@@ -850,7 +852,8 @@ export default function Page() {
             { label: { en: 'Limits & Rules',      ua: 'Limits & Rules'       }, sub: { en: 'Min/max, caps, KYC gates, RG, AML — rule engine',  ua: 'Min/max, ліміти, KYC-гейти, RG, AML — движок правил' }, href: '/sandbox/payment-infra/limits-rules',    phase: '3' },
             { label: { en: 'KYC | AML',           ua: 'KYC | AML'            }, sub: { en: 'Identity verification, sanctions, AML monitoring',   ua: 'Верифікація особи, санкції, AML моніторинг'          }, href: '/sandbox/payment-infra/kyc-aml',         phase: '3' },
             { label: { en: 'Bonus Engine',        ua: 'Bonus Engine'         }, sub: { en: 'Deposit match, wagering tracking, balance lock, expiry', ua: 'Депозит-матч, відстеження вейджеру, лок балансу'    }, href: '/sandbox/payment-infra/bonus-engine',    phase: '3' },
-            { label: { en: 'Admin Panel',         ua: 'Адмін Панель'         }, sub: { en: 'PSP, routing, methods, partners, compliance — control plane', ua: 'PSP, роутинг, методи, партнери, compliance — панель управління' }, href: '/sandbox/payment-infra/admin-panel', phase: '4' },
+            { label: { en: 'Admin Panel',              ua: 'Адмін Панель'              }, sub: { en: 'PSP, routing, methods, partners, compliance — control plane',         ua: 'PSP, роутинг, методи, партнери, compliance — панель управління'          }, href: '/sandbox/payment-infra/admin-panel',  phase: '4' },
+            { label: { en: 'Chargeback Management',   ua: 'Chargeback Management'     }, sub: { en: 'Dispute lifecycle, evidence collection, chargeback rate control',    ua: 'Lifecycle диспуту, збір доказів, контроль рівня chargebacks'              }, href: '/sandbox/payment-infra/chargeback',   phase: '4' },
             { label: { en: 'Personalization',     ua: 'Персоналізація'       }, sub: { en: 'BIN lookup, preferred method, GEO context, PSP success rate', ua: 'BIN lookup, кращий метод, GEO контекст, success rate PSP' }, href: '/sandbox/payment-infra/personalization', phase: '5' },
             { label: { en: 'How to add a new PSP', ua: 'Як додати новий PSP' }, sub: { en: 'Checklist for integrating any new payment provider', ua: 'Чеклист для інтеграції нового платіжного провайдера' }, href: '/sandbox/payment-infra/add-psp', phase: 'next' },
           ].map(doc => (

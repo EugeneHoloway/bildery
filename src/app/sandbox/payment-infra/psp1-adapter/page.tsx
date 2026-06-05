@@ -81,48 +81,41 @@ const ENV_VARS: { name: string; required: boolean; desc: I18n }[] = [
 ]
 
 // Section 2 -- Signature
-const TS_SIGNATURE = `
-import crypto from 'crypto'
+const CS_SIGNATURE = `
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.Json;
 
-/**
- * Sign a PassimPay API request.
- * Contract: HMAC-SHA256( platformId + ";" + jsonBody + ";" + secret, secret )
- *
- * IMPORTANT: JSON.stringify escapes forward slashes as "\\/" in some environments.
- * PassimPay expects escaped slashes. Use the replaceAll below to be safe.
- */
-export function signRequest(
-  platformId: number,
-  body: Record<string, unknown>,
-  secret: string,
-): string {
-  const jsonBody = JSON.stringify(body).replaceAll('/', '\\/')
-  const contract = \`\${platformId};\${jsonBody};\${secret}\`
-  return crypto
-    .createHmac('sha256', secret)
-    .update(contract)
-    .digest('hex')
-}
+public static class PassimPaySignature
+{
+    /// Sign a PassimPay API request.
+    /// Contract: HMAC-SHA256( platformId + ";" + jsonBody + ";" + secret, secret )
+    /// IMPORTANT: PassimPay expects escaped forward slashes (\\/).
+    public static string SignRequest(int platformId, object body, string secret)
+    {
+        var jsonBody = JsonSerializer.Serialize(body).Replace("/", "\\/");
+        var contract = $"{platformId};{jsonBody};{secret}";
+        using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secret));
+        var hash = hmac.ComputeHash(Encoding.UTF8.GetBytes(contract));
+        return Convert.ToHexString(hash).ToLower();
+    }
 
-/**
- * Verify an incoming PassimPay webhook.
- * Same contract -- compare computed signature with x-signature header.
- */
-export function verifyWebhook(
-  platformId: number,
-  rawBody: string,       // raw unparsed request body string
-  secret: string,
-  receivedSignature: string,
-): boolean {
-  const contract = \`\${platformId};\${rawBody};\${secret}\`
-  const expected = crypto
-    .createHmac('sha256', secret)
-    .update(contract)
-    .digest('hex')
-  return crypto.timingSafeEqual(
-    Buffer.from(expected, 'hex'),
-    Buffer.from(receivedSignature, 'hex'),
-  )
+    /// Verify an incoming PassimPay webhook.
+    /// Same contract -- compare computed signature with x-signature header.
+    public static bool VerifyWebhook(
+        int platformId,
+        string rawBody,       // raw unparsed request body string
+        string secret,
+        string receivedSignature)
+    {
+        var contract = $"{platformId};{rawBody};{secret}";
+        using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secret));
+        var expected = Convert.ToHexString(hmac.ComputeHash(Encoding.UTF8.GetBytes(contract))).ToLower();
+        return CryptographicOperations.FixedTimeEquals(
+            Convert.FromHexString(expected),
+            Convert.FromHexString(receivedSignature)
+        );
+    }
 }
 `
 
@@ -254,50 +247,58 @@ const STATUS_MAP: StatusRow[] = [
 ]
 
 // Section 5 -- Webhook verification code
-const TS_WEBHOOK = `
-import express from 'express'
-import { verifyWebhook } from './passimpay-signature'
+const CS_WEBHOOK = `
+[ApiController]
+[Route("webhooks")]
+public class PassimPayWebhookController : ControllerBase
+{
+    private readonly IWebhookEventRepository _events;
+    private readonly IPaymentQueue _queue;
 
-const router = express.Router()
-
-// IMPORTANT: use express.raw() -- NOT express.json() -- for this route.
-// You need the raw body bytes for signature verification.
-router.post(
-  '/webhooks/passimpay',
-  express.raw({ type: 'application/json' }),
-  async (req, res) => {
-    const rawBody = req.body.toString('utf-8')
-    const signature = req.headers['x-signature'] as string
-
-    // Step 1 -- verify signature
-    const valid = verifyWebhook(
-      Number(process.env.PASSIMPAY_PLATFORM_ID),
-      rawBody,
-      process.env.PASSIMPAY_API_SECRET!,
-      signature,
-    )
-    if (!valid) {
-      return res.status(400).json({ error: 'INVALID_SIGNATURE' })
+    public PassimPayWebhookController(
+        IWebhookEventRepository events,
+        IPaymentQueue queue)
+    {
+        _events = events;
+        _queue = queue;
     }
 
-    // Step 2 -- parse body
-    const payload = JSON.parse(rawBody)
+    // IMPORTANT: read raw body BEFORE any middleware deserializes it.
+    // Do NOT use [FromBody] -- that would parse the body and break signature verification.
+    [HttpPost("passimpay")]
+    public async Task<IActionResult> HandleWebhook()
+    {
+        // Step 1 -- read raw body (required for signature verification)
+        using var reader = new StreamReader(Request.Body, Encoding.UTF8);
+        var rawBody = await reader.ReadToEndAsync();
 
-    // Step 3 -- idempotency check (orderId or transactionId)
-    const idempotencyKey = payload.orderId ?? payload.transactionId
-    const alreadyProcessed = await db.webhookEvents.exists(idempotencyKey)
-    if (alreadyProcessed) {
-      return res.status(200).json({ ok: true }) // return 200 to stop PSP retries
+        var signature = Request.Headers["x-signature"].ToString();
+        var platformId = int.Parse(Environment.GetEnvironmentVariable("PASSIMPAY_PLATFORM_ID")!);
+        var secret = Environment.GetEnvironmentVariable("PASSIMPAY_API_SECRET")!;
+
+        // Step 2 -- verify signature
+        if (!PassimPaySignature.VerifyWebhook(platformId, rawBody, secret, signature))
+            return BadRequest(new { error = "INVALID_SIGNATURE" });
+
+        // Step 3 -- parse body
+        var payload = JsonSerializer.Deserialize<JsonElement>(rawBody);
+
+        // Step 4 -- idempotency check (orderId or transactionId)
+        var idempotencyKey =
+            payload.TryGetProperty("orderId", out var orderId) ? orderId.GetString() :
+            payload.GetProperty("transactionId").GetString();
+
+        if (await _events.ExistsAsync(idempotencyKey!))
+            return Ok(new { ok = true }); // return 200 to stop PSP retries
+
+        // Step 5 -- enqueue for orchestrator (do NOT process inline)
+        await _queue.PushAsync(new PassimPayWebhookMessage { RawBody = rawBody });
+
+        // Step 6 -- respond 200 immediately
+        // PassimPay retries up to 2 times if 200 is not returned promptly.
+        return Ok(new { ok = true });
     }
-
-    // Step 4 -- enqueue for orchestrator (do NOT process inline)
-    await queue.push({ type: 'passimpay_webhook', payload, rawBody })
-
-    // Step 5 -- respond 200 immediately
-    // PassimPay retries up to 2 times if 200 is not returned promptly.
-    return res.status(200).json({ ok: true })
-  },
-)
+}
 `
 
 // Section 6 -- PassimPay specifics
@@ -554,7 +555,7 @@ export default function Page() {
               : <>Every request to PassimPay is signed with the <code className="text-xs bg-muted rounded px-1.5 py-0.5">x-signature</code> header. Contract: <code className="text-xs bg-muted rounded px-1.5 py-0.5">HMAC-SHA256(platformId + ";" + jsonBody + ";" + secret, secret)</code>. The JSON body must escape forward slashes as <code className="text-xs bg-muted rounded px-1.5 py-0.5">\/</code>.</>
             }
           </InfoCard>
-          <CodeBlock label="TypeScript -- signRequest + verifyWebhook" code={TS_SIGNATURE} />
+          <CodeBlock label="C# -- SignRequest + VerifyWebhook" code={CS_SIGNATURE} />
         </DocSection>
       </div>
 
@@ -632,11 +633,11 @@ export default function Page() {
         <DocSection num="5" title={ua ? 'Обробка webhook' : 'Webhook Handling'}>
           <WarnCard>
             {ua
-              ? <>Webhook роут <strong>зобов\'язаний</strong> отримувати сире (непарсоване) тіло запиту для верифікації підпису. Якщо використовувати <code className="text-xs bg-muted rounded px-1.5 py-0.5">express.json()</code> middleware, тіло буде перетворено і підпис не збіжиться. Використовувати <code className="text-xs bg-muted rounded px-1.5 py-0.5">express.raw()</code> для цього роуту.</>
-              : <>The webhook route <strong>must</strong> receive the raw (unparsed) request body for signature verification. Using <code className="text-xs bg-muted rounded px-1.5 py-0.5">express.json()</code> middleware will transform the body and the signature will not match. Use <code className="text-xs bg-muted rounded px-1.5 py-0.5">express.raw()</code> for this route.</>
+              ? <>Webhook контролер <strong>зобов\'язаний</strong> читати сире (непарсоване) тіло запиту для верифікації підпису. Не використовувати <code className="text-xs bg-muted rounded px-1.5 py-0.5">[FromBody]</code> — ASP.NET Core десеріалізує тіло і підпис не збіжиться. Читати <code className="text-xs bg-muted rounded px-1.5 py-0.5">Request.Body</code> вручну через <code className="text-xs bg-muted rounded px-1.5 py-0.5">StreamReader</code>.</>
+              : <>The webhook controller <strong>must</strong> read the raw (unparsed) request body for signature verification. Do not use <code className="text-xs bg-muted rounded px-1.5 py-0.5">[FromBody]</code> — ASP.NET Core will deserialize the body and the signature will not match. Read <code className="text-xs bg-muted rounded px-1.5 py-0.5">Request.Body</code> manually via <code className="text-xs bg-muted rounded px-1.5 py-0.5">StreamReader</code>.</>
             }
           </WarnCard>
-          <CodeBlock label="TypeScript -- webhook handler (Express)" code={TS_WEBHOOK} />
+          <CodeBlock label="C# -- webhook controller (ASP.NET Core)" code={CS_WEBHOOK} />
         </DocSection>
       </div>
 
