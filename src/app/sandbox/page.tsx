@@ -19,7 +19,7 @@ const cards: SandboxCardData[] = [
     tag: 'Tech Task',
     title: 'Vetting Flow Iteration',
     description:
-      "PM test task for Lemon.io. Problem inventory, root-cause of Mark’s 50% false-positive rate, and a 4-week rubric hardening plan.",
+      "PM test task for Lemon.io. Problem inventory, root-cause of Mark's 50% false-positive rate, and a 4-week rubric hardening plan.",
     cardStatus: 'Done',
     sections: 4,
     href: '/sandbox/vetting-flow',
@@ -31,7 +31,7 @@ const cards: SandboxCardData[] = [
         '4-week hardening plan',
       ],
     },
-    languages: ['EN'],
+    languages: ['EN', 'UA'],
   },
   {
     id: 'payment-infra',
