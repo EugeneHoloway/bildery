@@ -22,7 +22,7 @@ const cards: SandboxCardData[] = [
       "PM test task for Lemon.io. Problem inventory, root-cause of Mark’s 50% false-positive rate, and a 4-week rubric hardening plan.",
     cardStatus: 'Done',
     sections: 4,
-    href: '/sandbox/lemon',
+    href: '/sandbox/vetting-flow',
     highlight: {
       label: 'Deliverables:',
       bullets: [
@@ -169,7 +169,7 @@ const cards: SandboxCardData[] = [
     title: 'STM Analysis',
     description:
       'Gross margin, performance, EBITDA, Revenue, rating summary and price target scenarios.',
-    cardStatus: 'Done',
+    cardStatus: 'In progress',
     sections: 9,
     href: '/sandbox/stm',
     highlight: {

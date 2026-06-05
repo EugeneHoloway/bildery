@@ -21,10 +21,10 @@ export default function Page() {
         { label: 'AI Interviewer',    type: 'tag' },
       ]}
       description="Problem inventory, root-cause analysis of Mark's 50% false-positive rate, and a 4-week hardening plan | By Yevhenii Holovei"
-      footnote="PM Test Task — Vetting Flow Iteration | Author: Yevhenii Holovei | Focus: Mark Evaluation & Rubric Hardening | Goal: lift auto-advance precision 50% → 80%+"
+      footnote="PM Test Task -- Vetting Flow Iteration | Author: Yevhenii Holovei | Focus: Mark Evaluation & Rubric Hardening | Goal: lift auto-advance precision 50% → 80%+"
     >
 
-      {/* 01 — Problem Inventory */}
+      {/* 01 -- Problem Inventory */}
       <DocSection num="01" title="Problem Inventory & Prioritization">
 
         <DocBlock
@@ -69,7 +69,7 @@ export default function Page() {
               </TableRow>
               <TableRow>
                 <TableCell className="font-semibold">3</TableCell>
-                <TableCell>Mark call completion only 54% (hangups 27% + tech issues 13% + agent-ended 6%). Biggest drop (38%) on stage 2/8 — "project preferences".</TableCell>
+                <TableCell>Mark call completion only 54% (hangups 27% + tech issues 13% + agent-ended 6%). Biggest drop (38%) on stage 2/8 -- "project preferences".</TableCell>
                 <TableCell>Top-of-funnel conversion, candidate trust</TableCell>
                 <TableCell>736 lost out of 1600 · candidate quotes call it "pushy" · no retry after tech failures (208 candidates)</TableCell>
                 <TableCell>±2–3 weeks (stage-2 prompt fix + retry for tech-issue)</TableCell>
@@ -143,18 +143,18 @@ export default function Page() {
           </DocTable>
 
           <Callout variant="warning" title="Why #1 = Mark Pass precision (and not Rate leak)">
-            Mark Pass precision is the structural problem: as long as auto-advance produces 50% false positives, recruiters must QC every Mark Pass — automation frees no capacity, and 150 hires/month stays out of reach. The rate leak is more urgent and easier to fix, so we ship it as a P0 quick-win. But it's a local fix, not a structural one.
+            Mark Pass precision is the structural problem: as long as auto-advance produces 50% false positives, recruiters must QC every Mark Pass -- automation frees no capacity, and 150 hires/month stays out of reach. The rate leak is more urgent and easier to fix, so we ship it as a P0 quick-win. But it's a local fix, not a structural one.
           </Callout>
         </DocBlock>
 
       </DocSection>
 
-      {/* 02 — Root Cause */}
+      {/* 02 -- Root Cause */}
       <DocSection num="02" title="Root Cause of Top Priority">
 
-        <DocBlock title="Mark Pass precision 50% — Hypothesis">
+        <DocBlock title="Mark Pass precision 50% -- Hypothesis">
           <p className="text-sm text-muted-foreground leading-relaxed mb-4">
-            Mark isn't "slightly miscalibrated". 3 of its 8 stages are fundamentally broken: English check, role/seniority claims, and skills probe. This isn't a threshold problem — it's a missing rubric and no cross-validation against the CV.
+            Mark isn't "slightly miscalibrated". 3 of its 8 stages are fundamentally broken: English check, role/seniority claims, and skills probe. This isn't a threshold problem -- it's a missing rubric and no cross-validation against the CV.
           </p>
           <DocTable>
             <DocTableHeader>
@@ -184,7 +184,7 @@ export default function Page() {
                 <TableCell>Role clarification</TableCell>
                 <TableCell>
                   <Badge variant="outline" className="bg-destructive-bg text-destructive border-destructive/30 text-xs pointer-events-none">
-                    Broken — No Claims vs CV check
+                    Broken -- No Claims vs CV check
                   </Badge>
                 </TableCell>
               </TableRow>
@@ -193,7 +193,7 @@ export default function Page() {
                 <TableCell>Skills verification</TableCell>
                 <TableCell>
                   <Badge variant="outline" className="bg-destructive-bg text-destructive border-destructive/30 text-xs pointer-events-none">
-                    Broken — Mark accepts templated answers
+                    Broken -- Mark accepts templated answers
                   </Badge>
                 </TableCell>
               </TableRow>
@@ -202,7 +202,7 @@ export default function Page() {
                 <TableCell>Rate discussion</TableCell>
                 <TableCell>
                   <Badge variant="outline" className="bg-brand-bg text-brand border-brand/30 text-xs pointer-events-none">
-                    Leak (shares internal range — Problem #2)
+                    Leak (shares internal range -- Problem #2)
                   </Badge>
                 </TableCell>
               </TableRow>
@@ -229,20 +229,20 @@ export default function Page() {
           <DocRisks items={[
             {
               level: 'high',
-              badge: 'A. English check',
-              title: 'No explicit rubric — first signals at Intro',
-              text: 'English check isn\'t a named stage in the spec — the check is implicit, with first signals captured at Intro. By default, Voice LLMs judge "answered vs. didn\'t answer," not fluency level. Without a 3-tier rubric (A1-2 / B1 / B2+) tied to conversational triggers, Mark doesn\'t catch the level of English. → Olena: 5 Mark Pass cases with A2 English in one week.',
+              badge: 'English check',
+              title: 'No explicit rubric -- first signals at Intro',
+              text: 'English check isn\'t a named stage in the spec -- the check is implicit, with first signals captured at Intro. By default, Voice LLMs judge "answered vs. didn\'t answer," not fluency level. Without a 3-tier rubric (A1-2 / B1 / B2+) tied to conversational triggers, Mark doesn\'t catch the level of English. → Olena: 5 Mark Pass cases with A2 English in one week.',
             },
             {
               level: 'high',
-              badge: 'B. Role clarification',
+              badge: 'Role clarification',
               title: "Doesn't cross-check claims against the CV",
               text: "Mark receives structured profile data from the parsed CV, but the prompt doesn't require comparing \"candidate claims senior\" against graduation_year + employment history. → Olena: a candidate claiming senior 2 years after graduation with zero prior experience passed.",
             },
             {
               level: 'high',
-              badge: 'C. Skill probe',
-              title: 'Accepts generic answers — classic LLM failure mode',
+              badge: 'Skill probe',
+              title: 'Accepts generic answers -- classic LLM failure mode',
               text: 'Yulia caught a Mark Pass on: "Yes, I have extensive experience in React. I have worked on many React projects." Keyword + affirmative tone → Pass, with no follow-up probe ("give me an example of a bug you fixed," "a trade-off you faced"). Cooperative agent rewards a lot of text > quality.',
             },
           ]} />
@@ -252,21 +252,21 @@ export default function Page() {
           <DocRisks items={[
             {
               level: 'high',
-              badge: 'A',
+              badge: 'Auto-advance',
               title: 'Auto-advance = 50% precision',
               text: 'Auto-advance (AI-trusted fast-track) = Mark Pass + Coderbyte Pass + clean scam score. Of the 60 auto-advance cases, 30 were QC\'d → 15 downgraded to Reject (50% precision). That\'s ±30 false positives per month × 20 min = ±10h of wasted recruiter time, plus extra load on the downstream tech interview.',
             },
             {
               level: 'watch',
-              badge: 'B',
-              title: '120 advance decisions out of Need Review — no QC run',
-              text: '50% advance rate — no QC has been run on these. Yulia: 9 out of 10 (??) Mark Unclear cases were just candidates asking to repeat the question. True precision is likely similar to auto-advance.',
+              badge: 'Need Review',
+              title: '120 advance decisions out of Need Review -- no QC run',
+              text: '50% advance rate -- no QC has been run on these. Yulia: 9 out of 10 (??) Mark Unclear cases were just candidates asking to repeat the question. True precision is likely similar to auto-advance.',
             },
             {
               level: 'watch',
-              badge: 'C',
-              title: 'Asymmetric error — noisy decision boundary',
-              text: 'Mark Reject + Coderbyte Pass is overridden 73% of the time, while Mark Pass + Coderbyte Reject is overridden only 8%. Mark is simultaneously too strict on edge cases and too lenient on the main path. This isn\'t a shifted threshold — it\'s a noisy decision boundary. Fixed with a rubric, not by moving the cutoff.',
+              badge: 'Asymmetric error',
+              title: 'Asymmetric error -- noisy decision boundary',
+              text: 'Mark Reject + Coderbyte Pass is overridden 73% of the time, while Mark Pass + Coderbyte Reject is overridden only 8%. Mark is simultaneously too strict on edge cases and too lenient on the main path. This isn\'t a shifted threshold -- it\'s a noisy decision boundary. Fixed with a rubric, not by moving the cutoff.',
             },
           ]} />
         </DocBlock>
@@ -275,34 +275,34 @@ export default function Page() {
           <DocRisks items={[
             {
               level: 'low',
-              badge: 'A',
+              badge: 'Sampling bias',
               title: 'QC sampling bias',
               text: 'The 30 of 60 samples may have been hand-picked as "suspicious" rather than drawn at random. Validation: in week 1, run random QC across the full auto-advance population to validate the baseline.',
             },
             {
               level: 'low',
-              badge: 'B',
+              badge: 'Coderbyte',
               title: 'Is Coderbyte to blame?',
               text: 'No. It tests coding ability, which is orthogonal to the English / seniority / skill-probe failure modes.',
             },
             {
               level: 'low',
-              badge: 'C',
+              badge: 'Recruiter bias',
               title: 'Are recruiters being too strict?',
-              text: 'Candidate quotes objectively confirm templated answers and fake seniority — these aren\'t recruiter judgment calls, they\'re observable failure modes.',
+              text: 'Candidate quotes objectively confirm templated answers and fake seniority -- these aren\'t recruiter judgment calls, they\'re observable failure modes.',
             },
           ]} />
         </DocBlock>
 
         <DocBlock>
           <Callout variant="primary" title="Why this blocks the umbrella goal">
-            Throughput is 104 of 150 = 69%. Recruiter capacity is at 53% utilization (3,400 of 6,400 min) — there's potential, but it's eaten by mandatory QC on every Mark Pass. Lift precision to 90% → drop the QC → expand auto-advance share from 9% to 25%+ → free up capacity for new calls. Mark precision = the key unlock.
+            Throughput is 104 of 150 = 69%. Recruiter capacity is at 53% utilization (3,400 of 6,400 min) -- there's potential, but it's eaten by mandatory QC on every Mark Pass. Lift precision to 90% → drop the QC → expand auto-advance share from 9% to 25%+ → free up capacity for new calls. Mark precision = the key unlock.
           </Callout>
         </DocBlock>
 
       </DocSection>
 
-      {/* 03 — What I'd Build */}
+      {/* 03 -- What I'd Build */}
       <DocSection num="03" title="What I'd Build or Change">
 
         <DocBlock title="Focus: Mark Evaluation and Rubric Hardening">
@@ -311,7 +311,7 @@ export default function Page() {
           </Callout>
         </DocBlock>
 
-        <DocBlock title="Phase 1: Evaluation — week 1 (1 BE + QA)">
+        <DocBlock title="Phase 1: Evaluation -- week 1 (1 BE + QA)">
           <DocFlow steps={[
             {
               num: '1',
@@ -326,7 +326,7 @@ export default function Page() {
           ]} />
         </DocBlock>
 
-        <DocBlock title="Phase 2: Targeted Fixes — weeks 2–3 (parallel tracks)">
+        <DocBlock title="Phase 2: Targeted Fixes -- weeks 2–3 (parallel tracks)">
           <DocFlow steps={[
             {
               num: 'A',
@@ -336,7 +336,7 @@ export default function Page() {
             {
               num: 'B',
               title: 'CV cross-reference (1 BE)',
-              text: 'A hard structural guardrail at the routing-engine level. If the candidate claims "senior/lead" AND (current_year − graduation_year < 4 OR total_employment < 4) → force Unclear, even when Mark returns Pass. Not an LLM call — a plain rule on the parsed CV. Cheaper and more reliable.',
+              text: 'A hard structural guardrail at the routing-engine level. If the candidate claims "senior/lead" AND (current_year − graduation_year < 4 OR total_employment < 4) → force Unclear, even when Mark returns Pass. Not an LLM call -- a plain rule on the parsed CV. Cheaper and more reliable.',
             },
             {
               num: 'C',
@@ -346,12 +346,12 @@ export default function Page() {
             {
               num: '/',
               title: 'A/B routing layer (1 BE, ~3d)',
-              text: 'The spec says "no A/B infra" — without it, we can\'t validate before we ship. A minimal hash-router (candidate_id % 100) is in scope.',
+              text: 'The spec says "no A/B infra" -- without it, we can\'t validate before we ship. A minimal hash-router (candidate_id % 100) is in scope.',
             },
           ]} />
         </DocBlock>
 
-        <DocBlock title="Phase 3: Shadow + Ship — week 4">
+        <DocBlock title="Phase 3: Shadow + Ship -- week 4">
           <DocFlow steps={[
             {
               num: '1',
@@ -361,7 +361,7 @@ export default function Page() {
             {
               num: '2',
               title: 'Ship criteria',
-              text: 'If auto-advance precision hits ≥80% AND Mark Reject precision hits ≥75% (or +20pp over baseline) → ramp to 50% via A/B → full ship a week later. Otherwise — another 2-week iteration.',
+              text: 'If auto-advance precision hits ≥80% AND Mark Reject precision hits ≥75% (or +20pp over baseline) → ramp to 50% via A/B → full ship a week later. Otherwise -- another 2-week iteration.',
             },
           ]} />
         </DocBlock>
@@ -422,14 +422,14 @@ export default function Page() {
             {
               level: 'high',
               badge: 'A/B layer',
-              title: 'Required — already in Phase 2 scope',
+              title: 'Required -- already in Phase 2 scope',
               text: "Without it, there's no way to validate before shipping. If engineering tells us it's \"3 weeks, not 3 days\" → we ship with shadow-only validation (worse, but workable).",
             },
             {
               level: 'watch',
               badge: "Mark's LLM stack",
               title: 'Tool-calling support affects Track B feasibility',
-              text: "If the current model doesn't support tool-calling, Track B (CV cross-reference) gets harder. Mitigation: structural guardrail outside the LLM (at the routing layer, on the parsed CV) — a proven approach.",
+              text: "If the current model doesn't support tool-calling, Track B (CV cross-reference) gets harder. Mitigation: structural guardrail outside the LLM (at the routing layer, on the parsed CV) -- a proven approach.",
             },
             {
               level: 'low',
@@ -442,7 +442,7 @@ export default function Page() {
 
       </DocSection>
 
-      {/* 04 — Bonus */}
+      {/* 04 -- Bonus */}
       <DocSection num="04" title="Bonus: Quick-Wins to Ship Alongside">
 
         <DocBlock title="QW-1. Rate-Leak Prompt Fix (1 BE × 0.5d + QA 0.5d)">
@@ -468,7 +468,7 @@ export default function Page() {
 
         <DocBlock title="QW-3. Need Review Prioritization + Soft SLA (1 FE + 1 BE × 3d)">
           <p className="text-sm text-muted-foreground leading-relaxed mb-3">
-            <strong className="text-foreground">What:</strong> Add a priority formula that sorts cases by two signals — how long they've waited + how likely they are to advance (Mark Pass + Coderbyte Pass = high). Recruiter sees high-priority cases at the top of the queue, with a "Likely Advance" badge on easy wins. Candidates waiting more than 5 days get an automatic email: "Still under review, expect an update by [date+3]" — a trust signal, not a hard SLA.
+            <strong className="text-foreground">What:</strong> Add a priority formula that sorts cases by two signals -- how long they've waited + how likely they are to advance (Mark Pass + Coderbyte Pass = high). Recruiter sees high-priority cases at the top of the queue, with a "Likely Advance" badge on easy wins. Candidates waiting more than 5 days get an automatic email: "Still under review, expect an update by [date+3]" -- a trust signal, not a hard SLA.
           </p>
           <p className="text-sm text-muted-foreground leading-relaxed">
             <strong className="text-foreground">Metric:</strong> Median time-in-queue &lt;5 days; &lt;10% of cases waiting &gt;7 days. Lift in candidate satisfaction.
@@ -477,12 +477,12 @@ export default function Page() {
 
         <DocBlock title="One Surprise + One Question Before Day 0">
           <Callout variant="warning" title="Surprise">
-            Mark Reject + Coderbyte Pass is overridden 73% of the time, while Mark Pass + Coderbyte Reject only 8%. Mark is simultaneously too strict on edge cases (Andrii: a candidate rejected for an 8-sec pause) and too lenient on the main path (50% false positives in auto-advance). This isn't a shifted threshold — it's a noisy decision boundary. Fixed with a rubric, not by moving the cutoff.<br /><br />
-            Bonus: stage 2, "project preferences," has the highest drop (38%) — even though it's the most neutral stage in the call. Mark pushes for specifics, and flexible candidates walk away. A conversion leak in an unexpected place.
+            Mark Reject + Coderbyte Pass is overridden 73% of the time, while Mark Pass + Coderbyte Reject only 8%. Mark is simultaneously too strict on edge cases (Andrii: a candidate rejected for an 8-sec pause) and too lenient on the main path (50% false positives in auto-advance). This isn't a shifted threshold -- it's a noisy decision boundary. Fixed with a rubric, not by moving the cutoff.<br /><br />
+            Bonus: stage 2, "project preferences," has the highest drop (38%) -- even though it's the most neutral stage in the call. Mark pushes for specifics, and flexible candidates walk away. A conversion leak in an unexpected place.
           </Callout>
           <Callout variant="primary" title="Question to the team on Day 0">
-            "Is there already a labeled dataset of Mark calls with ground-truth recruiter decisions (from full post-call review)? If not — that's blocker #1, and we build it in week 1. If yes — where is it, what size, what labels?"<br /><br />
-            Without an eval set, we can't measure precision/recall on any change — every "prompt improvement" becomes wishful thinking. Bonus question: what's Mark's LLM / voice stack, and does it support tool-calling? That determines the feasibility of Track B.
+            "Is there already a labeled dataset of Mark calls with ground-truth recruiter decisions (from full post-call review)? If not -- that's blocker #1, and we build it in week 1. If yes -- where is it, what size, what labels?"<br /><br />
+            Without an eval set, we can't measure precision/recall on any change -- every "prompt improvement" becomes wishful thinking. Bonus question: what's Mark's LLM / voice stack, and does it support tool-calling? That determines the feasibility of Track B.
           </Callout>
         </DocBlock>
 
@@ -492,7 +492,7 @@ export default function Page() {
               level: 'watch',
               badge: 'Sampling',
               title: 'How the 30 of 60 QC sample was actually selected',
-              text: 'Random or cherry-picked as suspicious — affects the 50% baseline. Validation: run random QC across the full auto-advance population in week 1.',
+              text: 'Random or cherry-picked as suspicious -- affects the 50% baseline. Validation: run random QC across the full auto-advance population in week 1.',
             },
             {
               level: 'watch',

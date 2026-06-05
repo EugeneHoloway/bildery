@@ -49,11 +49,11 @@ export function DocRisks({ items }: { items: Risk[] }) {
             key={r.title}
             className={cn('px-4 py-3.5 rounded-xl border', cfg.containerClass)}
           >
-            <div className="flex items-center gap-2.5 mb-1.5">
+            <div className="flex items-center justify-between gap-2.5 mb-1.5">
               <span className="text-sm font-bold">{r.title}</span>
               <Badge
                 variant="outline"
-                className={cn('text-xs font-semibold pointer-events-none', cfg.badgeClass)}
+                className={cn('text-xs font-semibold pointer-events-none shrink-0', cfg.badgeClass)}
               >
                 {r.badge ?? cfg.label}
               </Badge>
