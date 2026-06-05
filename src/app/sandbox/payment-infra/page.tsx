@@ -8,7 +8,7 @@ import {
   Plus, Wrench, Globe, Wallet, CheckCircle2, Gift, BarChart2,
   Tag, ArrowLeftRight, ArrowUpDown, ChevronDown, FileText,
   LockOpen, Lock as LockIcon, GripVertical, Pencil, Trash2, Check, X,
-  ShieldAlert, Coins,
+  ShieldAlert, Coins, Send,
 } from 'lucide-react'
 
 // ─── Lang ─────────────────────────────────────────────────────────────────────
@@ -110,8 +110,9 @@ const layers: LayerDef[] = [
     accentTextCls:   'text-violet-500',
     nodes: [
       { id: 'checkout', label: 'Checkout UI',    sub: 'Deposit | Withdrawal',         Icon: CreditCard, phases: [2],   href: '/sandbox/brand-canvas', newTab: true },
-      { id: 'admin',    label: 'Admin Panel',    sub: 'PSP Management | Routing',     Icon: Settings,   phases: [4],   href: '/sandbox/payment-infra/admin-panel' },
-      { id: 'status',   label: 'Status Polling', sub: 'Webhook events -- UI',         Icon: RefreshCw,  phases: [2],   href: '/sandbox/payment-infra/status-polling' },
+      { id: 'admin',    label: 'Admin Panel',       sub: 'PSP Management | Routing',     Icon: Settings,   phases: [4],   href: '/sandbox/payment-infra/admin-panel' },
+      { id: 'status',   label: 'Status Polling',    sub: 'Webhook events -- UI',         Icon: RefreshCw,  phases: [2],   href: '/sandbox/payment-infra/status-polling' },
+      { id: 'outbound', label: 'Outbound Webhooks', sub: 'Push events → Operator',       Icon: Send,       phases: ['next'],   href: '/sandbox/payment-infra/outbound-webhooks' },
     ],
   },
   {
@@ -843,7 +844,8 @@ export default function Page() {
             { label: { en: 'Auth & Brand Spec', ua: 'Auth & Brand Spec'     }, sub: { en: 'JWT validation & brand resolution',        ua: 'Валідація JWT та резолюція бренду'         }, href: '/sandbox/payment-infra/auth-brand',        phase: '1' },
             { label: { en: 'PSP #1 Adapter',    ua: 'PSP #1 Адаптер'       }, sub: { en: 'PassimPay implementation spec',            ua: 'Специфікація реалізації PassimPay'         }, href: '/sandbox/payment-infra/psp1-adapter',      phase: '1' },
             { label: { en: 'PSP #1 API',        ua: 'PSP #1 API'            }, sub: { en: 'PassimPay service overview & onboarding', ua: 'Огляд сервісу PassimPay та онбординг'      }, href: '/sandbox/payment-infra/psp1-api',          phase: '1' },
-            { label: { en: 'Status Polling',    ua: 'Status Polling'        }, sub: { en: 'How frontend tracks transaction status',  ua: 'Як фронтенд відстежує статус транзакції'   }, href: '/sandbox/payment-infra/status-polling',    phase: '2' },
+            { label: { en: 'Status Polling',      ua: 'Status Polling'          }, sub: { en: 'How frontend tracks transaction status',           ua: 'Як фронтенд відстежує статус транзакції'                  }, href: '/sandbox/payment-infra/status-polling',     phase: '2' },
+            { label: { en: 'Outbound Webhooks',  ua: 'Outbound Webhooks'        }, sub: { en: 'Push events to operators -- retry, signing, delivery', ua: 'Push-події до операторів -- retry, підписання, доставка' }, href: '/sandbox/payment-infra/outbound-webhooks',  phase: 'next' },
             { label: { en: 'Rate Limiting',     ua: 'Rate Limiting'         }, sub: { en: 'Velocity checks & abuse protection',       ua: 'Velocity checks та захист від зловживань'   }, href: '/sandbox/payment-infra/rate-limiting',     phase: '2' },
             { label: { en: 'Request Router',      ua: 'Request Router'          }, sub: { en: 'Deposit & withdrawal endpoints + validation',  ua: 'Ендпоінти депозиту/виведення + валідація'    }, href: '/sandbox/payment-infra/request-router',  phase: '2' },
             { label: { en: 'Payment Orchestrator', ua: 'Payment Orchestrator' }, sub: { en: 'PSP selection, routing rules, cascade logic',   ua: 'Вибір PSP, routing rules, логіка каскаду'    }, href: '/sandbox/payment-infra/orchestrator',    phase: '2' },

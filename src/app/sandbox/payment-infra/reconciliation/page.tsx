@@ -4,6 +4,7 @@ import { useState } from 'react'
 import {
   BarChart2, Info, AlertTriangle, CheckCircle2, XCircle,
   Clock, RefreshCw, AlertCircle, ChevronDown, Shield,
+  DollarSign, Percent, TrendingUp, Building2, ArrowLeftRight, FileText,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { DocLayout  } from '@/components/doc/DocLayout'
@@ -397,6 +398,182 @@ export default function Page() {
             ))}
           </div>
         </div>
+      </DocSection>
+      </div>
+
+      {/* ── Section 6: Fee & Revenue Model ───────────────────────────────── */}
+      <div className="mt-6">
+      <DocSection num="6" title={ua ? 'Fee & Revenue Model' : 'Fee & Revenue Model'}>
+
+        <InfoCard>
+          {ua
+            ? <>Кожна транзакція несе два шари вартості: <strong>PSP fee</strong> (платимо провайдеру) та <strong>platform markup</strong> (стягуємо з оператора). Reconciliation є єдиним місцем де обидва шари зводяться разом -- PSP виписує рахунок за фактичними транзакціями, а платформа виставляє рахунок оператору на основі тих самих даних. Розбіжність між цими двома числами -- прибуток платформи.</>
+            : <>Every transaction carries two cost layers: the <strong>PSP fee</strong> (we pay the provider) and the <strong>platform markup</strong> (we charge the operator). Reconciliation is the single place where both layers are brought together -- the PSP invoices based on actual transactions, and the platform invoices the operator from the same data. The difference between these two numbers is platform revenue.</>}
+        </InfoCard>
+
+        {/* PSP fee structure */}
+        <p className="text-sm font-semibold text-foreground mb-3">
+          {ua ? 'Структура PSP fee' : 'PSP Fee Structure'}
+        </p>
+        <div className="grid grid-cols-1 gap-3 tablet:grid-cols-3 mb-6">
+          {([
+            {
+              icon: Percent,
+              title: { en: 'Percentage fee', ua: 'Відсоткова комісія' },
+              desc: { en: 'Applied as % of settlement_amount. Typical range: 1.2%--3.5% for cards, 0.5%--1.5% for crypto. Varies by PSP contract and monthly volume tier.', ua: 'Застосовується як % від settlement_amount. Типовий діапазон: 1.2%--3.5% для карток, 0.5%--1.5% для крипто. Залежить від контракту PSP та тиру місячного обсягу.' },
+            },
+            {
+              icon: DollarSign,
+              title: { en: 'Flat fee per transaction', ua: 'Фіксована комісія за транзакцію' },
+              desc: { en: 'Fixed amount regardless of transaction size. Typical: $0.10--$0.30 per transaction. Often combined with percentage fee (e.g. 1.5% + $0.20).', ua: "Фіксована сума незалежно від розміру транзакції. Типово: $0.10--$0.30 за транзакцію. Часто поєднується з відсотковою комісією (напр. 1.5% + $0.20)." },
+            },
+            {
+              icon: XCircle,
+              title: { en: 'Decline & chargeback fees', ua: 'Комісії за відмови та chargebacks' },
+              desc: { en: 'PSPs charge per declined transaction ($0.05--$0.15) and per chargeback dispute ($15--$100). These appear as separate line items on the PSP invoice and must be tracked separately.', ua: 'PSP стягують за кожну відхилену транзакцію ($0.05--$0.15) та за кожен chargeback диспут ($15--$100). Вони фігурують як окремі рядки у рахунку PSP та мають відстежуватись окремо.' },
+            },
+          ] as { icon: React.ElementType; title: I18n; desc: I18n }[]).map((item, i) => (
+            <div key={i} className="border border-border rounded-2xl p-4">
+              <div className="flex items-center gap-2.5 mb-2">
+                <div className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-muted text-muted-foreground">
+                  <item.icon className="size-3.5" />
+                </div>
+                <p className="text-sm font-semibold text-foreground">{item.title[lang]}</p>
+              </div>
+              <p className="text-sm text-muted-foreground leading-relaxed">{item.desc[lang]}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Platform revenue models */}
+        <p className="text-sm font-semibold text-foreground mb-3">
+          {ua ? 'Моделі доходу платформи' : 'Platform Revenue Models'}
+        </p>
+        <div className="flex flex-col gap-3 mb-6">
+          {([
+            {
+              icon: Percent,
+              model: { en: 'Markup on PSP fee', ua: 'Markup на PSP fee' },
+              desc: { en: 'Platform charges operator PSP fee + markup percentage. Example: PSP charges 1.8%, platform charges operator 2.3%, pocket 0.5%. Simplest model -- one number per transaction. Stored as platform_fee_pct in psp_configs.', ua: 'Платформа стягує з оператора PSP fee + markup відсоток. Приклад: PSP стягує 1.8%, платформа стягує з оператора 2.3%, залишає 0.5%. Найпростіша модель -- одне число на транзакцію. Зберігається як platform_fee_pct у psp_configs.' },
+              tag: { en: 'Recommended', ua: 'Рекомендовано' },
+              tagCls: 'bg-success-bg text-success',
+            },
+            {
+              icon: DollarSign,
+              model: { en: 'Flat fee per transaction', ua: 'Фіксована комісія за транзакцію' },
+              desc: { en: 'Platform charges operator a fixed amount per transaction regardless of PSP cost. Example: $0.50 per deposit processed. Predictable for operator, less upside for platform on large transactions. Stored as platform_fee_flat in psp_configs.', ua: 'Платформа стягує з оператора фіксовану суму за транзакцію незалежно від вартості PSP. Приклад: $0.50 за оброблений депозит. Передбачувано для оператора, менше upside для платформи на великих транзакціях. Зберігається як platform_fee_flat у psp_configs.' },
+              tag: null,
+              tagCls: '',
+            },
+            {
+              icon: TrendingUp,
+              model: { en: 'Revenue share', ua: 'Revenue share' },
+              desc: { en: 'Platform takes a percentage of the operator\'s GGR (Gross Gaming Revenue) attributable to payment processing. More complex to calculate -- requires game revenue data. Typically used for strategic large-volume operators. Defined in operator contract, not in payment config.', ua: "Платформа бере відсоток від GGR оператора (Gross Gaming Revenue) що відноситься до обробки платежів. Складніше для розрахунку -- потребує даних про ігровий дохід. Зазвичай використовується для стратегічних великооб'ємних операторів. Визначається в контракті оператора, не в платіжному конфігу." },
+              tag: null,
+              tagCls: '',
+            },
+            {
+              icon: ArrowLeftRight,
+              model: { en: 'FX spread revenue', ua: 'Дохід від FX spread' },
+              desc: { en: 'When operators support multiple display currencies, the platform applies a configurable spread (e.g. 1.5%) on top of the mid-market rate (see FX / Multi-currency). This spread is pure platform revenue -- no PSP cost involved. Tracked as fx_spread_revenue in the fee ledger.', ua: 'Коли оператори підтримують кілька валют відображення, платформа застосовує налаштовуваний spread (напр. 1.5%) поверх mid-market курсу (див. FX / Multi-currency). Цей spread є чистим доходом платформи -- без вартості PSP. Відстежується як fx_spread_revenue у реєстрі комісій.' },
+              tag: null,
+              tagCls: '',
+            },
+          ] as { icon: React.ElementType; model: I18n; desc: I18n; tag: I18n | null; tagCls: string }[]).map((item, i) => (
+            <div key={i} className="border border-border rounded-2xl p-4 flex items-start gap-3">
+              <div className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-muted text-muted-foreground mt-0.5">
+                <item.icon className="size-3.5" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                  <p className="text-sm font-semibold text-foreground">{item.model[lang]}</p>
+                  {item.tag && <Badge className={`text-xs ${item.tagCls}`}>{item.tag[lang]}</Badge>}
+                </div>
+                <p className="text-sm text-muted-foreground leading-relaxed">{item.desc[lang]}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Fee ledger DB schema */}
+        <p className="text-sm font-semibold text-foreground mb-3">
+          {ua ? 'Таблиця transaction_fees -- реєстр комісій' : 'Table transaction_fees -- fee ledger'}
+        </p>
+        <InfoCard>
+          {ua
+            ? <>Окрема таблиця <code className="text-xs bg-muted rounded px-1.5 py-0.5">transaction_fees</code> зберігає розбивку комісій для кожної транзакції. Це дозволяє reconciliation job порівнювати фактичний рахунок PSP з тим що платформа очікувала -- та виявляти розбіжності ще до того як прийде інвойс.</>
+            : <>A separate <code className="text-xs bg-muted rounded px-1.5 py-0.5">transaction_fees</code> table stores the fee breakdown for every transaction. This allows the reconciliation job to compare the actual PSP invoice against what the platform expected -- and detect discrepancies before the invoice arrives.</>}
+        </InfoCard>
+        <DocTable>
+          <DocTableHeader>
+            <TableRow>
+              <TableHead>{ua ? 'Колонка' : 'Column'}</TableHead>
+              <TableHead>{ua ? 'Тип' : 'Type'}</TableHead>
+              <TableHead>{ua ? 'Опис' : 'Description'}</TableHead>
+            </TableRow>
+          </DocTableHeader>
+          <TableBody>
+            {([
+              { col: 'id',                  type: 'uuid PK',       desc: { en: 'Fee record ID',                                                                             ua: 'ID запису комісії'                                                                            } },
+              { col: 'transaction_id',      type: 'uuid FK',       desc: { en: 'Reference to the transaction in transactions table',                                        ua: 'Посилання на транзакцію у таблиці transactions'                                               } },
+              { col: 'operator_id',         type: 'uuid FK',       desc: { en: 'Operator being charged',                                                                    ua: 'Оператор з якого стягується комісія'                                                          } },
+              { col: 'psp_id',              type: 'uuid FK',       desc: { en: 'PSP that processed the transaction',                                                        ua: 'PSP що обробив транзакцію'                                                                    } },
+              { col: 'psp_fee_pct',         type: 'numeric(6,4)',  desc: { en: 'PSP percentage fee applied (e.g. 0.018 = 1.8%)',                                            ua: 'Застосований відсоток PSP fee (напр. 0.018 = 1.8%)'                                           } },
+              { col: 'psp_fee_flat',        type: 'numeric(10,4)', desc: { en: 'PSP flat fee per transaction in settlement currency',                                       ua: 'Фіксована комісія PSP за транзакцію у розрахунковій валюті'                                   } },
+              { col: 'psp_fee_total',       type: 'numeric(14,4)', desc: { en: 'Total PSP cost: (settlement_amount * psp_fee_pct) + psp_fee_flat',                          ua: 'Загальна вартість PSP: (settlement_amount * psp_fee_pct) + psp_fee_flat'                       } },
+              { col: 'platform_fee_pct',    type: 'numeric(6,4)',  desc: { en: 'Platform markup percentage charged to operator',                                            ua: 'Відсоток markup платформи що стягується з оператора'                                          } },
+              { col: 'platform_fee_flat',   type: 'numeric(10,4)', desc: { en: 'Platform flat fee per transaction charged to operator',                                     ua: 'Фіксована комісія платформи за транзакцію що стягується з оператора'                          } },
+              { col: 'platform_fee_total',  type: 'numeric(14,4)', desc: { en: 'Total operator charge: (settlement_amount * platform_fee_pct) + platform_fee_flat',        ua: 'Загальна сума з оператора: (settlement_amount * platform_fee_pct) + platform_fee_flat'         } },
+              { col: 'fx_spread_revenue',   type: 'numeric(14,4)', desc: { en: 'Revenue from FX spread on this transaction (0 if no currency conversion)',                 ua: 'Дохід від FX spread на цій транзакції (0 якщо немає конвертації валюти)'                       } },
+              { col: 'platform_revenue',    type: 'numeric(14,4)', desc: { en: 'Computed: platform_fee_total - psp_fee_total + fx_spread_revenue',                         ua: 'Обчислюється: platform_fee_total - psp_fee_total + fx_spread_revenue'                          } },
+              { col: 'psp_invoiced_amount', type: 'numeric(14,4)', desc: { en: 'Actual fee from PSP invoice -- populated by reconciliation job, null until invoice arrives', ua: 'Фактична комісія з рахунку PSP -- заповнюється reconciliation job, null до отримання інвойсу'  } },
+              { col: 'fee_discrepancy',     type: 'numeric(14,4)', desc: { en: 'psp_invoiced_amount - psp_fee_total -- non-zero means unexpected fee from PSP',            ua: 'psp_invoiced_amount - psp_fee_total -- ненульове значення означає неочікувану комісію PSP'    } },
+              { col: 'currency',            type: 'char(3)',        desc: { en: 'All amounts in this row are in this currency (settlement currency)',                       ua: 'Всі суми у цьому рядку у цій валюті (розрахункова валюта)'                                    } },
+              { col: 'created_at',          type: 'timestamptz',   desc: { en: 'When this fee record was created (at transaction completion)',                              ua: 'Коли цей запис комісії був створений (при завершенні транзакції)'                              } },
+            ] as { col: string; type: string; desc: I18n }[]).map((col) => (
+              <TableRow key={col.col}>
+                <TableCell><code className="text-xs font-mono text-foreground">{col.col}</code></TableCell>
+                <TableCell><Badge variant="secondary" className="text-xs font-mono">{col.type}</Badge></TableCell>
+                <TableCell className="text-sm text-muted-foreground">{col.desc[lang]}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </DocTable>
+
+        {/* Settlement report */}
+        <p className="text-sm font-semibold text-foreground mt-6 mb-3">
+          {ua ? 'Розрахунковий звіт (Settlement Report)' : 'Settlement Report'}
+        </p>
+        <div className="flex flex-col gap-3">
+          {([
+            {
+              icon: Building2,
+              title: { en: 'Per-operator monthly report', ua: 'Місячний звіт по оператору' },
+              desc: { en: 'Reconciliation job generates a monthly settlement report per operator: total transaction volume, total PSP fees paid, total platform fees charged to operator, net revenue, FX spread revenue, and any chargeback costs attributed to the operator. Stored in operator_settlement_reports table.', ua: 'Reconciliation job генерує місячний розрахунковий звіт по кожному оператору: загальний обсяг транзакцій, сплачені PSP комісії, нараховані оператору комісії платформи, чистий дохід, дохід від FX spread та будь-які витрати chargeback що відносяться до оператора. Зберігається в таблиці operator_settlement_reports.' },
+            },
+            {
+              icon: FileText,
+              title: { en: 'PSP invoice matching', ua: 'Звірка рахунків PSP' },
+              desc: { en: 'Each PSP sends a monthly invoice. The reconciliation job ingests the invoice line items and matches them against transaction_fees.psp_invoiced_amount. Any line item that differs from the expected fee by more than $0.01 is flagged as fee_discrepancy and sent to ops for review.', ua: "Кожен PSP надсилає місячний рахунок. Reconciliation job завантажує рядки рахунку та зіставляє їх з transaction_fees.psp_invoiced_amount. Будь-який рядок що відрізняється від очікуваної комісії більш ніж на $0.01 позначається як fee_discrepancy та відправляється ops для перегляду." },
+            },
+            {
+              icon: TrendingUp,
+              title: { en: 'Revenue dashboard inputs', ua: 'Дані для дашборду доходів' },
+              desc: { en: 'Admin Panel revenue dashboard reads from transaction_fees -- aggregated by operator, PSP, method, and time period. Metrics: gross payment volume, PSP cost ratio, platform revenue, effective take rate (platform_revenue / settlement_amount). All in settlement currency.', ua: 'Дашборд доходів Admin Panel читає з transaction_fees -- агреговано по оператору, PSP, методу та часовому проміжку. Метрики: gross payment volume, коефіцієнт витрат PSP, дохід платформи, effective take rate (platform_revenue / settlement_amount). Все у розрахунковій валюті.' },
+            },
+          ] as { icon: React.ElementType; title: I18n; desc: I18n }[]).map((item, i) => (
+            <div key={i} className="border border-border rounded-2xl p-4 flex items-start gap-3">
+              <div className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-muted text-muted-foreground mt-0.5">
+                <item.icon className="size-3.5" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-foreground mb-1">{item.title[lang]}</p>
+                <p className="text-sm text-muted-foreground leading-relaxed">{item.desc[lang]}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
       </DocSection>
       </div>
 

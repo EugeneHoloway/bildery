@@ -5,6 +5,7 @@ import {
   SlidersHorizontal, Info, AlertTriangle, CheckCircle2, XCircle,
   ArrowRight, ShieldCheck, CreditCard, Wallet, UserCheck, Ban,
   TrendingUp, Lock, Scale, BookOpen, ArrowUpDown,
+  Heart, Globe, Clock, AlertCircle, ChevronRight, Shield,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { DocLayout  } from '@/components/doc/DocLayout'
@@ -667,9 +668,241 @@ export default function Page() {
       </DocSection>
       </div>
 
-      {/* ── Section 4: Best practices ─────────────────────────────────────── */}
+      {/* ── Section 4: Responsible Gambling ──────────────────────────────── */}
       <div className="mt-6">
-      <DocSection num="4" title={ua ? 'Кращі практики' : 'Best practices'}>
+      <DocSection num="4" title={ua ? 'Responsible Gambling (RG)' : 'Responsible Gambling (RG)'}>
+
+        <div className="border border-border rounded-2xl p-4 flex items-start gap-3 mb-6 bg-card">
+          <Heart className="size-4 shrink-0 mt-0.5 text-muted-foreground" />
+          <div className="text-sm text-foreground leading-relaxed">
+            {ua
+              ? <>RG-інструменти -- це <strong>розширення рушія лімітів</strong>, не окремий модуль. Вони завжди мають вищий пріоритет ніж бізнес-ліміти. RG-правила <strong>опціональні</strong> з точки зору архітектури, але <strong>обов\'язкові для ліцензованих юрисдикцій</strong>. Набір вимог суттєво відрізняється залежно від країни та типу ліцензії -- платформа повинна підтримувати всі інструменти, а оператор вмикає потрібні відповідно до своєї ліцензії.</>
+              : <>RG tools are an <strong>extension of the limits engine</strong>, not a separate module. They always take higher priority than business limits. RG rules are <strong>optional</strong> from an architecture perspective, but <strong>mandatory for licensed jurisdictions</strong>. The required set varies significantly by country and license type -- the platform must support all tools, and each operator enables what their license requires.</>}
+          </div>
+        </div>
+
+        {/* RG tool catalog */}
+        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">
+          {ua ? 'Каталог RG-інструментів' : 'RG tool catalog'}
+        </p>
+        <div className="flex flex-col gap-3 mb-6">
+          {([
+            {
+              icon: Ban,
+              tool: { en: 'Self-exclusion', ua: 'Самовиключення (self-exclusion)' },
+              type: { en: 'Temporary or permanent', ua: 'Тимчасове або постійне' },
+              desc: { en: 'Player blocks themselves from all deposits and gameplay for a defined period (1 day -- permanent). The platform must enforce this at the payment layer -- any deposit attempt returns SELF_EXCLUDED error. Exclusion cannot be reversed by the player during the active period -- only by operator support after a mandatory review process.', ua: 'Гравець блокує себе від всіх депозитів та ігор на визначений період (1 день -- постійно). Платформа повинна застосовувати це на рівні платежів -- будь-яка спроба депозиту повертає помилку SELF_EXCLUDED. Виключення не може бути скасовано гравцем під час активного періоду -- лише службою підтримки оператора після обов\'язкового процесу перегляду.' },
+              required: { en: 'Mandatory in all licensed jurisdictions', ua: 'Обов\'язково у всіх ліцензованих юрисдикціях' },
+              critical: true,
+            },
+            {
+              icon: Clock,
+              tool: { en: 'Cooling-off period', ua: 'Період охолодження (cooling-off)' },
+              type: { en: 'Delay on limit increases', ua: 'Затримка на збільшення лімітів' },
+              desc: { en: 'When a player wants to raise or remove a self-set deposit limit, the change does not take effect immediately -- it takes effect after a mandatory delay (typically 24--72 hours, jurisdiction-specific). This prevents impulsive reversal of protective limits. The player can cancel the increase request during the cooling-off window.', ua: 'Коли гравець хоче підвищити або прибрати самостійно встановлений ліміт депозиту, зміна не набирає чинності негайно -- вона набирає чинності після обов\'язкової затримки (зазвичай 24--72 години, залежно від юрисдикції). Це запобігає імпульсивному скасуванню захисних лімітів. Гравець може скасувати запит на підвищення протягом вікна cooling-off.' },
+              required: { en: 'Required: UK, Sweden, Germany, Malta. Recommended everywhere', ua: 'Обов\'язково: UK, Швеція, Німеччина, Мальта. Рекомендовано скрізь' },
+              critical: true,
+            },
+            {
+              icon: TrendingUp,
+              tool: { en: 'Player deposit limits', ua: 'Ліміти депозитів гравця' },
+              type: { en: 'Daily / weekly / monthly cap', ua: 'Денний / тижневий / місячний кеп' },
+              desc: { en: 'Player sets their own deposit caps -- these can only be decreased immediately; increases require cooling-off. Player limits always take precedence over brand limits -- if the brand daily cap is $500 and the player set $100, the effective cap is $100. Stored in player_limits table.', ua: 'Гравець встановлює власні ліміти депозитів -- вони можуть бути тільки знижені негайно; підвищення вимагає cooling-off. Ліміти гравця завжди мають перевагу над лімітами бренду -- якщо денний кеп бренду $500, а гравець встановив $100, ефективний кеп $100. Зберігається у таблиці player_limits.' },
+              required: { en: 'Mandatory: UK, Sweden, Germany, Malta. Optional: Curacao, Anjouan', ua: 'Обов\'язково: UK, Швеція, Німеччина, Мальта. Опціонально: Кюрасао, Анжуан' },
+              critical: false,
+            },
+            {
+              icon: Scale,
+              tool: { en: 'Loss limits', ua: 'Ліміти збитків (loss limits)' },
+              type: { en: 'Max net loss per period', ua: 'Максимальний чистий збиток за період' },
+              desc: { en: 'Player sets a maximum net loss (deposits minus withdrawals) over a period. More complex than deposit limits -- requires tracking game outcomes, not just payment amounts. Calculated as: sum(deposits) - sum(withdrawals) over the rolling window. When the limit is reached, deposits are blocked for the remainder of the period.', ua: 'Гравець встановлює максимальний чистий збиток (депозити мінус виведення) за період. Складніше ніж ліміти депозитів -- вимагає відстеження ігрових результатів, а не тільки сум платежів. Розраховується як: sum(депозитів) - sum(виведень) за ковзним вікном. При досягненні ліміту депозити блокуються до кінця періоду.' },
+              required: { en: 'Mandatory: UK (UKGC), Sweden. Optional: others', ua: 'Обов\'язково: UK (UKGC), Швеція. Опціонально: інші' },
+              critical: false,
+            },
+            {
+              icon: Shield,
+              tool: { en: 'Affordability check', ua: 'Перевірка доступності (affordability check)' },
+              type: { en: 'Income vs spend verification', ua: 'Верифікація доходу vs витрат' },
+              desc: { en: 'Required by UK UKGC from Sept 2024 (Enhanced Affordability): operators must verify player income when cumulative deposits exceed thresholds (£500/month at tier 1, £150/month at tier 2 for Enhanced). Platform checks accumulated deposits and flags when KYC upgrade is required. Source documents: bank statements, pay slips.', ua: 'Вимагається UK UKGC з вересня 2024 (Enhanced Affordability): оператори повинні верифікувати дохід гравця коли накопичені депозити перевищують пороги (£500/міс на tier 1, £150/міс на tier 2 для Enhanced). Платформа перевіряє накопичені депозити та позначає коли потрібне KYC оновлення. Документи-джерела: банківські виписки, розрахункові листки.' },
+              required: { en: 'Mandatory: UK (UKGC Enhanced). Not required in other jurisdictions', ua: 'Обов\'язково: UK (UKGC Enhanced). Не вимагається в інших юрисдикціях' },
+              critical: false,
+            },
+            {
+              icon: Globe,
+              tool: { en: 'External exclusion list check', ua: 'Перевірка зовнішнього списку виключень' },
+              type: { en: 'Third-party exclusion registry', ua: 'Реєстр виключень третьої сторони' },
+              desc: { en: 'Some jurisdictions maintain national self-exclusion registries. Operators must query these at player registration and optionally on each deposit. Integration is per-jurisdiction: GamStop (UK), OASIS (Germany), Spelpaus (Sweden), Spelinspektionen. The platform provides an IExclusionProvider interface -- each jurisdiction has its own adapter.', ua: 'Деякі юрисдикції ведуть національні реєстри самовиключення. Оператори повинні запитувати їх при реєстрації гравця та опціонально при кожному депозиті. Інтеграція специфічна для юрисдикції: GamStop (UK), OASIS (Німеччина), Spelpaus (Швеція). Платформа надає інтерфейс IExclusionProvider -- кожна юрисдикція має власний адаптер.' },
+              required: { en: 'Mandatory if licensed in UK, Germany, Sweden. Not applicable elsewhere', ua: 'Обов\'язково для ліцензованих у UK, Німеччині, Швеції. Не застосовується в інших місцях' },
+              critical: false,
+            },
+          ] as { icon: React.ElementType; tool: I18n; type: I18n; desc: I18n; required: I18n; critical: boolean }[]).map((item, i) => (
+            <div key={i} className={cn(
+              'border rounded-2xl p-4',
+              item.critical ? 'border-destructive/20 bg-destructive-bg' : 'border-border bg-card',
+            )}>
+              <div className="flex items-start gap-3">
+                <div className={cn(
+                  'flex size-7 shrink-0 items-center justify-center rounded-xl mt-0.5',
+                  item.critical ? 'bg-destructive/10 text-destructive' : 'bg-muted text-muted-foreground',
+                )}>
+                  <item.icon className="size-3.5" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-2 flex-wrap mb-1">
+                    <p className="text-sm font-semibold text-foreground">{item.tool[lang]}</p>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <Badge variant="secondary" className="text-xs">{item.type[lang]}</Badge>
+                      {item.critical && <Badge className="text-xs bg-destructive/10 text-destructive">{ua ? 'Найвищий пріоритет' : 'Highest priority'}</Badge>}
+                    </div>
+                  </div>
+                  <p className="text-sm text-muted-foreground leading-relaxed mb-2">{item.desc[lang]}</p>
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <ChevronRight className="size-3 shrink-0 text-muted-foreground/50" />
+                    <span>{item.required[lang]}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Jurisdiction matrix */}
+        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">
+          {ua ? 'Матриця вимог по юрисдикціях' : 'Jurisdiction requirements matrix'}
+        </p>
+        <DocTable className="mb-6">
+          <DocTableHeader>
+            <TableRow>
+              <TableHead>{ua ? 'Юрисдикція / Ліцензія' : 'Jurisdiction / License'}</TableHead>
+              <TableHead>{ua ? 'Self-excl.' : 'Self-excl.'}</TableHead>
+              <TableHead>{ua ? 'Cooling-off' : 'Cooling-off'}</TableHead>
+              <TableHead>{ua ? 'Dep. limits' : 'Dep. limits'}</TableHead>
+              <TableHead>{ua ? 'Loss limits' : 'Loss limits'}</TableHead>
+              <TableHead>{ua ? 'Afford. check' : 'Afford. check'}</TableHead>
+              <TableHead>{ua ? 'Ext. registry' : 'Ext. registry'}</TableHead>
+            </TableRow>
+          </DocTableHeader>
+          <TableBody>
+            {([
+              { j: 'UK (UKGC)',         se: true,  co: true,  dl: true,  ll: true,  af: true,  er: 'GamStop'      },
+              { j: 'Sweden (Spelinsp.)',se: true,  co: true,  dl: true,  ll: true,  af: false, er: 'Spelpaus'     },
+              { j: 'Germany (GGL)',     se: true,  co: true,  dl: true,  ll: false, af: false, er: 'OASIS'        },
+              { j: 'Malta (MGA)',       se: true,  co: true,  dl: true,  ll: false, af: false, er: null           },
+              { j: 'Estonia (MTA)',     se: true,  co: false, dl: true,  ll: false, af: false, er: null           },
+              { j: 'Curacao / Anjouan', se: false, co: false, dl: false, ll: false, af: false, er: null           },
+            ]).map((row, i) => {
+              const Yes  = <CheckCircle2 className="size-3.5 text-success mx-auto" />
+              const No   = <XCircle      className="size-3.5 text-muted-foreground/40 mx-auto" />
+              return (
+                <TableRow key={i}>
+                  <TableCell className="text-sm font-medium text-foreground">{row.j}</TableCell>
+                  <TableCell className="text-center">{row.se ? Yes : No}</TableCell>
+                  <TableCell className="text-center">{row.co ? Yes : No}</TableCell>
+                  <TableCell className="text-center">{row.dl ? Yes : No}</TableCell>
+                  <TableCell className="text-center">{row.ll ? Yes : No}</TableCell>
+                  <TableCell className="text-center">{row.af ? Yes : No}</TableCell>
+                  <TableCell>
+                    {row.er
+                      ? <code className="text-xs font-mono text-brand">{row.er}</code>
+                      : <span className="text-muted-foreground/40 text-xs">--</span>}
+                  </TableCell>
+                </TableRow>
+              )
+            })}
+          </TableBody>
+        </DocTable>
+
+        {/* Implementation rules */}
+        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">
+          {ua ? 'Критичні правила реалізації' : 'Critical implementation rules'}
+        </p>
+        <div className="flex flex-col gap-2 mb-6">
+          {([
+            {
+              rule: { en: 'Self-exclusion is checked first -- before any other rule', ua: 'Self-exclusion перевіряється першою -- до будь-якого іншого правила' },
+              detail: { en: 'Already rule #1 in the evaluation order. Cached in Redis (TTL 60s). A stale exclusion that allows a deposit through is a regulatory violation -- prefer false positives over false negatives.', ua: 'Вже правило №1 у порядку виконання. Кешується в Redis (TTL 60s). Застаріле виключення що пропускає депозит -- це порушення регуляторних вимог -- краще false positive ніж false negative.' },
+              critical: true,
+            },
+            {
+              rule: { en: 'Player limits can only be decreased immediately -- increases require cooling-off', ua: 'Ліміти гравця можуть бути тільки знижені негайно -- підвищення вимагає cooling-off' },
+              detail: { en: 'Store requested_limit and effective_at separately. A background job applies the new (higher) limit when effective_at is reached. Player can cancel the pending increase at any time during cooling-off.', ua: 'Зберігати requested_limit та effective_at окремо. Фоновий job застосовує новий (вищий) ліміт коли настає effective_at. Гравець може скасувати очікуване підвищення будь-коли під час cooling-off.' },
+              critical: true,
+            },
+            {
+              rule: { en: 'Self-exclusion cannot be reversed by the player directly', ua: 'Self-exclusion не може бути скасовано гравцем безпосередньо' },
+              detail: { en: 'No "undo self-exclusion" button in the player UI. Reversal requires operator support intervention after a mandatory review and waiting period (jurisdiction-defined, typically 24h--7 days). The UI must make this clear at the moment of setting exclusion.', ua: 'Жодної кнопки "скасувати self-exclusion" в UI гравця. Скасування вимагає втручання служби підтримки оператора після обов\'язкового перегляду та очікування (визначається юрисдикцією, зазвичай 24г--7 днів). UI повинен чітко повідомляти про це в момент встановлення виключення.' },
+              critical: true,
+            },
+            {
+              rule: { en: 'Operator cannot set limits more permissive than regulatory minimums', ua: 'Оператор не може встановлювати ліміти більш м\'які ніж регуляторні мінімуми' },
+              detail: { en: 'Example: Germany mandates a hard €1,000/month deposit cap. Operator brand_limits cannot exceed this regardless of what they configure. Platform enforces regulatory floors as a non-configurable layer below brand limits.', ua: 'Приклад: Німеччина встановлює жорсткий ліміт депозитів €1,000/міс. Ліміти бренду оператора не можуть перевищувати це незалежно від того що вони налаштовують. Платформа застосовує регуляторні мінімуми як не-налаштовуваний шар нижче лімітів бренду.' },
+              critical: false,
+            },
+            {
+              rule: { en: 'All RG events are logged immutably in player_rg_events', ua: 'Всі RG-події логуються незмінно в player_rg_events' },
+              detail: { en: 'Every self-exclusion, limit change, cooling-off trigger, and RG block must be logged with timestamp, player_id, operator_id, and who triggered it (player or ops). This log is the primary evidence in regulatory audits and player dispute resolution.', ua: 'Кожне самовиключення, зміна ліміту, тригер cooling-off та RG блокування мають логуватись з часовою міткою, player_id, operator_id та хто ініціював (гравець або ops). Цей лог є основним доказом при регуляторних аудитах та вирішенні суперечок гравців.' },
+              critical: false,
+            },
+          ] as { rule: I18n; detail: I18n; critical: boolean }[]).map((item, i) => (
+            <div key={i} className={cn(
+              'border rounded-xl px-3 py-2.5',
+              item.critical
+                ? 'border-destructive/20 bg-destructive-bg'
+                : 'border-border bg-card',
+            )}>
+              <p className={cn('text-sm font-medium mb-0.5', item.critical ? 'text-foreground' : 'text-foreground')}>
+                {item.rule[lang]}
+              </p>
+              <p className="text-xs text-muted-foreground leading-relaxed">{item.detail[lang]}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* DB additions */}
+        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">
+          {ua ? 'Доповнення до схеми БД' : 'DB schema additions'}
+        </p>
+        <div className="border border-border rounded-2xl overflow-hidden">
+          <div className="flex items-center gap-2 px-3 py-2 bg-muted border-b border-border">
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+              {ua ? 'Нова таблиця: player_rg_events (audit log)' : 'New table: player_rg_events (audit log)'}
+            </span>
+          </div>
+          <pre className="text-xs font-mono text-muted-foreground p-4 leading-relaxed overflow-x-auto bg-card">{`player_rg_events (
+  id            uuid PK,
+  player_id     uuid FK,
+  operator_id   uuid FK,
+  brand_id      uuid FK,
+  event_type    text,    -- SELF_EXCLUSION_SET | SELF_EXCLUSION_LIFTED
+                         -- LIMIT_DECREASED | LIMIT_INCREASE_REQUESTED
+                         -- LIMIT_INCREASE_APPLIED | LIMIT_INCREASE_CANCELLED
+                         -- COOLING_OFF_STARTED | DEPOSIT_BLOCKED_RG
+                         -- AFFORDABILITY_FLAG_RAISED | EXT_EXCLUSION_MATCH
+  payload       jsonb,   -- event-specific detail (old value, new value, reason)
+  triggered_by  text,    -- 'player' | 'ops:{user_id}' | 'system'
+  created_at    timestamptz
+  -- append-only: no updates, no deletes
+)
+
+-- Additions to player_limits:
+ALTER TABLE player_limits ADD COLUMN
+  requested_daily_deposit_cap    numeric,  -- pending increase, null if none
+  requested_effective_at         timestamptz, -- when pending increase applies
+  loss_limit_daily               numeric,  -- null if not set
+  loss_limit_weekly              numeric,
+  loss_limit_monthly             numeric,
+  self_excluded_until            timestamptz, -- null if not excluded
+  self_excluded_permanent        boolean DEFAULT false,
+  affordability_threshold_reached boolean DEFAULT false,
+  ext_exclusion_checked_at       timestamptz  -- last external registry check`}</pre>
+        </div>
+
+      </DocSection>
+      </div>
+
+      {/* ── Section 5: Best practices ─────────────────────────────────────── */}
+      <div className="mt-6">
+      <DocSection num="5" title={ua ? 'Кращі практики' : 'Best practices'}>
         <div className="grid grid-cols-1 gap-4 tablet:grid-cols-2">
           {BEST_PRACTICES.map((bp) => (
             <BestPracticeCard key={bp.title.en} title={bp.title} items={bp.items} lang={lang} />
