@@ -8,7 +8,7 @@ import {
   Plus, Wrench, Globe, Wallet, CheckCircle2, Gift, BarChart2,
   Tag, ArrowLeftRight, ArrowUpDown, ChevronDown, FileText,
   LockOpen, Lock as LockIcon, GripVertical, Pencil, Trash2, Check, X,
-  ShieldAlert,
+  ShieldAlert, Coins,
 } from 'lucide-react'
 
 // ─── Lang ─────────────────────────────────────────────────────────────────────
@@ -189,11 +189,12 @@ const layers: LayerDef[] = [
     accentBorderCls: 'border-pink-500/30',
     accentTextCls:   'text-pink-500',
     nodes: [
-      { id: 'wallet',         label: 'Wallet Engine',        sub: 'Balance | ledger',           Icon: Wallet,       phases: [2], href: '/sandbox/payment-infra/wallet-engine' },
-      { id: 'kyc',            label: 'KYC | AML',            sub: 'Verification gates',         Icon: CheckCircle2, phases: [3], href: '/sandbox/payment-infra/kyc-aml' },
-      { id: 'bonus',          label: 'Bonus Engine',         sub: 'Wager | locks',              Icon: Gift,         phases: [3], href: '/sandbox/payment-infra/bonus-engine' },
-      { id: 'reconciliation', label: 'Reconciliation',       sub: 'Nightly PSP sync',           Icon: BarChart2,    phases: [2], href: '/sandbox/payment-infra/reconciliation' },
+      { id: 'wallet',         label: 'Wallet Engine',        sub: 'Balance | ledger',            Icon: Wallet,       phases: [2], href: '/sandbox/payment-infra/wallet-engine' },
+      { id: 'kyc',            label: 'KYC | AML',            sub: 'Verification gates',          Icon: CheckCircle2, phases: [3], href: '/sandbox/payment-infra/kyc-aml' },
+      { id: 'bonus',          label: 'Bonus Engine',         sub: 'Wager | locks',               Icon: Gift,         phases: [3], href: '/sandbox/payment-infra/bonus-engine' },
+      { id: 'reconciliation', label: 'Reconciliation',       sub: 'Nightly PSP sync',            Icon: BarChart2,    phases: [2], href: '/sandbox/payment-infra/reconciliation' },
       { id: 'chargeback',     label: 'Chargeback Management',sub: 'Disputes | evidence | rates', Icon: ShieldAlert,  phases: [4], href: '/sandbox/payment-infra/chargeback' },
+      { id: 'fx',             label: 'FX / Multi-currency',  sub: 'Rate lock | settlement vs display', Icon: Coins, phases: [3], href: '/sandbox/payment-infra/fx-currency' },
     ],
   },
 ]
@@ -849,7 +850,8 @@ export default function Page() {
             { label: { en: 'Cascade Manager',     ua: 'Cascade Manager'      }, sub: { en: 'Failover logic: PSP1 → PSP2 → PSP3',            ua: 'Failover логіка: PSP1 → PSP2 → PSP3'         }, href: '/sandbox/payment-infra/cascade-manager', phase: '2' },
             { label: { en: 'Wallet Engine',       ua: 'Wallet Engine'        }, sub: { en: 'Balance: credit, debit, hold. Built on Orleans',  ua: 'Баланс: credit, debit, hold. Побудований на Orleans' }, href: '/sandbox/payment-infra/wallet-engine',   phase: '2' },
             { label: { en: 'Reconciliation',      ua: 'Reconciliation'       }, sub: { en: 'Nightly PSP sync, discrepancy detection & fix',   ua: 'Нічна синхронізація PSP, виявлення розбіжностей'     }, href: '/sandbox/payment-infra/reconciliation',  phase: '2' },
-            { label: { en: 'Limits & Rules',      ua: 'Limits & Rules'       }, sub: { en: 'Min/max, caps, KYC gates, RG, AML — rule engine',  ua: 'Min/max, ліміти, KYC-гейти, RG, AML — движок правил' }, href: '/sandbox/payment-infra/limits-rules',    phase: '3' },
+            { label: { en: 'FX / Multi-currency',  ua: 'FX / Мультивалютність' }, sub: { en: 'Rate lock, settlement vs display, historical rates',  ua: 'Фіксація курсу, settlement vs display, historical rates' }, href: '/sandbox/payment-infra/fx-currency',    phase: '3' },
+            { label: { en: 'Limits & Rules',       ua: 'Limits & Rules'        }, sub: { en: 'Min/max, caps, KYC gates, RG, AML -- rule engine',  ua: 'Min/max, ліміти, KYC-гейти, RG, AML -- движок правил' }, href: '/sandbox/payment-infra/limits-rules',   phase: '3' },
             { label: { en: 'KYC | AML',           ua: 'KYC | AML'            }, sub: { en: 'Identity verification, sanctions, AML monitoring',   ua: 'Верифікація особи, санкції, AML моніторинг'          }, href: '/sandbox/payment-infra/kyc-aml',         phase: '3' },
             { label: { en: 'Bonus Engine',        ua: 'Bonus Engine'         }, sub: { en: 'Deposit match, wagering tracking, balance lock, expiry', ua: 'Депозит-матч, відстеження вейджеру, лок балансу'    }, href: '/sandbox/payment-infra/bonus-engine',    phase: '3' },
             { label: { en: 'Admin Panel',              ua: 'Адмін Панель'              }, sub: { en: 'PSP, routing, methods, partners, compliance — control plane',         ua: 'PSP, роутинг, методи, партнери, compliance — панель управління'          }, href: '/sandbox/payment-infra/admin-panel',  phase: '4' },
