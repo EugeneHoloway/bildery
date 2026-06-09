@@ -4,9 +4,17 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useTheme } from 'next-themes'
-import { Sun, Moon, Menu, X } from 'lucide-react'
+import { Sun, Moon, Menu, X, LogOut, User } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { useAuth } from '@/components/AuthProvider'
+import { AuthDialog } from '@/components/auth/AuthDialog'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 
 const navItems = [
   { label: 'Tasks',   href: '/tasks' },
@@ -38,11 +46,65 @@ function ThemeToggle() {
   )
 }
 
+function AuthButtons() {
+  const { user, loading, signOut } = useAuth()
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const [dialogMode, setDialogMode] = useState<'login' | 'signup'>('login')
+
+  if (loading) return <div className="w-20 h-8" />
+
+  if (user) {
+    return (
+      <>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" aria-label="User menu">
+              <User className="size-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem className="text-xs text-muted-foreground" disabled>
+              {user.email}
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={signOut}>
+              <LogOut className="mr-2 size-3.5" />
+              Sign out
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </>
+    )
+  }
+
+  return (
+    <>
+      <Button
+        variant="ghost"
+        size="lg"
+        onClick={() => { setDialogMode('login'); setDialogOpen(true) }}
+      >
+        Login
+      </Button>
+      <Button
+        variant="default"
+        size="lg"
+        onClick={() => { setDialogMode('signup'); setDialogOpen(true) }}
+      >
+        Sign up
+      </Button>
+      <AuthDialog
+        open={dialogOpen}
+        mode={dialogMode}
+        onOpenChange={setDialogOpen}
+      />
+    </>
+  )
+}
+
 export function Header() {
   const [menuOpen, setMenuOpen] = useState(false)
   const pathname = usePathname()
 
-  // Close on Escape
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setMenuOpen(false)
@@ -51,13 +113,11 @@ export function Header() {
     return () => document.removeEventListener('keydown', handleKeyDown)
   }, [])
 
-  // Lock body scroll when menu is open
   useEffect(() => {
     document.body.style.overflow = menuOpen ? 'hidden' : ''
     return () => { document.body.style.overflow = '' }
   }, [menuOpen])
 
-  // Close menu on route change
   useEffect(() => {
     setMenuOpen(false)
   }, [pathname])
@@ -103,9 +163,12 @@ export function Header() {
             ))}
           </nav>
 
-          {/* Right side: theme toggle + burger */}
+          {/* Right side */}
           <div className="flex items-center gap-1">
             <ThemeToggle />
+            <div className="hidden items-center gap-1 tablet:flex">
+              <AuthButtons />
+            </div>
 
             {/* Burger — mobile only */}
             <Button
@@ -158,6 +221,9 @@ export function Header() {
             </Link>
           ))}
         </nav>
+        <div className="mt-6 flex gap-2">
+          <AuthButtons />
+        </div>
       </div>
     </>
   )

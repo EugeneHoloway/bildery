@@ -7,8 +7,8 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { AbbrAvatar, PanelContent } from "@/components/shared"
-import { AddProviderDialog } from "@/app/sandbox/page-manager/_components/Dialogs"
-import { type Provider, INITIAL_PROVIDERS } from "@/app/sandbox/page-manager/_components/types"
+import { AddProviderDialog } from "@/app/(main)/sandbox/page-manager/_components/Dialogs"
+import { type Provider, INITIAL_PROVIDERS } from "@/app/(main)/sandbox/page-manager/_components/types"
 
 export function ProvidersPanel() {
   const [providers, setProviders] = useState<Provider[]>(INITIAL_PROVIDERS)
