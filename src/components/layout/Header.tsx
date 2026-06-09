@@ -221,9 +221,6 @@ export function Header() {
             </Link>
           ))}
         </nav>
-        <div className="mt-6 flex gap-2">
-          <AuthButtons />
-        </div>
       </div>
     </>
   )
