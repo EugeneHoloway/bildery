@@ -6,20 +6,11 @@ import { useTheme } from 'next-themes'
 import { Sun, Moon } from 'lucide-react'
 import { useAuth } from '@/components/AuthProvider'
 import { AppSidebar } from '@/components/app-sidebar'
+import { DashboardHeader } from '@/components/DashboardHeader'
 import { Button } from '@/components/ui/button'
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from '@/components/ui/breadcrumb'
-import { Separator } from '@/components/ui/separator'
 import {
   SidebarInset,
   SidebarProvider,
-  SidebarTrigger,
 } from '@/components/ui/sidebar'
 
 function ThemeToggle() {
@@ -44,9 +35,7 @@ export default function Page() {
   const router = useRouter()
 
   useEffect(() => {
-    if (!loading && !user) {
-      router.replace('/')
-    }
+    if (!loading && !user) router.replace('/')
   }, [user, loading, router])
 
   if (loading || !user) return null
@@ -55,31 +44,13 @@ export default function Page() {
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
-          <div className="flex flex-1 items-center gap-2 px-4 group-has-data-[collapsible=icon]/sidebar-wrapper:px-2">
-            <SidebarTrigger className="-ml-1 group-has-data-[collapsible=icon]/sidebar-wrapper:ml-0" />
-            <Separator
-              orientation="vertical"
-              className="mr-2 data-[orientation=vertical]:h-4"
-            />
-            <Breadcrumb>
-              <BreadcrumbList>
-                <BreadcrumbItem className="hidden md:block">
-                  <BreadcrumbLink href="#">
-                    Bildery
-                  </BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator className="hidden md:block" />
-                <BreadcrumbItem>
-                  <BreadcrumbPage>Dashboard</BreadcrumbPage>
-                </BreadcrumbItem>
-              </BreadcrumbList>
-            </Breadcrumb>
-            <div className="ml-auto">
-              <ThemeToggle />
-            </div>
-          </div>
-        </header>
+        <DashboardHeader
+          breadcrumbs={[
+            { label: 'Bildery', href: '/dashboard' },
+            { label: 'Dashboard' },
+          ]}
+          right={<ThemeToggle />}
+        />
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
           <div className="grid auto-rows-min gap-4 md:grid-cols-3">
             <div className="aspect-video rounded-xl bg-card border border-border" />
