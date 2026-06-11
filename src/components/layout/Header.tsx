@@ -62,7 +62,7 @@ function AuthButtons() {
               <User className="size-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
+          <DropdownMenuContent align="end" className="z-[200]">
             <DropdownMenuItem className="text-xs text-muted-foreground" disabled>
               {user.email}
             </DropdownMenuItem>
