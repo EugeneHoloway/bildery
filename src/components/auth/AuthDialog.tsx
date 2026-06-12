@@ -25,7 +25,7 @@ export function AuthDialog({ open, mode: initialMode = 'login', onOpenChange }: 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-sm p-0 gap-0 overflow-hidden">
+      <DialogContent className="sm:max-w-sm p-0 gap-0 overflow-hidden max-sm:top-[80px] max-sm:translate-y-0 max-sm:left-4 max-sm:right-4 max-sm:w-auto max-sm:-translate-x-0 max-sm:mx-0">
         <DialogTitle className="sr-only">
           {mode === 'login' ? 'Login' : 'Create account'}
         </DialogTitle>

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { Fragment, useEffect, useRef, useState } from 'react'
 import { cn } from '@/lib/utils'
 import { Separator } from '@/components/ui/separator'
 import { SidebarTrigger } from '@/components/ui/sidebar'
@@ -62,15 +62,15 @@ export function DashboardHeader({ breadcrumbs, right }: DashboardHeaderProps) {
               {breadcrumbs.map((crumb, i) => {
                 const isLast = i === breadcrumbs.length - 1
                 return (
-                  <>
-                    {i > 0 && <BreadcrumbSeparator key={`sep-${i}`} className="hidden md:block" />}
-                    <BreadcrumbItem key={i} className={!isLast ? 'hidden md:block' : undefined}>
+                  <Fragment key={i}>
+                    {i > 0 && <BreadcrumbSeparator className="hidden md:block" />}
+                    <BreadcrumbItem className={!isLast ? 'hidden md:block' : undefined}>
                       {isLast
                         ? <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
                         : <BreadcrumbLink href={crumb.href ?? '#'}>{crumb.label}</BreadcrumbLink>
                       }
                     </BreadcrumbItem>
-                  </>
+                  </Fragment>
                 )
               })}
             </BreadcrumbList>
