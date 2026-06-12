@@ -4,6 +4,7 @@ import {
   BadgeCheck,
   Bell,
   ChevronsUpDown,
+  CircleUser,
   CreditCard,
   LogOut,
   Sparkles,
@@ -92,15 +93,19 @@ export function NavUser() {
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
+              <DropdownMenuItem onClick={() => router.push('/profile')}>
+                <CircleUser />
+                Profile
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => router.push('/account')}>
                 <BadgeCheck />
                 Account
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router.push('/billing')}>
                 <CreditCard />
                 Billing
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router.push('/notifications')}>
                 <Bell />
                 Notifications
               </DropdownMenuItem>

@@ -11,6 +11,7 @@ import { DashboardHeader } from '@/components/DashboardHeader'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
+import { SettingsNav } from '@/components/settings/SettingsNav'
 import {
   Dialog,
   DialogContent,
@@ -135,101 +136,114 @@ export default function AccountPage() {
 
         {/* Content */}
         <div className="flex flex-1 flex-col px-6 pt-4 pb-8">
-          <div className="max-w-lg">
-            <h1 className="text-xl font-semibold">Account</h1>
+          <div className="max-w-3xl">
+            <h1 className="text-2xl font-semibold">Settings</h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              Update your personal information and manage account security.
+              Manage your account settings and set preferences.
             </p>
+          </div>
 
-            <div className="mt-8 space-y-5">
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-foreground">Full name</label>
-                <Input
-                  size="xl"
-                  placeholder="Your full name"
-                  value={fullName}
-                  onChange={e => setFullName(e.target.value)}
-                />
-              </div>
+          <Separator className="mt-6" />
 
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-foreground">Email</label>
-                <Input
-                  size="xl"
-                  value={user.email ?? ''}
-                  disabled
-                />
-                <p className="text-xs text-muted-foreground">
-                  Email cannot be changed.
-                </p>
-              </div>
+          <div className="mt-6 flex flex-col sm:flex-row sm:gap-10">
+            <SettingsNav />
 
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-foreground">Password</label>
-                <div>
-                  <Button
-                    variant="outline"
-                    onClick={() => {
-                      setPwError('')
-                      setPwFields({ current: '', next: '', confirm: '' })
-                      setPasswordOpen(true)
-                    }}
-                  >
-                    Change password
-                  </Button>
+            <div className="flex-1 mt-4 sm:mt-0 max-w-lg">
+              <h2 className="text-xl font-semibold">Account</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Update your personal information and manage account security.
+              </p>
+
+              <div className="mt-8 space-y-5">
+                <div className="space-y-1.5">
+                  <label className="text-sm font-medium text-foreground">Full name</label>
+                  <Input
+                    size="xl"
+                    placeholder="Your full name"
+                    value={fullName}
+                    onChange={e => setFullName(e.target.value)}
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-sm font-medium text-foreground">Email</label>
+                  <Input
+                    size="xl"
+                    value={user.email ?? ''}
+                    disabled
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Email cannot be changed.
+                  </p>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-sm font-medium text-foreground">Password</label>
+                  <div>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setPwError('')
+                        setPwFields({ current: '', next: '', confirm: '' })
+                        setPasswordOpen(true)
+                      }}
+                    >
+                      Change password
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-sm font-medium text-foreground">Phone number</label>
+                  <Input
+                    size="xl"
+                    placeholder="+1 234 567 8900"
+                    value={phone}
+                    onChange={e => setPhone(e.target.value)}
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-sm font-medium text-foreground">Address</label>
+                  <Input
+                    size="xl"
+                    placeholder="Street, City, ZIP"
+                    value={address}
+                    onChange={e => setAddress(e.target.value)}
+                  />
                 </div>
               </div>
 
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-foreground">Phone number</label>
-                <Input
-                  size="xl"
-                  placeholder="+1 234 567 8900"
-                  value={phone}
-                  onChange={e => setPhone(e.target.value)}
-                />
-              </div>
+              {saveError && (
+                <p className="mt-4 text-sm text-destructive">{saveError}</p>
+              )}
+              {saveSuccess && (
+                <p className="mt-4 text-sm text-success">Changes saved successfully.</p>
+              )}
 
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-foreground">Address</label>
-                <Input
-                  size="xl"
-                  placeholder="Street, City, ZIP"
-                  value={address}
-                  onChange={e => setAddress(e.target.value)}
-                />
-              </div>
-            </div>
-
-            {saveError && (
-              <p className="mt-4 text-sm text-destructive">{saveError}</p>
-            )}
-            {saveSuccess && (
-              <p className="mt-4 text-sm text-success">Changes saved successfully.</p>
-            )}
-
-            <div className="mt-6 flex items-center gap-3">
-              <Button onClick={handleSave} disabled={saving}>
-                {saving ? 'Saving…' : 'Save changes'}
-              </Button>
-            </div>
-
-            <Separator className="my-8" />
-
-            <div className="space-y-1.5">
-              <p className="text-sm font-medium text-foreground">Danger zone</p>
-              <p className="text-sm text-muted-foreground">
-                Permanently deactivate your account and delete all associated data.
-              </p>
-              <div className="pt-1">
-                <Button
-                  variant="outline"
-                  className="text-destructive border-destructive/40 hover:bg-destructive/5 hover:text-destructive"
-                  onClick={() => setDeactivateOpen(true)}
-                >
-                  <Ban className="size-4" />
-                  Deactivate account
+              <div className="mt-6 flex items-center gap-3">
+                <Button onClick={handleSave} disabled={saving}>
+                  {saving ? 'Saving…' : 'Save changes'}
                 </Button>
+              </div>
+
+              <Separator className="my-8" />
+
+              <div className="space-y-1.5">
+                <p className="text-sm font-medium text-foreground">Danger zone</p>
+                <p className="text-sm text-muted-foreground">
+                  Permanently deactivate your account and delete all associated data.
+                </p>
+                <div className="pt-1">
+                  <Button
+                    variant="outline"
+                    className="text-destructive border-destructive/40 hover:bg-destructive/5 hover:text-destructive"
+                    onClick={() => setDeactivateOpen(true)}
+                  >
+                    <Ban className="size-4" />
+                    Deactivate account
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
