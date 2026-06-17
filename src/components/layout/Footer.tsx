@@ -8,6 +8,7 @@ const navItems = [
   { label: 'Docs', href: '/docs' },
   { label: 'Sandbox', href: '/sandbox' },
   { label: 'About', href: '/about' },
+  { label: 'Support', href: '#' },
 ]
 
 export function Footer() {
