@@ -273,7 +273,7 @@ function ConversationItem({
             </span>
             <div className="flex items-center gap-1 ml-auto shrink-0">
               {convo.assignee && (
-                <span className="flex items-center gap-0.5 text-xs text-muted-foreground max-w-[90px] truncate">
+                <span className="flex items-center gap-0.5 text-xs text-muted-foreground max-w-[120px] truncate">
                   <User className="size-3 shrink-0" />
                   <span className="truncate">{convo.assignee}</span>
                 </span>
