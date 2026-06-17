@@ -350,6 +350,21 @@ function AllConversationsContent() {
     window.addEventListener('mousemove', onMove)
     window.addEventListener('mouseup', onUp)
   }
+  const onTouchDragStart = (e: React.TouchEvent) => {
+    const startY = e.touches[0].clientY
+    const startH = replyHeightRef.current
+    const onMove = (ev: TouchEvent) => {
+      const next = Math.max(40, Math.min(400, startH + (startY - ev.touches[0].clientY)))
+      replyHeightRef.current = next
+      setReplyHeight(next)
+    }
+    const onUp = () => {
+      window.removeEventListener('touchmove', onMove)
+      window.removeEventListener('touchend', onUp)
+    }
+    window.addEventListener('touchmove', onMove, { passive: true })
+    window.addEventListener('touchend', onUp)
+  }
   const [showSidebar, setShowSidebar] = useState(true)
   const [mobileProfileOpen, setMobileProfileOpen] = useState(false)
   const [compactFilterOpen, setCompactFilterOpen] = useState(false)
@@ -797,11 +812,12 @@ function AllConversationsContent() {
                 </div>
 
                 {/* Reply input */}
-                <div className="shrink-0 p-3 select-none">
+                <div className="shrink-0 p-3 select-none overflow-hidden">
                   {/* Drag handle */}
                   <div
                     onMouseDown={onDragStart}
-                    className="flex justify-center items-center h-2 mb-1 cursor-row-resize group"
+                    onTouchStart={onTouchDragStart}
+                    className="flex justify-center items-center h-5 mb-1 cursor-row-resize group touch-none"
                   >
                     <div className="w-10 h-0.5 rounded-full bg-border group-hover:bg-muted-foreground/40 transition-colors" />
                   </div>
@@ -1369,32 +1385,33 @@ function AllConversationsContent() {
                     {selected.name.charAt(0)}
                   </div>
                   <div className="relative flex items-center justify-center">
-                    <p className="text-sm font-semibold text-foreground">{selected.name}</p>
+                    <p className="text-base font-semibold text-foreground">{selected.name}</p>
                     {(selected.verified || selected.vip) && (
                       <div className="absolute left-full ml-1 flex items-center gap-0.5">
-                        {selected.verified && <BadgeCheck className="size-3.5 text-brand" />}
-                        {selected.vip && <Crown className="size-3.5 text-amber-500" />}
+                        {selected.verified && <BadgeCheck className="size-4 text-brand" />}
+                        {selected.vip && <Crown className="size-4 text-amber-500" />}
                       </div>
                     )}
                   </div>
-                  <p className="text-xs text-muted-foreground mt-0.5">Founder, Drift Burner</p>
-                  <div className="w-full mt-3 flex flex-col gap-1.5">
+                  <p className="text-sm text-muted-foreground mt-0.5">Gold customer</p>
+                  <div className="w-full mt-3 flex flex-col gap-2">
                     {[
+                      { icon: User, text: 'USR-48291673' },
                       { icon: Mail, text: 'kcrawley6@driftburner.inc' },
                       { icon: Phone, text: '+14155552398' },
                       { icon: MapPin, text: 'San Francisco, United States' },
                     ].map(({ icon: Icon, text }) => (
                       <div key={text} className="flex items-center gap-2">
-                        <Icon className="size-3.5 text-muted-foreground shrink-0" />
-                        <span className="text-xs text-muted-foreground truncate">{text}</span>
-                        <Copy className="size-3 text-muted-foreground ml-auto shrink-0 cursor-pointer hover:text-foreground" />
+                        <Icon className="size-4 text-muted-foreground shrink-0" />
+                        <span className="text-sm text-muted-foreground truncate">{text}</span>
+                        <Copy className="size-3.5 text-muted-foreground ml-auto shrink-0 cursor-pointer hover:text-foreground" />
                       </div>
                     ))}
                   </div>
-                  <div className="flex gap-2 mt-3">
+                  <div className="flex gap-2 mt-4">
                     {[Facebook, Twitter, Linkedin].map((Icon, i) => (
-                      <button key={i} className="size-7 rounded-full bg-muted flex items-center justify-center hover:bg-muted-foreground/20 text-muted-foreground">
-                        <Icon className="size-3.5" />
+                      <button key={i} className="size-8 rounded-full bg-muted flex items-center justify-center hover:bg-muted-foreground/20 text-muted-foreground">
+                        <Icon className="size-4" />
                       </button>
                     ))}
                   </div>
@@ -1409,13 +1426,13 @@ function AllConversationsContent() {
                         key={label}
                         title={label}
                         className={cn(
-                          'size-8 rounded-full flex items-center justify-center',
+                          'size-9 rounded-full flex items-center justify-center',
                           destructive
                             ? 'bg-destructive-bg text-destructive hover:bg-destructive/20'
                             : 'bg-muted text-muted-foreground hover:bg-muted-foreground/20'
                         )}
                       >
-                        <Icon className="size-3.5" />
+                        <Icon className="size-4" />
                       </button>
                     ))}
                   </div>
@@ -1434,9 +1451,9 @@ function AllConversationsContent() {
                     <div key={section} className="border-b border-border">
                       <button
                         onClick={() => toggleSection(section)}
-                        className="w-full flex items-center justify-between px-4 py-3 hover:bg-muted/50 transition-colors"
+                        className="w-full flex items-center justify-between px-4 py-3.5 hover:bg-muted/50 transition-colors"
                       >
-                        <span className="text-sm font-medium text-foreground">{section}</span>
+                        <span className="text-base font-medium text-foreground">{section}</span>
                         {isExpanded
                           ? <ChevronDown className="size-4 text-muted-foreground" />
                           : <ChevronRight className="size-4 text-muted-foreground" />
@@ -1445,99 +1462,99 @@ function AllConversationsContent() {
                       {isExpanded && section === 'Contact Attributes' && (
                         <div className="px-4 pb-4 flex flex-col gap-4">
                           <div className="flex items-center justify-between">
-                            <span className="text-xs text-muted-foreground">Status</span>
-                            <span className="flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full bg-success-bg text-success"><ShieldCheck className="size-3" />Active</span>
+                            <span className="text-sm text-muted-foreground">Status</span>
+                            <span className="flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-success-bg text-success"><ShieldCheck className="size-3" />Active</span>
                           </div>
                           <div className="flex flex-col gap-2">
-                            <p className="text-[10px] font-semibold text-foreground uppercase tracking-wide">Balances</p>
+                            <p className="text-xs font-semibold text-foreground uppercase tracking-wide">Balances</p>
                             {[
                               { icon: CircleDollarSign, label: 'Real money', value: '$1,240.00' },
                               { icon: Gift, label: 'Bonus', value: '$180.00' },
                               { icon: Clock, label: 'Pending withdrawal', value: '$500.00' },
                             ].map(({ icon: Icon, label, value }) => (
                               <div key={label} className="flex items-center justify-between">
-                                <span className="flex items-center gap-1.5 text-xs text-muted-foreground"><Icon className="size-3.5" />{label}</span>
-                                <span className="text-xs text-foreground">{value}</span>
+                                <span className="flex items-center gap-1.5 text-sm text-muted-foreground"><Icon className="size-4" />{label}</span>
+                                <span className="text-sm text-foreground">{value}</span>
                               </div>
                             ))}
                             <div className="pt-2 border-t border-border flex items-center justify-around">
                               <div className="flex flex-col items-center gap-0.5">
-                                <span className="text-sm font-medium text-foreground">$24,300</span>
-                                <span className="text-[10px] text-muted-foreground">Deposits</span>
-                                <span className="text-[10px] text-muted-foreground">47 times</span>
+                                <span className="text-base font-medium text-foreground">$24,300</span>
+                                <span className="text-xs text-muted-foreground">Deposits</span>
+                                <span className="text-xs text-muted-foreground">47 times</span>
                               </div>
                               <div className="w-px h-10 bg-border" />
                               <div className="flex flex-col items-center gap-0.5">
-                                <span className="text-sm font-medium text-foreground">$19,750</span>
-                                <span className="text-[10px] text-muted-foreground">Withdrawals</span>
-                                <span className="text-[10px] text-muted-foreground">31 times</span>
+                                <span className="text-base font-medium text-foreground">$19,750</span>
+                                <span className="text-xs text-muted-foreground">Withdrawals</span>
+                                <span className="text-xs text-muted-foreground">31 times</span>
                               </div>
                             </div>
                           </div>
                           <div className="flex flex-col gap-2">
-                            <p className="text-[10px] font-semibold text-foreground uppercase tracking-wide">Last Transaction</p>
+                            <p className="text-xs font-semibold text-foreground uppercase tracking-wide">Last Transaction</p>
                             <div className="flex items-center justify-between">
-                              <span className="flex items-center gap-1.5 text-xs text-muted-foreground"><CreditCard className="size-3.5" />Deposit · Visa</span>
-                              <span className="text-xs text-foreground">+$500</span>
+                              <span className="flex items-center gap-1.5 text-sm text-muted-foreground"><CreditCard className="size-4" />Deposit · Visa</span>
+                              <span className="text-sm text-foreground">+$500</span>
                             </div>
                             <div className="flex items-center justify-between">
-                              <span className="text-xs text-muted-foreground">Jan 14, 2026</span>
-                              <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-success-bg text-success">Completed</span>
+                              <span className="text-sm text-muted-foreground">Jan 14, 2026</span>
+                              <span className="text-xs font-medium px-1.5 py-0.5 rounded-full bg-success-bg text-success">Completed</span>
                             </div>
                           </div>
                           <div className="flex flex-col gap-2">
-                            <p className="text-[10px] font-semibold text-foreground uppercase tracking-wide">Active Bonus</p>
-                            <span className="flex items-center gap-1.5 text-xs text-muted-foreground"><Flame className="size-3.5 text-amber-500" />100% Deposit Bonus</span>
+                            <p className="text-xs font-semibold text-foreground uppercase tracking-wide">Active Bonus</p>
+                            <span className="flex items-center gap-1.5 text-sm text-muted-foreground"><Flame className="size-4 text-amber-500" />100% Deposit Bonus</span>
                             <div className="flex items-center justify-between">
-                              <span className="text-xs text-muted-foreground">Wagered</span>
-                              <span className="text-xs text-foreground">$340 / $500</span>
+                              <span className="text-sm text-muted-foreground">Wagered</span>
+                              <span className="text-sm text-foreground">$340 / $500</span>
                             </div>
                             <div className="w-full h-1.5 rounded-full bg-muted-foreground/20">
                               <div className="h-1.5 rounded-full bg-amber-500" style={{width: '68%'}} />
                             </div>
-                            <span className="text-[10px] text-muted-foreground">Expires Jan 20, 2026</span>
+                            <span className="text-xs text-muted-foreground">Expires Jan 20, 2026</span>
                           </div>
                           <div className="flex flex-col gap-2">
-                            <p className="text-[10px] font-semibold text-foreground uppercase tracking-wide">KYC & Account</p>
+                            <p className="text-xs font-semibold text-foreground uppercase tracking-wide">KYC & Account</p>
                             {[
                               { icon: ShieldCheck, label: 'Verification', badge: 'Verified', badgeClass: 'bg-success-bg text-success' },
                               { icon: TrendingUp, label: 'VIP Level', value: 'Gold' },
                               { icon: Clock, label: 'Registered', value: 'Mar 5, 2023' },
                             ].map(({ icon: Icon, label, badge, badgeClass, value }) => (
                               <div key={label} className="flex items-center justify-between">
-                                <span className="flex items-center gap-1.5 text-xs text-muted-foreground"><Icon className="size-3.5" />{label}</span>
+                                <span className="flex items-center gap-1.5 text-sm text-muted-foreground"><Icon className="size-4" />{label}</span>
                                 {badge
-                                  ? <span className={cn('text-[10px] font-medium px-1.5 py-0.5 rounded-full', badgeClass)}>{badge}</span>
-                                  : <span className="text-xs text-foreground">{value}</span>}
+                                  ? <span className={cn('text-xs font-medium px-1.5 py-0.5 rounded-full', badgeClass)}>{badge}</span>
+                                  : <span className="text-sm text-foreground">{value}</span>}
                               </div>
                             ))}
                           </div>
                           <div className="flex flex-col gap-2">
-                            <p className="text-[10px] font-semibold text-foreground uppercase tracking-wide">Last Activity</p>
+                            <p className="text-xs font-semibold text-foreground uppercase tracking-wide">Last Activity</p>
                             {[
                               { icon: LogIn, label: 'Last login', value: 'Today, 11:42 AM' },
                               { icon: Gamepad2, label: 'Last game', value: 'Book of Dead' },
                               { icon: MapPin, label: 'Location', value: 'DE · Berlin' },
                             ].map(({ icon: Icon, label, value }) => (
                               <div key={label} className="flex items-center justify-between">
-                                <span className="flex items-center gap-1.5 text-xs text-muted-foreground"><Icon className="size-3.5" />{label}</span>
-                                <span className="text-xs text-foreground">{value}</span>
+                                <span className="flex items-center gap-1.5 text-sm text-muted-foreground"><Icon className="size-4" />{label}</span>
+                                <span className="text-sm text-foreground">{value}</span>
                               </div>
                             ))}
                           </div>
                           <div className="flex flex-col gap-2">
-                            <p className="text-[10px] font-semibold text-foreground uppercase tracking-wide">Limits & Restrictions</p>
+                            <p className="text-xs font-semibold text-foreground uppercase tracking-wide">Limits & Restrictions</p>
                             <div className="flex items-center justify-between">
-                              <span className="flex items-center gap-1.5 text-xs text-muted-foreground"><CircleDollarSign className="size-3.5" />Daily deposit</span>
-                              <span className="text-xs text-foreground">$500 / day</span>
+                              <span className="flex items-center gap-1.5 text-sm text-muted-foreground"><CircleDollarSign className="size-4" />Daily deposit</span>
+                              <span className="text-sm text-foreground">$500 / day</span>
                             </div>
                             <div className="flex items-center justify-between">
-                              <span className="flex items-center gap-1.5 text-xs text-muted-foreground"><Timer className="size-3.5" />Session limit</span>
-                              <span className="text-xs text-foreground">3h / session</span>
+                              <span className="flex items-center gap-1.5 text-sm text-muted-foreground"><Timer className="size-4" />Session limit</span>
+                              <span className="text-sm text-foreground">3h / session</span>
                             </div>
                             <div className="flex items-center justify-between">
-                              <span className="flex items-center gap-1.5 text-xs text-muted-foreground"><CircleAlert className="size-3.5" />Self-exclusion</span>
-                              <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-muted-foreground/15 text-muted-foreground">None</span>
+                              <span className="flex items-center gap-1.5 text-sm text-muted-foreground"><CircleAlert className="size-4" />Self-exclusion</span>
+                              <span className="text-xs font-medium px-1.5 py-0.5 rounded-full bg-muted-foreground/15 text-muted-foreground">None</span>
                             </div>
                           </div>
                         </div>
@@ -1550,21 +1567,21 @@ function AllConversationsContent() {
                               { name: 'Sarah Connor', role: 'Supervisor' },
                             ].map(({ name, role }) => (
                               <div key={name} className="flex items-center gap-2">
-                                <div className="size-7 rounded-full bg-muted-foreground/20 flex items-center justify-center text-xs font-medium text-muted-foreground shrink-0">
+                                <div className="size-8 rounded-full bg-muted-foreground/20 flex items-center justify-center text-sm font-medium text-muted-foreground shrink-0">
                                   {name.charAt(0)}
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                  <p className="text-xs text-foreground">{name}</p>
-                                  <p className="text-[10px] text-muted-foreground">{role}</p>
+                                  <p className="text-sm text-foreground">{name}</p>
+                                  <p className="text-xs text-muted-foreground">{role}</p>
                                 </div>
                                 {role !== 'Assignee' && (
-                                  <button className="text-[10px] text-muted-foreground hover:text-destructive transition-colors">Remove</button>
+                                  <button className="text-xs text-muted-foreground hover:text-destructive transition-colors">Remove</button>
                                 )}
                               </div>
                             ))}
                           </div>
-                          <button className="flex items-center gap-1.5 text-xs text-brand hover:underline">
-                            <Plus className="size-3.5" />Add participant
+                          <button className="flex items-center gap-1.5 text-sm text-brand hover:underline">
+                            <Plus className="size-4" />Add participant
                           </button>
                         </div>
                       )}
@@ -1572,8 +1589,8 @@ function AllConversationsContent() {
                         <div className="px-4 pb-4 flex flex-col gap-2">
                           <div className="rounded-xl border border-border p-3 flex flex-col gap-2">
                             <div className="flex items-center justify-between">
-                              <span className="text-xs font-medium text-foreground">Escalate to Payments</span>
-                              <Button size="sm" variant="outline" className="h-6 text-[11px] px-2">Run</Button>
+                              <span className="text-sm font-medium text-foreground">Escalate to Payments</span>
+                              <Button size="sm" variant="outline" className="h-7 text-xs px-2">Run</Button>
                             </div>
                             <div className="flex flex-col gap-1">
                               {[
@@ -1582,7 +1599,7 @@ function AllConversationsContent() {
                                 'Set priority: High',
                                 'Add label: payment-issue',
                               ].map((action) => (
-                                <p key={action} className="text-[10px] text-muted-foreground flex items-start gap-1">
+                                <p key={action} className="text-xs text-muted-foreground flex items-start gap-1">
                                   <span className="mt-0.5 shrink-0">·</span>{action}
                                 </p>
                               ))}
@@ -1602,8 +1619,8 @@ function AllConversationsContent() {
                             { icon: Clock, label: 'Wait time', value: '1m 24s' },
                           ].map(({ icon: Icon, label, value }) => (
                             <div key={label} className="flex items-start justify-between gap-2">
-                              <span className="flex items-center gap-1.5 text-xs text-muted-foreground shrink-0"><Icon className="size-3.5" />{label}</span>
-                              <span className="text-xs text-foreground text-right truncate max-w-[140px]">{value}</span>
+                              <span className="flex items-center gap-1.5 text-sm text-muted-foreground shrink-0"><Icon className="size-4" />{label}</span>
+                              <span className="text-sm text-foreground text-right truncate max-w-[160px]">{value}</span>
                             </div>
                           ))}
                         </div>
@@ -1617,15 +1634,15 @@ function AllConversationsContent() {
                                 key={prev.id}
                                 className="w-full text-left flex items-start gap-3 rounded-xl bg-muted p-3 hover:bg-muted-foreground/10 transition-colors"
                               >
-                                <div className="size-7 rounded-full bg-background flex items-center justify-center shrink-0 mt-0.5">
-                                  <Icon className="size-3.5 text-muted-foreground" />
+                                <div className="size-8 rounded-full bg-background flex items-center justify-center shrink-0 mt-0.5">
+                                  <Icon className="size-4 text-muted-foreground" />
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                  <p className="text-xs text-foreground truncate">{prev.preview}</p>
+                                  <p className="text-sm text-foreground truncate">{prev.preview}</p>
                                   <div className="flex items-center gap-1.5 mt-0.5">
-                                    <span className="text-xs text-muted-foreground">{prev.date}</span>
+                                    <span className="text-sm text-muted-foreground">{prev.date}</span>
                                     <span className={cn(
-                                      'text-[10px] font-medium px-1.5 py-0.5 rounded-full',
+                                      'text-xs font-medium px-1.5 py-0.5 rounded-full',
                                       prev.status === 'resolved' ? 'bg-success-bg text-success' : 'bg-brand-bg text-brand'
                                     )}>
                                       {prev.status === 'resolved' ? 'Resolved' : 'Open'}
@@ -1641,9 +1658,9 @@ function AllConversationsContent() {
                         <div className="px-4 pb-4 flex flex-col gap-3">
                           <div>
                             <div className="flex items-center justify-between mb-1.5">
-                              <span className="text-xs font-medium text-muted-foreground">Assigned Agent</span>
-                              <button className="text-xs text-brand hover:underline flex items-center gap-0.5">
-                                <ChevronRight className="size-3" />Assign to me
+                              <span className="text-sm font-medium text-muted-foreground">Assigned Agent</span>
+                              <button className="text-sm text-brand hover:underline flex items-center gap-0.5">
+                                <ChevronRight className="size-3.5" />Assign to me
                               </button>
                             </div>
                             <Select defaultValue="david">
@@ -1665,7 +1682,7 @@ function AllConversationsContent() {
                             </Select>
                           </div>
                           <div>
-                            <span className="text-xs font-medium text-muted-foreground block mb-1.5">Priority</span>
+                            <span className="text-sm font-medium text-muted-foreground block mb-1.5">Priority</span>
                             <Select value={convoPriority} onValueChange={(v) => setConvoPriority(v as typeof convoPriority)}>
                               <SelectTrigger className="w-full">
                                 <SelectValue>
