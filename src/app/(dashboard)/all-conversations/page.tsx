@@ -12,15 +12,18 @@ import {
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import {
-  Search, MessageSquare, Globe, Facebook, Mail, Settings, Lock,
+  Search, MessageSquare, Globe, Facebook, Mail, Settings, Lock, Reply, ChevronLeft,
+  TrendingUp, ShieldCheck, ShieldAlert, Clock, Flame, CreditCard, Gift,
+  LogIn, Gamepad2, CircleDollarSign, CircleAlert, Timer,
   BellOff, Share2, ChevronDown, ChevronRight, Copy, Bold, Italic,
   Link2, Undo2, Redo2, List, ListOrdered, Code2, Smile, Paperclip,
   Mic, Zap, Maximize2, Twitter, Linkedin, Phone, Building2, MapPin,
   Pencil, PhoneCall, Trash2, X, User, BadgeCheck, Crown,
-  Minus, Wrench, BarChart2, Tag, Plus,
+  Minus, Wrench, BarChart2, Tag, Plus, AlertTriangle,
 } from 'lucide-react'
 import { Toggle } from '@/components/ui/toggle'
 import { Button } from '@/components/ui/button'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { cn } from '@/lib/utils'
 
 type Channel = 'website' | 'facebook' | 'whatsapp' | 'email' | 'api'
@@ -40,6 +43,9 @@ interface Conversation {
   isNote?: boolean
   verified?: boolean
   vip?: boolean
+  assigned?: boolean
+  assignee?: string
+  isReply?: boolean
 }
 
 const CONVERSATIONS: Conversation[] = [
@@ -54,6 +60,8 @@ const CONVERSATIONS: Conversation[] = [
     tags: ['device-setup'],
     isNote: true,
     verified: true,
+    assigned: true,
+    assignee: 'David Wallace',
   },
   {
     id: '2',
@@ -62,6 +70,9 @@ const CONVERSATIONS: Conversation[] = [
     channelLabel: 'Facebook',
     preview: "I'm sorry to hear that. Please chang...",
     time: '1d · 37m',
+    unread: 2,
+    assigned: true,
+    assignee: 'David Wallace',
   },
   {
     id: '3',
@@ -72,6 +83,7 @@ const CONVERSATIONS: Conversation[] = [
     time: '1d · 37m',
     verified: true,
     vip: true,
+    assigned: false,
   },
   {
     id: '4',
@@ -82,6 +94,8 @@ const CONVERSATIONS: Conversation[] = [
     time: '1d · 37m',
     priority: 'normal',
     vip: true,
+    assigned: true,
+    assignee: 'David Wallace',
   },
   {
     id: '5',
@@ -90,6 +104,7 @@ const CONVERSATIONS: Conversation[] = [
     channelLabel: 'Whatsapp',
     preview: "I'm sorry to hear that. Can you plea...",
     time: '1d · 37m',
+    assigned: false,
   },
   {
     id: '6',
@@ -99,6 +114,9 @@ const CONVERSATIONS: Conversation[] = [
     preview: "I'm sorry to hear that. Can you plea...",
     time: '1d · 37m',
     priority: 'urgent',
+    assigned: true,
+    assignee: 'David Wallace',
+    isReply: true,
   },
   {
     id: '7',
@@ -109,7 +127,9 @@ const CONVERSATIONS: Conversation[] = [
     time: '1d · 37m',
     priority: 'urgent',
     tags: ['billing', 'lead'],
-    unread: 1,
+    unread: 10,
+    assigned: true,
+    assignee: 'David Wallace',
   },
   {
     id: '8',
@@ -118,6 +138,7 @@ const CONVERSATIONS: Conversation[] = [
     channelLabel: 'API',
     preview: 'Can you help me set up the integration?',
     time: '2d · 12m',
+    assigned: false,
   },
   {
     id: '9',
@@ -128,6 +149,9 @@ const CONVERSATIONS: Conversation[] = [
     time: '2d · 45m',
     priority: 'high',
     tags: ['billing'],
+    assigned: true,
+    assignee: 'David Wallace',
+    isReply: true,
   },
   {
     id: '10',
@@ -139,6 +163,7 @@ const CONVERSATIONS: Conversation[] = [
     tags: ['lead'],
     verified: true,
     vip: true,
+    assigned: false,
   },
 ]
 
@@ -156,15 +181,61 @@ const CHANNEL_ICON_MAP: Record<Channel, React.ElementType> = {
   api: Settings,
 }
 
+type Message = { from: 'user' | 'agent' | 'system'; text: string; time: string }
+
+const CONVERSATION_MESSAGES: Record<string, Message[]> = {
+  '1': [
+    { from: 'user', text: "Hi, I claimed a bonus 3 days ago but it still hasn't been added to my account. Can you check what's going on?", time: 'Jan 15, 12:32 PM' },
+    { from: 'agent', text: "Hi Klaus! I can look into that for you. Could you confirm which bonus you're referring to — was it the 100% deposit bonus or the free spins offer?", time: 'Jan 15, 12:33 PM' },
+    { from: 'user', text: "It's the 100% deposit bonus I activated on January 12th. The funds showed up but the bonus never appeared in my balance.", time: 'Jan 15, 12:35 PM' },
+    { from: 'agent', text: "Got it! I've checked your account. The bonus is actually pending — it will be credited automatically once you complete the wagering requirement. You currently have $340 out of $500 wagered.", time: 'Jan 15, 12:37 PM' },
+    { from: 'user', text: "Oh I see, so I just need to wager another $160 and the bonus gets added automatically? No need to contact support again?", time: 'Jan 15, 12:40 PM' },
+    { from: 'system', text: 'Assigned to support m2 by Mathew M', time: '' },
+    { from: 'system', text: 'Mathew M self-assigned this conversation', time: '' },
+    { from: 'system', text: 'Mathew M set the priority to high', time: '' },
+    { from: 'system', text: 'Mathew M added device-setup', time: '' },
+  ],
+  '2': [
+    { from: 'user', text: "Hi, I made a deposit 2 hours ago but it still hasn't appeared in my account.", time: 'Jan 14, 10:02 AM' },
+    { from: 'agent', text: "Hi Coreen! I'm sorry to hear that. Could you please share your transaction ID or the amount you deposited?", time: 'Jan 14, 10:05 AM' },
+    { from: 'user', text: 'The amount was $250 and the transaction ID is TXN-8847291.', time: 'Jan 14, 10:07 AM' },
+    { from: 'agent', text: "Thank you! I've located your transaction. It looks like it's pending on the payment provider's side. This can sometimes take up to 4 hours.", time: 'Jan 14, 10:10 AM' },
+    { from: 'user', text: "4 hours?! That's way too long. I wanted to use those funds right now.", time: 'Jan 14, 10:12 AM' },
+    { from: 'agent', text: "I completely understand your frustration, Coreen. I've escalated this to our Payments team and they will prioritize your case.", time: 'Jan 14, 10:15 AM' },
+    { from: 'system', text: 'Transferred to Payments & Withdrawals team', time: 'Jan 14, 10:16 AM' },
+    { from: 'user', text: 'OK, how long will it take now?', time: 'Jan 14, 10:18 AM' },
+    { from: 'agent', text: "Our payments team is reviewing it now. You should see the funds within the next 30–60 minutes. I'll send you a confirmation once it's done.", time: 'Jan 14, 10:20 AM' },
+    { from: 'user', text: 'Alright, thank you. I hope this gets resolved soon.', time: 'Jan 14, 10:22 AM' },
+  ],
+}
+
+const MINE_IDS = new Set(['1', '2', '4', '6', '7', '9'])
+const UNASSIGNED_IDS = new Set(['3', '5', '8', '10'])
+
+interface PrevConversation {
+  id: string
+  channel: Channel
+  preview: string
+  date: string
+  status: 'resolved' | 'open'
+}
+
+const PREV_CONVERSATIONS: PrevConversation[] = [
+  { id: 'p1', channel: 'email', preview: 'How do I reset my password?', date: '12 Jan 2026', status: 'resolved' },
+  { id: 'p2', channel: 'website', preview: 'Can we get a demo of the enterprise plan?', date: '5 Jan 2026', status: 'resolved' },
+  { id: 'p3', channel: 'whatsapp', preview: 'My invoice is incorrect, please check', date: '28 Dec 2025', status: 'resolved' },
+  { id: 'p4', channel: 'facebook', preview: 'Still waiting on a refund from last month', date: '15 Dec 2025', status: 'open' },
+]
+
 const TABS: { key: Tab; label: string; count: number }[] = [
-  { key: 'mine', label: 'Mine', count: 11 },
-  { key: 'unassigned', label: 'Unassigned', count: 5 },
-  { key: 'all', label: 'All', count: 18 },
+  { key: 'mine', label: 'Mine', count: MINE_IDS.size },
+  { key: 'unassigned', label: 'Unassigned', count: UNASSIGNED_IDS.size },
+  { key: 'all', label: 'All', count: CONVERSATIONS.length },
 ]
 
 function PriorityBadge({ priority }: { priority: Priority }) {
-  if (priority === 'urgent') return <span className="text-destructive text-xs font-bold">!!!</span>
-  if (priority === 'high') return <span className="text-orange-400 text-xs font-bold">!</span>
+  if (priority === 'urgent') return <AlertTriangle className="size-3.5 text-destructive shrink-0" />
+  if (priority === 'high') return <BarChart2 className="size-3.5 text-amber-500 shrink-0" />
   return null
 }
 
@@ -190,19 +261,27 @@ function ConversationItem({
         <div className="size-9 rounded-full bg-muted-foreground/20 flex items-center justify-center shrink-0 text-sm font-medium text-muted-foreground">
           {convo.name.charAt(0)}
         </div>
-        <div className="flex-1 min-w-0 pr-2">
+        <div className="flex-1 min-w-0 overflow-hidden">
           {/* Channel row */}
-          <div className="flex items-center justify-between gap-2 mb-0.5">
-            <span className="text-xs text-muted-foreground truncate flex items-center gap-1">
+          <div className="flex items-center gap-2 mb-0.5 overflow-hidden">
+            <span className="text-xs text-muted-foreground flex items-center gap-1 shrink-0">
               {(() => { const Icon = CHANNEL_ICON_MAP[convo.channel]; return <Icon className="size-3 shrink-0" /> })()}
               {convo.channelLabel}
             </span>
-            {convo.priority && <PriorityBadge priority={convo.priority} />}
+            <div className="flex items-center gap-1 ml-auto shrink-0">
+              {convo.assignee && (
+                <span className="flex items-center gap-0.5 text-xs text-muted-foreground max-w-[90px] truncate">
+                  <User className="size-3 shrink-0" />
+                  <span className="truncate">{convo.assignee}</span>
+                </span>
+              )}
+              {convo.priority && <PriorityBadge priority={convo.priority} />}
+            </div>
           </div>
           {/* Name + time row */}
           <div className="flex items-center justify-between gap-2">
             <span className="flex items-center gap-1 min-w-0">
-              <span className="text-sm font-medium text-foreground truncate">{convo.name}</span>
+              <span className={cn('text-sm text-foreground truncate', convo.unread && 'font-medium')}>{convo.name}</span>
               {convo.verified && <BadgeCheck className="size-3.5 shrink-0 text-brand" />}
               {convo.vip && <Crown className="size-3.5 shrink-0 text-amber-500" />}
             </span>
@@ -211,7 +290,8 @@ function ConversationItem({
           {/* Preview */}
           <div className="flex items-center gap-1 mt-0.5 min-w-0">
             {convo.isNote && <Lock className="size-3 shrink-0 text-muted-foreground" />}
-            <p className="text-xs text-muted-foreground truncate min-w-0 flex-1">{convo.preview}</p>
+            {convo.isReply && <Reply className="size-3 shrink-0 text-muted-foreground" />}
+            <p className={cn('text-xs truncate min-w-0 flex-1', convo.unread ? 'text-foreground font-medium' : 'text-muted-foreground')}>{convo.preview}</p>
             {convo.unread && (
               <span className="ml-auto shrink-0 size-4 rounded-full bg-brand text-white text-[10px] flex items-center justify-center font-medium">
                 {convo.unread}
@@ -250,7 +330,8 @@ export default function AllConversationsPage() {
   const [showSidebar, setShowSidebar] = useState(true)
   const [status, setStatus] = useState<'open' | 'on_hold' | 'resolved'>('open')
   const [showStatusMenu, setShowStatusMenu] = useState(false)
-  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['Conversation Actions']))
+  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['Contact Attributes']))
+  const [convoPriority, setConvoPriority] = useState<'normal' | 'high' | 'critical'>('high')
   const toggleSection = (section: string) => setExpandedSections(prev => {
     const next = new Set(prev)
     next.has(section) ? next.delete(section) : next.add(section)
@@ -263,9 +344,11 @@ export default function AllConversationsPage() {
 
   if (loading || !user) return null
 
-  const filtered = CONVERSATIONS.filter((c) =>
-    c.name.toLowerCase().includes(search.toLowerCase())
-  )
+  const filtered = CONVERSATIONS.filter((c) => {
+    if (activeTab === 'mine' && !MINE_IDS.has(c.id)) return false
+    if (activeTab === 'unassigned' && !UNASSIGNED_IDS.has(c.id)) return false
+    return c.name.toLowerCase().includes(search.toLowerCase())
+  })
 
   const selected = CONVERSATIONS.find((c) => c.id === selectedId)
 
@@ -282,7 +365,11 @@ export default function AllConversationsPage() {
         />
         <div className="flex h-[calc(100vh-57px)] overflow-hidden">
           {/* Conversations panel */}
-          <div className="w-80 shrink-0 flex flex-col border-r border-border">
+          {/* Mobile: visible only when no chat selected. Desktop: always visible, collapsible */}
+          <div className={cn(
+            'shrink-0 flex flex-col border-r border-border md:w-80',
+            selectedId ? 'hidden md:flex' : 'flex w-full',
+          )}>
             {/* Header */}
             <div className="px-4 pt-4 pb-2">
               <div className="flex items-center gap-2 mb-3">
@@ -342,9 +429,18 @@ export default function AllConversationsPage() {
 
           {/* Main area */}
           {selected ? (
-            <div className="flex-1 flex flex-col min-w-0">
+            <div className="flex-1 flex flex-col min-w-0 w-full md:w-auto">
               {/* Full-width header */}
               <div className="flex items-center px-4 py-3 border-b border-border shrink-0">
+                {/* Back button — mobile only */}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-8 md:hidden mr-1 shrink-0"
+                  onClick={() => setSelectedId(null)}
+                >
+                  <ChevronLeft className="size-5" />
+                </Button>
                 <div className="flex items-center gap-2">
                   <div className="size-8 rounded-full bg-muted-foreground/20 flex items-center justify-center text-sm font-medium text-muted-foreground shrink-0">
                     {selected.name.charAt(0)}
@@ -421,83 +517,35 @@ export default function AllConversationsPage() {
 
                 {/* Messages */}
                 <div className="flex-1 overflow-y-auto min-h-0 px-6 py-4 flex flex-col gap-4">
-                  {/* Incoming 1 */}
-                  <div className="flex gap-3 max-w-[70%]">
-                    <div className="size-7 rounded-full bg-muted-foreground/20 flex items-center justify-center text-xs font-medium text-muted-foreground shrink-0 mt-1">{selected.name.charAt(0)}</div>
-                    <div>
-                      <div className="bg-muted rounded-2xl rounded-tl-sm px-4 py-2.5">
-                        <p className="text-sm text-foreground">Hi, I need some help setting up my new device.</p>
+                  {(CONVERSATION_MESSAGES[selected.id] ?? CONVERSATION_MESSAGES['1']).map((msg, i) => {
+                    if (msg.from === 'system') return (
+                      <div key={i} className="flex justify-center">
+                        <p className="text-xs text-muted-foreground">{msg.text}</p>
                       </div>
-                      <p className="text-xs text-muted-foreground mt-1 ml-1">Jan 15, 12:32 PM</p>
-                    </div>
-                  </div>
-
-                  {/* Outgoing 1 */}
-                  <div className="flex gap-3 max-w-[70%] self-end flex-row-reverse">
-                    <div className="size-7 rounded-full bg-brand/20 flex items-center justify-center text-xs font-medium text-brand shrink-0 mt-1">M</div>
-                    <div>
-                      <div className="bg-brand text-white rounded-2xl rounded-tr-sm px-4 py-2.5">
-                        <p className="text-sm">No problem! Can you please tell me the make and model of your device and what specifically you need help with?</p>
+                    )
+                    if (msg.from === 'user') return (
+                      <div key={i} className="flex gap-3 max-w-[70%]">
+                        <div className="size-7 rounded-full bg-muted-foreground/20 flex items-center justify-center text-xs font-medium text-muted-foreground shrink-0 mt-1">{selected.name.charAt(0)}</div>
+                        <div>
+                          <div className="bg-muted rounded-2xl rounded-tl-sm px-4 py-2.5">
+                            <p className="text-sm text-foreground">{msg.text}</p>
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-1 ml-1">{msg.time}</p>
+                        </div>
                       </div>
-                      <p className="text-xs text-muted-foreground mt-1 mr-1 text-right">Jan 15, 12:32 PM</p>
-                    </div>
-                  </div>
-
-                  {/* Incoming 2 */}
-                  <div className="flex gap-3 max-w-[70%]">
-                    <div className="size-7 rounded-full bg-muted-foreground/20 flex items-center justify-center text-xs font-medium text-muted-foreground shrink-0 mt-1">{selected.name.charAt(0)}</div>
-                    <div>
-                      <div className="bg-muted rounded-2xl rounded-tl-sm px-4 py-2.5">
-                        <p className="text-sm text-foreground">It&apos;s a MacBook Pro M3, 14-inch. I can&apos;t get the external display to work properly — it keeps flickering.</p>
+                    )
+                    return (
+                      <div key={i} className="flex gap-3 max-w-[70%] self-end flex-row-reverse">
+                        <div className="size-7 rounded-full bg-brand/20 flex items-center justify-center text-xs font-medium text-brand shrink-0 mt-1">M</div>
+                        <div>
+                          <div className="bg-brand text-white rounded-2xl rounded-tr-sm px-4 py-2.5">
+                            <p className="text-sm">{msg.text}</p>
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-1 mr-1 text-right">{msg.time}</p>
+                        </div>
                       </div>
-                      <p className="text-xs text-muted-foreground mt-1 ml-1">Jan 15, 12:35 PM</p>
-                    </div>
-                  </div>
-
-                  {/* Outgoing 2 */}
-                  <div className="flex gap-3 max-w-[70%] self-end flex-row-reverse">
-                    <div className="size-7 rounded-full bg-brand/20 flex items-center justify-center text-xs font-medium text-brand shrink-0 mt-1">M</div>
-                    <div>
-                      <div className="bg-brand text-white rounded-2xl rounded-tr-sm px-4 py-2.5">
-                        <p className="text-sm">Got it! First, try updating macOS to the latest version. Also, what cable or adapter are you using to connect the display?</p>
-                      </div>
-                      <p className="text-xs text-muted-foreground mt-1 mr-1 text-right">Jan 15, 12:37 PM</p>
-                    </div>
-                  </div>
-
-                  {/* Incoming 3 */}
-                  <div className="flex gap-3 max-w-[70%]">
-                    <div className="size-7 rounded-full bg-muted-foreground/20 flex items-center justify-center text-xs font-medium text-muted-foreground shrink-0 mt-1">{selected.name.charAt(0)}</div>
-                    <div>
-                      <div className="bg-muted rounded-2xl rounded-tl-sm px-4 py-2.5">
-                        <p className="text-sm text-foreground">I&apos;m using a USB-C to HDMI cable. macOS is already up to date.</p>
-                      </div>
-                      <p className="text-xs text-muted-foreground mt-1 ml-1">Jan 15, 12:40 PM</p>
-                    </div>
-                  </div>
-
-                  {/* System events */}
-                  <div className="flex flex-col items-center gap-1 py-2">
-                    {[
-                      'Assigned to support m2 by Mathew M',
-                      'Mathew M self-assigned this conversation',
-                      'Mathew M set the priority to high',
-                      'Mathew M added device-setup',
-                    ].map((event) => (
-                      <p key={event} className="text-xs text-muted-foreground">{event}</p>
-                    ))}
-                  </div>
-
-                  {/* Private note */}
-                  <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/50 rounded-2xl px-4 py-3 max-w-[80%] self-end">
-                    <p className="text-sm text-foreground">
-                      <span className="font-semibold text-brand">@Ben Nugent</span> Can we use Captain here to automate these queries?
-                    </p>
-                    <div className="flex items-center justify-end gap-1 mt-1">
-                      <p className="text-xs text-muted-foreground">Jan 16, 2:16 PM</p>
-                      <Lock className="size-3 text-muted-foreground" />
-                    </div>
-                  </div>
+                    )
+                  })}
                 </div>
 
                 {/* Reply input */}
@@ -574,7 +622,6 @@ export default function AllConversationsPage() {
                         {[
                           { icon: Mail, text: 'kcrawley6@driftburner.inc' },
                           { icon: Phone, text: '+14155552398' },
-                          { icon: Building2, text: 'Drift Burner' },
                           { icon: MapPin, text: 'San Francisco, United States' },
                         ].map(({ icon: Icon, text }) => (
                           <div key={text} className="flex items-center gap-2">
@@ -620,10 +667,10 @@ export default function AllConversationsPage() {
 
                     {/* Collapsible sections */}
                     {[
-                      'Conversation Actions',
-                      'Conversation participants',
-                      'Macros',
                       'Contact Attributes',
+                      'Conversation Actions',
+                      'Conversation Participants',
+                      'Macros',
                       'Conversation Information',
                       'Previous Conversations',
                     ].map((section) => {
@@ -640,6 +687,224 @@ export default function AllConversationsPage() {
                               : <ChevronRight className="size-4 text-muted-foreground" />
                             }
                           </button>
+                          {isExpanded && section === 'Contact Attributes' && (
+                            <div className="px-4 pb-4 flex flex-col gap-4">
+                              {/* Account status */}
+                              <div className="flex items-center justify-between">
+                                <span className="text-xs text-muted-foreground">Status</span>
+                                <span className="flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full bg-success-bg text-success"><ShieldCheck className="size-3" />Active</span>
+                              </div>
+
+                              {/* Balances */}
+                              <div className="flex flex-col gap-2">
+                                <p className="text-[10px] font-semibold text-foreground uppercase tracking-wide">Balances</p>
+                                <div className="flex items-center justify-between">
+                                  <span className="flex items-center gap-1.5 text-xs text-muted-foreground"><CircleDollarSign className="size-3.5" />Real money</span>
+                                  <span className="text-xs text-foreground">$1,240.00</span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                  <span className="flex items-center gap-1.5 text-xs text-muted-foreground"><Gift className="size-3.5" />Bonus</span>
+                                  <span className="text-xs text-foreground">$180.00</span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                  <span className="flex items-center gap-1.5 text-xs text-muted-foreground"><Clock className="size-3.5" />Pending withdrawal</span>
+                                  <span className="text-xs text-foreground">$500.00</span>
+                                </div>
+                                <div className="pt-2 border-t border-border flex items-center justify-around">
+                                  <div className="flex flex-col items-center gap-0.5">
+                                    <span className="text-sm font-medium text-foreground">$24,300</span>
+                                    <span className="text-[10px] text-muted-foreground">Deposits</span>
+                                    <span className="text-[10px] text-muted-foreground">47 times</span>
+                                  </div>
+                                  <div className="w-px h-10 bg-border" />
+                                  <div className="flex flex-col items-center gap-0.5">
+                                    <span className="text-sm font-medium text-foreground">$19,750</span>
+                                    <span className="text-[10px] text-muted-foreground">Withdrawals</span>
+                                    <span className="text-[10px] text-muted-foreground">31 times</span>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Last transaction */}
+                              <div className="flex flex-col gap-2">
+                                <p className="text-[10px] font-semibold text-foreground uppercase tracking-wide">Last Transaction</p>
+                                <div className="flex items-center justify-between">
+                                  <span className="flex items-center gap-1.5 text-xs text-muted-foreground"><CreditCard className="size-3.5" />Deposit · Visa</span>
+                                  <span className="text-xs text-foreground">+$500</span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                  <span className="text-xs text-muted-foreground">Jan 14, 2026</span>
+                                  <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-success-bg text-success">Completed</span>
+                                </div>
+                              </div>
+
+                              {/* Active bonus */}
+                              <div className="flex flex-col gap-2">
+                                <p className="text-[10px] font-semibold text-foreground uppercase tracking-wide">Active Bonus</p>
+                                <span className="flex items-center gap-1.5 text-xs text-muted-foreground"><Flame className="size-3.5 text-amber-500" />100% Deposit Bonus</span>
+                                <div className="flex items-center justify-between">
+                                  <span className="text-xs text-muted-foreground">Wagered</span>
+                                  <span className="text-xs text-foreground">$340 / $500</span>
+                                </div>
+                                <div className="w-full h-1.5 rounded-full bg-muted-foreground/20">
+                                  <div className="h-1.5 rounded-full bg-amber-500" style={{width: '68%'}} />
+                                </div>
+                                <span className="text-[10px] text-muted-foreground">Expires Jan 20, 2026</span>
+                              </div>
+
+                              {/* KYC & Account */}
+                              <div className="flex flex-col gap-2">
+                                <p className="text-[10px] font-semibold text-foreground uppercase tracking-wide">KYC & Account</p>
+                                <div className="flex items-center justify-between">
+                                  <span className="flex items-center gap-1.5 text-xs text-muted-foreground"><ShieldCheck className="size-3.5" />Verification</span>
+                                  <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-success-bg text-success">Verified</span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                  <span className="flex items-center gap-1.5 text-xs text-muted-foreground"><TrendingUp className="size-3.5" />VIP Level</span>
+                                  <span className="text-xs text-foreground">Gold</span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                  <span className="flex items-center gap-1.5 text-xs text-muted-foreground"><Clock className="size-3.5" />Registered</span>
+                                  <span className="text-xs text-foreground">Mar 5, 2023</span>
+                                </div>
+                              </div>
+
+                              {/* Last activity */}
+                              <div className="flex flex-col gap-2">
+                                <p className="text-[10px] font-semibold text-foreground uppercase tracking-wide">Last Activity</p>
+                                <div className="flex items-center justify-between">
+                                  <span className="flex items-center gap-1.5 text-xs text-muted-foreground"><LogIn className="size-3.5" />Last login</span>
+                                  <span className="text-xs text-foreground">Today, 11:42 AM</span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                  <span className="flex items-center gap-1.5 text-xs text-muted-foreground"><Gamepad2 className="size-3.5" />Last game</span>
+                                  <span className="text-xs text-foreground">Book of Dead</span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                  <span className="flex items-center gap-1.5 text-xs text-muted-foreground"><MapPin className="size-3.5" />Location</span>
+                                  <span className="text-xs text-foreground">DE · Berlin</span>
+                                </div>
+                              </div>
+
+                              {/* Limits */}
+                              <div className="flex flex-col gap-2">
+                                <p className="text-[10px] font-semibold text-foreground uppercase tracking-wide">Limits & Restrictions</p>
+                                <div className="flex items-center justify-between">
+                                  <span className="flex items-center gap-1.5 text-xs text-muted-foreground"><CircleDollarSign className="size-3.5" />Daily deposit</span>
+                                  <span className="text-xs text-foreground">$500 / day</span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                  <span className="flex items-center gap-1.5 text-xs text-muted-foreground"><Timer className="size-3.5" />Session limit</span>
+                                  <span className="text-xs text-foreground">3h / session</span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                  <span className="flex items-center gap-1.5 text-xs text-muted-foreground"><CircleAlert className="size-3.5" />Self-exclusion</span>
+                                  <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-muted-foreground/15 text-muted-foreground">None</span>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                          {isExpanded && section === 'Conversation Participants' && (
+                            <div className="px-4 pb-4 flex flex-col gap-3">
+                              {/* Current participants */}
+                              <div className="flex flex-col gap-2">
+                                {[
+                                  { name: 'David Wallace', role: 'Assignee' },
+                                  { name: 'Sarah Connor', role: 'Supervisor' },
+                                ].map(({ name, role }) => (
+                                  <div key={name} className="flex items-center gap-2">
+                                    <div className="size-7 rounded-full bg-muted-foreground/20 flex items-center justify-center text-xs font-medium text-muted-foreground shrink-0">
+                                      {name.charAt(0)}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                      <p className="text-xs text-foreground">{name}</p>
+                                      <p className="text-[10px] text-muted-foreground">{role}</p>
+                                    </div>
+                                    {role !== 'Assignee' && (
+                                      <button className="text-[10px] text-muted-foreground hover:text-destructive transition-colors">
+                                        Remove
+                                      </button>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                              {/* Add participant */}
+                              <button className="flex items-center gap-1.5 text-xs text-brand hover:underline">
+                                <Plus className="size-3.5" />Add participant
+                              </button>
+                            </div>
+                          )}
+                          {isExpanded && section === 'Macros' && (
+                            <div className="px-4 pb-4 flex flex-col gap-2">
+                              <div className="rounded-xl border border-border p-3 flex flex-col gap-2">
+                                <div className="flex items-center justify-between">
+                                  <span className="text-xs font-medium text-foreground">Escalate to Payments</span>
+                                  <Button size="sm" variant="outline" className="h-6 text-[11px] px-2">Run</Button>
+                                </div>
+                                <div className="flex flex-col gap-1">
+                                  {[
+                                    'Send: "Your case has been escalated to our Payments team."',
+                                    'Assign team: Payments & Withdrawals',
+                                    'Set priority: High',
+                                    'Add label: payment-issue',
+                                  ].map((action) => (
+                                    <p key={action} className="text-[10px] text-muted-foreground flex items-start gap-1">
+                                      <span className="mt-0.5 shrink-0">·</span>{action}
+                                    </p>
+                                  ))}
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                          {isExpanded && section === 'Conversation Information' && (
+                            <div className="px-4 pb-4 flex flex-col gap-2">
+                              {[
+                                { icon: Globe, label: 'Page URL', value: '/casino/slots/book-of-dead' },
+                                { icon: Settings, label: 'Browser', value: 'Chrome 121 · macOS' },
+                                { icon: MapPin, label: 'IP', value: '85.214.132.117 · DE' },
+                                { icon: Tag, label: 'UTM Source', value: 'google / cpc' },
+                                { icon: Tag, label: 'UTM Campaign', value: 'slots-promo-jan26' },
+                                { icon: Copy, label: 'Session ID', value: 'sess_8x92kA3' },
+                                { icon: Clock, label: 'Wait time', value: '1m 24s' },
+                              ].map(({ icon: Icon, label, value }) => (
+                                <div key={label} className="flex items-start justify-between gap-2">
+                                  <span className="flex items-center gap-1.5 text-xs text-muted-foreground shrink-0"><Icon className="size-3.5" />{label}</span>
+                                  <span className="text-xs text-foreground text-right truncate max-w-[140px]">{value}</span>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                          {isExpanded && section === 'Previous Conversations' && (
+                            <div className="px-4 pb-3 flex flex-col gap-2">
+                              {PREV_CONVERSATIONS.map((prev) => {
+                                const Icon = CHANNEL_ICON_MAP[prev.channel]
+                                return (
+                                  <button
+                                    key={prev.id}
+                                    className="w-full text-left flex items-start gap-3 rounded-xl bg-muted p-3 hover:bg-muted-foreground/10 transition-colors"
+                                  >
+                                    <div className="size-7 rounded-full bg-background flex items-center justify-center shrink-0 mt-0.5">
+                                      <Icon className="size-3.5 text-muted-foreground" />
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                      <p className="text-xs text-foreground truncate">{prev.preview}</p>
+                                      <div className="flex items-center gap-1.5 mt-0.5">
+                                        <span className="text-xs text-muted-foreground">{prev.date}</span>
+                                        <span className={cn(
+                                          'text-[10px] font-medium px-1.5 py-0.5 rounded-full',
+                                          prev.status === 'resolved'
+                                            ? 'bg-success-bg text-success'
+                                            : 'bg-brand-bg text-brand'
+                                        )}>
+                                          {prev.status === 'resolved' ? 'Resolved' : 'Open'}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  </button>
+                                )
+                              })}
+                            </div>
+                          )}
                           {isExpanded && section === 'Conversation Actions' && (
                             <div className="px-4 pb-4 flex flex-col gap-3">
                               {/* Assigned Agent */}
@@ -647,40 +912,93 @@ export default function AllConversationsPage() {
                                 <div className="flex items-center justify-between mb-1.5">
                                   <span className="text-xs font-medium text-muted-foreground">Assigned Agent</span>
                                   <button className="text-xs text-brand hover:underline flex items-center gap-0.5">
-                                    <ChevronRight className="size-3 rotate-180" />Assign to me
+                                    <ChevronRight className="size-3" />Assign to me
                                   </button>
                                 </div>
-                                <div className="flex items-center justify-between border border-border rounded-lg px-3 py-2 hover:bg-muted/50 cursor-pointer">
-                                  <div className="flex items-center gap-2">
-                                    <div className="size-5 rounded-full bg-muted-foreground/20 flex items-center justify-center text-xs font-medium text-muted-foreground">D</div>
-                                    <span className="text-sm text-foreground">David Wallace</span>
-                                  </div>
-                                  <ChevronDown className="size-4 text-muted-foreground" />
-                                </div>
+                                <Select defaultValue="david">
+                                  <SelectTrigger className="w-full">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {[
+                                      { value: 'david', name: 'David Wallace' },
+                                      { value: 'sarah', name: 'Sarah Connor' },
+                                      { value: 'james', name: 'James Holden' },
+                                      { value: 'nina', name: 'Nina Petrova' },
+                                      { value: 'omar', name: 'Omar Khalid' },
+                                      { value: 'lia', name: 'Lia Nakamura' },
+                                    ].map(({ value, name }) => (
+                                      <SelectItem key={value} value={value}>
+                                        <span className="flex items-center gap-2">
+                                          <div className="size-5 rounded-full bg-muted-foreground/20 flex items-center justify-center text-xs font-medium text-muted-foreground shrink-0">
+                                            {name.charAt(0)}
+                                          </div>
+                                          {name}
+                                        </span>
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
                               </div>
                               {/* Assigned Team */}
                               <div>
                                 <span className="text-xs font-medium text-muted-foreground block mb-1.5">Assigned Team</span>
-                                <div className="flex items-center justify-between border border-border rounded-lg px-3 py-2 hover:bg-muted/50 cursor-pointer">
-                                  <div className="flex items-center gap-2">
-                                    <div className="size-5 rounded-full bg-success-bg flex items-center justify-center">
-                                      <Wrench className="size-3 text-success" />
-                                    </div>
-                                    <span className="text-sm text-foreground">technical support</span>
-                                  </div>
-                                  <ChevronDown className="size-4 text-muted-foreground" />
-                                </div>
+                                <Select defaultValue="technical">
+                                  <SelectTrigger className="w-full">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {[
+                                      { value: 'technical', name: 'Technical Support' },
+                                      { value: 'vip', name: 'VIP Support' },
+                                      { value: 'payments', name: 'Payments & Withdrawals' },
+                                      { value: 'fraud', name: 'Fraud & Security' },
+                                      { value: 'success', name: 'Customer Success' },
+                                    ].map(({ value, name }) => (
+                                      <SelectItem key={value} value={value}>
+                                        <span className="flex items-center gap-2">
+                                          <div className="size-5 rounded-full bg-success-bg flex items-center justify-center shrink-0">
+                                            <Wrench className="size-3 text-success" />
+                                          </div>
+                                          {name}
+                                        </span>
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
                               </div>
                               {/* Priority */}
                               <div>
                                 <span className="text-xs font-medium text-muted-foreground block mb-1.5">Priority</span>
-                                <div className="flex items-center justify-between border border-border rounded-lg px-3 py-2 hover:bg-muted/50 cursor-pointer">
-                                  <div className="flex items-center gap-2">
-                                    <BarChart2 className="size-4 text-amber-500" />
-                                    <span className="text-sm text-foreground">High</span>
-                                  </div>
-                                  <ChevronDown className="size-4 text-muted-foreground" />
-                                </div>
+                                <Select value={convoPriority} onValueChange={(v) => setConvoPriority(v as typeof convoPriority)}>
+                                  <SelectTrigger className="w-full">
+                                    <SelectValue>
+                                      <span className="flex items-center gap-2">
+                                        {convoPriority === 'normal' && <Minus className="size-4 text-muted-foreground" />}
+                                        {convoPriority === 'high' && <BarChart2 className="size-4 text-amber-500" />}
+                                        {convoPriority === 'critical' && <AlertTriangle className="size-4 text-destructive" />}
+                                        {convoPriority === 'normal' ? 'Normal' : convoPriority === 'high' ? 'High' : 'Critical'}
+                                      </span>
+                                    </SelectValue>
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="normal">
+                                      <span className="flex items-center gap-2">
+                                        <Minus className="size-4 text-muted-foreground" />Normal
+                                      </span>
+                                    </SelectItem>
+                                    <SelectItem value="high">
+                                      <span className="flex items-center gap-2">
+                                        <BarChart2 className="size-4 text-amber-500" />High
+                                      </span>
+                                    </SelectItem>
+                                    <SelectItem value="critical">
+                                      <span className="flex items-center gap-2">
+                                        <AlertTriangle className="size-4 text-destructive" />Critical
+                                      </span>
+                                    </SelectItem>
+                                  </SelectContent>
+                                </Select>
                               </div>
                               {/* Conversation Labels */}
                               <div>
@@ -690,7 +1008,7 @@ export default function AllConversationsPage() {
                                     <Plus className="size-3" />Add Labels
                                   </button>
                                   <span className="flex items-center gap-1 text-xs bg-amber-100 text-amber-700 border border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800/50 rounded px-1.5 py-0.5">
-                                    <Tag className="size-3" />login-issue
+                                    login-issue
                                     <button className="hover:text-foreground"><X className="size-3" /></button>
                                   </span>
                                 </div>

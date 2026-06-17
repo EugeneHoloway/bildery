@@ -48,7 +48,7 @@ export default function BillingPage() {
             { label: 'Bildery', href: '/dashboard' },
             { label: 'Billing' },
           ]}
-          right={<ThemeToggle />}
+
         />
 
         <div className="flex flex-1 flex-col px-6 pt-4 pb-8">

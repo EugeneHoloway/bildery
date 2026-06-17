@@ -131,7 +131,6 @@ export default function AccountPage() {
             { label: 'Bildery', href: '/dashboard' },
             { label: 'Account' },
           ]}
-          right={<ThemeToggle />}
         />
 
         {/* Content */}

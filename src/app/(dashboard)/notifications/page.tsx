@@ -48,7 +48,7 @@ export default function NotificationsPage() {
             { label: 'Bildery', href: '/dashboard' },
             { label: 'Notifications' },
           ]}
-          right={<ThemeToggle />}
+
         />
 
         <div className="flex flex-1 flex-col px-6 pt-4 pb-8">

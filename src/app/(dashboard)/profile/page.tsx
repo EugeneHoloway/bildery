@@ -49,7 +49,7 @@ export default function ProfilePage() {
             { label: 'Bildery', href: '/dashboard' },
             { label: 'Profile' },
           ]}
-          right={<ThemeToggle />}
+
         />
 
         <div className="flex flex-1 flex-col px-6 pt-4 pb-8">

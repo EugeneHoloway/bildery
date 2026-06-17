@@ -12,6 +12,26 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
+import { Button } from '@/components/ui/button'
+import { Sun, Moon } from 'lucide-react'
+import { useTheme } from 'next-themes'
+
+function ThemeToggle() {
+  const { resolvedTheme, setTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => setMounted(true), [])
+  if (!mounted) return <div className="size-8" />
+  return (
+    <Button
+      variant="ghost"
+      size="icon"
+      onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
+      aria-label="Toggle theme"
+    >
+      {resolvedTheme === 'dark' ? <Sun className="size-4" /> : <Moon className="size-4" />}
+    </Button>
+  )
+}
 
 interface BreadcrumbEntry {
   label: string
@@ -75,7 +95,10 @@ export function DashboardHeader({ breadcrumbs, right }: DashboardHeaderProps) {
               })}
             </BreadcrumbList>
           </Breadcrumb>
-          {right && <div className="ml-auto">{right}</div>}
+          <div className="ml-auto flex items-center gap-1">
+            {right}
+            <ThemeToggle />
+          </div>
         </div>
       </header>
     </>
