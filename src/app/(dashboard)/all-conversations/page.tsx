@@ -1653,7 +1653,7 @@ function AllConversationsContent() {
                             <input type={type} placeholder={placeholder} className="text-sm bg-transparent outline-none flex-1 text-foreground placeholder:text-muted-foreground" />
                           </div>
                         ))}
-                        <button className="mt-1 w-full flex items-center justify-center gap-1.5 text-sm font-medium bg-brand text-white rounded-lg py-2 hover:bg-brand/90 transition-colors">
+                        <button className="mt-1 w-full flex items-center justify-center gap-1.5 text-sm font-medium bg-foreground text-background rounded-[min(var(--radius-md),12px)] py-2 hover:bg-foreground/90 transition-colors">
                           Send verification code
                         </button>
                       </div>
@@ -1732,14 +1732,16 @@ function AllConversationsContent() {
                         <div className="px-4 pb-4 flex flex-col gap-4">
                           <div className="flex items-center justify-between">
                             <span className="text-sm text-muted-foreground">Status</span>
-                            <span className="flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-success-bg text-success"><ShieldCheck className="size-3" />Active</span>
+                            {selected.unknown
+                              ? <span className="text-sm text-muted-foreground">—</span>
+                              : <span className="flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-success-bg text-success"><ShieldCheck className="size-3" />Active</span>}
                           </div>
                           <div className="flex flex-col gap-2">
                             <p className="text-xs font-semibold text-foreground uppercase tracking-wide">Balances</p>
                             {[
-                              { icon: CircleDollarSign, label: 'Real money', value: '$1,240.00' },
-                              { icon: Gift, label: 'Bonus', value: '$180.00' },
-                              { icon: Clock, label: 'Pending withdrawal', value: '$500.00' },
+                              { icon: CircleDollarSign, label: 'Real money', value: selected.unknown ? '—' : '$1,240.00' },
+                              { icon: Gift, label: 'Bonus', value: selected.unknown ? '—' : '$180.00' },
+                              { icon: Clock, label: 'Pending withdrawal', value: selected.unknown ? '—' : '$500.00' },
                             ].map(({ icon: Icon, label, value }) => (
                               <div key={label} className="flex items-center justify-between">
                                 <span className="flex items-center gap-1.5 text-sm text-muted-foreground"><Icon className="size-4" />{label}</span>
@@ -1748,47 +1750,53 @@ function AllConversationsContent() {
                             ))}
                             <div className="pt-2 border-t border-border flex items-center justify-around">
                               <div className="flex flex-col items-center gap-0.5">
-                                <span className="text-base font-medium text-foreground">$24,300</span>
+                                <span className="text-base font-medium text-foreground">{selected.unknown ? '—' : '$24,300'}</span>
                                 <span className="text-xs text-muted-foreground">Deposits</span>
-                                <span className="text-xs text-muted-foreground">47 times</span>
+                                <span className="text-xs text-muted-foreground">{selected.unknown ? '—' : '47 times'}</span>
                               </div>
                               <div className="w-px h-10 bg-border" />
                               <div className="flex flex-col items-center gap-0.5">
-                                <span className="text-base font-medium text-foreground">$19,750</span>
+                                <span className="text-base font-medium text-foreground">{selected.unknown ? '—' : '$19,750'}</span>
                                 <span className="text-xs text-muted-foreground">Withdrawals</span>
-                                <span className="text-xs text-muted-foreground">31 times</span>
+                                <span className="text-xs text-muted-foreground">{selected.unknown ? '—' : '31 times'}</span>
                               </div>
                             </div>
                           </div>
                           <div className="flex flex-col gap-2">
                             <p className="text-xs font-semibold text-foreground uppercase tracking-wide">Last Transaction</p>
                             <div className="flex items-center justify-between">
-                              <span className="flex items-center gap-1.5 text-sm text-muted-foreground"><CreditCard className="size-4" />Deposit · Visa</span>
-                              <span className="text-sm text-foreground">+$500</span>
+                              <span className="flex items-center gap-1.5 text-sm text-muted-foreground"><CreditCard className="size-4" />{selected.unknown ? 'Unknown' : 'Deposit · Visa'}</span>
+                              <span className="text-sm text-foreground">{selected.unknown ? '—' : '+$500'}</span>
                             </div>
                             <div className="flex items-center justify-between">
-                              <span className="text-sm text-muted-foreground">Jan 14, 2026</span>
-                              <span className="text-xs font-medium px-1.5 py-0.5 rounded-full bg-success-bg text-success">Completed</span>
+                              <span className="text-sm text-muted-foreground">{selected.unknown ? '—' : 'Jan 14, 2026'}</span>
+                              {!selected.unknown && <span className="text-xs font-medium px-1.5 py-0.5 rounded-full bg-success-bg text-success">Completed</span>}
                             </div>
                           </div>
                           <div className="flex flex-col gap-2">
                             <p className="text-xs font-semibold text-foreground uppercase tracking-wide">Active Bonus</p>
-                            <span className="flex items-center gap-1.5 text-sm text-muted-foreground"><Flame className="size-4 text-amber-500" />100% Deposit Bonus</span>
-                            <div className="flex items-center justify-between">
-                              <span className="text-sm text-muted-foreground">Wagered</span>
-                              <span className="text-sm text-foreground">$340 / $500</span>
-                            </div>
-                            <div className="w-full h-1.5 rounded-full bg-muted-foreground/20">
-                              <div className="h-1.5 rounded-full bg-amber-500" style={{width: '68%'}} />
-                            </div>
-                            <span className="text-xs text-muted-foreground">Expires Jan 20, 2026</span>
+                            {selected.unknown ? (
+                              <span className="text-sm text-muted-foreground">—</span>
+                            ) : (
+                              <>
+                                <span className="flex items-center gap-1.5 text-sm text-muted-foreground"><Flame className="size-4 text-amber-500" />100% Deposit Bonus</span>
+                                <div className="flex items-center justify-between">
+                                  <span className="text-sm text-muted-foreground">Wagered</span>
+                                  <span className="text-sm text-foreground">$340 / $500</span>
+                                </div>
+                                <div className="w-full h-1.5 rounded-full bg-muted-foreground/20">
+                                  <div className="h-1.5 rounded-full bg-amber-500" style={{width: '68%'}} />
+                                </div>
+                                <span className="text-xs text-muted-foreground">Expires Jan 20, 2026</span>
+                              </>
+                            )}
                           </div>
                           <div className="flex flex-col gap-2">
                             <p className="text-xs font-semibold text-foreground uppercase tracking-wide">KYC & Account</p>
                             {[
-                              { icon: ShieldCheck, label: 'Verification', badge: 'Verified', badgeClass: 'bg-success-bg text-success' },
-                              { icon: TrendingUp, label: 'VIP Level', value: 'Gold' },
-                              { icon: Clock, label: 'Registered', value: 'Mar 5, 2023' },
+                              { icon: ShieldCheck, label: 'Verification', badge: selected.unknown ? undefined : 'Verified', badgeClass: 'bg-success-bg text-success', value: selected.unknown ? '—' : undefined },
+                              { icon: TrendingUp, label: 'VIP Level', value: selected.unknown ? '—' : 'Gold' },
+                              { icon: Clock, label: 'Registered', value: selected.unknown ? '—' : 'Mar 5, 2023' },
                             ].map(({ icon: Icon, label, badge, badgeClass, value }) => (
                               <div key={label} className="flex items-center justify-between">
                                 <span className="flex items-center gap-1.5 text-sm text-muted-foreground"><Icon className="size-4" />{label}</span>
@@ -1801,9 +1809,9 @@ function AllConversationsContent() {
                           <div className="flex flex-col gap-2">
                             <p className="text-xs font-semibold text-foreground uppercase tracking-wide">Last Activity</p>
                             {[
-                              { icon: LogIn, label: 'Last login', value: 'Today, 11:42 AM' },
-                              { icon: Gamepad2, label: 'Last game', value: 'Book of Dead' },
-                              { icon: MapPin, label: 'Location', value: 'DE · Berlin' },
+                              { icon: LogIn, label: 'Last login', value: selected.unknown ? '—' : 'Today, 11:42 AM' },
+                              { icon: Gamepad2, label: 'Last game', value: selected.unknown ? '—' : 'Book of Dead' },
+                              { icon: MapPin, label: 'Location', value: selected.unknown ? '—' : 'DE · Berlin' },
                             ].map(({ icon: Icon, label, value }) => (
                               <div key={label} className="flex items-center justify-between">
                                 <span className="flex items-center gap-1.5 text-sm text-muted-foreground"><Icon className="size-4" />{label}</span>
@@ -1815,15 +1823,17 @@ function AllConversationsContent() {
                             <p className="text-xs font-semibold text-foreground uppercase tracking-wide">Limits & Restrictions</p>
                             <div className="flex items-center justify-between">
                               <span className="flex items-center gap-1.5 text-sm text-muted-foreground"><CircleDollarSign className="size-4" />Daily deposit</span>
-                              <span className="text-sm text-foreground">$500 / day</span>
+                              <span className="text-sm text-foreground">{selected.unknown ? '—' : '$500 / day'}</span>
                             </div>
                             <div className="flex items-center justify-between">
                               <span className="flex items-center gap-1.5 text-sm text-muted-foreground"><Timer className="size-4" />Session limit</span>
-                              <span className="text-sm text-foreground">3h / session</span>
+                              <span className="text-sm text-foreground">{selected.unknown ? '—' : '3h / session'}</span>
                             </div>
                             <div className="flex items-center justify-between">
                               <span className="flex items-center gap-1.5 text-sm text-muted-foreground"><CircleAlert className="size-4" />Self-exclusion</span>
-                              <span className="text-xs font-medium px-1.5 py-0.5 rounded-full bg-muted-foreground/15 text-muted-foreground">None</span>
+                              {selected.unknown
+                                ? <span className="text-sm text-muted-foreground">—</span>
+                                : <span className="text-xs font-medium px-1.5 py-0.5 rounded-full bg-muted-foreground/15 text-muted-foreground">None</span>}
                             </div>
                           </div>
                         </div>
