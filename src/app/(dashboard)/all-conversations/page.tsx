@@ -451,11 +451,11 @@ function AllConversationsContent() {
                 {!isExpanded && (
                   <div className="hidden md:flex flex-col h-full">
                     {/* Toggle expand button */}
-                    <div className="flex justify-center py-2 border-b border-border">
+                    <div className="flex justify-center py-3">
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="size-9"
+                        className="size-8"
                         disabled={!isWideScreen}
                         onClick={() => setListExpanded(true)}
                         title={isWideScreen ? 'Expand list' : 'Unavailable below 1200px'}
@@ -543,10 +543,15 @@ function AllConversationsContent() {
                               {convo.name.charAt(0)}
                             </div>
                             {convo.unread && convo.unread > 0 ? (
-                              <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 rounded-full bg-brand text-white text-[10px] font-medium flex items-center justify-center px-0.5">
+                              <span className="absolute -bottom-0.5 -right-0.5 min-w-[16px] h-4 rounded-full bg-brand text-white text-[10px] font-medium flex items-center justify-center px-0.5">
                                 {convo.unread}
                               </span>
                             ) : null}
+                            {convo.vip && (
+                              <span className="absolute -top-0.5 -right-0.5 size-4 rounded-full bg-background flex items-center justify-center">
+                                <Crown className="size-2.5 text-amber-500" />
+                              </span>
+                            )}
                           </div>
                         </button>
                       ))}
@@ -558,7 +563,7 @@ function AllConversationsContent() {
                 {isExpanded && (
                   <div className="hidden md:flex flex-col flex-1 overflow-hidden">
                     {/* Header */}
-                    <div className="px-4 pt-4 pb-2">
+                    <div className="px-4 pt-3 pb-2">
                       <div className="flex items-center gap-2 mb-3">
                         <h2 className="text-base font-semibold text-foreground">Conversations</h2>
                         <Badge className="text-xs">Open</Badge>
