@@ -6,7 +6,6 @@ import { useTheme } from 'next-themes'
 import { Sun, Moon, Ban } from 'lucide-react'
 import { useAuth } from '@/components/AuthProvider'
 import { createClient } from '@/lib/supabase-browser'
-import { AppSidebar } from '@/components/app-sidebar'
 import { DashboardHeader } from '@/components/DashboardHeader'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -20,10 +19,6 @@ import {
   DialogFooter,
   DialogDescription,
 } from '@/components/ui/dialog'
-import {
-  SidebarInset,
-  SidebarProvider,
-} from '@/components/ui/sidebar'
 
 function ThemeToggle() {
   const { resolvedTheme, setTheme } = useTheme()
@@ -123,15 +118,13 @@ export default function AccountPage() {
   if (loading || !user) return null
 
   return (
-    <SidebarProvider>
-      <AppSidebar />
-      <SidebarInset>
-        <DashboardHeader
-          breadcrumbs={[
-            { label: 'Bildery', href: '/dashboard' },
-            { label: 'Account' },
-          ]}
-        />
+    <>
+      <DashboardHeader
+        breadcrumbs={[
+          { label: 'Bildery', href: '/dashboard' },
+          { label: 'Account' },
+        ]}
+      />
 
         {/* Content */}
         <div className="flex flex-1 flex-col px-6 pt-4 pb-8">
@@ -293,7 +286,6 @@ export default function AccountPage() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
-      </SidebarInset>
-    </SidebarProvider>
+    </>
   )
 }

@@ -3,11 +3,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/components/AuthProvider'
-import { AppSidebar } from '@/components/app-sidebar'
 import { DashboardHeader } from '@/components/DashboardHeader'
 import {
-  SidebarInset,
-  SidebarProvider,
   useSidebar,
 } from '@/components/ui/sidebar'
 import { Input } from '@/components/ui/input'
@@ -18,8 +15,8 @@ import {
   LogIn, Gamepad2, CircleDollarSign, CircleAlert, Timer,
   BellOff, Share2, ChevronDown, ChevronRight, Copy, Bold, Italic,
   Link2, Undo2, Redo2, List, ListOrdered, Code2, Smile, Paperclip,
-  Mic, Zap, Maximize2, Twitter, Linkedin, Phone, Building2, MapPin,
-  Pencil, PhoneCall, Trash2, X, User, BadgeCheck, Crown,
+  Mic, Maximize2, Twitter, Linkedin, Phone, Building2, MapPin, Languages, ArrowRight, RefreshCw,
+  Pencil, PhoneCall, X, User, BadgeCheck, Crown, UserX, ShieldBan,
   Minus, Wrench, BarChart2, Tag, Plus, AlertTriangle, SlidersHorizontal,
 } from 'lucide-react'
 import { Toggle } from '@/components/ui/toggle'
@@ -49,6 +46,7 @@ interface Conversation {
   assigned?: boolean
   assignee?: string
   isReply?: boolean
+  unknown?: boolean
 }
 
 const CONVERSATIONS: Conversation[] = [
@@ -97,6 +95,18 @@ const CONVERSATIONS: Conversation[] = [
     time: '1d · 37m',
     priority: 'normal',
     vip: true,
+    assigned: true,
+    assignee: 'David Wallace',
+  },
+  {
+    id: '11',
+    name: 'Unknown user',
+    channel: 'website',
+    channelLabel: 'Website',
+    preview: "Hi, I can't log in to my account and I lost access to my email too",
+    time: '4h · 12m',
+    unread: 1,
+    unknown: true,
     assigned: true,
     assignee: 'David Wallace',
   },
@@ -157,6 +167,16 @@ const CONVERSATIONS: Conversation[] = [
     isReply: true,
   },
   {
+    id: '12',
+    name: 'Unknown user',
+    channel: 'whatsapp',
+    channelLabel: 'Whatsapp',
+    preview: 'How can I recover access to my account?',
+    time: '6h · 50m',
+    unknown: true,
+    assigned: false,
+  },
+  {
     id: '10',
     name: 'Dmitri Volkov',
     channel: 'website',
@@ -210,10 +230,18 @@ const CONVERSATION_MESSAGES: Record<string, Message[]> = {
     { from: 'agent', text: "Our payments team is reviewing it now. You should see the funds within the next 30–60 minutes. I'll send you a confirmation once it's done.", time: 'Jan 14, 10:20 AM' },
     { from: 'user', text: 'Alright, thank you. I hope this gets resolved soon.', time: 'Jan 14, 10:22 AM' },
   ],
+  '12': [
+    { from: 'user', text: 'Hello, I cannot access my account anymore. I forgot my password and I also lost access to the email I registered with. How can I recover it?', time: 'Today, 9:14 AM' },
+    { from: 'agent', text: 'Hi! I can help you with account recovery. Could you please provide any of the following: your username, phone number linked to the account, or your last deposit amount and date?', time: 'Today, 9:17 AM' },
+    { from: 'user', text: "I don't remember my username either. My phone number is +447700900142 and I think my last deposit was around £50 but I'm not sure of the exact date.", time: 'Today, 9:21 AM' },
+    { from: 'agent', text: "Thank you. I was able to find a possible match based on the phone number, but I need to verify your identity before I can share any account details or grant access. Could you confirm your full name and date of birth?", time: 'Today, 9:24 AM' },
+    { from: 'user', text: 'My name is James. Date of birth is March 14, 1991.', time: 'Today, 9:26 AM' },
+    { from: 'system', text: 'Identity not verified — user record unlinked', time: '' },
+  ],
 }
 
-const MINE_IDS = new Set(['1', '2', '4', '6', '7', '9'])
-const UNASSIGNED_IDS = new Set(['3', '5', '8', '10'])
+const MINE_IDS = new Set(['1', '2', '4', '6', '7', '9', '11'])
+const UNASSIGNED_IDS = new Set(['3', '5', '8', '10', '12'])
 
 interface PrevConversation {
   id: string
@@ -235,6 +263,170 @@ const TABS: { key: Tab; label: string; count: number }[] = [
   { key: 'unassigned', label: 'Unassigned', count: UNASSIGNED_IDS.size },
   { key: 'all', label: 'All', count: CONVERSATIONS.length },
 ]
+
+function CopilotPanel({ convo, compact = false }: { convo: Conversation; compact?: boolean }) {
+  const [kbQuery, setKbQuery] = useState('')
+  const [txnQuery, setTxnQuery] = useState('')
+  const [txnResult, setTxnResult] = useState<null | 'found' | 'not-found'>(null)
+
+  const sp = compact ? 'text-sm' : 'text-xs'
+  const sp2 = compact ? 'text-base' : 'text-sm'
+
+  const riskFlags = convo.unknown
+    ? [
+        { color: 'text-amber-500', label: 'Identity unverified' },
+        { color: 'text-amber-500', label: 'No account found by email' },
+        { color: 'text-success', label: 'No prior chargebacks' },
+      ]
+    : [
+        { color: 'text-success', label: 'Verified account' },
+        { color: 'text-success', label: 'No prior chargebacks' },
+        { color: convo.vip ? 'text-amber-500' : 'text-success', label: convo.vip ? 'VIP — escalate if unresolved' : 'No active restrictions' },
+      ]
+
+  const suggestions = convo.unknown
+    ? [
+        'To verify your identity, please provide the phone number linked to your account.',
+        "I'll send a verification code to the phone number you provided. Please check your messages.",
+        'For security reasons, I need to escalate this to our security team. They will contact you shortly.',
+      ]
+    : [
+        'I can see your account details. Let me check the status of your bonus right now.',
+        'Your request has been escalated to our Payments team. You will receive an update within 30 minutes.',
+        'I completely understand your frustration. Let me look into this immediately.',
+      ]
+
+  return (
+    <div className="flex flex-col gap-3 p-3 overflow-y-auto">
+
+      {/* Summary */}
+      <div className="rounded-xl border border-border bg-muted/40 p-3 flex flex-col gap-1.5">
+        <div className="flex items-center gap-1.5 mb-0.5">
+          <Sparkles className="size-3.5 text-brand shrink-0" />
+          <span className={cn(sp, 'font-semibold text-foreground')}>Summary</span>
+        </div>
+        <p className={cn(sp, 'text-muted-foreground leading-relaxed')}>
+          {convo.unknown
+            ? 'Unidentified user reporting account access issue. No matching record found. Identity verification required before any account action.'
+            : 'Customer reports a pending issue related to their account. Conversation is ongoing. No resolution yet — agent follow-up needed.'}
+        </p>
+      </div>
+
+      {/* Risk analysis */}
+      <div className="rounded-xl border border-border bg-muted/40 p-3 flex flex-col gap-1.5">
+        <div className="flex items-center gap-1.5 mb-0.5">
+          <ShieldAlert className="size-3.5 text-foreground shrink-0" />
+          <span className={cn(sp, 'font-semibold text-foreground')}>Risk Analysis</span>
+        </div>
+        <div className="flex flex-col gap-1">
+          {riskFlags.map(({ color, label }) => (
+            <div key={label} className="flex items-center gap-1.5">
+              <span className={cn('size-1.5 rounded-full shrink-0', color === 'text-success' ? 'bg-success' : color === 'text-amber-500' ? 'bg-amber-500' : 'bg-destructive')} />
+              <span className={cn(sp, 'text-muted-foreground')}>{label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Suggested replies */}
+      <div className="rounded-xl border border-border bg-muted/40 p-3 flex flex-col gap-1.5">
+        <div className="flex items-center justify-between mb-0.5">
+          <div className="flex items-center gap-1.5">
+            <MessageSquare className="size-3.5 text-foreground shrink-0" />
+            <span className={cn(sp, 'font-semibold text-foreground')}>Suggested Replies</span>
+          </div>
+          <button className="text-muted-foreground hover:text-foreground transition-colors">
+            <RefreshCw className="size-3" />
+          </button>
+        </div>
+        <div className="flex flex-col gap-1.5">
+          {suggestions.map((s, i) => (
+            <button
+              key={i}
+              className={cn(sp, 'text-left text-muted-foreground bg-background border border-border rounded-lg px-2.5 py-2 hover:border-brand hover:text-foreground transition-colors leading-relaxed')}
+            >
+              {s}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Knowledge base */}
+      <div className="rounded-xl border border-border bg-muted/40 p-3 flex flex-col gap-1.5">
+        <div className="flex items-center gap-1.5 mb-0.5">
+          <Search className="size-3.5 text-foreground shrink-0" />
+          <span className={cn(sp, 'font-semibold text-foreground')}>Knowledge Base</span>
+        </div>
+        <div className="flex items-center gap-1.5 bg-background border border-border rounded-lg px-2.5 py-1.5">
+          <input
+            value={kbQuery}
+            onChange={e => setKbQuery(e.target.value)}
+            placeholder="Search help articles..."
+            className={cn(sp, 'flex-1 bg-transparent outline-none text-foreground placeholder:text-muted-foreground')}
+          />
+          <Search className="size-3 text-muted-foreground shrink-0" />
+        </div>
+        {kbQuery && (
+          <div className="flex flex-col gap-1 mt-0.5">
+            {['Account recovery guide', 'Identity verification process', 'Withdrawal & deposit limits'].map(r => (
+              <button key={r} className={cn(sp, 'text-left text-brand hover:underline flex items-center gap-1')}>
+                <ArrowRight className="size-3 shrink-0" />{r}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Translation */}
+      <div className="rounded-xl border border-border bg-muted/40 p-3 flex flex-col gap-1.5">
+        <div className="flex items-center gap-1.5 mb-0.5">
+          <Languages className="size-3.5 text-foreground shrink-0" />
+          <span className={cn(sp, 'font-semibold text-foreground')}>Translation</span>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className={cn(sp, 'text-muted-foreground')}>Detected: English</span>
+          <button className={cn(sp, 'flex items-center gap-1 text-brand hover:underline')}>
+            Translate <ChevronDown className="size-3" />
+          </button>
+        </div>
+      </div>
+
+      {/* Transaction lookup */}
+      <div className="rounded-xl border border-border bg-muted/40 p-3 flex flex-col gap-1.5">
+        <div className="flex items-center gap-1.5 mb-0.5">
+          <CreditCard className="size-3.5 text-foreground shrink-0" />
+          <span className={cn(sp, 'font-semibold text-foreground')}>Transaction Lookup</span>
+        </div>
+        <div className="flex items-center gap-1.5 bg-background border border-border rounded-lg overflow-hidden">
+          <input
+            value={txnQuery}
+            onChange={e => { setTxnQuery(e.target.value); setTxnResult(null) }}
+            placeholder="Enter transaction ID..."
+            className={cn(sp, 'flex-1 bg-transparent outline-none text-foreground placeholder:text-muted-foreground px-2.5 py-1.5')}
+          />
+          <button
+            onClick={() => setTxnResult(txnQuery.length > 3 ? 'found' : 'not-found')}
+            className="px-2.5 py-1.5 bg-muted text-muted-foreground hover:text-foreground transition-colors border-l border-border"
+          >
+            <ArrowRight className="size-3.5" />
+          </button>
+        </div>
+        {txnResult === 'found' && (
+          <div className={cn(sp, 'flex flex-col gap-1 mt-0.5 text-muted-foreground')}>
+            <div className="flex justify-between"><span>Type</span><span className="text-foreground">Deposit · Visa</span></div>
+            <div className="flex justify-between"><span>Amount</span><span className="text-foreground">+$250.00</span></div>
+            <div className="flex justify-between"><span>Status</span><span className="text-success font-medium">Completed</span></div>
+            <div className="flex justify-between"><span>Date</span><span className="text-foreground">Jan 14, 2026</span></div>
+          </div>
+        )}
+        {txnResult === 'not-found' && (
+          <p className={cn(sp, 'text-destructive mt-0.5')}>Transaction not found.</p>
+        )}
+      </div>
+
+    </div>
+  )
+}
 
 function PriorityBadge({ priority }: { priority: Priority }) {
   if (priority === 'urgent') return <AlertTriangle className="size-3.5 text-destructive shrink-0" />
@@ -260,9 +452,14 @@ function ConversationItem({
       )}
     >
       <div className="flex items-start gap-3">
-        {/* Avatar placeholder */}
-        <div className="size-9 rounded-full bg-muted-foreground/20 flex items-center justify-center shrink-0 text-sm font-medium text-muted-foreground">
-          {convo.name.charAt(0)}
+        {/* Avatar */}
+        <div className={cn(
+          'size-9 rounded-full flex items-center justify-center shrink-0 text-sm font-medium',
+          convo.unknown
+            ? 'bg-muted border-2 border-dashed border-border text-muted-foreground'
+            : 'bg-muted-foreground/20 text-muted-foreground'
+        )}>
+          {convo.unknown ? <UserX className="size-4" /> : convo.name.charAt(0)}
         </div>
         <div className="flex-1 min-w-0 overflow-hidden">
           {/* Channel row */}
@@ -284,7 +481,7 @@ function ConversationItem({
           {/* Name + time row */}
           <div className="flex items-center justify-between gap-2">
             <span className="flex items-center gap-1 min-w-0">
-              <span className={cn('text-sm text-foreground truncate', convo.unread && 'font-medium')}>{convo.name}</span>
+              <span className={cn('text-sm truncate', convo.unread && 'font-medium', convo.unknown ? 'text-muted-foreground italic' : 'text-foreground')}>{convo.name}</span>
               {convo.verified && <BadgeCheck className="size-3.5 shrink-0 text-brand" />}
               {convo.vip && <Crown className="size-3.5 shrink-0 text-amber-500" />}
             </span>
@@ -538,9 +735,11 @@ function AllConversationsContent() {
                               'size-9 rounded-full flex items-center justify-center text-sm font-medium shrink-0',
                               selectedId === convo.id
                                 ? 'bg-brand text-white'
-                                : 'bg-muted-foreground/20 text-muted-foreground'
+                                : convo.unknown
+                                  ? 'bg-muted border-2 border-dashed border-border text-muted-foreground'
+                                  : 'bg-muted-foreground/20 text-muted-foreground'
                             )}>
-                              {convo.name.charAt(0)}
+                              {convo.unknown ? <UserX className="size-4" /> : convo.name.charAt(0)}
                             </div>
                             {convo.unread && convo.unread > 0 ? (
                               <span className="absolute -bottom-0.5 -right-0.5 min-w-[16px] h-4 rounded-full bg-brand text-white text-[10px] font-medium flex items-center justify-center px-0.5">
@@ -871,7 +1070,7 @@ function AllConversationsContent() {
                     {/* Bottom toolbar */}
                     <div className="flex items-center px-3 pb-3">
                       <div className="flex gap-0.5">
-                        {[Smile, Paperclip, Mic, Zap].map((Icon, i) => (
+                        {[Smile, Paperclip, Mic].map((Icon, i) => (
                           <button key={i} className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground">
                             <Icon className="size-4" />
                           </button>
@@ -911,44 +1110,70 @@ function AllConversationsContent() {
                   <>
                     {/* Avatar + name */}
                     <div className="flex flex-col items-center pt-4 pb-4 px-4 border-b border-border">
-                      <div className="size-14 rounded-full bg-muted-foreground/20 flex items-center justify-center text-xl font-semibold text-muted-foreground mb-3">
-                        {selected.name.charAt(0)}
-                      </div>
+                      {selected.unknown ? (
+                        <div className="size-14 rounded-full bg-muted border-2 border-dashed border-border flex items-center justify-center mb-3">
+                          <UserX className="size-6 text-muted-foreground" />
+                        </div>
+                      ) : (
+                        <div className="size-14 rounded-full bg-muted-foreground/20 flex items-center justify-center text-xl font-semibold text-muted-foreground mb-3">
+                          {selected.name.charAt(0)}
+                        </div>
+                      )}
                       <div className="relative flex items-center justify-center">
-                        <p className="text-sm font-semibold text-foreground">{selected.name}</p>
-                        {(selected.verified || selected.vip) && (
+                        <p className={cn('text-sm font-semibold', selected.unknown ? 'text-muted-foreground italic' : 'text-foreground')}>{selected.name}</p>
+                        {!selected.unknown && (selected.verified || selected.vip) && (
                           <div className="absolute left-full ml-1 flex items-center gap-0.5">
                             {selected.verified && <BadgeCheck className="size-3.5 text-brand" />}
                             {selected.vip && <Crown className="size-3.5 text-amber-500" />}
                           </div>
                         )}
                       </div>
-                      <p className="text-xs text-muted-foreground mt-0.5">Gold customer</p>
-
-                      {/* Contact details */}
-                      <div className="w-full mt-3 flex flex-col gap-1.5">
-                        {[
-                          { icon: User, text: 'USR-48291673' },
-                          { icon: Mail, text: 'kcrawley6@driftburner.inc' },
-                          { icon: Phone, text: '+14155552398' },
-                          { icon: MapPin, text: 'San Francisco, United States' },
-                        ].map(({ icon: Icon, text }) => (
-                          <div key={text} className="flex items-center gap-2">
-                            <Icon className="size-3.5 text-muted-foreground shrink-0" />
-                            <span className="text-xs text-muted-foreground truncate">{text}</span>
-                            <Copy className="size-3 text-muted-foreground ml-auto shrink-0 cursor-pointer hover:text-foreground" />
+                      {selected.unknown ? (
+                        <>
+                          <p className="text-xs text-muted-foreground mt-0.5 text-center">No user information available</p>
+                          <div className="w-full mt-4 flex flex-col gap-2">
+                            <p className="text-xs font-medium text-muted-foreground">Identify user</p>
+                            {[
+                              { icon: User, placeholder: 'User ID', type: 'text' },
+                              { icon: Mail, placeholder: 'Email address', type: 'email' },
+                              { icon: Phone, placeholder: 'Phone number', type: 'tel' },
+                            ].map(({ icon: Icon, placeholder, type }) => (
+                              <div key={placeholder} className="flex items-center gap-2 bg-muted rounded-lg px-2.5 py-1.5">
+                                <Icon className="size-3.5 text-muted-foreground shrink-0" />
+                                <input type={type} placeholder={placeholder} className="text-xs bg-transparent outline-none flex-1 text-foreground placeholder:text-muted-foreground" />
+                              </div>
+                            ))}
+                            <button className="mt-1 w-full flex items-center justify-center gap-1.5 text-xs font-medium bg-foreground text-background rounded-[min(var(--radius-md),12px)] py-1.5 hover:bg-foreground/90 transition-colors">
+                              Send verification code
+                            </button>
                           </div>
-                        ))}
-                      </div>
-
-                      {/* Social */}
-                      <div className="flex gap-2 mt-3">
-                        {[Facebook, Twitter, Linkedin].map((Icon, i) => (
-                          <button key={i} className="size-7 rounded-full bg-muted flex items-center justify-center hover:bg-muted-foreground/20 text-muted-foreground">
-                            <Icon className="size-3.5" />
-                          </button>
-                        ))}
-                      </div>
+                        </>
+                      ) : (
+                        <>
+                          <p className="text-xs text-muted-foreground mt-0.5">Gold customer</p>
+                          <div className="w-full mt-3 flex flex-col gap-1.5">
+                            {[
+                              { icon: User, text: 'USR-48291673' },
+                              { icon: Mail, text: 'kcrawley6@driftburner.inc' },
+                              { icon: Phone, text: '+14155552398' },
+                              { icon: MapPin, text: 'San Francisco, United States' },
+                            ].map(({ icon: Icon, text }) => (
+                              <div key={text} className="flex items-center gap-2">
+                                <Icon className="size-3.5 text-muted-foreground shrink-0" />
+                                <span className="text-xs text-muted-foreground truncate">{text}</span>
+                                <Copy className="size-3 text-muted-foreground ml-auto shrink-0 cursor-pointer hover:text-foreground" />
+                              </div>
+                            ))}
+                          </div>
+                          <div className="flex gap-2 mt-3">
+                            {[Facebook, Twitter, Linkedin].map((Icon, i) => (
+                              <button key={i} className="size-7 rounded-full bg-muted flex items-center justify-center hover:bg-muted-foreground/20 text-muted-foreground">
+                                <Icon className="size-3.5" />
+                              </button>
+                            ))}
+                          </div>
+                        </>
+                      )}
 
                       {/* Action buttons */}
                       <div className="flex gap-2 mt-3">
@@ -956,15 +1181,15 @@ function AllConversationsContent() {
                           { icon: MessageSquare, label: 'Message' },
                           { icon: Pencil, label: 'Edit' },
                           { icon: PhoneCall, label: 'Call' },
-                          { icon: Trash2, label: 'Delete', destructive: true },
-                        ].map(({ icon: Icon, label, destructive }) => (
+                          { icon: ShieldBan, label: 'Block deposits & withdrawals', warn: true },
+                        ].map(({ icon: Icon, label, warn }) => (
                           <button
                             key={label}
                             title={label}
                             className={cn(
                               'size-8 rounded-full flex items-center justify-center',
-                              destructive
-                                ? 'bg-destructive-bg text-destructive hover:bg-destructive/20'
+                              warn
+                                ? 'bg-amber-100 text-amber-600 hover:bg-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:hover:bg-amber-900/50'
                                 : 'bg-muted text-muted-foreground hover:bg-muted-foreground/20'
                             )}
                           >
@@ -1001,7 +1226,10 @@ function AllConversationsContent() {
                               {/* Account status */}
                               <div className="flex items-center justify-between">
                                 <span className="text-xs text-muted-foreground">Status</span>
-                                <span className="flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full bg-success-bg text-success"><ShieldCheck className="size-3" />Active</span>
+                                {selected.unknown
+                                  ? <span className="text-xs text-muted-foreground">—</span>
+                                  : <span className="flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full bg-success-bg text-success"><ShieldCheck className="size-3" />Active</span>
+                                }
                               </div>
 
                               {/* Balances */}
@@ -1009,27 +1237,27 @@ function AllConversationsContent() {
                                 <p className="text-[10px] font-semibold text-foreground uppercase tracking-wide">Balances</p>
                                 <div className="flex items-center justify-between">
                                   <span className="flex items-center gap-1.5 text-xs text-muted-foreground"><CircleDollarSign className="size-3.5" />Real money</span>
-                                  <span className="text-xs text-foreground">$1,240.00</span>
+                                  <span className="text-xs text-muted-foreground">{selected.unknown ? '—' : '$1,240.00'}</span>
                                 </div>
                                 <div className="flex items-center justify-between">
                                   <span className="flex items-center gap-1.5 text-xs text-muted-foreground"><Gift className="size-3.5" />Bonus</span>
-                                  <span className="text-xs text-foreground">$180.00</span>
+                                  <span className="text-xs text-muted-foreground">{selected.unknown ? '—' : '$180.00'}</span>
                                 </div>
                                 <div className="flex items-center justify-between">
                                   <span className="flex items-center gap-1.5 text-xs text-muted-foreground"><Clock className="size-3.5" />Pending withdrawal</span>
-                                  <span className="text-xs text-foreground">$500.00</span>
+                                  <span className="text-xs text-muted-foreground">{selected.unknown ? '—' : '$500.00'}</span>
                                 </div>
                                 <div className="pt-2 border-t border-border flex items-center justify-around">
                                   <div className="flex flex-col items-center gap-0.5">
-                                    <span className="text-sm font-medium text-foreground">$24,300</span>
+                                    <span className="text-sm font-medium text-foreground">{selected.unknown ? '—' : '$24,300'}</span>
                                     <span className="text-[10px] text-muted-foreground">Deposits</span>
-                                    <span className="text-[10px] text-muted-foreground">47 times</span>
+                                    <span className="text-[10px] text-muted-foreground">{selected.unknown ? '—' : '47 times'}</span>
                                   </div>
                                   <div className="w-px h-10 bg-border" />
                                   <div className="flex flex-col items-center gap-0.5">
-                                    <span className="text-sm font-medium text-foreground">$19,750</span>
+                                    <span className="text-sm font-medium text-foreground">{selected.unknown ? '—' : '$19,750'}</span>
                                     <span className="text-[10px] text-muted-foreground">Withdrawals</span>
-                                    <span className="text-[10px] text-muted-foreground">31 times</span>
+                                    <span className="text-[10px] text-muted-foreground">{selected.unknown ? '—' : '31 times'}</span>
                                   </div>
                                 </div>
                               </div>
@@ -1038,27 +1266,33 @@ function AllConversationsContent() {
                               <div className="flex flex-col gap-2">
                                 <p className="text-[10px] font-semibold text-foreground uppercase tracking-wide">Last Transaction</p>
                                 <div className="flex items-center justify-between">
-                                  <span className="flex items-center gap-1.5 text-xs text-muted-foreground"><CreditCard className="size-3.5" />Deposit · Visa</span>
-                                  <span className="text-xs text-foreground">+$500</span>
+                                  <span className="flex items-center gap-1.5 text-xs text-muted-foreground"><CreditCard className="size-3.5" />{selected.unknown ? 'Unknown' : 'Deposit · Visa'}</span>
+                                  <span className="text-xs text-muted-foreground">{selected.unknown ? '—' : '+$500'}</span>
                                 </div>
                                 <div className="flex items-center justify-between">
-                                  <span className="text-xs text-muted-foreground">Jan 14, 2026</span>
-                                  <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-success-bg text-success">Completed</span>
+                                  <span className="text-xs text-muted-foreground">{selected.unknown ? '—' : 'Jan 14, 2026'}</span>
+                                  {!selected.unknown && <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-success-bg text-success">Completed</span>}
                                 </div>
                               </div>
 
                               {/* Active bonus */}
                               <div className="flex flex-col gap-2">
                                 <p className="text-[10px] font-semibold text-foreground uppercase tracking-wide">Active Bonus</p>
-                                <span className="flex items-center gap-1.5 text-xs text-muted-foreground"><Flame className="size-3.5 text-amber-500" />100% Deposit Bonus</span>
-                                <div className="flex items-center justify-between">
-                                  <span className="text-xs text-muted-foreground">Wagered</span>
-                                  <span className="text-xs text-foreground">$340 / $500</span>
-                                </div>
-                                <div className="w-full h-1.5 rounded-full bg-muted-foreground/20">
-                                  <div className="h-1.5 rounded-full bg-amber-500" style={{width: '68%'}} />
-                                </div>
-                                <span className="text-[10px] text-muted-foreground">Expires Jan 20, 2026</span>
+                                {selected.unknown ? (
+                                  <span className="text-xs text-muted-foreground">—</span>
+                                ) : (
+                                  <>
+                                    <span className="flex items-center gap-1.5 text-xs text-muted-foreground"><Flame className="size-3.5 text-amber-500" />100% Deposit Bonus</span>
+                                    <div className="flex items-center justify-between">
+                                      <span className="text-xs text-muted-foreground">Wagered</span>
+                                      <span className="text-xs text-foreground">$340 / $500</span>
+                                    </div>
+                                    <div className="w-full h-1.5 rounded-full bg-muted-foreground/20">
+                                      <div className="h-1.5 rounded-full bg-amber-500" style={{width: '68%'}} />
+                                    </div>
+                                    <span className="text-[10px] text-muted-foreground">Expires Jan 20, 2026</span>
+                                  </>
+                                )}
                               </div>
 
                               {/* KYC & Account */}
@@ -1066,15 +1300,18 @@ function AllConversationsContent() {
                                 <p className="text-[10px] font-semibold text-foreground uppercase tracking-wide">KYC & Account</p>
                                 <div className="flex items-center justify-between">
                                   <span className="flex items-center gap-1.5 text-xs text-muted-foreground"><ShieldCheck className="size-3.5" />Verification</span>
-                                  <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-success-bg text-success">Verified</span>
+                                  {selected.unknown
+                                    ? <span className="text-xs text-muted-foreground">—</span>
+                                    : <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-success-bg text-success">Verified</span>
+                                  }
                                 </div>
                                 <div className="flex items-center justify-between">
                                   <span className="flex items-center gap-1.5 text-xs text-muted-foreground"><TrendingUp className="size-3.5" />VIP Level</span>
-                                  <span className="text-xs text-foreground">Gold</span>
+                                  <span className="text-xs text-muted-foreground">{selected.unknown ? '—' : 'Gold'}</span>
                                 </div>
                                 <div className="flex items-center justify-between">
                                   <span className="flex items-center gap-1.5 text-xs text-muted-foreground"><Clock className="size-3.5" />Registered</span>
-                                  <span className="text-xs text-foreground">Mar 5, 2023</span>
+                                  <span className="text-xs text-muted-foreground">{selected.unknown ? '—' : 'Mar 5, 2023'}</span>
                                 </div>
                               </div>
 
@@ -1083,15 +1320,15 @@ function AllConversationsContent() {
                                 <p className="text-[10px] font-semibold text-foreground uppercase tracking-wide">Last Activity</p>
                                 <div className="flex items-center justify-between">
                                   <span className="flex items-center gap-1.5 text-xs text-muted-foreground"><LogIn className="size-3.5" />Last login</span>
-                                  <span className="text-xs text-foreground">Today, 11:42 AM</span>
+                                  <span className="text-xs text-muted-foreground">{selected.unknown ? '—' : 'Today, 11:42 AM'}</span>
                                 </div>
                                 <div className="flex items-center justify-between">
                                   <span className="flex items-center gap-1.5 text-xs text-muted-foreground"><Gamepad2 className="size-3.5" />Last game</span>
-                                  <span className="text-xs text-foreground">Book of Dead</span>
+                                  <span className="text-xs text-muted-foreground">{selected.unknown ? '—' : 'Book of Dead'}</span>
                                 </div>
                                 <div className="flex items-center justify-between">
                                   <span className="flex items-center gap-1.5 text-xs text-muted-foreground"><MapPin className="size-3.5" />Location</span>
-                                  <span className="text-xs text-foreground">DE · Berlin</span>
+                                  <span className="text-xs text-muted-foreground">{selected.unknown ? '—' : 'DE · Berlin'}</span>
                                 </div>
                               </div>
 
@@ -1100,15 +1337,18 @@ function AllConversationsContent() {
                                 <p className="text-[10px] font-semibold text-foreground uppercase tracking-wide">Limits & Restrictions</p>
                                 <div className="flex items-center justify-between">
                                   <span className="flex items-center gap-1.5 text-xs text-muted-foreground"><CircleDollarSign className="size-3.5" />Daily deposit</span>
-                                  <span className="text-xs text-foreground">$500 / day</span>
+                                  <span className="text-xs text-muted-foreground">{selected.unknown ? '—' : '$500 / day'}</span>
                                 </div>
                                 <div className="flex items-center justify-between">
                                   <span className="flex items-center gap-1.5 text-xs text-muted-foreground"><Timer className="size-3.5" />Session limit</span>
-                                  <span className="text-xs text-foreground">3h / session</span>
+                                  <span className="text-xs text-muted-foreground">{selected.unknown ? '—' : '3h / session'}</span>
                                 </div>
                                 <div className="flex items-center justify-between">
                                   <span className="flex items-center gap-1.5 text-xs text-muted-foreground"><CircleAlert className="size-3.5" />Self-exclusion</span>
-                                  <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-muted-foreground/15 text-muted-foreground">None</span>
+                                  {selected.unknown
+                                    ? <span className="text-xs text-muted-foreground">—</span>
+                                    : <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-muted-foreground/15 text-muted-foreground">None</span>
+                                  }
                                 </div>
                               </div>
                             </div>
@@ -1185,7 +1425,9 @@ function AllConversationsContent() {
                           )}
                           {isExpanded && section === 'Previous Conversations' && (
                             <div className="px-4 pb-3 flex flex-col gap-2">
-                              {PREV_CONVERSATIONS.map((prev) => {
+                              {selected.unknown ? (
+                                <p className="text-xs text-muted-foreground">—</p>
+                              ) : PREV_CONVERSATIONS.map((prev) => {
                                 const Icon = CHANNEL_ICON_MAP[prev.channel]
                                 return (
                                   <button
@@ -1329,15 +1571,7 @@ function AllConversationsContent() {
                     })}
                   </>
                 ) : (
-                  <div className="flex-1 flex items-center justify-center p-8">
-                    <div className="flex flex-col items-center gap-3 text-center">
-                      <div className="size-12 rounded-xl bg-muted flex items-center justify-center">
-                        <Zap className="size-6 text-muted-foreground" />
-                      </div>
-                      <p className="text-sm font-medium text-foreground">Copilot</p>
-                      <p className="text-xs text-muted-foreground">AI assistant will be available here.</p>
-                    </div>
-                  </div>
+                  <CopilotPanel convo={selected} />
                 )}
               </div>}
               </div>
@@ -1386,54 +1620,84 @@ function AllConversationsContent() {
               <>
                 {/* Avatar + name */}
                 <div className="flex flex-col items-center pt-4 pb-4 px-4 border-b border-border">
-                  <div className="size-14 rounded-full bg-muted-foreground/20 flex items-center justify-center text-xl font-semibold text-muted-foreground mb-3">
-                    {selected.name.charAt(0)}
-                  </div>
+                  {selected.unknown ? (
+                    <div className="size-14 rounded-full bg-muted border-2 border-dashed border-border flex items-center justify-center mb-3">
+                      <UserX className="size-6 text-muted-foreground" />
+                    </div>
+                  ) : (
+                    <div className="size-14 rounded-full bg-muted-foreground/20 flex items-center justify-center text-xl font-semibold text-muted-foreground mb-3">
+                      {selected.name.charAt(0)}
+                    </div>
+                  )}
                   <div className="relative flex items-center justify-center">
-                    <p className="text-base font-semibold text-foreground">{selected.name}</p>
-                    {(selected.verified || selected.vip) && (
+                    <p className={cn('text-base font-semibold', selected.unknown ? 'text-muted-foreground italic' : 'text-foreground')}>{selected.name}</p>
+                    {!selected.unknown && (selected.verified || selected.vip) && (
                       <div className="absolute left-full ml-1 flex items-center gap-0.5">
                         {selected.verified && <BadgeCheck className="size-4 text-brand" />}
                         {selected.vip && <Crown className="size-4 text-amber-500" />}
                       </div>
                     )}
                   </div>
-                  <p className="text-sm text-muted-foreground mt-0.5">Gold customer</p>
-                  <div className="w-full mt-3 flex flex-col gap-2">
-                    {[
-                      { icon: User, text: 'USR-48291673' },
-                      { icon: Mail, text: 'kcrawley6@driftburner.inc' },
-                      { icon: Phone, text: '+14155552398' },
-                      { icon: MapPin, text: 'San Francisco, United States' },
-                    ].map(({ icon: Icon, text }) => (
-                      <div key={text} className="flex items-center gap-2">
-                        <Icon className="size-4 text-muted-foreground shrink-0" />
-                        <span className="text-sm text-muted-foreground truncate">{text}</span>
-                        <Copy className="size-3.5 text-muted-foreground ml-auto shrink-0 cursor-pointer hover:text-foreground" />
+                  {selected.unknown ? (
+                    <>
+                      <p className="text-sm text-muted-foreground mt-0.5 text-center">No user information available</p>
+                      <div className="w-full mt-4 flex flex-col gap-2">
+                        <p className="text-sm font-medium text-muted-foreground">Identify user</p>
+                        {[
+                          { icon: User, placeholder: 'User ID', type: 'text' },
+                          { icon: Mail, placeholder: 'Email address', type: 'email' },
+                          { icon: Phone, placeholder: 'Phone number', type: 'tel' },
+                        ].map(({ icon: Icon, placeholder, type }) => (
+                          <div key={placeholder} className="flex items-center gap-2 bg-muted rounded-lg px-3 py-2">
+                            <Icon className="size-4 text-muted-foreground shrink-0" />
+                            <input type={type} placeholder={placeholder} className="text-sm bg-transparent outline-none flex-1 text-foreground placeholder:text-muted-foreground" />
+                          </div>
+                        ))}
+                        <button className="mt-1 w-full flex items-center justify-center gap-1.5 text-sm font-medium bg-brand text-white rounded-lg py-2 hover:bg-brand/90 transition-colors">
+                          Send verification code
+                        </button>
                       </div>
-                    ))}
-                  </div>
-                  <div className="flex gap-2 mt-4">
-                    {[Facebook, Twitter, Linkedin].map((Icon, i) => (
-                      <button key={i} className="size-8 rounded-full bg-muted flex items-center justify-center hover:bg-muted-foreground/20 text-muted-foreground">
-                        <Icon className="size-4" />
-                      </button>
-                    ))}
-                  </div>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-sm text-muted-foreground mt-0.5">Gold customer</p>
+                      <div className="w-full mt-3 flex flex-col gap-2">
+                        {[
+                          { icon: User, text: 'USR-48291673' },
+                          { icon: Mail, text: 'kcrawley6@driftburner.inc' },
+                          { icon: Phone, text: '+14155552398' },
+                          { icon: MapPin, text: 'San Francisco, United States' },
+                        ].map(({ icon: Icon, text }) => (
+                          <div key={text} className="flex items-center gap-2">
+                            <Icon className="size-4 text-muted-foreground shrink-0" />
+                            <span className="text-sm text-muted-foreground truncate">{text}</span>
+                            <Copy className="size-3.5 text-muted-foreground ml-auto shrink-0 cursor-pointer hover:text-foreground" />
+                          </div>
+                        ))}
+                      </div>
+                      <div className="flex gap-2 mt-4">
+                        {[Facebook, Twitter, Linkedin].map((Icon, i) => (
+                          <button key={i} className="size-8 rounded-full bg-muted flex items-center justify-center hover:bg-muted-foreground/20 text-muted-foreground">
+                            <Icon className="size-4" />
+                          </button>
+                        ))}
+                      </div>
+                    </>
+                  )}
                   <div className="flex gap-2 mt-3">
                     {[
                       { icon: MessageSquare, label: 'Message' },
                       { icon: Pencil, label: 'Edit' },
                       { icon: PhoneCall, label: 'Call' },
-                      { icon: Trash2, label: 'Delete', destructive: true },
-                    ].map(({ icon: Icon, label, destructive }) => (
+                      { icon: ShieldBan, label: 'Block deposits & withdrawals', warn: true },
+                    ].map(({ icon: Icon, label, warn }) => (
                       <button
                         key={label}
                         title={label}
                         className={cn(
                           'size-9 rounded-full flex items-center justify-center',
-                          destructive
-                            ? 'bg-destructive-bg text-destructive hover:bg-destructive/20'
+                          warn
+                            ? 'bg-amber-100 text-amber-600 hover:bg-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:hover:bg-amber-900/50'
                             : 'bg-muted text-muted-foreground hover:bg-muted-foreground/20'
                         )}
                       >
@@ -1632,7 +1896,9 @@ function AllConversationsContent() {
                       )}
                       {isExpanded && section === 'Previous Conversations' && (
                         <div className="px-4 pb-3 flex flex-col gap-2">
-                          {PREV_CONVERSATIONS.map((prev) => {
+                          {selected.unknown ? (
+                            <p className="text-sm text-muted-foreground">—</p>
+                          ) : PREV_CONVERSATIONS.map((prev) => {
                             const Icon = CHANNEL_ICON_MAP[prev.channel]
                             return (
                               <button
@@ -1713,15 +1979,7 @@ function AllConversationsContent() {
                 })}
               </>
             ) : (
-              <div className="flex-1 flex items-center justify-center p-8">
-                <div className="flex flex-col items-center gap-3 text-center">
-                  <div className="size-12 rounded-xl bg-muted flex items-center justify-center">
-                    <Zap className="size-6 text-muted-foreground" />
-                  </div>
-                  <p className="text-sm font-medium text-foreground">Copilot</p>
-                  <p className="text-xs text-muted-foreground">AI assistant will be available here.</p>
-                </div>
-              </div>
+              <CopilotPanel convo={selected} compact />
             )}
           </div>
         </DrawerContent>
@@ -1732,12 +1990,5 @@ function AllConversationsContent() {
 }
 
 export default function AllConversationsPage() {
-  return (
-    <SidebarProvider>
-      <AppSidebar />
-      <SidebarInset>
-        <AllConversationsContent />
-      </SidebarInset>
-    </SidebarProvider>
-  )
+  return <AllConversationsContent />
 }

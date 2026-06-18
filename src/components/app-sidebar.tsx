@@ -95,6 +95,7 @@ const data = {
       icon: MessageSquare,
       items: [
         { title: "All Conversations", url: "/all-conversations" },
+        { title: "Reports", url: "/reports" },
         { title: "Mentions", url: "#" },
         { title: "Unattended", url: "#" },
       ],
