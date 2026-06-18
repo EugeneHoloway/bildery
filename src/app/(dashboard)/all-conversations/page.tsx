@@ -1978,9 +1978,9 @@ function AllConversationsContent() {
                   )
                 })}
               </>
-            ) : (
+            ) : selected ? (
               <CopilotPanel convo={selected} compact />
-            )}
+            ) : null}
           </div>
         </DrawerContent>
       </Drawer>
