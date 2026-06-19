@@ -304,6 +304,12 @@ function CopilotPanel({ convo, compact = false }: { convo: Conversation; compact
   const [prompt, setPrompt] = useState('')
   const [isTyping, setIsTyping] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['Summary', 'Risk Analysis', 'Suggested Replies', 'Translation', 'Transaction Lookup']))
+  const toggleSection = (section: string) => setExpandedSections(prev => {
+    const next = new Set(prev)
+    next.has(section) ? next.delete(section) : next.add(section)
+    return next
+  })
 
   const sp = compact ? 'text-sm' : 'text-xs'
   const sp2 = compact ? 'text-base' : 'text-sm'
@@ -352,16 +358,16 @@ function CopilotPanel({ convo, compact = false }: { convo: Conversation; compact
     <div className="flex flex-col h-full overflow-hidden">
 
       {/* Tab switcher */}
-      <div className="flex shrink-0 gap-1 p-2 border-b border-border">
+      <div className="flex shrink-0 border-b border-border">
         {(['ask', 'tools'] as const).map(tab => (
           <button
             key={tab}
             onClick={() => setCopilotTab(tab)}
             className={cn(
-              'flex-1 py-1 rounded-md text-xs font-medium transition-all capitalize',
+              'flex-1 py-2.5 text-sm font-medium transition-all border-b-2 -mb-px',
               copilotTab === tab
-                ? 'bg-muted text-foreground'
-                : 'text-muted-foreground hover:text-foreground'
+                ? 'border-foreground text-foreground'
+                : 'border-transparent text-muted-foreground hover:text-foreground'
             )}
           >
             {tab === 'ask' ? 'Ask Copilot' : 'Tools'}
@@ -459,104 +465,118 @@ function CopilotPanel({ convo, compact = false }: { convo: Conversation; compact
 
       {/* Tools tab */}
       {copilotTab === 'tools' && (
-      <div className="flex flex-col gap-3 p-3 overflow-y-auto flex-1">
+      <div className="flex flex-col overflow-y-auto flex-1">
 
       {/* Summary */}
-      <div className="rounded-xl border border-border bg-muted/40 p-3 flex flex-col gap-1.5">
-        <div className="flex items-center gap-1.5 mb-0.5">
-          <Sparkles className="size-3.5 text-brand shrink-0" />
-          <span className={cn(sp, 'font-semibold text-foreground')}>Summary</span>
-        </div>
-        <p className={cn(sp, 'text-muted-foreground leading-relaxed')}>
-          {convo.unknown
-            ? 'Unidentified user reporting account access issue. No matching record found. Identity verification required before any account action.'
-            : 'Customer reports a pending issue related to their account. Conversation is ongoing. No resolution yet — agent follow-up needed.'}
-        </p>
+      <div className="border-b border-border">
+        <button onClick={() => toggleSection('Summary')} className="w-full flex items-center justify-between px-4 py-3 hover:bg-muted/50 transition-colors">
+          <span className="text-sm font-medium text-foreground">Summary</span>
+          {expandedSections.has('Summary') ? <ChevronDown className="size-4 text-muted-foreground" /> : <ChevronRight className="size-4 text-muted-foreground" />}
+        </button>
+        {expandedSections.has('Summary') && (
+          <div className="px-4 pb-3">
+            <p className={cn(sp, 'text-muted-foreground leading-relaxed')}>
+              {convo.unknown
+                ? 'Unidentified user reporting account access issue. No matching record found. Identity verification required before any account action.'
+                : 'Customer reports a pending issue related to their account. Conversation is ongoing. No resolution yet — agent follow-up needed.'}
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Risk analysis */}
-      <div className="rounded-xl border border-border bg-muted/40 p-3 flex flex-col gap-1.5">
-        <div className="flex items-center gap-1.5 mb-0.5">
-          <ShieldAlert className="size-3.5 text-foreground shrink-0" />
-          <span className={cn(sp, 'font-semibold text-foreground')}>Risk Analysis</span>
-        </div>
-        <div className="flex flex-col gap-1">
-          {riskFlags.map(({ color, label }) => (
-            <div key={label} className="flex items-center gap-1.5">
-              <span className={cn('size-1.5 rounded-full shrink-0', color === 'text-success' ? 'bg-success' : color === 'text-amber-500' ? 'bg-amber-500' : 'bg-destructive')} />
-              <span className={cn(sp, 'text-muted-foreground')}>{label}</span>
-            </div>
-          ))}
-        </div>
+      <div className="border-b border-border">
+        <button onClick={() => toggleSection('Risk Analysis')} className="w-full flex items-center justify-between px-4 py-3 hover:bg-muted/50 transition-colors">
+          <span className="text-sm font-medium text-foreground">Risk Analysis</span>
+          {expandedSections.has('Risk Analysis') ? <ChevronDown className="size-4 text-muted-foreground" /> : <ChevronRight className="size-4 text-muted-foreground" />}
+        </button>
+        {expandedSections.has('Risk Analysis') && (
+          <div className="px-4 pb-3 flex flex-col gap-1">
+            {riskFlags.map(({ color, label }) => (
+              <div key={label} className="flex items-center gap-1.5">
+                <span className={cn('size-1.5 rounded-full shrink-0', color === 'text-success' ? 'bg-success' : color === 'text-amber-500' ? 'bg-amber-500' : 'bg-destructive')} />
+                <span className={cn(sp, 'text-muted-foreground')}>{label}</span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Suggested replies */}
-      <div className="rounded-xl border border-border bg-muted/40 p-3 flex flex-col gap-1.5">
-        <div className="flex items-center justify-between mb-0.5">
-          <div className="flex items-center gap-1.5">
-            <MessageSquare className="size-3.5 text-foreground shrink-0" />
-            <span className={cn(sp, 'font-semibold text-foreground')}>Suggested Replies</span>
+      <div className="border-b border-border">
+        <button onClick={() => toggleSection('Suggested Replies')} className="w-full flex items-center justify-between px-4 py-3 hover:bg-muted/50 transition-colors">
+          <span className="text-sm font-medium text-foreground">Suggested Replies</span>
+          <div className="flex items-center gap-2">
+            <span onClick={e => e.stopPropagation()} className="text-muted-foreground hover:text-foreground transition-colors">
+              <RefreshCw className="size-3.5" />
+            </span>
+            {expandedSections.has('Suggested Replies') ? <ChevronDown className="size-4 text-muted-foreground" /> : <ChevronRight className="size-4 text-muted-foreground" />}
           </div>
-          <button className="text-muted-foreground hover:text-foreground transition-colors">
-            <RefreshCw className="size-3" />
-          </button>
-        </div>
-        <div className="flex flex-col gap-1.5">
-          {suggestions.map((s, i) => (
-            <button
-              key={i}
-              className={cn(sp, 'text-left text-muted-foreground bg-background border border-border rounded-lg px-2.5 py-2 hover:border-brand hover:text-foreground transition-colors leading-relaxed')}
-            >
-              {s}
-            </button>
-          ))}
-        </div>
+        </button>
+        {expandedSections.has('Suggested Replies') && (
+          <div className="px-4 pb-3 flex flex-col gap-1.5">
+            {suggestions.map((s, i) => (
+              <button
+                key={i}
+                className={cn(sp, 'text-left text-muted-foreground bg-background border border-border rounded-lg px-2.5 py-2 hover:border-brand hover:text-foreground transition-colors leading-relaxed')}
+              >
+                {s}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Translation */}
-      <div className="rounded-xl border border-border bg-muted/40 p-3 flex flex-col gap-1.5">
-        <div className="flex items-center gap-1.5 mb-0.5">
-          <Languages className="size-3.5 text-foreground shrink-0" />
-          <span className={cn(sp, 'font-semibold text-foreground')}>Translation</span>
-        </div>
-        <div className="flex items-center justify-between">
-          <span className={cn(sp, 'text-muted-foreground')}>Detected: English</span>
-          <button className={cn(sp, 'flex items-center gap-1 text-brand hover:underline')}>
-            Translate <ChevronDown className="size-3" />
-          </button>
-        </div>
+      <div className="border-b border-border">
+        <button onClick={() => toggleSection('Translation')} className="w-full flex items-center justify-between px-4 py-3 hover:bg-muted/50 transition-colors">
+          <span className="text-sm font-medium text-foreground">Translation</span>
+          {expandedSections.has('Translation') ? <ChevronDown className="size-4 text-muted-foreground" /> : <ChevronRight className="size-4 text-muted-foreground" />}
+        </button>
+        {expandedSections.has('Translation') && (
+          <div className="px-4 pb-3 flex items-center justify-between">
+            <span className={cn(sp, 'text-muted-foreground')}>Detected: English</span>
+            <button className={cn(sp, 'flex items-center gap-1 text-brand hover:underline')}>
+              Translate <ChevronDown className="size-3" />
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Transaction lookup */}
-      <div className="rounded-xl border border-border bg-muted/40 p-3 flex flex-col gap-1.5">
-        <div className="flex items-center gap-1.5 mb-0.5">
-          <CreditCard className="size-3.5 text-foreground shrink-0" />
-          <span className={cn(sp, 'font-semibold text-foreground')}>Transaction Lookup</span>
-        </div>
-        <div className="flex items-center gap-1.5 bg-background border border-border rounded-lg overflow-hidden">
-          <input
-            value={txnQuery}
-            onChange={e => { setTxnQuery(e.target.value); setTxnResult(null) }}
-            placeholder="Enter transaction ID..."
-            className={cn(sp, 'flex-1 bg-transparent outline-none text-foreground placeholder:text-muted-foreground px-2.5 py-1.5')}
-          />
-          <button
-            onClick={() => setTxnResult(txnQuery.length > 3 ? 'found' : 'not-found')}
-            className="px-2.5 py-1.5 bg-muted text-muted-foreground hover:text-foreground transition-colors border-l border-border"
-          >
-            <ArrowRight className="size-3.5" />
-          </button>
-        </div>
-        {txnResult === 'found' && (
-          <div className={cn(sp, 'flex flex-col gap-1 mt-0.5 text-muted-foreground')}>
-            <div className="flex justify-between"><span>Type</span><span className="text-foreground">Deposit · Visa</span></div>
-            <div className="flex justify-between"><span>Amount</span><span className="text-foreground">+$250.00</span></div>
-            <div className="flex justify-between"><span>Status</span><span className="text-success font-medium">Completed</span></div>
-            <div className="flex justify-between"><span>Date</span><span className="text-foreground">Jan 14, 2026</span></div>
+      <div className="border-b border-border">
+        <button onClick={() => toggleSection('Transaction Lookup')} className="w-full flex items-center justify-between px-4 py-3 hover:bg-muted/50 transition-colors">
+          <span className="text-sm font-medium text-foreground">Transaction Lookup</span>
+          {expandedSections.has('Transaction Lookup') ? <ChevronDown className="size-4 text-muted-foreground" /> : <ChevronRight className="size-4 text-muted-foreground" />}
+        </button>
+        {expandedSections.has('Transaction Lookup') && (
+          <div className="px-4 pb-3 flex flex-col gap-1.5">
+            <div className="flex items-center gap-1.5 bg-background border border-border rounded-lg overflow-hidden">
+              <input
+                value={txnQuery}
+                onChange={e => { setTxnQuery(e.target.value); setTxnResult(null) }}
+                placeholder="Enter transaction ID..."
+                className={cn(sp, 'flex-1 bg-transparent outline-none text-foreground placeholder:text-muted-foreground px-2.5 py-1.5')}
+              />
+              <button
+                onClick={() => setTxnResult(txnQuery.length > 3 ? 'found' : 'not-found')}
+                className="px-2.5 py-1.5 bg-muted text-muted-foreground hover:text-foreground transition-colors border-l border-border"
+              >
+                <ArrowRight className="size-3.5" />
+              </button>
+            </div>
+            {txnResult === 'found' && (
+              <div className={cn(sp, 'flex flex-col gap-1 text-muted-foreground')}>
+                <div className="flex justify-between"><span>Type</span><span className="text-foreground">Deposit · Visa</span></div>
+                <div className="flex justify-between"><span>Amount</span><span className="text-foreground">+$250.00</span></div>
+                <div className="flex justify-between"><span>Status</span><span className="text-success font-medium">Completed</span></div>
+                <div className="flex justify-between"><span>Date</span><span className="text-foreground">Jan 14, 2026</span></div>
+              </div>
+            )}
+            {txnResult === 'not-found' && (
+              <p className={cn(sp, 'text-destructive')}>Transaction not found.</p>
+            )}
           </div>
-        )}
-        {txnResult === 'not-found' && (
-          <p className={cn(sp, 'text-destructive mt-0.5')}>Transaction not found.</p>
         )}
       </div>
 
@@ -634,7 +654,7 @@ function ConversationItem({
             {convo.isReply && <Reply className="size-3 shrink-0 text-muted-foreground" />}
             <p className={cn('text-xs truncate min-w-0 flex-1', convo.unread ? 'text-foreground font-medium' : 'text-muted-foreground')}>{convo.preview}</p>
             {convo.unread && (
-              <span className="ml-auto shrink-0 size-4 rounded-full bg-brand text-white text-[10px] flex items-center justify-center font-medium">
+              <span className="ml-auto shrink-0 size-4 rounded-full bg-brand text-white text-xs flex items-center justify-center">
                 {convo.unread}
               </span>
             )}
@@ -741,9 +761,9 @@ function AllConversationsContent() {
     setShowSidebar(next)
     if (next && isMediumScreen) setAppSidebarOpen(false)
   }
-  const [status, setStatus] = useState<'open' | 'on_hold' | 'resolved'>('open')
+  const [status, setStatus] = useState<'open' | 'pending' | 'resolved' | 'spam'>('open')
   const [showStatusMenu, setShowStatusMenu] = useState(false)
-  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['Contact Attributes']))
+  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['Contact Attributes', 'Summary', 'Risk Analysis', 'Suggested Replies', 'Translation', 'Transaction Lookup']))
   const [convoPriority, setConvoPriority] = useState<'normal' | 'high' | 'critical'>('high')
   const toggleSection = (section: string) => setExpandedSections(prev => {
     const next = new Set(prev)
@@ -884,7 +904,7 @@ function AllConversationsContent() {
                               {convo.unknown ? <UserX className="size-4" /> : convo.name.charAt(0)}
                             </div>
                             {convo.unread && convo.unread > 0 ? (
-                              <span className="absolute -bottom-0.5 -right-0.5 min-w-[16px] h-4 rounded-full bg-brand text-white text-[10px] font-medium flex items-center justify-center px-0.5">
+                              <span className="absolute -bottom-0.5 -right-0.5 min-w-[16px] h-4 rounded-full bg-brand text-white text-xs flex items-center justify-center px-0.5">
                                 {convo.unread}
                               </span>
                             ) : null}
@@ -1086,15 +1106,16 @@ function AllConversationsContent() {
                       className="h-8 gap-1"
                       onClick={() => setShowStatusMenu(!showStatusMenu)}
                     >
-                      {status === 'open' ? 'Open' : status === 'on_hold' ? 'On hold' : 'Resolved'}
+                      {status === 'open' ? 'Open' : status === 'pending' ? 'Pending' : status === 'spam' ? 'Spam' : 'Resolved'}
                       <ChevronDown className="size-3" />
                     </Button>
                     {showStatusMenu && (
                       <div className="absolute right-0 top-full mt-1 z-50 bg-popover border border-border rounded-lg shadow-md overflow-hidden min-w-[120px]">
                         {([
                           { key: 'open', label: 'Open' },
-                          { key: 'on_hold', label: 'On hold' },
+                          { key: 'pending', label: 'Pending' },
                           { key: 'resolved', label: 'Resolved' },
+                          { key: 'spam', label: 'Spam' },
                         ] as const).map(({ key, label }) => (
                           <button
                             key={key}
@@ -1379,13 +1400,13 @@ function AllConversationsContent() {
                                 <span className="text-xs text-muted-foreground">Status</span>
                                 {selected.unknown
                                   ? <span className="text-xs text-muted-foreground">—</span>
-                                  : <span className="flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full bg-success-bg text-success"><ShieldCheck className="size-3" />Active</span>
+                                  : <span className="flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-success-bg text-success"><ShieldCheck className="size-3" />Active</span>
                                 }
                               </div>
 
                               {/* Balances */}
                               <div className="flex flex-col gap-2">
-                                <p className="text-[10px] font-semibold text-foreground uppercase tracking-wide">Balances</p>
+                                <p className="text-xs font-semibold text-foreground uppercase tracking-wide">Balances</p>
                                 <div className="flex items-center justify-between">
                                   <span className="flex items-center gap-1.5 text-xs text-muted-foreground"><CircleDollarSign className="size-3.5" />Real money</span>
                                   <span className="text-xs text-muted-foreground">{selected.unknown ? '—' : '$1,240.00'}</span>
@@ -1401,34 +1422,34 @@ function AllConversationsContent() {
                                 <div className="pt-2 border-t border-border flex items-center justify-around">
                                   <div className="flex flex-col items-center gap-0.5">
                                     <span className="text-sm font-medium text-foreground">{selected.unknown ? '—' : '$24,300'}</span>
-                                    <span className="text-[10px] text-muted-foreground">Deposits</span>
-                                    <span className="text-[10px] text-muted-foreground">{selected.unknown ? '—' : '47 times'}</span>
+                                    <span className="text-xs text-muted-foreground">Deposits</span>
+                                    <span className="text-xs text-muted-foreground">{selected.unknown ? '—' : '47 times'}</span>
                                   </div>
                                   <div className="w-px h-10 bg-border" />
                                   <div className="flex flex-col items-center gap-0.5">
                                     <span className="text-sm font-medium text-foreground">{selected.unknown ? '—' : '$19,750'}</span>
-                                    <span className="text-[10px] text-muted-foreground">Withdrawals</span>
-                                    <span className="text-[10px] text-muted-foreground">{selected.unknown ? '—' : '31 times'}</span>
+                                    <span className="text-xs text-muted-foreground">Withdrawals</span>
+                                    <span className="text-xs text-muted-foreground">{selected.unknown ? '—' : '31 times'}</span>
                                   </div>
                                 </div>
                               </div>
 
                               {/* Last transaction */}
                               <div className="flex flex-col gap-2">
-                                <p className="text-[10px] font-semibold text-foreground uppercase tracking-wide">Last Transaction</p>
+                                <p className="text-xs font-semibold text-foreground uppercase tracking-wide">Last Transaction</p>
                                 <div className="flex items-center justify-between">
                                   <span className="flex items-center gap-1.5 text-xs text-muted-foreground"><CreditCard className="size-3.5" />{selected.unknown ? 'Unknown' : 'Deposit · Visa'}</span>
                                   <span className="text-xs text-muted-foreground">{selected.unknown ? '—' : '+$500'}</span>
                                 </div>
                                 <div className="flex items-center justify-between">
                                   <span className="text-xs text-muted-foreground">{selected.unknown ? '—' : 'Jan 14, 2026'}</span>
-                                  {!selected.unknown && <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-success-bg text-success">Completed</span>}
+                                  {!selected.unknown && <span className="text-xs px-1.5 py-0.5 rounded-full bg-success-bg text-success">Completed</span>}
                                 </div>
                               </div>
 
                               {/* Active bonus */}
                               <div className="flex flex-col gap-2">
-                                <p className="text-[10px] font-semibold text-foreground uppercase tracking-wide">Active Bonus</p>
+                                <p className="text-xs font-semibold text-foreground uppercase tracking-wide">Active Bonus</p>
                                 {selected.unknown ? (
                                   <span className="text-xs text-muted-foreground">—</span>
                                 ) : (
@@ -1441,19 +1462,19 @@ function AllConversationsContent() {
                                     <div className="w-full h-1.5 rounded-full bg-muted-foreground/20">
                                       <div className="h-1.5 rounded-full bg-amber-500" style={{width: '68%'}} />
                                     </div>
-                                    <span className="text-[10px] text-muted-foreground">Expires Jan 20, 2026</span>
+                                    <span className="text-xs text-muted-foreground">Expires Jan 20, 2026</span>
                                   </>
                                 )}
                               </div>
 
                               {/* KYC & Account */}
                               <div className="flex flex-col gap-2">
-                                <p className="text-[10px] font-semibold text-foreground uppercase tracking-wide">KYC & Account</p>
+                                <p className="text-xs font-semibold text-foreground uppercase tracking-wide">KYC & Account</p>
                                 <div className="flex items-center justify-between">
                                   <span className="flex items-center gap-1.5 text-xs text-muted-foreground"><ShieldCheck className="size-3.5" />Verification</span>
                                   {selected.unknown
                                     ? <span className="text-xs text-muted-foreground">—</span>
-                                    : <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-success-bg text-success">Verified</span>
+                                    : <span className="text-xs px-1.5 py-0.5 rounded-full bg-success-bg text-success">Verified</span>
                                   }
                                 </div>
                                 <div className="flex items-center justify-between">
@@ -1468,7 +1489,7 @@ function AllConversationsContent() {
 
                               {/* Last activity */}
                               <div className="flex flex-col gap-2">
-                                <p className="text-[10px] font-semibold text-foreground uppercase tracking-wide">Last Activity</p>
+                                <p className="text-xs font-semibold text-foreground uppercase tracking-wide">Last Activity</p>
                                 <div className="flex items-center justify-between">
                                   <span className="flex items-center gap-1.5 text-xs text-muted-foreground"><LogIn className="size-3.5" />Last login</span>
                                   <span className="text-xs text-muted-foreground">{selected.unknown ? '—' : 'Today, 11:42 AM'}</span>
@@ -1485,7 +1506,7 @@ function AllConversationsContent() {
 
                               {/* Limits */}
                               <div className="flex flex-col gap-2">
-                                <p className="text-[10px] font-semibold text-foreground uppercase tracking-wide">Limits & Restrictions</p>
+                                <p className="text-xs font-semibold text-foreground uppercase tracking-wide">Limits & Restrictions</p>
                                 <div className="flex items-center justify-between">
                                   <span className="flex items-center gap-1.5 text-xs text-muted-foreground"><CircleDollarSign className="size-3.5" />Daily deposit</span>
                                   <span className="text-xs text-muted-foreground">{selected.unknown ? '—' : '$500 / day'}</span>
@@ -1498,7 +1519,7 @@ function AllConversationsContent() {
                                   <span className="flex items-center gap-1.5 text-xs text-muted-foreground"><CircleAlert className="size-3.5" />Self-exclusion</span>
                                   {selected.unknown
                                     ? <span className="text-xs text-muted-foreground">—</span>
-                                    : <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-muted-foreground/15 text-muted-foreground">None</span>
+                                    : <span className="text-xs px-1.5 py-0.5 rounded-full bg-muted-foreground/15 text-muted-foreground">None</span>
                                   }
                                 </div>
                               </div>
@@ -1518,10 +1539,10 @@ function AllConversationsContent() {
                                     </div>
                                     <div className="flex-1 min-w-0">
                                       <p className="text-xs text-foreground">{name}</p>
-                                      <p className="text-[10px] text-muted-foreground">{role}</p>
+                                      <p className="text-xs text-muted-foreground">{role}</p>
                                     </div>
                                     {role !== 'Assignee' && (
-                                      <button className="text-[10px] text-muted-foreground hover:text-destructive transition-colors">
+                                      <button className="text-xs text-muted-foreground hover:text-destructive transition-colors">
                                         Remove
                                       </button>
                                     )}
@@ -1548,7 +1569,7 @@ function AllConversationsContent() {
                                     'Set priority: High',
                                     'Add label: payment-issue',
                                   ].map((action) => (
-                                    <p key={action} className="text-[10px] text-muted-foreground flex items-start gap-1">
+                                    <p key={action} className="text-xs text-muted-foreground flex items-start gap-1">
                                       <span className="mt-0.5 shrink-0">·</span>{action}
                                     </p>
                                   ))}
@@ -1593,7 +1614,7 @@ function AllConversationsContent() {
                                       <div className="flex items-center gap-1.5 mt-0.5">
                                         <span className="text-xs text-muted-foreground">{prev.date}</span>
                                         <span className={cn(
-                                          'text-[10px] font-medium px-1.5 py-0.5 rounded-full',
+                                          'text-xs px-1.5 py-0.5 rounded-full',
                                           prev.status === 'resolved'
                                             ? 'bg-success-bg text-success'
                                             : 'bg-brand-bg text-brand'
@@ -1886,7 +1907,7 @@ function AllConversationsContent() {
                             <span className="text-sm text-muted-foreground">Status</span>
                             {selected.unknown
                               ? <span className="text-sm text-muted-foreground">—</span>
-                              : <span className="flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-success-bg text-success"><ShieldCheck className="size-3" />Active</span>}
+                              : <span className="flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-success-bg text-success"><ShieldCheck className="size-3" />Active</span>}
                           </div>
                           <div className="flex flex-col gap-2">
                             <p className="text-xs font-semibold text-foreground uppercase tracking-wide">Balances</p>
@@ -1922,7 +1943,7 @@ function AllConversationsContent() {
                             </div>
                             <div className="flex items-center justify-between">
                               <span className="text-sm text-muted-foreground">{selected.unknown ? '—' : 'Jan 14, 2026'}</span>
-                              {!selected.unknown && <span className="text-xs font-medium px-1.5 py-0.5 rounded-full bg-success-bg text-success">Completed</span>}
+                              {!selected.unknown && <span className="text-xs px-1.5 py-0.5 rounded-full bg-success-bg text-success">Completed</span>}
                             </div>
                           </div>
                           <div className="flex flex-col gap-2">
@@ -1953,7 +1974,7 @@ function AllConversationsContent() {
                               <div key={label} className="flex items-center justify-between">
                                 <span className="flex items-center gap-1.5 text-sm text-muted-foreground"><Icon className="size-4" />{label}</span>
                                 {badge
-                                  ? <span className={cn('text-xs font-medium px-1.5 py-0.5 rounded-full', badgeClass)}>{badge}</span>
+                                  ? <span className={cn('text-xs px-1.5 py-0.5 rounded-full', badgeClass)}>{badge}</span>
                                   : <span className="text-sm text-foreground">{value}</span>}
                               </div>
                             ))}
@@ -1985,7 +2006,7 @@ function AllConversationsContent() {
                               <span className="flex items-center gap-1.5 text-sm text-muted-foreground"><CircleAlert className="size-4" />Self-exclusion</span>
                               {selected.unknown
                                 ? <span className="text-sm text-muted-foreground">—</span>
-                                : <span className="text-xs font-medium px-1.5 py-0.5 rounded-full bg-muted-foreground/15 text-muted-foreground">None</span>}
+                                : <span className="text-xs px-1.5 py-0.5 rounded-full bg-muted-foreground/15 text-muted-foreground">None</span>}
                             </div>
                           </div>
                         </div>
@@ -2075,7 +2096,7 @@ function AllConversationsContent() {
                                   <div className="flex items-center gap-1.5 mt-0.5">
                                     <span className="text-sm text-muted-foreground">{prev.date}</span>
                                     <span className={cn(
-                                      'text-xs font-medium px-1.5 py-0.5 rounded-full',
+                                      'text-xs px-1.5 py-0.5 rounded-full',
                                       prev.status === 'resolved' ? 'bg-success-bg text-success' : 'bg-brand-bg text-brand'
                                     )}>
                                       {prev.status === 'resolved' ? 'Resolved' : 'Open'}

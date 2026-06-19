@@ -66,11 +66,11 @@ export function DashboardHeader({ breadcrumbs, right }: DashboardHeaderProps) {
 
       <header
         className={cn(
-          'sticky top-0 z-20 flex h-16 shrink-0 items-center gap-2',
-          'transition-[border-color,background-color,backdrop-filter] duration-150 ease-in-out',
+          'sticky top-0 z-20 flex h-16 shrink-0 flex-col items-stretch gap-0',
+          'transition-[background-color,backdrop-filter] duration-150 ease-in-out',
           'group-has-data-[collapsible=icon]/sidebar-wrapper:h-12',
           scrolled
-            ? 'border-b border-border bg-background/80 backdrop-blur-md'
+            ? 'bg-background/80 backdrop-blur-md'
             : 'bg-background',
         )}
       >
@@ -100,6 +100,7 @@ export function DashboardHeader({ breadcrumbs, right }: DashboardHeaderProps) {
             <ThemeToggle />
           </div>
         </div>
+        <div className="h-px w-full bg-border" />
       </header>
     </>
   )
