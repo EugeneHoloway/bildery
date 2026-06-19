@@ -18,6 +18,7 @@ import {
   Mic, Maximize2, Twitter, Linkedin, Phone, Building2, MapPin, Languages, ArrowRight, RefreshCw,
   Pencil, PhoneCall, X, User, BadgeCheck, Crown, UserX, ShieldBan,
   Minus, Wrench, BarChart2, Tag, Plus, AlertTriangle, SlidersHorizontal,
+  Bot, SendHorizonal, Rocket, Lightbulb, Database,
 } from 'lucide-react'
 import { Toggle } from '@/components/ui/toggle'
 import { Button } from '@/components/ui/button'
@@ -32,6 +33,7 @@ type Tab = 'mine' | 'unassigned' | 'all'
 
 interface Conversation {
   id: string
+  ticketId: string
   name: string
   channel: Channel
   channelLabel: string
@@ -52,6 +54,7 @@ interface Conversation {
 const CONVERSATIONS: Conversation[] = [
   {
     id: '1',
+    ticketId: '769756',
     name: 'Klaus Crawley',
     channel: 'website',
     channelLabel: 'Website',
@@ -66,6 +69,7 @@ const CONVERSATIONS: Conversation[] = [
   },
   {
     id: '2',
+    ticketId: '769757',
     name: 'Coreen Mewett',
     channel: 'facebook',
     channelLabel: 'Facebook',
@@ -77,6 +81,7 @@ const CONVERSATIONS: Conversation[] = [
   },
   {
     id: '3',
+    ticketId: '769758',
     name: 'Quent Dalliston',
     channel: 'whatsapp',
     channelLabel: 'Whatsapp',
@@ -88,6 +93,7 @@ const CONVERSATIONS: Conversation[] = [
   },
   {
     id: '4',
+    ticketId: '769759',
     name: 'Nathaniel Vannuchi',
     channel: 'facebook',
     channelLabel: 'Facebook',
@@ -100,6 +106,7 @@ const CONVERSATIONS: Conversation[] = [
   },
   {
     id: '11',
+    ticketId: '769760',
     name: 'Unknown user',
     channel: 'website',
     channelLabel: 'Website',
@@ -112,6 +119,7 @@ const CONVERSATIONS: Conversation[] = [
   },
   {
     id: '5',
+    ticketId: '769761',
     name: 'Claus Jira',
     channel: 'whatsapp',
     channelLabel: 'Whatsapp',
@@ -121,6 +129,7 @@ const CONVERSATIONS: Conversation[] = [
   },
   {
     id: '6',
+    ticketId: '769762',
     name: 'Merrile Petruk',
     channel: 'email',
     channelLabel: 'Email',
@@ -133,6 +142,7 @@ const CONVERSATIONS: Conversation[] = [
   },
   {
     id: '7',
+    ticketId: '769763',
     name: 'Candice Matherson',
     channel: 'email',
     channelLabel: 'Email',
@@ -146,6 +156,7 @@ const CONVERSATIONS: Conversation[] = [
   },
   {
     id: '8',
+    ticketId: '769764',
     name: 'Tom Harrigan',
     channel: 'api',
     channelLabel: 'API',
@@ -155,6 +166,7 @@ const CONVERSATIONS: Conversation[] = [
   },
   {
     id: '9',
+    ticketId: '769765',
     name: 'Sandra Mills',
     channel: 'email',
     channelLabel: 'Email',
@@ -168,6 +180,7 @@ const CONVERSATIONS: Conversation[] = [
   },
   {
     id: '12',
+    ticketId: '769766',
     name: 'Unknown user',
     channel: 'whatsapp',
     channelLabel: 'Whatsapp',
@@ -178,6 +191,7 @@ const CONVERSATIONS: Conversation[] = [
   },
   {
     id: '10',
+    ticketId: '769767',
     name: 'Dmitri Volkov',
     channel: 'website',
     channelLabel: 'Website',
@@ -264,13 +278,51 @@ const TABS: { key: Tab; label: string; count: number }[] = [
   { key: 'all', label: 'All', count: CONVERSATIONS.length },
 ]
 
+type CopilotMessage = { role: 'user' | 'assistant'; text: string }
+
+const COPILOT_RESPONSES: Record<string, string> = {
+  default: "Based on the conversation context, I recommend verifying the customer's account status first, then checking if the bonus conditions have been met. Let me know if you need specific wording for your reply.",
+  bonus: "The 100% deposit bonus activates automatically once the player completes the required wagering. Current progress: $340/$500. No manual action needed — just inform the customer.",
+  escalate: "To escalate: assign the conversation to the Payments team using the 'Conversation Actions' panel, set priority to High, and add the 'billing' tag for tracking.",
+  refund: "For refund requests, verify the original transaction first using Transaction Lookup, then follow the refund SOP in the Knowledge Base under 'Payments > Refund Process'.",
+}
+
+function getResponse(q: string): string {
+  const lower = q.toLowerCase()
+  if (lower.includes('bonus')) return COPILOT_RESPONSES.bonus
+  if (lower.includes('escalat')) return COPILOT_RESPONSES.escalate
+  if (lower.includes('refund')) return COPILOT_RESPONSES.refund
+  return COPILOT_RESPONSES.default
+}
+
 function CopilotPanel({ convo, compact = false }: { convo: Conversation; compact?: boolean }) {
   const [kbQuery, setKbQuery] = useState('')
   const [txnQuery, setTxnQuery] = useState('')
   const [txnResult, setTxnResult] = useState<null | 'found' | 'not-found'>(null)
+  const [copilotTab, setCopilotTab] = useState<'ask' | 'tools'>('ask')
+  const [messages, setMessages] = useState<CopilotMessage[]>([])
+  const [prompt, setPrompt] = useState('')
+  const [isTyping, setIsTyping] = useState(false)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const sp = compact ? 'text-sm' : 'text-xs'
   const sp2 = compact ? 'text-base' : 'text-sm'
+
+  function sendMessage() {
+    const text = prompt.trim()
+    if (!text) return
+    setMessages(prev => [...prev, { role: 'user', text }])
+    setPrompt('')
+    setIsTyping(true)
+    setTimeout(() => {
+      setMessages(prev => [...prev, { role: 'assistant', text: getResponse(text) }])
+      setIsTyping(false)
+    }, 900)
+  }
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages, isTyping])
 
   const riskFlags = convo.unknown
     ? [
@@ -297,7 +349,117 @@ function CopilotPanel({ convo, compact = false }: { convo: Conversation; compact
       ]
 
   return (
-    <div className="flex flex-col gap-3 p-3 overflow-y-auto">
+    <div className="flex flex-col h-full overflow-hidden">
+
+      {/* Tab switcher */}
+      <div className="flex shrink-0 gap-1 p-2 border-b border-border">
+        {(['ask', 'tools'] as const).map(tab => (
+          <button
+            key={tab}
+            onClick={() => setCopilotTab(tab)}
+            className={cn(
+              'flex-1 py-1 rounded-md text-xs font-medium transition-all capitalize',
+              copilotTab === tab
+                ? 'bg-muted text-foreground'
+                : 'text-muted-foreground hover:text-foreground'
+            )}
+          >
+            {tab === 'ask' ? 'Ask Copilot' : 'Tools'}
+          </button>
+        ))}
+      </div>
+
+      {/* Ask tab — chat */}
+      {copilotTab === 'ask' && (
+        <div className="flex flex-col flex-1 overflow-hidden">
+          <div className="flex-1 overflow-y-auto p-3">
+            {messages.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-full gap-6 py-6 text-center px-2">
+                <div>
+                  <p className={cn(sp2, 'font-bold text-foreground leading-snug')}>Copilot is here to help.<br />Just ask.</p>
+                </div>
+                <div className="flex flex-col gap-3 w-full text-left">
+                  {[
+                    { icon: Rocket, text: 'Find answers by searching support content and past conversations.' },
+                    { icon: Lightbulb, text: 'Figure out what to do using your team\'s internal articles.' },
+                    { icon: Database, text: 'The more knowledge you add, the more expert Copilot becomes.' },
+                    { icon: Lock, text: 'Copilot conversations are only visible to you.' },
+                  ].map(({ icon: Icon, text }) => (
+                    <div key={text} className="flex items-start gap-2.5">
+                      <div className="size-6 rounded-full bg-muted flex items-center justify-center shrink-0 mt-0.5">
+                        <Icon className="size-3 text-muted-foreground" />
+                      </div>
+                      <p className={cn(sp, 'text-muted-foreground leading-relaxed')}>{text}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-3">
+                {messages.map((msg, i) => (
+                  <div key={i} className={cn('flex', msg.role === 'user' ? 'justify-end' : 'justify-start')}>
+                    {msg.role === 'assistant' && (
+                      <div className="size-6 rounded-full bg-muted flex items-center justify-center shrink-0 mr-2 mt-0.5">
+                        <Bot className="size-3 text-muted-foreground" />
+                      </div>
+                    )}
+                    <div className={cn(
+                      sp, 'max-w-[85%] rounded-xl px-3 py-2 leading-relaxed',
+                      msg.role === 'user'
+                        ? 'bg-foreground text-background'
+                        : 'bg-muted text-foreground'
+                    )}>
+                      {msg.text}
+                    </div>
+                  </div>
+                ))}
+                {isTyping && (
+                  <div className="flex items-center gap-2">
+                    <div className="size-6 rounded-full bg-muted flex items-center justify-center shrink-0">
+                      <Bot className="size-3 text-muted-foreground" />
+                    </div>
+                    <div className="bg-muted rounded-xl px-3 py-2 flex gap-1">
+                      {[0, 1, 2].map(i => (
+                        <span key={i} className="size-1.5 rounded-full bg-muted-foreground/50 animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />
+                      ))}
+                    </div>
+                  </div>
+                )}
+                <div ref={messagesEndRef} />
+              </div>
+            )}
+          </div>
+
+          {/* Input */}
+          <div className="shrink-0 p-2">
+            <div className="flex items-end gap-1.5 rounded-xl border border-border bg-background px-3 py-2">
+              <textarea
+                rows={1}
+                value={prompt}
+                onChange={e => {
+                  setPrompt(e.target.value)
+                  e.target.style.height = 'auto'
+                  e.target.style.height = e.target.scrollHeight + 'px'
+                }}
+                onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage() } }}
+                placeholder="Ask a question..."
+                className={cn(sp, 'flex-1 bg-transparent outline-none resize-none text-foreground placeholder:text-muted-foreground leading-relaxed max-h-40 overflow-y-auto')}
+              />
+              <button
+                onClick={sendMessage}
+                disabled={!prompt.trim()}
+                className="size-6 rounded-lg bg-foreground text-background flex items-center justify-center shrink-0 disabled:opacity-30 transition-opacity"
+              >
+                <SendHorizonal className="size-3" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Tools tab */}
+      {copilotTab === 'tools' && (
+      <div className="flex flex-col gap-3 p-3 overflow-y-auto flex-1">
 
       {/* Summary */}
       <div className="rounded-xl border border-border bg-muted/40 p-3 flex flex-col gap-1.5">
@@ -351,32 +513,6 @@ function CopilotPanel({ convo, compact = false }: { convo: Conversation; compact
         </div>
       </div>
 
-      {/* Knowledge base */}
-      <div className="rounded-xl border border-border bg-muted/40 p-3 flex flex-col gap-1.5">
-        <div className="flex items-center gap-1.5 mb-0.5">
-          <Search className="size-3.5 text-foreground shrink-0" />
-          <span className={cn(sp, 'font-semibold text-foreground')}>Knowledge Base</span>
-        </div>
-        <div className="flex items-center gap-1.5 bg-background border border-border rounded-lg px-2.5 py-1.5">
-          <input
-            value={kbQuery}
-            onChange={e => setKbQuery(e.target.value)}
-            placeholder="Search help articles..."
-            className={cn(sp, 'flex-1 bg-transparent outline-none text-foreground placeholder:text-muted-foreground')}
-          />
-          <Search className="size-3 text-muted-foreground shrink-0" />
-        </div>
-        {kbQuery && (
-          <div className="flex flex-col gap-1 mt-0.5">
-            {['Account recovery guide', 'Identity verification process', 'Withdrawal & deposit limits'].map(r => (
-              <button key={r} className={cn(sp, 'text-left text-brand hover:underline flex items-center gap-1')}>
-                <ArrowRight className="size-3 shrink-0" />{r}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-
       {/* Translation */}
       <div className="rounded-xl border border-border bg-muted/40 p-3 flex flex-col gap-1.5">
         <div className="flex items-center gap-1.5 mb-0.5">
@@ -424,6 +560,9 @@ function CopilotPanel({ convo, compact = false }: { convo: Conversation; compact
         )}
       </div>
 
+      </div>
+      )}
+
     </div>
   )
 }
@@ -455,9 +594,11 @@ function ConversationItem({
         {/* Avatar */}
         <div className={cn(
           'size-9 rounded-full flex items-center justify-center shrink-0 text-sm font-medium',
-          convo.unknown
-            ? 'bg-muted border-2 border-dashed border-border text-muted-foreground'
-            : 'bg-muted-foreground/20 text-muted-foreground'
+          isSelected
+            ? 'bg-foreground text-background'
+            : convo.unknown
+              ? 'bg-muted border-2 border-dashed border-border text-muted-foreground'
+              : 'bg-muted-foreground/20 text-muted-foreground'
         )}>
           {convo.unknown ? <UserX className="size-4" /> : convo.name.charAt(0)}
         </div>
@@ -619,7 +760,8 @@ function AllConversationsContent() {
   const filtered = CONVERSATIONS.filter((c) => {
     if (activeTab === 'mine' && !MINE_IDS.has(c.id)) return false
     if (activeTab === 'unassigned' && !UNASSIGNED_IDS.has(c.id)) return false
-    return c.name.toLowerCase().includes(search.toLowerCase())
+    const q = search.toLowerCase()
+    return c.name.toLowerCase().includes(q) || c.ticketId.includes(q)
   })
 
   const selected = CONVERSATIONS.find((c) => c.id === selectedId)
@@ -734,7 +876,7 @@ function AllConversationsContent() {
                             <div className={cn(
                               'size-9 rounded-full flex items-center justify-center text-sm font-medium shrink-0',
                               selectedId === convo.id
-                                ? 'bg-brand text-white'
+                                ? 'bg-foreground text-background'
                                 : convo.unknown
                                   ? 'bg-muted border-2 border-dashed border-border text-muted-foreground'
                                   : 'bg-muted-foreground/20 text-muted-foreground'
@@ -912,7 +1054,12 @@ function AllConversationsContent() {
                       {selected.verified && <BadgeCheck className="size-3.5 shrink-0 text-brand" />}
                       {selected.vip && <Crown className="size-3.5 shrink-0 text-amber-500" />}
                     </div>
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-1.5">
+                      <span className="flex items-center gap-1">
+                        <span className="text-xs text-muted-foreground font-mono">#{selected.ticketId}</span>
+                        <Copy className="size-3 text-muted-foreground cursor-pointer hover:text-foreground" onClick={() => navigator.clipboard.writeText(selected.ticketId)} />
+                      </span>
+                      <span className="text-xs text-muted-foreground">·</span>
                       <User className="size-3 text-muted-foreground" />
                       <button
                         onClick={() => setMobileProfileOpen(true)}
@@ -1128,6 +1275,10 @@ function AllConversationsContent() {
                           </div>
                         )}
                       </div>
+                      <div className="flex items-center gap-1 mt-0.5">
+                        <span className="text-xs text-muted-foreground font-mono">#{selected.ticketId}</span>
+                        <Copy className="size-3 text-muted-foreground cursor-pointer hover:text-foreground" onClick={() => navigator.clipboard.writeText(selected.ticketId)} />
+                      </div>
                       {selected.unknown ? (
                         <>
                           <p className="text-xs text-muted-foreground mt-0.5 text-center">No user information available</p>
@@ -1205,7 +1356,7 @@ function AllConversationsContent() {
                       'Conversation Actions',
                       'Conversation Participants',
                       'Macros',
-                      'Conversation Information',
+                      'Session Details',
                       'Previous Conversations',
                     ].map((section) => {
                       const isExpanded = expandedSections.has(section)
@@ -1405,7 +1556,7 @@ function AllConversationsContent() {
                               </div>
                             </div>
                           )}
-                          {isExpanded && section === 'Conversation Information' && (
+                          {isExpanded && section === 'Session Details' && (
                             <div className="px-4 pb-4 flex flex-col gap-2">
                               {[
                                 { icon: Globe, label: 'Page URL', value: '/casino/slots/book-of-dead' },
@@ -1638,6 +1789,7 @@ function AllConversationsContent() {
                       </div>
                     )}
                   </div>
+                  <p className="text-xs text-muted-foreground font-mono mt-0.5">#{selected.ticketId}</p>
                   {selected.unknown ? (
                     <>
                       <p className="text-sm text-muted-foreground mt-0.5 text-center">No user information available</p>
@@ -1712,7 +1864,7 @@ function AllConversationsContent() {
                   'Conversation Actions',
                   'Conversation Participants',
                   'Macros',
-                  'Conversation Information',
+                  'Session Details',
                   'Previous Conversations',
                 ].map((section) => {
                   const isExpanded = expandedSections.has(section)
@@ -1886,7 +2038,7 @@ function AllConversationsContent() {
                           </div>
                         </div>
                       )}
-                      {isExpanded && section === 'Conversation Information' && (
+                      {isExpanded && section === 'Session Details' && (
                         <div className="px-4 pb-4 flex flex-col gap-2">
                           {[
                             { icon: Globe, label: 'Page URL', value: '/casino/slots/book-of-dead' },

@@ -3,16 +3,10 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, ClipboardCheck, FileText, Layers, Info, LogIn, User, LogOut } from 'lucide-react'
+import { Home, ClipboardCheck, FileText, Layers, Info, LogIn, User } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useAuth } from '@/components/AuthProvider'
 import { AuthDialog } from '@/components/auth/AuthDialog'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
 
 const navItems = [
   { label: 'Bildery',  href: '/',        icon: Home },
@@ -24,7 +18,7 @@ const navItems = [
 
 export function BottomNav() {
   const pathname = usePathname()
-  const { user, signOut } = useAuth()
+  const { user } = useAuth()
   const [dialogOpen, setDialogOpen] = useState(false)
 
   const isActive = (href: string) =>
@@ -59,28 +53,19 @@ export function BottomNav() {
         ))}
 
         {user ? (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button
-                className={cn(
-                  'flex flex-1 flex-col items-center justify-center gap-[3px]',
-                  'transition-colors duration-150 text-muted-foreground hover:text-foreground',
-                )}
-              >
-                <User className="size-[22px]" strokeWidth={1.75} />
-                <span className="text-xs font-medium leading-none">Account</span>
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" side="top">
-              <DropdownMenuItem className="text-xs text-muted-foreground" disabled>
-                {user.email}
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={signOut}>
-                <LogOut className="mr-2 size-3.5" />
-                Sign out
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <Link
+            href="/dashboard"
+            className={cn(
+              'flex flex-1 flex-col items-center justify-center gap-[3px]',
+              'transition-colors duration-150',
+              isActive('/dashboard')
+                ? 'text-foreground'
+                : 'text-muted-foreground hover:text-foreground',
+            )}
+          >
+            <User className="size-[22px]" strokeWidth={1.75} />
+            <span className="text-xs font-medium leading-none">Account</span>
+          </Link>
         ) : (
           <button
             onClick={() => setDialogOpen(true)}

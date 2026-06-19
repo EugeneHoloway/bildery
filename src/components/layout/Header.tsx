@@ -2,19 +2,13 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useTheme } from 'next-themes'
-import { Sun, Moon, Menu, X, LogOut, User } from 'lucide-react'
+import { Sun, Moon, Menu, X, User } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { useAuth } from '@/components/AuthProvider'
 import { AuthDialog } from '@/components/auth/AuthDialog'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
 
 const navItems = [
   { label: 'Tasks',   href: '/tasks' },
@@ -47,7 +41,8 @@ function ThemeToggle() {
 }
 
 function AuthButtons() {
-  const { user, loading, signOut } = useAuth()
+  const { user, loading } = useAuth()
+  const router = useRouter()
   const [dialogOpen, setDialogOpen] = useState(false)
   const [dialogMode, setDialogMode] = useState<'login' | 'signup'>('login')
 
@@ -55,24 +50,9 @@ function AuthButtons() {
 
   if (user) {
     return (
-      <>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" aria-label="User menu">
-              <User className="size-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="z-[200]">
-            <DropdownMenuItem className="text-xs text-muted-foreground" disabled>
-              {user.email}
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={signOut}>
-              <LogOut className="mr-2 size-3.5" />
-              Sign out
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </>
+      <Button variant="ghost" size="icon" aria-label="Dashboard" onClick={() => router.push('/dashboard')}>
+        <User className="size-4" />
+      </Button>
     )
   }
 
