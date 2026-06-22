@@ -11,9 +11,10 @@ import { Download, CalendarIcon, TrendingUp, TrendingDown, Info, ArrowUp, ArrowD
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectSeparator } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { type DateRange } from 'react-day-picker'
 import { cn } from '@/lib/utils'
-import { Area, AreaChart, CartesianGrid, XAxis } from 'recharts'
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts'
 import {
   ChartContainer,
   ChartLegend,
@@ -163,6 +164,13 @@ function TicketsAreaChart() {
           <AreaGradientDef id="resolvedGrad" colorVar="var(--color-resolved)" />
         </defs>
         <CartesianGrid vertical={false} />
+        <YAxis
+          ticks={[20, 40, 60, 80]}
+          tickLine={false}
+          axisLine={false}
+          tickMargin={8}
+          tick={{ fontSize: 12, fill: 'var(--color-muted-foreground)' }}
+        />
         <XAxis
           dataKey="date"
           tickLine={false}
@@ -445,8 +453,7 @@ function SortableTh({
   onSort: (key: SortKey, dir: 'asc' | 'desc') => void
 }) {
   return (
-    <th className="text-center font-medium text-muted-foreground px-4 py-3">
-      <Popover>
+    <Popover>
         <PopoverTrigger asChild>
           <button className="inline-flex items-center gap-1 hover:text-foreground transition-colors group">
             {label}
@@ -480,7 +487,6 @@ function SortableTh({
           </button>
         </PopoverContent>
       </Popover>
-    </th>
   )
 }
 
@@ -514,53 +520,173 @@ function LabelsOverview() {
         </div>
       </div>
 
-      <div className="rounded-2xl border border-border bg-card p-4 sm:p-6">
+      <div className="rounded-2xl border border-border bg-card overflow-hidden">
+      <div className="p-2 px-3 pt-4 pb-4">
       <h3 className="text-lg font-semibold mb-1">Label performance</h3>
-      <p className="text-sm text-muted-foreground mb-5">
+      <p className="text-sm text-muted-foreground">
         Track label performance with key metrics including conversations, response times, resolution times, and resolved cases. Click a label name for detailed insights.
       </p>
-
-      {/* Table */}
-      <div className="rounded-xl border border-border overflow-x-auto">
-        <table className="w-full min-w-[760px] text-sm">
-          <thead>
-            <tr className="border-b border-border bg-muted/40">
-              <th className="text-left font-medium text-muted-foreground px-4 py-3 w-[180px]">Label</th>
-              <SortableTh label="No. of conversations" sortKey="conversations" active={sortKey} dir={sortDir} onSort={handleSort} />
-              <SortableTh label="% of total" sortKey="pct" active={sortKey} dir={sortDir} onSort={handleSort} />
-              <th className="text-right font-medium text-muted-foreground px-4 py-3">Avg. First Response Time</th>
-              <th className="text-right font-medium text-muted-foreground px-4 py-3">Avg. Resolution Time</th>
-              <th className="text-right font-medium text-muted-foreground px-4 py-3">Avg. Customer Waiting Time</th>
-              <SortableTh label="Resolution Count" sortKey="resolutionCount" active={sortKey} dir={sortDir} onSort={handleSort} />
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row, i) => (
-              <tr key={row.tag} className={cn('border-b border-border last:border-0', i % 2 === 1 && 'bg-muted/20')}>
-                <td className="px-4 py-3">
-                  <span className={cn('text-xs px-1.5 py-0.5 rounded border font-medium', row.tagCls)}>
-                    {row.tag}
-                  </span>
-                </td>
-                <td className="px-4 py-3 text-center tabular-nums">{row.conversations}</td>
-                <td className="px-4 py-3 text-center tabular-nums text-muted-foreground">
-                  {((row.conversations / LABEL_TOTAL) * 100).toFixed(1)}%
-                </td>
-                <td className="px-4 py-3 text-right tabular-nums text-muted-foreground">{row.avgFirstResponse}</td>
-                <td className="px-4 py-3 text-right tabular-nums text-muted-foreground">{row.avgResolution}</td>
-                <td className="px-4 py-3 text-right tabular-nums text-muted-foreground">{row.avgWaiting}</td>
-                <td className="px-4 py-3 text-center tabular-nums font-medium">{row.resolutionCount}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
       </div>
+
+      <Table className="min-w-[760px]">
+        <TableHeader>
+          <TableRow className="hover:bg-transparent">
+            <TableHead className="w-[180px]">Label</TableHead>
+            <TableHead className="text-center"><SortableTh label="No. of conversations" sortKey="conversations" active={sortKey} dir={sortDir} onSort={handleSort} /></TableHead>
+            <TableHead className="text-center"><SortableTh label="% of total" sortKey="pct" active={sortKey} dir={sortDir} onSort={handleSort} /></TableHead>
+            <TableHead className="text-right whitespace-nowrap">Avg. First Response Time</TableHead>
+            <TableHead className="text-right whitespace-nowrap">Avg. Resolution Time</TableHead>
+            <TableHead className="text-right whitespace-nowrap">Avg. Customer Waiting Time</TableHead>
+            <TableHead className="text-center"><SortableTh label="Resolution Count" sortKey="resolutionCount" active={sortKey} dir={sortDir} onSort={handleSort} /></TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {rows.map((row) => (
+            <TableRow key={row.tag}>
+              <TableCell>
+                <TooltipProvider delayDuration={200}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className={cn('text-xs px-1.5 py-0.5 rounded border font-medium inline-block max-w-[140px] truncate align-middle', row.tagCls)}>
+                        {row.tag}
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent side="top" className="text-xs">{row.tag}</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </TableCell>
+              <TableCell className="text-center tabular-nums">{row.conversations}</TableCell>
+              <TableCell className="text-center tabular-nums text-muted-foreground">
+                {((row.conversations / LABEL_TOTAL) * 100).toFixed(1)}%
+              </TableCell>
+              <TableCell className="text-right tabular-nums text-muted-foreground">{row.avgFirstResponse}</TableCell>
+              <TableCell className="text-right tabular-nums text-muted-foreground">{row.avgResolution}</TableCell>
+              <TableCell className="text-right tabular-nums text-muted-foreground">{row.avgWaiting}</TableCell>
+              <TableCell className="text-center tabular-nums font-medium">{row.resolutionCount}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
       </div>
     </div>
   )
 }
 
-// ── Page ───────────────────────────────────────────────────────────────────
+// ── Agent Performance ─────────────────────────────────────────────────────
+
+type AgentSortKey = 'conversations' | 'resolutionCount'
+
+const AGENT_ROWS = [
+  { name: 'David Wallace',  conversations: 98,  firstResponse: '3m 42s', resolution: '1h 12m', waiting: '1m 48s', resolutionCount: 81 },
+  { name: 'Sarah Connor',   conversations: 74,  firstResponse: '5m 10s', resolution: '1h 55m', waiting: '2m 33s', resolutionCount: 60 },
+  { name: 'James Holden',   conversations: 71,  firstResponse: '4m 28s', resolution: '2h 04m', waiting: '3m 05s', resolutionCount: 58 },
+  { name: 'Nina Petrova',   conversations: 65,  firstResponse: '6m 01s', resolution: '2h 30m', waiting: '2m 50s', resolutionCount: 52 },
+  { name: 'Omar Khalid',    conversations: 58,  firstResponse: '4m 55s', resolution: '1h 45m', waiting: '2m 10s', resolutionCount: 47 },
+  { name: 'Lia Nakamura',   conversations: 49,  firstResponse: '3m 20s', resolution: '1h 28m', waiting: '1m 35s', resolutionCount: 41 },
+]
+
+function AgentSortableTh({
+  label,
+  sortKey,
+  active,
+  dir,
+  onSort,
+}: {
+  label: string
+  sortKey: AgentSortKey
+  active: AgentSortKey | null
+  dir: SortDir
+  onSort: (key: AgentSortKey, dir: 'asc' | 'desc') => void
+}) {
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <button className="inline-flex items-center gap-1 hover:text-foreground transition-colors group">
+          {label}
+          {active === sortKey && dir === 'asc' ? (
+            <ArrowUp className="size-3.5 text-foreground shrink-0" />
+          ) : active === sortKey && dir === 'desc' ? (
+            <ArrowDown className="size-3.5 text-foreground shrink-0" />
+          ) : (
+            <ChevronsUpDown className="size-3.5 opacity-40 group-hover:opacity-70 shrink-0" />
+          )}
+        </button>
+      </PopoverTrigger>
+      <PopoverContent className="w-36 p-1" align="end">
+        <button
+          onClick={() => onSort(sortKey, 'asc')}
+          className={cn(
+            'flex w-full items-center gap-2 rounded-md px-3 py-1.5 text-sm transition-colors hover:bg-muted',
+            active === sortKey && dir === 'asc' ? 'font-medium text-foreground' : 'text-muted-foreground'
+          )}
+        >
+          <ArrowUp className="size-3.5" /> Asc
+        </button>
+        <button
+          onClick={() => onSort(sortKey, 'desc')}
+          className={cn(
+            'flex w-full items-center gap-2 rounded-md px-3 py-1.5 text-sm transition-colors hover:bg-muted',
+            active === sortKey && dir === 'desc' ? 'font-medium text-foreground' : 'text-muted-foreground'
+          )}
+        >
+          <ArrowDown className="size-3.5" /> Desc
+        </button>
+      </PopoverContent>
+    </Popover>
+  )
+}
+
+function AgentPerformance() {
+  const [sortKey, setSortKey] = useState<AgentSortKey | null>(null)
+  const [sortDir, setSortDir] = useState<SortDir>(null)
+
+  function handleSort(key: AgentSortKey, dir: 'asc' | 'desc') {
+    setSortKey(key)
+    setSortDir(dir)
+  }
+
+  const rows = [...AGENT_ROWS].sort((a, b) => {
+    if (!sortKey || !sortDir) return 0
+    return sortDir === 'asc' ? a[sortKey] - b[sortKey] : b[sortKey] - a[sortKey]
+  })
+
+  return (
+    <div className="rounded-2xl border border-border bg-card overflow-hidden">
+      <div className="p-2 px-3 pt-4 pb-4">
+        <h2 className="text-lg font-semibold mb-1">Agent Performance</h2>
+        <p className="text-sm text-muted-foreground">
+          Easily track agent performance with key metrics such as conversations, response times, resolution times, and resolved cases. Click an agent's name to learn more.
+        </p>
+      </div>
+      <Table className="min-w-[640px]">
+        <TableHeader>
+          <TableRow className="hover:bg-transparent">
+            <TableHead className="w-[200px]">Agent</TableHead>
+            <TableHead className="text-center"><AgentSortableTh label="No. of conversations" sortKey="conversations" active={sortKey} dir={sortDir} onSort={handleSort} /></TableHead>
+            <TableHead className="text-right whitespace-nowrap">Avg. First Response Time</TableHead>
+            <TableHead className="text-right whitespace-nowrap">Avg. Resolution Time</TableHead>
+            <TableHead className="text-right whitespace-nowrap">Avg. Customer Waiting Time</TableHead>
+            <TableHead className="text-center"><AgentSortableTh label="Resolution Count" sortKey="resolutionCount" active={sortKey} dir={sortDir} onSort={handleSort} /></TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {rows.map((agent) => (
+            <TableRow key={agent.name}>
+              <TableCell className="font-medium">{agent.name}</TableCell>
+              <TableCell className="text-center tabular-nums">{agent.conversations}</TableCell>
+              <TableCell className="text-right tabular-nums text-muted-foreground">{agent.firstResponse}</TableCell>
+              <TableCell className="text-right tabular-nums text-muted-foreground">{agent.resolution}</TableCell>
+              <TableCell className="text-right tabular-nums text-muted-foreground">{agent.waiting}</TableCell>
+              <TableCell className="text-center tabular-nums font-medium">{agent.resolutionCount}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
+  )
+}
+
+// ── Page ─────────────────────────────────────────────────────────────────
 
 export default function ReportsPage() {
   const { user, loading } = useAuth()
@@ -729,46 +855,7 @@ export default function ReportsPage() {
         </div>
 
         {/* Agents Overview */}
-        <div className="rounded-2xl border border-border bg-card p-4 sm:p-6">
-          <h2 className="text-lg font-semibold mb-1">Agent Performance</h2>
-          <p className="text-sm text-muted-foreground mb-5">
-            Easily track agent performance with key metrics such as conversations, response times, resolution times, and resolved cases. Click an agent's name to learn more.
-          </p>
-
-          <div className="rounded-xl border border-border overflow-x-auto">
-            <table className="w-full min-w-[640px] text-sm">
-              <thead>
-                <tr className="border-b border-border bg-muted/40">
-                  <th className="text-left font-medium text-muted-foreground px-4 py-3 w-[200px]">Agent</th>
-                  <th className="text-right font-medium text-muted-foreground px-4 py-3">No. of conversations</th>
-                  <th className="text-right font-medium text-muted-foreground px-4 py-3">Avg. First Response Time</th>
-                  <th className="text-right font-medium text-muted-foreground px-4 py-3">Avg. Resolution Time</th>
-                  <th className="text-right font-medium text-muted-foreground px-4 py-3">Avg. Customer Waiting Time</th>
-                  <th className="text-right font-medium text-muted-foreground px-4 py-3">Resolution Count</th>
-                </tr>
-              </thead>
-              <tbody>
-                {[
-                  { name: 'David Wallace',  conversations: 98,  firstResponse: '3m 42s', resolution: '1h 12m', waiting: '1m 48s', resolutionCount: 81 },
-                  { name: 'Sarah Connor',   conversations: 74,  firstResponse: '5m 10s', resolution: '1h 55m', waiting: '2m 33s', resolutionCount: 60 },
-                  { name: 'James Holden',   conversations: 71,  firstResponse: '4m 28s', resolution: '2h 04m', waiting: '3m 05s', resolutionCount: 58 },
-                  { name: 'Nina Petrova',   conversations: 65,  firstResponse: '6m 01s', resolution: '2h 30m', waiting: '2m 50s', resolutionCount: 52 },
-                  { name: 'Omar Khalid',    conversations: 58,  firstResponse: '4m 55s', resolution: '1h 45m', waiting: '2m 10s', resolutionCount: 47 },
-                  { name: 'Lia Nakamura',   conversations: 49,  firstResponse: '3m 20s', resolution: '1h 28m', waiting: '1m 35s', resolutionCount: 41 },
-                ].map((agent, i) => (
-                  <tr key={agent.name} className={cn('border-b border-border last:border-0', i % 2 === 1 && 'bg-muted/20')}>
-                    <td className="px-4 py-3 font-medium">{agent.name}</td>
-                    <td className="px-4 py-3 text-right tabular-nums">{agent.conversations}</td>
-                    <td className="px-4 py-3 text-right tabular-nums text-muted-foreground">{agent.firstResponse}</td>
-                    <td className="px-4 py-3 text-right tabular-nums text-muted-foreground">{agent.resolution}</td>
-                    <td className="px-4 py-3 text-right tabular-nums text-muted-foreground">{agent.waiting}</td>
-                    <td className="px-4 py-3 text-right tabular-nums font-medium">{agent.resolutionCount}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <AgentPerformance />
 
       </div>
     </>
