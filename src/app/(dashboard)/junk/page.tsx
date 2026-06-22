@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/components/AuthProvider'
 import { DashboardHeader } from '@/components/DashboardHeader'
 
-export default function SpamPage() {
+export default function JunkPage() {
   const { user, loading } = useAuth()
   const router = useRouter()
 
@@ -21,11 +21,11 @@ export default function SpamPage() {
         breadcrumbs={[
           { label: 'Bildery', href: '/dashboard' },
           { label: 'Customer Support', href: '/all-conversations' },
-          { label: 'Spam' },
+          { label: 'Junk' },
         ]}
       />
       <div className="flex flex-1 flex-col px-6 pt-4 pb-8">
-        <h1 className="text-2xl font-semibold">Spam</h1>
+        <h1 className="text-2xl font-semibold">Junk</h1>
         <p className="mt-1 text-sm text-muted-foreground">Coming soon.</p>
       </div>
     </>

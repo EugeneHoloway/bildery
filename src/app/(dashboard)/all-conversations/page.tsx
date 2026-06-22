@@ -1106,7 +1106,7 @@ function AllConversationsContent() {
                       className="h-8 gap-1"
                       onClick={() => setShowStatusMenu(!showStatusMenu)}
                     >
-                      {status === 'open' ? 'Open' : status === 'pending' ? 'Pending' : status === 'spam' ? 'Spam' : 'Resolved'}
+                      {status === 'open' ? 'Open' : status === 'pending' ? 'Pending' : status === 'spam' ? 'Junk' : 'Resolved'}
                       <ChevronDown className="size-3" />
                     </Button>
                     {showStatusMenu && (
@@ -1115,7 +1115,7 @@ function AllConversationsContent() {
                           { key: 'open', label: 'Open' },
                           { key: 'pending', label: 'Pending' },
                           { key: 'resolved', label: 'Resolved' },
-                          { key: 'spam', label: 'Spam' },
+                          { key: 'spam', label: 'Junk' },
                         ] as const).map(({ key, label }) => (
                           <button
                             key={key}

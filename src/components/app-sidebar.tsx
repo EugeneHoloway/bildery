@@ -99,7 +99,7 @@ const data = {
         { title: "Pending", url: "/pending", badge: 8 },
         { title: "Snoozed", url: "/snoozed", badge: 23 },
         { title: "Resolved", url: "/resolved" },
-        { title: "Spam", url: "/spam" },
+        { title: "Junk", url: "/junk" },
         { title: "Reports", url: "/reports" },
       ],
     },
