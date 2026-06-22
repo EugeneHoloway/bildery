@@ -97,6 +97,7 @@ const data = {
         { title: "All Conversations", url: "/all-conversations" },
         { title: "Unassigned", url: "/unassigned", badge: 170 },
         { title: "Pending", url: "/pending", badge: 8 },
+        { title: "Snoozed", url: "/snoozed", badge: 23 },
         { title: "Resolved", url: "/resolved" },
         { title: "Spam", url: "/spam" },
         { title: "Reports", url: "/reports" },
