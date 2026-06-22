@@ -347,19 +347,12 @@ function Heatmap() {
         </div>
 
         {/* Legend */}
-        <div className="mt-4 flex items-center justify-center gap-3">
-          {[
-            { label: '0',     cls: 'bg-muted' },
-            { label: '1–4',   cls: 'bg-brand/15' },
-            { label: '5–9',   cls: 'bg-brand/40' },
-            { label: '10–14', cls: 'bg-brand/65' },
-            { label: '15+',   cls: 'bg-brand' },
-          ].map(({ label, cls }) => (
-            <div key={label} className="flex items-center gap-1.5">
-              <div className={`size-2 shrink-0 rounded-[2px] ${cls}`} />
-              <span className="text-xs text-muted-foreground">{label}</span>
-            </div>
+        <div className="mt-4 flex items-center justify-center gap-1.5">
+          <span className="text-xs text-muted-foreground">Less</span>
+          {['bg-muted', 'bg-brand/15', 'bg-brand/40', 'bg-brand/65', 'bg-brand'].map((cls) => (
+            <div key={cls} className={`size-2 shrink-0 rounded-[2px] ${cls}`} />
           ))}
+          <span className="text-xs text-muted-foreground">More</span>
         </div>
       </div>
     </div>
