@@ -3,7 +3,7 @@
 import * as React from "react"
 import {
   AudioWaveform,
-  BookOpen,
+  UserRound,
   Bot,
   Command,
   Frame,
@@ -50,7 +50,6 @@ const data = {
       title: "Playground",
       url: "#",
       icon: SquareTerminal,
-      isActive: true,
       items: [
         { title: "History", url: "#" },
         { title: "Starred", url: "#" },
@@ -68,9 +67,9 @@ const data = {
       ],
     },
     {
-      title: "Documentation",
+      title: "PAM",
       url: "#",
-      icon: BookOpen,
+      icon: UserRound,
       items: [
         { title: "Introduction", url: "#" },
         { title: "Get Started", url: "#" },
@@ -93,6 +92,7 @@ const data = {
       title: "Customer Support",
       url: "#",
       icon: MessageSquare,
+      isActive: true,
       items: [
         { title: "All Conversations", url: "/all-conversations" },
         { title: "Unassigned", url: "/unassigned", badge: 170 },

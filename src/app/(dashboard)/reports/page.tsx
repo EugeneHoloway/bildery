@@ -730,7 +730,7 @@ export default function ReportsPage() {
 
         {/* Agents Overview */}
         <div className="rounded-2xl border border-border bg-card p-4 sm:p-6">
-          <h2 className="text-lg font-semibold mb-1">Agents Overview</h2>
+          <h2 className="text-lg font-semibold mb-1">Agent Performance</h2>
           <p className="text-sm text-muted-foreground mb-5">
             Easily track agent performance with key metrics such as conversations, response times, resolution times, and resolved cases. Click an agent's name to learn more.
           </p>
@@ -749,9 +749,12 @@ export default function ReportsPage() {
               </thead>
               <tbody>
                 {[
-                  { name: 'Eugene',  conversations: 98,  firstResponse: '3m 42s', resolution: '1h 12m', waiting: '1m 48s', resolutionCount: 81 },
-                  { name: 'Anna',    conversations: 74,  firstResponse: '5m 10s', resolution: '1h 55m', waiting: '2m 33s', resolutionCount: 60 },
-                  { name: 'Michael', conversations: 71,  firstResponse: '4m 28s', resolution: '2h 04m', waiting: '3m 05s', resolutionCount: 58 },
+                  { name: 'David Wallace',  conversations: 98,  firstResponse: '3m 42s', resolution: '1h 12m', waiting: '1m 48s', resolutionCount: 81 },
+                  { name: 'Sarah Connor',   conversations: 74,  firstResponse: '5m 10s', resolution: '1h 55m', waiting: '2m 33s', resolutionCount: 60 },
+                  { name: 'James Holden',   conversations: 71,  firstResponse: '4m 28s', resolution: '2h 04m', waiting: '3m 05s', resolutionCount: 58 },
+                  { name: 'Nina Petrova',   conversations: 65,  firstResponse: '6m 01s', resolution: '2h 30m', waiting: '2m 50s', resolutionCount: 52 },
+                  { name: 'Omar Khalid',    conversations: 58,  firstResponse: '4m 55s', resolution: '1h 45m', waiting: '2m 10s', resolutionCount: 47 },
+                  { name: 'Lia Nakamura',   conversations: 49,  firstResponse: '3m 20s', resolution: '1h 28m', waiting: '1m 35s', resolutionCount: 41 },
                 ].map((agent, i) => (
                   <tr key={agent.name} className={cn('border-b border-border last:border-0', i % 2 === 1 && 'bg-muted/20')}>
                     <td className="px-4 py-3 font-medium">{agent.name}</td>
