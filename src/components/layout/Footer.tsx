@@ -156,18 +156,9 @@ export function Footer() {
           {/* ── Mobile: full-screen overlay ── */}
           <div className="fixed inset-0 z-[200] flex flex-col bg-background tablet:hidden">
             {/* Header */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-border shrink-0">
-              <div className="flex items-center gap-3">
-                {/* Overlapping avatars */}
-                <div className="relative flex items-center">
-                  <div className="size-9 rounded-full bg-brand flex items-center justify-center text-white text-sm font-semibold z-10 ring-2 ring-background">
-                    B
-                  </div>
-                  <div className="size-9 rounded-full bg-muted flex items-center justify-center -ml-3 ring-2 ring-background">
-                    <UserRound className="size-5 text-muted-foreground" />
-                  </div>
-                </div>
-                <span className="text-sm font-semibold text-foreground">Ask Support</span>
+            <div className="flex items-center justify-between px-4 py-3 shrink-0">
+              <div className="flex items-center">
+                <span className="text-sm font-medium text-foreground">Ask Support</span>
               </div>
               <button
                 onClick={handleClose}
@@ -185,17 +176,20 @@ export function Footer() {
                   <div className="bg-muted rounded-2xl rounded-tl-sm px-4 py-3 max-w-[85%]">
                     <p className="text-sm text-foreground">How can we help you?</p>
                   </div>
-                  <span className="text-xs text-muted-foreground pl-1">Bildery Support · Just now</span>
+                  <span className="text-xs text-muted-foreground pl-1">Customer Support · Just now</span>
                 </div>
               )}
 
               {messages.map(msg => {
                 if (msg.kind === 'user') return (
-                  <div key={msg.id} className="flex items-end justify-end gap-2">
-                    <div className="bg-brand text-white text-sm rounded-2xl rounded-tr-sm px-3 py-2 max-w-[80%]">{msg.text}</div>
-                    <div className="size-7 rounded-full bg-muted flex items-center justify-center shrink-0">
-                      <UserRound className="size-4 text-muted-foreground" />
+                  <div key={msg.id} className="flex flex-col items-end gap-1">
+                    <div className="flex items-end gap-2">
+                      <div className="bg-brand text-white text-sm rounded-2xl rounded-tr-sm px-3 py-2 max-w-[80%]">{msg.text}</div>
+                      <div className="size-7 rounded-full bg-muted flex items-center justify-center shrink-0">
+                        <UserRound className="size-4 text-muted-foreground" />
+                      </div>
                     </div>
+                    <span className="text-xs text-muted-foreground pr-9">Just now</span>
                   </div>
                 )
                 if (msg.kind === 'system') return (
@@ -214,9 +208,12 @@ export function Footer() {
                   </div>
                 )
                 if (msg.kind === 'agent') return (
-                  <div key={msg.id} className="flex items-end gap-2">
-                    <div className="size-7 rounded-full bg-brand flex items-center justify-center shrink-0 text-white text-xs font-medium">D</div>
-                    <div className="bg-muted text-sm rounded-2xl rounded-tl-sm px-3 py-2 max-w-[80%]">{msg.text}</div>
+                  <div key={msg.id} className="flex flex-col gap-1">
+                    <div className="flex items-end gap-2">
+                      <div className="size-7 rounded-full bg-brand flex items-center justify-center shrink-0 text-white text-xs font-medium">D</div>
+                      <div className="bg-muted text-sm rounded-2xl rounded-tl-sm px-3 py-2 max-w-[80%]">{msg.text}</div>
+                    </div>
+                    <span className="text-xs text-muted-foreground pl-9">David · Just now</span>
                   </div>
                 )
                 return null
@@ -230,7 +227,7 @@ export function Footer() {
                     {RATING_OPTIONS.map(({ score, Icon, label }) => (
                       <button key={score} onClick={() => selectRating(score)} className="flex flex-col items-center gap-1 group">
                         <Icon className="size-7 text-muted-foreground group-hover:text-brand transition-colors" />
-                        <span className="text-[10px] text-muted-foreground group-hover:text-foreground transition-colors">{label}</span>
+                        <span className="text-xs text-muted-foreground group-hover:text-foreground transition-colors">{label}</span>
                       </button>
                     ))}
                   </div>
@@ -321,15 +318,18 @@ export function Footer() {
                     <div className="bg-muted rounded-2xl rounded-tl-sm px-3 py-2 max-w-[85%]">
                       <p className="text-sm text-foreground">How can we help you?</p>
                     </div>
-                    <span className="text-xs text-muted-foreground pl-1">Bildery Support · Just now</span>
+                    <span className="text-xs text-muted-foreground pl-1">Customer Support · Just now</span>
                   </div>
                   {messages.map(msg => {
                     if (msg.kind === 'user') return (
-                      <div key={msg.id} className="flex items-end justify-end gap-2">
-                        <div className="bg-brand text-white text-sm rounded-2xl rounded-tr-sm px-3 py-2 max-w-[80%]">{msg.text}</div>
-                        <div className="size-6 rounded-full bg-muted flex items-center justify-center shrink-0">
-                          <UserRound className="size-3.5 text-muted-foreground" />
+                      <div key={msg.id} className="flex flex-col items-end gap-1">
+                        <div className="flex items-end gap-2">
+                          <div className="bg-brand text-white text-sm rounded-2xl rounded-tr-sm px-3 py-2 max-w-[80%]">{msg.text}</div>
+                          <div className="size-6 rounded-full bg-muted flex items-center justify-center shrink-0">
+                            <UserRound className="size-3.5 text-muted-foreground" />
+                          </div>
                         </div>
+                        <span className="text-xs text-muted-foreground pr-8">Just now</span>
                       </div>
                     )
                     if (msg.kind === 'system') return (
@@ -348,9 +348,12 @@ export function Footer() {
                       </div>
                     )
                     if (msg.kind === 'agent') return (
-                      <div key={msg.id} className="flex items-end gap-2">
-                        <div className="size-6 rounded-full bg-brand flex items-center justify-center shrink-0 text-white text-xs font-medium">D</div>
-                        <div className="bg-muted text-sm rounded-2xl rounded-tl-sm px-3 py-2 max-w-[80%]">{msg.text}</div>
+                      <div key={msg.id} className="flex flex-col gap-1">
+                        <div className="flex items-end gap-2">
+                          <div className="size-6 rounded-full bg-brand flex items-center justify-center shrink-0 text-white text-xs font-medium">D</div>
+                          <div className="bg-muted text-sm rounded-2xl rounded-tl-sm px-3 py-2 max-w-[80%]">{msg.text}</div>
+                        </div>
+                        <span className="text-xs text-muted-foreground pl-8">David · Just now</span>
                       </div>
                     )
                     return null
@@ -363,7 +366,7 @@ export function Footer() {
                         {RATING_OPTIONS.map(({ score, Icon, label }) => (
                           <button key={score} onClick={() => selectRating(score)} className="flex flex-col items-center gap-1 group">
                             <Icon className="size-7 text-muted-foreground group-hover:text-brand transition-colors" />
-                            <span className="text-[10px] text-muted-foreground group-hover:text-foreground transition-colors">{label}</span>
+                            <span className="text-xs text-muted-foreground group-hover:text-foreground transition-colors">{label}</span>
                           </button>
                         ))}
                       </div>
@@ -410,7 +413,7 @@ export function Footer() {
                     }}
                     onFocus={() => setExpanded(true)}
                     onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send() } }}
-                    placeholder="How can we help you?"
+                    placeholder="Write a message..."
                     className="flex-1 resize-none bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none leading-relaxed max-h-40 overflow-y-auto"
                   />
                   <button className="p-1.5 text-muted-foreground hover:text-foreground transition-colors shrink-0">
