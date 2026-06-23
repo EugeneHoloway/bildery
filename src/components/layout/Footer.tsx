@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useState, useRef, useEffect, useCallback } from 'react'
-import { X, ArrowUp, UserRound, Paperclip, Mic, Angry, Frown, Meh, Smile, Laugh } from 'lucide-react'
+import { X, ArrowUp, UserRound, Paperclip, Mic, ChevronDown, Angry, Frown, Meh, Smile, Laugh } from 'lucide-react'
 import pkg from '../../../package.json'
 const version = pkg.version
 
@@ -42,8 +42,21 @@ export function Footer() {
   const [csatComment, setCsatComment] = useState('')
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const mobileScrollRef = useRef<HTMLDivElement>(null)
+  const desktopScrollRef = useRef<HTMLDivElement>(null)
+  const [showScrollDownMobile, setShowScrollDownMobile] = useState(false)
+  const [showScrollDownDesktop, setShowScrollDownDesktop] = useState(false)
   const msgCounter = useRef(0)
   const nextId = useCallback(() => ++msgCounter.current, [])
+
+  function handleScroll(e: React.UIEvent<HTMLDivElement>, setter: (v: boolean) => void) {
+    const el = e.currentTarget
+    setter(el.scrollHeight - el.scrollTop - el.clientHeight > 80)
+  }
+
+  function scrollDown(ref: React.RefObject<HTMLDivElement | null>) {
+    ref.current?.scrollTo({ top: ref.current.scrollHeight, behavior: 'smooth' })
+  }
 
   useEffect(() => {
     if (!open) return
@@ -169,7 +182,17 @@ export function Footer() {
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-3">
+            <div className="relative flex-1 min-h-0">
+              {showScrollDownMobile && (
+                <button
+                  onClick={() => scrollDown(mobileScrollRef)}
+                  className="absolute bottom-3 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1.5 rounded-full border border-border bg-background shadow-md px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <ChevronDown className="size-3.5" />
+                  Jump to latest
+                </button>
+              )}
+            <div ref={mobileScrollRef} onScroll={e => handleScroll(e, setShowScrollDownMobile)} className="h-full overflow-y-auto px-4 py-4 flex flex-col gap-3">
               {/* Welcome bubble */}
               {(
                 <div className="flex flex-col gap-1">
@@ -183,8 +206,8 @@ export function Footer() {
               {messages.map(msg => {
                 if (msg.kind === 'user') return (
                   <div key={msg.id} className="flex flex-col items-end gap-1">
-                    <div className="flex items-end gap-2">
-                      <div className="bg-brand text-white text-sm rounded-2xl rounded-tr-sm px-3 py-2 max-w-[80%]">{msg.text}</div>
+                    <div className="flex items-start justify-end gap-2">
+                      <div className="bg-brand text-white text-sm rounded-2xl rounded-tr-sm px-3 py-2 max-w-[80%] whitespace-pre-wrap">{msg.text}</div>
                       <div className="size-7 rounded-full bg-muted flex items-center justify-center shrink-0">
                         <UserRound className="size-4 text-muted-foreground" />
                       </div>
@@ -198,7 +221,7 @@ export function Footer() {
                   </div>
                 )
                 if (msg.kind === 'typing') return (
-                  <div key={msg.id} className="flex items-end gap-2">
+                  <div key={msg.id} className="flex items-start gap-2">
                     <div className="size-7 rounded-full bg-brand flex items-center justify-center shrink-0 text-white text-xs font-medium">D</div>
                     <div className="bg-muted text-sm rounded-2xl rounded-tl-sm px-3 py-2 flex items-center gap-1">
                       <span className="size-1.5 rounded-full bg-muted-foreground/60 animate-bounce [animation-delay:0ms]" />
@@ -209,7 +232,7 @@ export function Footer() {
                 )
                 if (msg.kind === 'agent') return (
                   <div key={msg.id} className="flex flex-col gap-1">
-                    <div className="flex items-end gap-2">
+                    <div className="flex items-start gap-2">
                       <div className="size-7 rounded-full bg-brand flex items-center justify-center shrink-0 text-white text-xs font-medium">D</div>
                       <div className="bg-muted text-sm rounded-2xl rounded-tl-sm px-3 py-2 max-w-[80%]">{msg.text}</div>
                     </div>
@@ -257,6 +280,7 @@ export function Footer() {
               )}
 
               <div ref={messagesEndRef} />
+            </div>
             </div>
 
             {/* Input */}
@@ -312,7 +336,17 @@ export function Footer() {
 
               {/* Messages */}
               {(expanded || messages.length > 0) && (
-                <div className="px-4 pb-2 flex flex-col gap-3 max-h-64 overflow-y-auto">
+                <div className="relative">
+                {showScrollDownDesktop && (
+                  <button
+                    onClick={() => scrollDown(desktopScrollRef)}
+                    className="absolute bottom-2 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1.5 rounded-full border border-border bg-background shadow-md px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    <ChevronDown className="size-3.5" />
+                    Jump to latest
+                  </button>
+                )}
+                <div ref={desktopScrollRef} onScroll={e => handleScroll(e, setShowScrollDownDesktop)} className="px-4 pb-2 flex flex-col gap-3 max-h-64 overflow-y-auto">
                   {/* Welcome bubble */}
                   <div className="flex flex-col gap-1">
                     <div className="bg-muted rounded-2xl rounded-tl-sm px-3 py-2 max-w-[85%]">
@@ -323,8 +357,8 @@ export function Footer() {
                   {messages.map(msg => {
                     if (msg.kind === 'user') return (
                       <div key={msg.id} className="flex flex-col items-end gap-1">
-                        <div className="flex items-end gap-2">
-                          <div className="bg-brand text-white text-sm rounded-2xl rounded-tr-sm px-3 py-2 max-w-[80%]">{msg.text}</div>
+                        <div className="flex items-start justify-end gap-2">
+                          <div className="bg-brand text-white text-sm rounded-2xl rounded-tr-sm px-3 py-2 max-w-[80%] whitespace-pre-wrap">{msg.text}</div>
                           <div className="size-6 rounded-full bg-muted flex items-center justify-center shrink-0">
                             <UserRound className="size-3.5 text-muted-foreground" />
                           </div>
@@ -338,7 +372,7 @@ export function Footer() {
                       </div>
                     )
                     if (msg.kind === 'typing') return (
-                      <div key={msg.id} className="flex items-end gap-2">
+                      <div key={msg.id} className="flex items-start gap-2">
                         <div className="size-6 rounded-full bg-brand flex items-center justify-center shrink-0 text-white text-xs font-medium">D</div>
                         <div className="bg-muted text-sm rounded-2xl rounded-tl-sm px-3 py-2 flex items-center gap-1">
                           <span className="size-1.5 rounded-full bg-muted-foreground/60 animate-bounce [animation-delay:0ms]" />
@@ -349,7 +383,7 @@ export function Footer() {
                     )
                     if (msg.kind === 'agent') return (
                       <div key={msg.id} className="flex flex-col gap-1">
-                        <div className="flex items-end gap-2">
+                        <div className="flex items-start gap-2">
                           <div className="size-6 rounded-full bg-brand flex items-center justify-center shrink-0 text-white text-xs font-medium">D</div>
                           <div className="bg-muted text-sm rounded-2xl rounded-tl-sm px-3 py-2 max-w-[80%]">{msg.text}</div>
                         </div>
@@ -396,6 +430,7 @@ export function Footer() {
                   )}
 
                   <div ref={messagesEndRef} />
+                </div>
                 </div>
               )}
 

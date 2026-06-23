@@ -16,9 +16,9 @@ import {
   BellOff, Share2, ChevronDown, ChevronRight, Copy, Bold, Italic,
   Link2, Undo2, Redo2, List, ListOrdered, Code2, Smile, Paperclip,
   Mic, Maximize2, Twitter, Linkedin, Phone, Building2, MapPin, Languages, ArrowRight, RefreshCw,
-  Pencil, PhoneCall, X, User, BadgeCheck, Crown, UserX, ShieldBan,
+  Pencil, PhoneCall, X, User, UserRound, BadgeCheck, Crown, UserX, ShieldBan,
   Minus, Wrench, BarChart2, Tag, Plus, AlertTriangle, SlidersHorizontal,
-  Bot, SendHorizonal, Rocket, Lightbulb, Database, Check,
+  Bot, ArrowUp, Rocket, Lightbulb, Database, Check,
 } from 'lucide-react'
 import { Toggle } from '@/components/ui/toggle'
 import { Button } from '@/components/ui/button'
@@ -315,6 +315,7 @@ function CopilotPanel({ convo, compact = false }: { convo: Conversation; compact
   const [prompt, setPrompt] = useState('')
   const [isTyping, setIsTyping] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const copilotTextareaRef = useRef<HTMLTextAreaElement>(null)
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['Summary', 'Risk Analysis', 'Suggested Replies', 'Translation', 'Transaction Lookup']))
   const toggleSection = (section: string) => setExpandedSections(prev => {
     const next = new Set(prev)
@@ -330,6 +331,9 @@ function CopilotPanel({ convo, compact = false }: { convo: Conversation; compact
     if (!text) return
     setMessages(prev => [...prev, { role: 'user', text }])
     setPrompt('')
+    if (copilotTextareaRef.current) {
+      copilotTextareaRef.current.style.height = 'auto'
+    }
     setIsTyping(true)
     setTimeout(() => {
       setMessages(prev => [...prev, { role: 'assistant', text: getResponse(text) }])
@@ -389,7 +393,7 @@ function CopilotPanel({ convo, compact = false }: { convo: Conversation; compact
       {/* Ask tab — chat */}
       {copilotTab === 'ask' && (
         <div className="flex flex-col flex-1 overflow-hidden">
-          <div className="flex-1 overflow-y-auto p-3">
+          <div className="flex-1 overflow-y-auto overflow-x-hidden p-3">
             {messages.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full gap-6 py-6 text-center px-2">
                 <div>
@@ -414,20 +418,25 @@ function CopilotPanel({ convo, compact = false }: { convo: Conversation; compact
             ) : (
               <div className="flex flex-col gap-3">
                 {messages.map((msg, i) => (
-                  <div key={i} className={cn('flex', msg.role === 'user' ? 'justify-end' : 'justify-start')}>
+                  <div key={i} className={cn('flex items-start gap-2', msg.role === 'user' ? 'justify-end' : 'justify-start')}>
                     {msg.role === 'assistant' && (
-                      <div className="size-6 rounded-full bg-muted flex items-center justify-center shrink-0 mr-2 mt-0.5">
+                      <div className="size-6 rounded-full bg-muted flex items-center justify-center shrink-0 mt-0.5">
                         <Bot className="size-3 text-muted-foreground" />
                       </div>
                     )}
                     <div className={cn(
-                      sp, 'max-w-[85%] rounded-xl px-3 py-2 leading-relaxed',
+                      sp, 'max-w-[85%] px-3 py-2 leading-relaxed whitespace-pre-wrap',
                       msg.role === 'user'
-                        ? 'bg-foreground text-background'
-                        : 'bg-muted text-foreground'
+                        ? 'bg-foreground text-background rounded-xl rounded-tr-sm'
+                        : 'bg-muted text-foreground rounded-xl rounded-tl-sm'
                     )}>
                       {msg.text}
                     </div>
+                    {msg.role === 'user' && (
+                      <div className="size-6 rounded-full bg-muted flex items-center justify-center shrink-0 mt-0.5 text-xs font-medium text-muted-foreground">
+                        M
+                      </div>
+                    )}
                   </div>
                 ))}
                 {isTyping && (
@@ -449,8 +458,9 @@ function CopilotPanel({ convo, compact = false }: { convo: Conversation; compact
 
           {/* Input */}
           <div className="shrink-0 p-3">
-            <div className="flex items-end gap-1.5 rounded-xl border border-border bg-background px-3 py-2">
+            <div className="flex flex-col gap-1.5 rounded-xl border border-border bg-background px-3 pt-2 pb-2">
               <textarea
+                ref={copilotTextareaRef}
                 rows={1}
                 value={prompt}
                 onChange={e => {
@@ -460,15 +470,20 @@ function CopilotPanel({ convo, compact = false }: { convo: Conversation; compact
                 }}
                 onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage() } }}
                 placeholder="Ask a question..."
-                className={cn(sp, 'flex-1 bg-transparent outline-none resize-none text-foreground placeholder:text-muted-foreground leading-relaxed max-h-40 overflow-y-auto')}
+                className={cn(sp, 'w-full bg-transparent outline-none resize-none text-foreground placeholder:text-muted-foreground leading-relaxed max-h-40 overflow-y-auto')}
               />
-              <button
-                onClick={sendMessage}
-                disabled={!prompt.trim()}
-                className="size-6 rounded-lg bg-foreground text-background flex items-center justify-center shrink-0 disabled:opacity-30 transition-opacity"
-              >
-                <SendHorizonal className="size-3" />
-              </button>
+              <div className="flex items-center justify-between">
+                <button className="p-0.5 text-muted-foreground hover:text-foreground transition-colors">
+                  <Paperclip className="size-3.5" />
+                </button>
+                <button
+                  onClick={sendMessage}
+                  disabled={!prompt.trim()}
+                  className="size-6 rounded-lg bg-foreground text-background flex items-center justify-center shrink-0 disabled:opacity-30 transition-opacity"
+                >
+                  <ArrowUp className="size-3" />
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -707,6 +722,32 @@ function AllConversationsContent() {
   const [replyTab, setReplyTab] = useState<'reply' | 'note'>('reply')
   const [replyHeight, setReplyHeight] = useState(40)
   const replyHeightRef = useRef(40)
+  const [manualHeight, setManualHeight] = useState<number | null>(null)
+  const [replyText, setReplyText] = useState('')
+  const replyTextareaRef = useRef<HTMLTextAreaElement>(null)
+  const [extraMessages, setExtraMessages] = useState<Record<string, Message[]>>({})
+  const messagesContainerRef = useRef<HTMLDivElement>(null)
+  const [showScrollDown, setShowScrollDown] = useState(false)
+
+  function handleMessagesScroll(e: React.UIEvent<HTMLDivElement>) {
+    const el = e.currentTarget
+    const distFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight
+    setShowScrollDown(distFromBottom > 80)
+  }
+
+  function scrollToBottom() {
+    messagesContainerRef.current?.scrollTo({ top: messagesContainerRef.current.scrollHeight, behavior: 'smooth' })
+  }
+
+  function sendReply() {
+    const text = replyText.trim()
+    if (!text || !selectedId) return
+    const msg: Message = { from: 'agent', text, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }
+    setExtraMessages(prev => ({ ...prev, [selectedId]: [...(prev[selectedId] ?? []), msg] }))
+    setReplyText('')
+    setManualHeight(null)
+    if (replyTextareaRef.current) replyTextareaRef.current.style.height = 'auto'
+  }
   const onDragStart = (e: React.MouseEvent) => {
     e.preventDefault()
     const startY = e.clientY
@@ -715,6 +756,8 @@ function AllConversationsContent() {
       const next = Math.max(40, Math.min(400, startH + (startY - ev.clientY)))
       replyHeightRef.current = next
       setReplyHeight(next)
+      setManualHeight(next)
+      if (replyTextareaRef.current) replyTextareaRef.current.style.height = next + 'px'
     }
     const onUp = () => {
       window.removeEventListener('mousemove', onMove)
@@ -1206,8 +1249,18 @@ function AllConversationsContent() {
                 </button>
 
                 {/* Messages */}
-                <div className="flex-1 overflow-y-auto min-h-0 px-3 py-4 flex flex-col gap-4">
-                  {(CONVERSATION_MESSAGES[selected.id] ?? CONVERSATION_MESSAGES['1']).map((msg, i) => {
+                <div className="relative flex-1 min-h-0">
+                {showScrollDown && (
+                  <button
+                    onClick={scrollToBottom}
+                    className="absolute bottom-3 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1.5 rounded-full border border-border bg-background shadow-md px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    <ChevronDown className="size-3.5" />
+                    Jump to latest
+                  </button>
+                )}
+                <div ref={messagesContainerRef} onScroll={handleMessagesScroll} className="h-full overflow-y-auto px-3 py-4 flex flex-col gap-4">
+                  {[...(CONVERSATION_MESSAGES[selected.id] ?? CONVERSATION_MESSAGES['1']), ...(extraMessages[selected.id] ?? [])].map((msg, i) => {
                     if (msg.from === 'system') return (
                       <div key={i} className="flex justify-center">
                         <p className="text-xs text-muted-foreground">{msg.text}</p>
@@ -1218,7 +1271,7 @@ function AllConversationsContent() {
                         <div className="size-7 rounded-full bg-muted-foreground/20 flex items-center justify-center text-xs font-medium text-muted-foreground shrink-0 mt-1">{selected.name.charAt(0)}</div>
                         <div>
                           <div className="bg-muted rounded-2xl rounded-tl-sm px-4 py-2.5">
-                            <p className="text-sm text-foreground">{msg.text}</p>
+                            <p className="text-sm text-foreground whitespace-pre-wrap">{msg.text}</p>
                           </div>
                           <p className="text-xs text-muted-foreground mt-1 ml-1">{msg.time}</p>
                         </div>
@@ -1229,13 +1282,14 @@ function AllConversationsContent() {
                         <div className="size-7 rounded-full bg-brand/20 flex items-center justify-center text-xs font-medium text-brand shrink-0 mt-1">M</div>
                         <div>
                           <div className="bg-brand text-white rounded-2xl rounded-tr-sm px-4 py-2.5">
-                            <p className="text-sm">{msg.text}</p>
+                            <p className="text-sm whitespace-pre-wrap">{msg.text}</p>
                           </div>
                           <p className="text-xs text-muted-foreground mt-1 mr-1 text-right">{msg.time}</p>
                         </div>
                       </div>
                     )
                   })}
+                </div>
                 </div>
 
                 {/* Reply input */}
@@ -1286,9 +1340,19 @@ function AllConversationsContent() {
                     </div>
                     {/* Text area */}
                     <textarea
+                      ref={replyTextareaRef}
+                      rows={1}
                       placeholder="Write a message…"
-                      className="w-full resize-none bg-transparent px-4 pt-3 pb-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none overflow-auto"
-                      style={{ height: replyHeight }}
+                      value={replyText}
+                      onChange={e => {
+                        setReplyText(e.target.value)
+                        if (!manualHeight) {
+                          e.target.style.height = 'auto'
+                          e.target.style.height = e.target.scrollHeight + 'px'
+                        }
+                      }}
+                      onKeyDown={e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); sendReply() } }}
+                      className="w-full resize-none bg-transparent px-4 pt-3 pb-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none overflow-hidden whitespace-pre-wrap max-h-48"
                     />
                     {/* Bottom toolbar */}
                     <div className="flex items-center px-3 pb-3">
@@ -1302,7 +1366,7 @@ function AllConversationsContent() {
                       <span className="ml-auto text-xs text-muted-foreground flex items-center gap-1">
                         Use <KbdGroup><Kbd>⌘ + ↵</Kbd></KbdGroup> to send message
                       </span>
-                      <Button size="sm" className="h-8 ml-2">Send</Button>
+                      <Button size="sm" className="h-8 ml-2" onClick={sendReply} disabled={!replyText.trim()}>Send</Button>
                     </div>
                   </div>
                 </div>
