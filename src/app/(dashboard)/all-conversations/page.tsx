@@ -2234,12 +2234,24 @@ function AllConversationsContent() {
                                   { value: 'sarah', name: 'Sarah Connor' },
                                   { value: 'james', name: 'James Holden' },
                                 ].map(({ value, name }) => (
-                                  <SelectItem key={value} value={value}>
-                                    <span className="flex items-center gap-2">
-                                      <div className="size-5 rounded-full bg-muted-foreground/20 flex items-center justify-center text-xs font-medium text-muted-foreground shrink-0">{name.charAt(0)}</div>
-                                      {name}
-                                    </span>
-                                  </SelectItem>
+                                  <SelectItem key={value} value={value}>{name}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div>
+                            <span className="text-sm font-medium text-muted-foreground block mb-1.5">Assigned Team</span>
+                            <Select defaultValue="technical">
+                              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+                              <SelectContent>
+                                {[
+                                  { value: 'technical', name: 'Technical Support' },
+                                  { value: 'vip', name: 'VIP Support' },
+                                  { value: 'payments', name: 'Payments & Withdrawals' },
+                                  { value: 'fraud', name: 'Fraud & Security' },
+                                  { value: 'success', name: 'Customer Success' },
+                                ].map(({ value, name }) => (
+                                  <SelectItem key={value} value={value}>{name}</SelectItem>
                                 ))}
                               </SelectContent>
                             </Select>
@@ -2263,6 +2275,68 @@ function AllConversationsContent() {
                                 <SelectItem value="critical"><span className="flex items-center gap-2"><AlertTriangle className="size-4 text-destructive" />Critical</span></SelectItem>
                               </SelectContent>
                             </Select>
+                          </div>
+                          {/* Conversation Labels */}
+                          <div>
+                            <span className="text-sm font-medium text-muted-foreground block mb-1.5">Conversation Labels</span>
+                            <div className="flex flex-wrap items-center gap-1.5">
+                              <div className="relative">
+                                <button
+                                  onClick={() => { setShowLabelMenu(v => !v); setLabelSearch('') }}
+                                  className="flex items-center gap-1 text-sm text-brand hover:underline"
+                                >
+                                  <Plus className="size-3.5" />Add Labels
+                                </button>
+                                {showLabelMenu && (
+                                  <div className="absolute left-0 top-full mt-1 z-50 bg-popover border border-border rounded-xl shadow-lg w-56 overflow-hidden">
+                                    <div className="p-2 border-b border-border">
+                                      <input
+                                        ref={labelSearchRef}
+                                        autoFocus
+                                        value={labelSearch}
+                                        onChange={e => setLabelSearch(e.target.value)}
+                                        placeholder="Search labels..."
+                                        className="w-full text-sm bg-muted rounded-lg px-2.5 py-1.5 outline-none text-foreground placeholder:text-muted-foreground"
+                                        onKeyDown={e => {
+                                          if (e.key === 'Enter' && labelSearch.trim() && !convoLabels.includes(labelSearch.trim())) {
+                                            setConvoLabels(prev => [...prev, labelSearch.trim()])
+                                            setLabelSearch('')
+                                            setShowLabelMenu(false)
+                                          }
+                                        }}
+                                      />
+                                    </div>
+                                    <div className="max-h-48 overflow-y-auto py-1">
+                                      {ALL_LABELS
+                                        .filter(l => l.includes(labelSearch.toLowerCase()))
+                                        .map(lbl => {
+                                          const active = convoLabels.includes(lbl)
+                                          return (
+                                            <button
+                                              key={lbl}
+                                              onClick={() => setConvoLabels(prev => active ? prev.filter(l => l !== lbl) : [...prev, lbl])}
+                                              className="w-full flex items-center justify-between px-3 py-1.5 text-sm hover:bg-muted transition-colors"
+                                            >
+                                              <span className={cn('px-1.5 py-0.5 rounded border text-xs', TAG_COLORS[lbl] ?? 'bg-muted text-muted-foreground border-border')}>{lbl}</span>
+                                              {active && <Check className="size-3 text-brand shrink-0" />}
+                                            </button>
+                                          )
+                                        })
+                                      }
+                                      {ALL_LABELS.filter(l => l.includes(labelSearch.toLowerCase())).length === 0 && (
+                                        <p className="px-3 py-2 text-sm text-muted-foreground">No labels found</p>
+                                      )}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                              {convoLabels.map(lbl => (
+                                <span key={lbl} className={cn('flex items-center gap-1 text-xs border rounded px-1.5 py-0.5', TAG_COLORS[lbl] ?? 'bg-muted text-muted-foreground border-border')}>
+                                  {lbl}
+                                  <button onClick={() => setConvoLabels(prev => prev.filter(l => l !== lbl))} className="hover:opacity-70"><X className="size-3" /></button>
+                                </span>
+                              ))}
+                            </div>
                           </div>
                         </div>
                       )}
