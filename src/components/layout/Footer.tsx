@@ -153,7 +153,7 @@ export function Footer() {
       </footer>
 
       {open && (
-        <div className={`fixed bottom-28 md:bottom-6 left-1/2 -translate-x-1/2 z-50 w-full px-4 transition-all duration-300 ease-out ${expanded ? 'max-w-lg' : 'max-w-sm'}`}>
+        <div className={`fixed bottom-16 md:bottom-6 left-1/2 -translate-x-1/2 z-50 w-full px-4 transition-all duration-300 ease-out ${expanded ? 'max-w-lg' : 'max-w-sm'}`}>
           <div className="rounded-2xl border border-border bg-background shadow-xl flex flex-col overflow-hidden">
             {/* Header */}
             <div className="flex items-center justify-between px-4 pt-3 pb-2 shrink-0">
