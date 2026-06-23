@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { LoginForm } from './LoginForm'
@@ -16,6 +16,10 @@ type Props = {
 
 export function AuthDialog({ open, mode: initialMode = 'login', onOpenChange }: Props) {
   const [mode, setMode] = useState<Mode>(initialMode)
+
+  useEffect(() => {
+    if (open) setMode(initialMode)
+  }, [open, initialMode])
   const router = useRouter()
 
   function handleSuccess() {

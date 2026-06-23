@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { Mail } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -44,19 +45,23 @@ export function SignupForm({ onSuccess, onSwitchToLogin, className }: Props) {
       setError(error.message)
     } else {
       setDone(true)
-      onSuccess?.()
     }
   }
 
   if (done) {
     return (
-      <Card className={cn(className)}>
-        <CardContent className="pt-6">
+      <div className="flex flex-col items-center gap-4 px-6 py-10 text-center">
+        <div className="flex size-12 items-center justify-center rounded-xl bg-muted">
+          <Mail className="size-6 text-muted-foreground" />
+        </div>
+        <div className="flex flex-col gap-1">
+          <p className="font-semibold text-foreground">Check your email</p>
           <p className="text-sm text-muted-foreground">
-            Check your email for a confirmation link to complete sign up.
+            We sent a confirmation link to <span className="text-foreground">{email}</span>.
+            Click it to activate your account.
           </p>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     )
   }
 

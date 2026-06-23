@@ -31,7 +31,13 @@ export function LoginForm({ onSuccess, onSwitchToSignup, className }: Props) {
     setLoading(false)
 
     if (error) {
-      setError(error.message)
+      if (error.message === 'Email not confirmed') {
+        setError('Please check your email and confirm your account before signing in.')
+      } else if (error.message === 'Invalid login credentials') {
+        setError('Invalid email or password.')
+      } else {
+        setError(error.message)
+      }
     } else {
       onSuccess?.()
     }
