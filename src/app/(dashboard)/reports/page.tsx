@@ -7,7 +7,7 @@ import { DashboardHeader } from '@/components/DashboardHeader'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { Download, CalendarIcon, TrendingUp, TrendingDown, Info, ArrowUp, ArrowDown, ChevronsUpDown } from 'lucide-react'
+import { Download, CalendarIcon, TrendingUp, TrendingDown, Info, ArrowUp, ArrowDown, ChevronsUpDown, Angry, Frown, Meh, Smile, Laugh, MessageSquareOff } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectSeparator } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
@@ -152,7 +152,7 @@ const TICKET_CHART_DATA = [
 
 const ticketChartConfig = {
   incoming: { label: 'New conversations', color: 'var(--color-chart-1)' },
-  resolved: { label: 'Closed conversations', color: 'var(--color-chart-2)' },
+  resolved: { label: 'Resolved conversations', color: 'var(--color-chart-2)' },
 } satisfies ChartConfig
 
 function TicketsAreaChart() {
@@ -679,6 +679,143 @@ function AgentPerformance() {
   )
 }
 
+// ── CSAT ─────────────────────────────────────────────────────────────────
+
+const CSAT_RATINGS = [
+  { Icon: Laugh, label: 'Excellent', count: 54, pct: 45, color: 'bg-success' },
+  { Icon: Smile, label: 'Good',      count: 36, pct: 30, color: 'bg-brand'   },
+  { Icon: Meh,   label: 'Average',   count: 18, pct: 15, color: 'bg-amber-400' },
+  { Icon: Frown, label: 'Fair',      count:  7, pct:  6, color: 'bg-orange-400' },
+  { Icon: Angry, label: 'Poor',      count:  5, pct:  4, color: 'bg-destructive' },
+]
+
+const CSAT_COMMENTS = [
+  { name: 'Klaus Crawley',      Icon: Laugh, comment: 'Super fast response and the agent resolved everything in one go. Very impressed!',      agent: 'David Wallace'  },
+  { name: 'Coreen Mewett',      Icon: Smile, comment: 'Good support overall. Would be nice to have a chat option on mobile too.',              agent: 'Sarah Mitchell' },
+  { name: 'Nathaniel Vannuchi', Icon: Meh,   comment: 'The issue was resolved but it took a while. The agent was helpful though.',             agent: 'David Wallace'  },
+  { name: 'Unknown user',       Icon: Frown, comment: 'Had to explain the same problem twice. Please improve handoff between agents.',         agent: 'James Kowalski' },
+  { name: 'Candice Matherson',  Icon: Laugh, comment: 'David was amazing. Sorted out my billing issue within minutes. 10/10.',                 agent: 'David Wallace'  },
+  { name: 'Sandra Mills',       Icon: Smile, comment: 'Really appreciate the quick turnaround. My subscription issue was handled professionally.', agent: 'Sarah Mitchell' },
+  { name: 'Tom Harrigan',       Icon: Laugh, comment: "Best support experience I've had in a while. Clear, fast, and friendly.",               agent: 'James Kowalski' },
+  { name: 'Merrile Petruk',     Icon: Meh,   comment: 'Average experience. The solution worked but I had to follow up twice.',                 agent: 'David Wallace'  },
+  { name: 'Quent Dalliston',    Icon: Angry, comment: "Very disappointed. Waited 20 minutes and the problem still isn't fully resolved.",      agent: 'James Kowalski' },
+  { name: 'Ben Nugent',         Icon: Smile, comment: 'Good experience overall. The agent was knowledgeable and explained everything clearly.', agent: 'Sarah Mitchell' },
+]
+
+function CsatSection() {
+  const [showData, setShowData] = useState(false)
+
+  const stats = showData
+    ? [
+        { label: 'Total responses', value: '120', tooltip: 'Total number of CSAT survey responses submitted by customers.' },
+        { label: 'Satisfaction score', value: '75%', tooltip: 'Percentage of responses rated Good or Excellent out of all responses.' },
+        { label: 'Response rate', value: '62%', tooltip: 'Percentage of customers who completed the CSAT survey after their conversation ended.' },
+      ]
+    : [
+        { label: 'Total responses', value: '0', tooltip: 'Total number of CSAT survey responses submitted by customers.' },
+        { label: 'Satisfaction score', value: '0%', tooltip: 'Percentage of responses rated Good or Excellent out of all responses.' },
+        { label: 'Response rate', value: '0%', tooltip: 'Percentage of customers who completed the CSAT survey after their conversation ended.' },
+      ]
+
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <h2 className="text-lg font-semibold">CSAT Reports</h2>
+        <div className="flex items-center gap-2 flex-wrap">
+          <label className="flex items-center gap-2 cursor-pointer select-none">
+            <span className="text-sm text-muted-foreground">{showData ? 'Data' : 'Empty state'}</span>
+            <Switch checked={showData} onCheckedChange={setShowData} />
+          </label>
+          <DateRangePicker compact />
+          <Button variant="default" size="default" className="gap-2 shrink-0">
+            <Download className="size-4" />
+            <span className="hidden sm:inline">Download</span>
+          </Button>
+        </div>
+      </div>
+
+      {/* Summary stats */}
+      <div className="rounded-2xl border border-border bg-card">
+        <div className="grid grid-cols-1 sm:grid-cols-3 sm:divide-x divide-y sm:divide-y-0 divide-border">
+          {stats.map(({ label, value, tooltip }) => (
+            <div key={label} className="flex flex-col gap-1 px-4 sm:px-6 py-4 sm:py-5">
+              <span className="text-sm text-muted-foreground flex items-center gap-1">
+                {label}
+                <TooltipProvider delayDuration={200}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Info className="size-3.5 text-muted-foreground/50 hover:text-muted-foreground cursor-default shrink-0" />
+                    </TooltipTrigger>
+                    <TooltipContent side="top" className="max-w-[220px] text-xs">{tooltip}</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </span>
+              <span className="text-3xl font-semibold tabular-nums">{value}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Rating distribution */}
+      <div className="rounded-2xl border border-border bg-card p-5 flex flex-col gap-4">
+        <span className="text-sm font-medium">Rating distribution</span>
+        {showData ? (
+          <div className="flex h-2.5 rounded-full overflow-hidden w-full gap-px">
+            {CSAT_RATINGS.map(({ label, pct, color }) => (
+              <div key={label} className={`${color} h-full`} style={{ width: `${pct}%` }} />
+            ))}
+          </div>
+        ) : (
+          <div className="h-2.5 rounded-full bg-muted w-full" />
+        )}
+        <div className="flex flex-wrap gap-x-6 gap-y-2">
+          {CSAT_RATINGS.map(({ Icon, label, count, pct }) => (
+            <span key={label} className="flex items-center gap-1.5 text-sm text-muted-foreground">
+              <Icon className="size-4 shrink-0" />
+              {label}{' '}
+              <span className="font-medium text-foreground">{showData ? `${pct}%` : '0%'}</span>
+              <span className="text-muted-foreground/60">({showData ? count : 0})</span>
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {/* Comments or empty state */}
+      {showData ? (
+        <div className="rounded-2xl border border-border bg-card divide-y divide-border overflow-y-auto max-h-[400px]">
+          {CSAT_COMMENTS.map(({ name, Icon, comment, agent }, i) => (
+            <div key={i} className="flex items-start gap-3 px-5 py-4">
+              <div className="size-8 rounded-full bg-muted flex items-center justify-center shrink-0 text-sm font-medium text-muted-foreground">
+                {name[0]}
+              </div>
+              <div className="flex flex-col gap-0.5 min-w-0 flex-1">
+                <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-0.5">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium text-foreground">{name}</span>
+                    <Icon className="size-4 text-muted-foreground shrink-0" />
+                  </div>
+                  <span className="text-xs text-muted-foreground">Agent: {agent}</span>
+                </div>
+                <p className="text-sm text-muted-foreground">{comment}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="rounded-2xl border border-border bg-card flex flex-col items-center justify-center py-16 gap-3">
+          <div className="size-14 rounded-xl bg-muted flex items-center justify-center">
+            <MessageSquareOff className="size-6 text-muted-foreground" />
+          </div>
+          <div className="text-center">
+            <p className="text-sm font-medium text-foreground">No responses yet</p>
+            <p className="text-sm text-muted-foreground mt-0.5 max-w-xs">CSAT survey responses will appear here once customers start providing feedback.</p>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ── Page ─────────────────────────────────────────────────────────────────
 
 export default function ReportsPage() {
@@ -738,7 +875,7 @@ export default function ReportsPage() {
             tooltip="Total teammate replies sent, on conversations where a customer participated."
           />
           <StatCard
-            label="Closed conversations"
+            label="Resolved conversations"
             value="170"
             change="5.0%"
             trend="up"
@@ -766,19 +903,19 @@ export default function ReportsPage() {
             tooltip="Number of conversations snoozed and scheduled to reopen at a later time."
           />
           <StatCard
-            label="Conversations marked as spam"
+            label="Conversations marked as junk"
             value="21"
             change="4.3%"
             trend="down"
-            tooltip="Number of conversations that were marked as spam and removed from the inbox."
+            tooltip="Number of conversations that were marked as junk and removed from the inbox."
           />
         </div>
 
         {/* Incoming vs Resolved */}
         <div className="rounded-2xl border border-border bg-card p-4 sm:p-6">
           <div className="mb-1">
-            <span className="text-lg font-semibold">New conversations vs Closed conversations</span>
-            <p className="text-sm text-muted-foreground mt-0.5">Conversations per day — last 28 days, excl. spam</p>
+            <span className="text-lg font-semibold">New conversations vs Resolved conversations</span>
+            <p className="text-sm text-muted-foreground mt-0.5">Conversations per day -- last 28 days, excl. junk</p>
           </div>
           <div className="mt-4">
             <TicketsAreaChart />
@@ -849,6 +986,9 @@ export default function ReportsPage() {
 
         {/* Agents Overview */}
         <AgentPerformance />
+
+        {/* CSAT Reports */}
+        <CsatSection />
 
       </div>
     </>

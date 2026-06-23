@@ -18,7 +18,7 @@ import {
   Mic, Maximize2, Twitter, Linkedin, Phone, Building2, MapPin, Languages, ArrowRight, RefreshCw,
   Pencil, PhoneCall, X, User, BadgeCheck, Crown, UserX, ShieldBan,
   Minus, Wrench, BarChart2, Tag, Plus, AlertTriangle, SlidersHorizontal,
-  Bot, SendHorizonal, Rocket, Lightbulb, Database,
+  Bot, SendHorizonal, Rocket, Lightbulb, Database, Check,
 } from 'lucide-react'
 import { Toggle } from '@/components/ui/toggle'
 import { Button } from '@/components/ui/button'
@@ -49,6 +49,7 @@ interface Conversation {
   assignee?: string
   isReply?: boolean
   unknown?: boolean
+  labels?: string[]
 }
 
 const CONVERSATIONS: Conversation[] = [
@@ -57,7 +58,7 @@ const CONVERSATIONS: Conversation[] = [
     ticketId: '769756',
     name: 'Klaus Crawley',
     channel: 'website',
-    channelLabel: 'Website',
+    channelLabel: 'Chat',
     preview: '@Ben Nugent Can we use Captain here to automate these queries?',
     time: '1d · 34m',
     priority: 'normal',
@@ -66,13 +67,14 @@ const CONVERSATIONS: Conversation[] = [
     verified: true,
     assigned: true,
     assignee: 'David Wallace',
+    labels: ['login-issue'],
   },
   {
     id: '2',
     ticketId: '769757',
     name: 'Coreen Mewett',
     channel: 'facebook',
-    channelLabel: 'Facebook',
+    channelLabel: 'Chat',
     preview: "I'm sorry to hear that. Please chang...",
     time: '1d · 37m',
     unread: 2,
@@ -84,7 +86,7 @@ const CONVERSATIONS: Conversation[] = [
     ticketId: '769758',
     name: 'Quent Dalliston',
     channel: 'whatsapp',
-    channelLabel: 'Whatsapp',
+    channelLabel: 'Chat',
     preview: 'Sure! Can you please provide me wi...',
     time: '1d · 37m',
     verified: true,
@@ -96,7 +98,7 @@ const CONVERSATIONS: Conversation[] = [
     ticketId: '769759',
     name: 'Nathaniel Vannuchi',
     channel: 'facebook',
-    channelLabel: 'Facebook',
+    channelLabel: 'Chat',
     preview: 'Hey there, I need some help with billing...',
     time: '1d · 37m',
     priority: 'normal',
@@ -109,7 +111,7 @@ const CONVERSATIONS: Conversation[] = [
     ticketId: '769760',
     name: 'Unknown user',
     channel: 'website',
-    channelLabel: 'Website',
+    channelLabel: 'Chat',
     preview: "Hi, I can't log in to my account and I lost access to my email too",
     time: '4h · 12m',
     unread: 1,
@@ -122,7 +124,7 @@ const CONVERSATIONS: Conversation[] = [
     ticketId: '769761',
     name: 'Claus Jira',
     channel: 'whatsapp',
-    channelLabel: 'Whatsapp',
+    channelLabel: 'Chat',
     preview: "I'm sorry to hear that. Can you plea...",
     time: '1d · 37m',
     assigned: false,
@@ -153,13 +155,14 @@ const CONVERSATIONS: Conversation[] = [
     unread: 10,
     assigned: true,
     assignee: 'David Wallace',
+    labels: ['billing'],
   },
   {
     id: '8',
     ticketId: '769764',
     name: 'Tom Harrigan',
-    channel: 'api',
-    channelLabel: 'API',
+    channel: 'email',
+    channelLabel: 'Email',
     preview: 'Can you help me set up the integration?',
     time: '2d · 12m',
     assigned: false,
@@ -177,13 +180,14 @@ const CONVERSATIONS: Conversation[] = [
     assigned: true,
     assignee: 'David Wallace',
     isReply: true,
+    labels: ['billing', 'refund'],
   },
   {
     id: '12',
     ticketId: '769766',
     name: 'Unknown user',
     channel: 'whatsapp',
-    channelLabel: 'Whatsapp',
+    channelLabel: 'Chat',
     preview: 'How can I recover access to my account?',
     time: '6h · 50m',
     unknown: true,
@@ -194,7 +198,7 @@ const CONVERSATIONS: Conversation[] = [
     ticketId: '769767',
     name: 'Dmitri Volkov',
     channel: 'website',
-    channelLabel: 'Website',
+    channelLabel: 'Chat',
     preview: 'Looking for enterprise pricing options',
     time: '3d · 2h',
     tags: ['lead'],
@@ -208,11 +212,18 @@ const TAG_COLORS: Record<string, string> = {
   'device-setup': 'bg-red-100 text-red-600 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800/50',
   billing: 'bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800/50',
   lead: 'bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:border-purple-800/50',
+  refund: 'bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800/50',
+  'login-issue': 'bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800/50',
+  'technical': 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800/50',
+  'vip': 'bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-800/50',
+  'feature-request': 'bg-indigo-100 text-indigo-700 border-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-400 dark:border-indigo-800/50',
 }
 
+const ALL_LABELS = ['billing', 'lead', 'device-setup', 'login-issue', 'refund', 'technical', 'vip', 'feature-request']
+
 const CHANNEL_ICON_MAP: Record<Channel, React.ElementType> = {
-  website: Globe,
-  facebook: Facebook,
+  website: MessageSquare,
+  facebook: MessageSquare,
   whatsapp: MessageSquare,
   email: Mail,
   api: Settings,
@@ -437,7 +448,7 @@ function CopilotPanel({ convo, compact = false }: { convo: Conversation; compact
           </div>
 
           {/* Input */}
-          <div className="shrink-0 p-2">
+          <div className="shrink-0 p-3">
             <div className="flex items-end gap-1.5 rounded-xl border border-border bg-background px-3 py-2">
               <textarea
                 rows={1}
@@ -630,10 +641,14 @@ function ConversationItem({
               {convo.channelLabel}
             </span>
             <div className="flex items-center gap-1 ml-auto shrink-0">
-              {convo.assignee && (
+              {convo.assignee ? (
                 <span className="flex items-center gap-0.5 text-xs text-muted-foreground max-w-[120px] truncate">
                   <User className="size-3 shrink-0" />
                   <span className="truncate">{convo.assignee}</span>
+                </span>
+              ) : (
+                <span className="flex items-center gap-0.5 text-xs text-brand font-medium hover:underline">
+                  <ChevronRight className="size-3 shrink-0" />Assign to me
                 </span>
               )}
               {convo.priority && <PriorityBadge priority={convo.priority} />}
@@ -763,6 +778,18 @@ function AllConversationsContent() {
   }
   const [status, setStatus] = useState<'open' | 'pending' | 'resolved' | 'spam'>('open')
   const [showStatusMenu, setShowStatusMenu] = useState(false)
+  const [showResolveWarning, setShowResolveWarning] = useState(false)
+  const [convoLabels, setConvoLabels] = useState<string[]>([])
+  const [showLabelMenu, setShowLabelMenu] = useState(false)
+  const [labelSearch, setLabelSearch] = useState('')
+  const labelSearchRef = useRef<HTMLInputElement>(null)
+  useEffect(() => {
+    if (showLabelMenu) labelSearchRef.current?.focus()
+  }, [showLabelMenu])
+  useEffect(() => {
+    const found = CONVERSATIONS.find(c => c.id === selectedId)
+    setConvoLabels(found?.labels ?? [])
+  }, [selectedId])
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['Contact Attributes', 'Summary', 'Risk Analysis', 'Suggested Replies', 'Translation', 'Transaction Lookup']))
   const [convoPriority, setConvoPriority] = useState<'normal' | 'high' | 'critical'>('high')
   const toggleSection = (section: string) => setExpandedSections(prev => {
@@ -1054,7 +1081,7 @@ function AllConversationsContent() {
           {selected ? (
             <div className="flex-1 flex flex-col min-w-0 w-full md:w-auto">
               {/* Full-width header */}
-              <div className="flex items-center px-4 py-3 border-b border-border shrink-0">
+              <div className="flex items-center px-3 py-3 border-b border-border shrink-0">
                 {/* Back button — mobile only */}
                 <Button
                   variant="ghost"
@@ -1119,7 +1146,15 @@ function AllConversationsContent() {
                         ] as const).map(({ key, label }) => (
                           <button
                             key={key}
-                            onClick={() => { setStatus(key); setShowStatusMenu(false) }}
+                            onClick={() => {
+                              if (key === 'resolved' && convoLabels.length === 0) {
+                                setShowStatusMenu(false)
+                                setShowResolveWarning(true)
+                              } else {
+                                setStatus(key)
+                                setShowStatusMenu(false)
+                              }
+                            }}
                             className={cn(
                               'w-full text-left px-3 py-2 text-sm hover:bg-muted transition-colors',
                               status === key ? 'text-foreground font-medium' : 'text-muted-foreground'
@@ -1128,6 +1163,26 @@ function AllConversationsContent() {
                             {label}
                           </button>
                         ))}
+                      </div>
+                    )}
+                    {showResolveWarning && (
+                      <div className="absolute right-0 top-full mt-1 z-50 bg-popover border border-border rounded-xl shadow-lg p-4 w-64">
+                        <p className="text-sm font-medium text-foreground mb-1">No label added</p>
+                        <p className="text-xs text-muted-foreground mb-3">Adding a label helps track conversation topics. You can still resolve without one.</p>
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => { setStatus('resolved'); setShowResolveWarning(false) }}
+                            className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                          >
+                            Resolve anyway
+                          </button>
+                          <button
+                            onClick={() => setShowResolveWarning(false)}
+                            className="text-xs font-medium text-brand hover:underline"
+                          >
+                            Add label
+                          </button>
+                        </div>
                       </div>
                     )}
                   </div>
@@ -1151,7 +1206,7 @@ function AllConversationsContent() {
                 </button>
 
                 {/* Messages */}
-                <div className="flex-1 overflow-y-auto min-h-0 px-6 py-4 flex flex-col gap-4">
+                <div className="flex-1 overflow-y-auto min-h-0 px-3 py-4 flex flex-col gap-4">
                   {(CONVERSATION_MESSAGES[selected.id] ?? CONVERSATION_MESSAGES['1']).map((msg, i) => {
                     if (msg.from === 'system') return (
                       <div key={i} className="flex justify-center">
@@ -1297,7 +1352,7 @@ function AllConversationsContent() {
                         )}
                       </div>
                       <div className="flex items-center gap-1 mt-0.5">
-                        <span className="text-xs text-muted-foreground font-mono">#{selected.ticketId}</span>
+                        <span className="text-xs text-muted-foreground font-mono">Ticket #{selected.ticketId}</span>
                         <Copy className="size-3 text-muted-foreground cursor-pointer hover:text-foreground" onClick={() => navigator.clipboard.writeText(selected.ticketId)} />
                       </div>
                       {selected.unknown ? (
@@ -1327,8 +1382,8 @@ function AllConversationsContent() {
                             {[
                               { icon: User, text: 'USR-48291673' },
                               { icon: Mail, text: 'kcrawley6@driftburner.inc' },
-                              { icon: Phone, text: '+14155552398' },
-                              { icon: MapPin, text: 'San Francisco, United States' },
+                              { icon: Phone, text: '+4915172470150' },
+                              { icon: MapPin, text: 'Berlin, Germany' },
                             ].map(({ icon: Icon, text }) => (
                               <div key={text} className="flex items-center gap-2">
                                 <Icon className="size-3.5 text-muted-foreground shrink-0" />
@@ -1727,13 +1782,67 @@ function AllConversationsContent() {
                               <div>
                                 <span className="text-xs font-medium text-muted-foreground block mb-1.5">Conversation Labels</span>
                                 <div className="flex flex-wrap items-center gap-1.5">
-                                  <button className="flex items-center gap-1 text-xs text-brand hover:underline">
-                                    <Plus className="size-3" />Add Labels
-                                  </button>
-                                  <span className="flex items-center gap-1 text-xs bg-amber-100 text-amber-700 border border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800/50 rounded px-1.5 py-0.5">
-                                    login-issue
-                                    <button className="hover:text-foreground"><X className="size-3" /></button>
-                                  </span>
+                                  <div className="relative">
+                                    <button
+                                      onClick={() => { setShowLabelMenu(v => !v); setLabelSearch(''); setTimeout(() => labelSearchRef.current?.focus(), 0) }}
+                                      className="flex items-center gap-1 text-xs text-brand hover:underline"
+                                    >
+                                      <Plus className="size-3" />Add Labels
+                                    </button>
+                                    {showLabelMenu && (
+                                      <div className="absolute left-0 top-full mt-1 z-50 bg-popover border border-border rounded-xl shadow-lg w-52 overflow-hidden">
+                                        <div className="p-2 border-b border-border">
+                                          <input
+                                            ref={labelSearchRef}
+                                            autoFocus
+                                            value={labelSearch}
+                                            onChange={e => setLabelSearch(e.target.value)}
+                                            placeholder="Search labels..."
+                                            className="w-full text-xs bg-muted rounded-lg px-2.5 py-1.5 outline-none text-foreground placeholder:text-muted-foreground"
+                                            onKeyDown={e => {
+                                              if (e.key === 'Enter' && labelSearch.trim() && !convoLabels.includes(labelSearch.trim())) {
+                                                setConvoLabels(prev => [...prev, labelSearch.trim()])
+                                                setLabelSearch('')
+                                                setShowLabelMenu(false)
+                                              }
+                                            }}
+                                          />
+                                        </div>
+                                        <div className="max-h-48 overflow-y-auto py-1">
+                                          {ALL_LABELS
+                                            .filter(l => l.includes(labelSearch.toLowerCase()))
+                                            .map(lbl => {
+                                              const active = convoLabels.includes(lbl)
+                                              return (
+                                                <button
+                                                  key={lbl}
+                                                  onClick={() => {
+                                                    setConvoLabels(prev => active ? prev.filter(l => l !== lbl) : [...prev, lbl])
+                                                  }}
+                                                  className="w-full flex items-center justify-between px-3 py-1.5 text-xs hover:bg-muted transition-colors"
+                                                >
+                                                  <span className={cn(
+                                                    'px-1.5 py-0.5 rounded border',
+                                                    TAG_COLORS[lbl] ?? 'bg-muted text-muted-foreground border-border'
+                                                  )}>{lbl}</span>
+                                                  {active && <Check className="size-3 text-brand shrink-0" />}
+                                                </button>
+                                              )
+                                            })
+                                          }
+                                          {ALL_LABELS.filter(l => l.includes(labelSearch.toLowerCase())).length === 0 && (
+                                            <p className="px-3 py-2 text-xs text-muted-foreground">No labels found</p>
+                                          )}
+                                        </div>
+                                      </div>
+                                    )}
+                                  </div>
+                                  {convoLabels.map(lbl => (
+                                    <span key={lbl} className={cn('flex items-center gap-1 text-xs border rounded px-1.5 py-0.5', TAG_COLORS[lbl] ?? 'bg-muted text-muted-foreground border-border')}>
+                                      {lbl}
+                                      <button onClick={() => setConvoLabels(prev => prev.filter(l => l !== lbl))} className="hover:opacity-70"><X className="size-3" /></button>
+                                    </span>
+                                  ))}
                                 </div>
                               </div>
                             </div>
