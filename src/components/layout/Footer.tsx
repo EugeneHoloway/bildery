@@ -36,6 +36,7 @@ export function Footer() {
   const [value, setValue] = useState('')
   const [messages, setMessages] = useState<MessageType[]>([])
   const [replied, setReplied] = useState(false)
+  const [welcomeState, setWelcomeState] = useState<'typing' | 'shown'>('typing')
   const [userMsgCount, setUserMsgCount] = useState(0)
   const [csatState, setCsatState] = useState<CsatState>('hidden')
   const [csatRating, setCsatRating] = useState<number | null>(null)
@@ -60,6 +61,9 @@ export function Footer() {
 
   useEffect(() => {
     if (!open) return
+    setWelcomeState('typing')
+    const t = setTimeout(() => setWelcomeState('shown'), 2400)
+    return () => clearTimeout(t)
   }, [open])
 
   useEffect(() => {
@@ -135,6 +139,7 @@ export function Footer() {
     setCsatRating(null)
     setCsatComment('')
     setExpanded(false)
+    setWelcomeState('typing')
   }
 
   return (
@@ -194,12 +199,24 @@ export function Footer() {
               )}
             <div ref={mobileScrollRef} onScroll={e => handleScroll(e, setShowScrollDownMobile)} className="h-full overflow-y-auto px-4 py-4 flex flex-col gap-3">
               {/* Welcome bubble */}
-              {(
-                <div className="flex flex-col gap-1">
-                  <div className="bg-muted rounded-2xl rounded-tl-sm px-4 py-3 max-w-[85%]">
-                    <p className="text-sm text-foreground">How can we help you?</p>
+              {welcomeState === 'typing' ? (
+                <div className="flex items-start gap-2">
+                  <div className="size-7 rounded-full bg-muted-foreground/20 flex items-center justify-center shrink-0 text-foreground text-xs font-medium">S</div>
+                  <div className="bg-muted text-sm rounded-2xl rounded-tl-sm px-3 py-2 flex items-center gap-1">
+                    <span className="size-1.5 rounded-full bg-muted-foreground/60 animate-bounce [animation-delay:0ms]" />
+                    <span className="size-1.5 rounded-full bg-muted-foreground/60 animate-bounce [animation-delay:150ms]" />
+                    <span className="size-1.5 rounded-full bg-muted-foreground/60 animate-bounce [animation-delay:300ms]" />
                   </div>
-                  <span className="text-xs text-muted-foreground pl-1">Customer Support · Just now</span>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-start gap-2">
+                    <div className="size-7 rounded-full bg-muted-foreground/20 flex items-center justify-center shrink-0 text-foreground text-xs font-medium">S</div>
+                    <div className="bg-muted rounded-2xl rounded-tl-sm px-4 py-3 max-w-[85%]">
+                      <p className="text-sm text-foreground">How can we help you?</p>
+                    </div>
+                  </div>
+                  <span className="text-xs text-muted-foreground pl-9">Customer Support · Just now</span>
                 </div>
               )}
 
@@ -348,12 +365,26 @@ export function Footer() {
                 )}
                 <div ref={desktopScrollRef} onScroll={e => handleScroll(e, setShowScrollDownDesktop)} className="px-4 pb-2 flex flex-col gap-3 max-h-64 overflow-y-auto">
                   {/* Welcome bubble */}
-                  <div className="flex flex-col gap-1">
-                    <div className="bg-muted rounded-2xl rounded-tl-sm px-3 py-2 max-w-[85%]">
-                      <p className="text-sm text-foreground">How can we help you?</p>
+                  {welcomeState === 'typing' ? (
+                    <div className="flex items-start gap-2">
+                      <div className="size-6 rounded-full bg-muted-foreground/20 flex items-center justify-center shrink-0 text-foreground text-xs font-medium">S</div>
+                      <div className="bg-muted text-sm rounded-2xl rounded-tl-sm px-3 py-2 flex items-center gap-1">
+                        <span className="size-1.5 rounded-full bg-muted-foreground/60 animate-bounce [animation-delay:0ms]" />
+                        <span className="size-1.5 rounded-full bg-muted-foreground/60 animate-bounce [animation-delay:150ms]" />
+                        <span className="size-1.5 rounded-full bg-muted-foreground/60 animate-bounce [animation-delay:300ms]" />
+                      </div>
                     </div>
-                    <span className="text-xs text-muted-foreground pl-1">Customer Support · Just now</span>
-                  </div>
+                  ) : (
+                    <div className="flex flex-col gap-1">
+                      <div className="flex items-start gap-2">
+                        <div className="size-6 rounded-full bg-muted-foreground/20 flex items-center justify-center shrink-0 text-foreground text-xs font-medium">S</div>
+                        <div className="bg-muted rounded-2xl rounded-tl-sm px-3 py-2 max-w-[85%]">
+                          <p className="text-sm text-foreground">How can we help you?</p>
+                        </div>
+                      </div>
+                      <span className="text-xs text-muted-foreground pl-8">Customer Support · Just now</span>
+                    </div>
+                  )}
                   {messages.map(msg => {
                     if (msg.kind === 'user') return (
                       <div key={msg.id} className="flex flex-col items-end gap-1">
