@@ -70,11 +70,9 @@ const data = {
       title: "PAM",
       url: "#",
       icon: UserRound,
+      isActive: true,
       items: [
-        { title: "Introduction", url: "#" },
-        { title: "Get Started", url: "#" },
-        { title: "Tutorials", url: "#" },
-        { title: "Changelog", url: "#" },
+        { title: "All players", url: "/all-players" },
       ],
     },
     {

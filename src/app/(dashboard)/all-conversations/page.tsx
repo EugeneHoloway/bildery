@@ -212,8 +212,8 @@ const TAG_COLORS: Record<string, string> = {
   'device-setup': 'bg-red-100 text-red-600 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800/50',
   billing: 'bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800/50',
   lead: 'bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:border-purple-800/50',
-  refund: 'bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800/50',
-  'login-issue': 'bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800/50',
+  refund: 'bg-warning-bg text-warning border-warning-border',
+  'login-issue': 'bg-warning-bg text-warning border-warning-border',
   'technical': 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800/50',
   'vip': 'bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-800/50',
   'feature-request': 'bg-indigo-100 text-indigo-700 border-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-400 dark:border-indigo-800/50',
@@ -347,14 +347,14 @@ function CopilotPanel({ convo, compact = false }: { convo: Conversation; compact
 
   const riskFlags = convo.unknown
     ? [
-        { color: 'text-amber-500', label: 'Identity unverified' },
-        { color: 'text-amber-500', label: 'No account found by email' },
+        { color: 'text-warning', label: 'Identity unverified' },
+        { color: 'text-warning', label: 'No account found by email' },
         { color: 'text-success', label: 'No prior chargebacks' },
       ]
     : [
         { color: 'text-success', label: 'Verified account' },
         { color: 'text-success', label: 'No prior chargebacks' },
-        { color: convo.vip ? 'text-amber-500' : 'text-success', label: convo.vip ? 'VIP — escalate if unresolved' : 'No active restrictions' },
+        { color: convo.vip ? 'text-warning' : 'text-success', label: convo.vip ? 'VIP — escalate if unresolved' : 'No active restrictions' },
       ]
 
   const suggestions = convo.unknown
@@ -520,7 +520,7 @@ function CopilotPanel({ convo, compact = false }: { convo: Conversation; compact
           <div className="px-4 pb-3 flex flex-col gap-1">
             {riskFlags.map(({ color, label }) => (
               <div key={label} className="flex items-center gap-1.5">
-                <span className={cn('size-1.5 rounded-full shrink-0', color === 'text-success' ? 'bg-success' : color === 'text-amber-500' ? 'bg-amber-500' : 'bg-destructive')} />
+                <span className={cn('size-1.5 rounded-full shrink-0', color === 'text-success' ? 'bg-success' : color === 'text-warning' ? 'bg-warning' : 'bg-destructive')} />
                 <span className={cn(sp, 'text-muted-foreground')}>{label}</span>
               </div>
             ))}
@@ -615,7 +615,7 @@ function CopilotPanel({ convo, compact = false }: { convo: Conversation; compact
 
 function PriorityBadge({ priority }: { priority: Priority }) {
   if (priority === 'urgent') return <AlertTriangle className="size-3.5 text-destructive shrink-0" />
-  if (priority === 'high') return <BarChart2 className="size-3.5 text-amber-500 shrink-0" />
+  if (priority === 'high') return <BarChart2 className="size-3.5 text-warning shrink-0" />
   return null
 }
 
@@ -674,7 +674,7 @@ function ConversationItem({
             <span className="flex items-center gap-1 min-w-0">
               <span className={cn('text-sm truncate', convo.unread && 'font-medium', convo.unknown ? 'text-muted-foreground italic' : 'text-foreground')}>{convo.name}</span>
               {convo.verified && <BadgeCheck className="size-3.5 shrink-0 text-brand" />}
-              {convo.vip && <Crown className="size-3.5 shrink-0 text-amber-500" />}
+              {convo.vip && <Crown className="size-3.5 shrink-0 text-warning" />}
             </span>
             <span className="text-xs text-muted-foreground shrink-0">{convo.time}</span>
           </div>
@@ -980,7 +980,7 @@ function AllConversationsContent() {
                             ) : null}
                             {convo.vip && (
                               <span className="absolute -top-0.5 -right-0.5 size-4 rounded-full bg-background flex items-center justify-center">
-                                <Crown className="size-2.5 text-amber-500" />
+                                <Crown className="size-2.5 text-warning" />
                               </span>
                             )}
                           </div>
@@ -1142,7 +1142,7 @@ function AllConversationsContent() {
                     <div className="flex items-center gap-1">
                       <p className="text-sm font-semibold text-foreground leading-tight">{selected.name}</p>
                       {selected.verified && <BadgeCheck className="size-3.5 shrink-0 text-brand" />}
-                      {selected.vip && <Crown className="size-3.5 shrink-0 text-amber-500" />}
+                      {selected.vip && <Crown className="size-3.5 shrink-0 text-warning" />}
                     </div>
                     <div className="flex items-center gap-1.5">
                       <span className="flex items-center gap-1">
@@ -1305,7 +1305,7 @@ function AllConversationsContent() {
                   {/* Input box */}
                   <div className={cn(
                     'rounded-2xl border border-border flex flex-col',
-                    replyTab === 'note' && 'bg-amber-50/50 dark:bg-amber-900/10'
+                    replyTab === 'note' && 'bg-warning-bg/30'
                   )}>
                     {/* Tabs + AI row — inside the box */}
                     <div className="flex items-center gap-2 px-3 pt-3">
@@ -1411,7 +1411,7 @@ function AllConversationsContent() {
                         {!selected.unknown && (selected.verified || selected.vip) && (
                           <div className="absolute left-full ml-1 flex items-center gap-0.5">
                             {selected.verified && <BadgeCheck className="size-3.5 text-brand" />}
-                            {selected.vip && <Crown className="size-3.5 text-amber-500" />}
+                            {selected.vip && <Crown className="size-3.5 text-warning" />}
                           </div>
                         )}
                       </div>
@@ -1480,7 +1480,7 @@ function AllConversationsContent() {
                             className={cn(
                               'size-8 rounded-full flex items-center justify-center',
                               warn
-                                ? 'bg-amber-100 text-amber-600 hover:bg-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:hover:bg-amber-900/50'
+                                ? 'bg-warning-bg text-warning hover:bg-warning-bg/80'
                                 : 'bg-muted text-muted-foreground hover:bg-muted-foreground/20'
                             )}
                           >
@@ -1573,13 +1573,13 @@ function AllConversationsContent() {
                                   <span className="text-xs text-muted-foreground">—</span>
                                 ) : (
                                   <>
-                                    <span className="flex items-center gap-1.5 text-xs text-muted-foreground"><Flame className="size-3.5 text-amber-500" />100% Deposit Bonus</span>
+                                    <span className="flex items-center gap-1.5 text-xs text-muted-foreground"><Flame className="size-3.5 text-warning" />100% Deposit Bonus</span>
                                     <div className="flex items-center justify-between">
                                       <span className="text-xs text-muted-foreground">Wagered</span>
                                       <span className="text-xs text-foreground">$340 / $500</span>
                                     </div>
                                     <div className="w-full h-1.5 rounded-full bg-muted-foreground/20">
-                                      <div className="h-1.5 rounded-full bg-amber-500" style={{width: '68%'}} />
+                                      <div className="h-1.5 rounded-full bg-warning" style={{width: '68%'}} />
                                     </div>
                                     <span className="text-xs text-muted-foreground">Expires Jan 20, 2026</span>
                                   </>
@@ -1817,7 +1817,7 @@ function AllConversationsContent() {
                                     <SelectValue>
                                       <span className="flex items-center gap-2">
                                         {convoPriority === 'normal' && <Minus className="size-4 text-muted-foreground" />}
-                                        {convoPriority === 'high' && <BarChart2 className="size-4 text-amber-500" />}
+                                        {convoPriority === 'high' && <BarChart2 className="size-4 text-warning" />}
                                         {convoPriority === 'critical' && <AlertTriangle className="size-4 text-destructive" />}
                                         {convoPriority === 'normal' ? 'Normal' : convoPriority === 'high' ? 'High' : 'Critical'}
                                       </span>
@@ -1831,7 +1831,7 @@ function AllConversationsContent() {
                                     </SelectItem>
                                     <SelectItem value="high">
                                       <span className="flex items-center gap-2">
-                                        <BarChart2 className="size-4 text-amber-500" />High
+                                        <BarChart2 className="size-4 text-warning" />High
                                       </span>
                                     </SelectItem>
                                     <SelectItem value="critical">
@@ -1979,7 +1979,7 @@ function AllConversationsContent() {
                     {!selected.unknown && (selected.verified || selected.vip) && (
                       <div className="absolute left-full ml-1 flex items-center gap-0.5">
                         {selected.verified && <BadgeCheck className="size-4 text-brand" />}
-                        {selected.vip && <Crown className="size-4 text-amber-500" />}
+                        {selected.vip && <Crown className="size-4 text-warning" />}
                       </div>
                     )}
                   </div>
@@ -2043,7 +2043,7 @@ function AllConversationsContent() {
                         className={cn(
                           'size-9 rounded-full flex items-center justify-center',
                           warn
-                            ? 'bg-amber-100 text-amber-600 hover:bg-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:hover:bg-amber-900/50'
+                            ? 'bg-warning-bg text-warning hover:bg-warning-bg/80'
                             : 'bg-muted text-muted-foreground hover:bg-muted-foreground/20'
                         )}
                       >
@@ -2125,13 +2125,13 @@ function AllConversationsContent() {
                               <span className="text-sm text-muted-foreground">—</span>
                             ) : (
                               <>
-                                <span className="flex items-center gap-1.5 text-sm text-muted-foreground"><Flame className="size-4 text-amber-500" />100% Deposit Bonus</span>
+                                <span className="flex items-center gap-1.5 text-sm text-muted-foreground"><Flame className="size-4 text-warning" />100% Deposit Bonus</span>
                                 <div className="flex items-center justify-between">
                                   <span className="text-sm text-muted-foreground">Wagered</span>
                                   <span className="text-sm text-foreground">$340 / $500</span>
                                 </div>
                                 <div className="w-full h-1.5 rounded-full bg-muted-foreground/20">
-                                  <div className="h-1.5 rounded-full bg-amber-500" style={{width: '68%'}} />
+                                  <div className="h-1.5 rounded-full bg-warning" style={{width: '68%'}} />
                                 </div>
                                 <span className="text-xs text-muted-foreground">Expires Jan 20, 2026</span>
                               </>
@@ -2327,7 +2327,7 @@ function AllConversationsContent() {
                                 <SelectValue>
                                   <span className="flex items-center gap-2">
                                     {convoPriority === 'normal' && <Minus className="size-4 text-muted-foreground" />}
-                                    {convoPriority === 'high' && <BarChart2 className="size-4 text-amber-500" />}
+                                    {convoPriority === 'high' && <BarChart2 className="size-4 text-warning" />}
                                     {convoPriority === 'critical' && <AlertTriangle className="size-4 text-destructive" />}
                                     {convoPriority === 'normal' ? 'Normal' : convoPriority === 'high' ? 'High' : 'Critical'}
                                   </span>
@@ -2335,7 +2335,7 @@ function AllConversationsContent() {
                               </SelectTrigger>
                               <SelectContent>
                                 <SelectItem value="normal"><span className="flex items-center gap-2"><Minus className="size-4 text-muted-foreground" />Normal</span></SelectItem>
-                                <SelectItem value="high"><span className="flex items-center gap-2"><BarChart2 className="size-4 text-amber-500" />High</span></SelectItem>
+                                <SelectItem value="high"><span className="flex items-center gap-2"><BarChart2 className="size-4 text-warning" />High</span></SelectItem>
                                 <SelectItem value="critical"><span className="flex items-center gap-2"><AlertTriangle className="size-4 text-destructive" />Critical</span></SelectItem>
                               </SelectContent>
                             </Select>
