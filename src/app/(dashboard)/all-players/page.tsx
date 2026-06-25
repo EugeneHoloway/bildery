@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/components/AuthProvider'
 import { DashboardHeader } from '@/components/DashboardHeader'
+import Link from 'next/link'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import {
   Table,
@@ -182,7 +183,7 @@ function FiltersPopover() {
         </div>
 
         {/* Scrollable body */}
-        <div className="flex flex-col gap-5 px-4 py-4 max-h-[440px] overflow-y-auto">
+        <div className="flex flex-col gap-4 px-4 py-4 max-h-[440px] overflow-y-auto">
 
           {/* Email */}
           <div className="flex flex-col gap-2">
@@ -497,9 +498,12 @@ export default function AllPlayersPage() {
                       />
                     </TableCell>
                     <TableCell>
-                      <button className="text-sm font-medium underline underline-offset-2 text-foreground hover:text-muted-foreground transition-colors">
+                      <Link
+                        href={`/player/${player.id}`}
+                        className="text-sm font-medium underline underline-offset-2 text-foreground hover:text-muted-foreground transition-colors"
+                      >
                         {player.id}
-                      </button>
+                      </Link>
                     </TableCell>
                     <TableCell className="text-sm max-w-[140px]">
                       <TruncCell text={player.name} maxW="max-w-full" />
