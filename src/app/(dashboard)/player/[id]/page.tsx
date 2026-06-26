@@ -427,40 +427,43 @@ export default function PlayerProfilePage() {
         ]}
       />
 
-      <div className="flex flex-1 flex-col gap-4 px-6 pt-4 pb-8">
+      <div className="flex flex-1 flex-col gap-4 px-4 sm:px-6 pt-4 pb-8">
         {/* Title row */}
-        <div className="flex items-start justify-between gap-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+          {/* Avatar + name block */}
           <div className="flex items-center gap-3">
-            <div className="size-12 rounded-full bg-muted flex items-center justify-center shrink-0">
-              <span className="text-base font-semibold text-muted-foreground">
+            <div className="size-10 sm:size-12 rounded-full bg-muted flex items-center justify-center shrink-0">
+              <span className="text-sm sm:text-base font-semibold text-muted-foreground">
                 {playerName.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase()}
               </span>
             </div>
-          <div>
-            <h1 className="text-2xl font-semibold flex items-center gap-2">
-              Player Profile: {playerName}
-              <BadgeCheck className="size-5 text-brand" />
-              {vip && <Crown className="size-5 text-warning" />}
-            </h1>
-            <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
-              Player ID: {id}
-              <button
-                onClick={copyId}
-                className="inline-flex items-center text-muted-foreground/50 hover:text-muted-foreground transition-colors"
-                aria-label="Copy player ID"
-              >
-                {copied
-                  ? <Check className="size-3.5 text-muted-foreground" />
-                  : <Copy className="size-3.5" />}
-              </button>
-            </p>
-          </div>
+            <div className="min-w-0">
+              <h1 className="text-lg sm:text-2xl font-semibold flex flex-wrap items-center gap-x-1.5 gap-y-0.5 leading-snug">
+                <span className="hidden sm:inline text-muted-foreground font-normal">Player Profile:</span>
+                <span className="truncate">{playerName}</span>
+                <BadgeCheck className="size-4 sm:size-5 text-brand shrink-0" />
+                {vip && <Crown className="size-4 sm:size-5 text-warning shrink-0" />}
+              </h1>
+              <p className="mt-0.5 flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground">
+                <span className="hidden sm:inline">Player ID:</span>
+                <span>{id}</span>
+                <button
+                  onClick={copyId}
+                  className="inline-flex items-center text-muted-foreground/50 hover:text-muted-foreground transition-colors"
+                  aria-label="Copy player ID"
+                >
+                  {copied
+                    ? <Check className="size-3.5 text-muted-foreground" />
+                    : <Copy className="size-3.5" />}
+                </button>
+              </p>
+            </div>
           </div>
           {/* Status dropdown */}
-          <div className="flex items-center gap-2 pt-1 shrink-0">
+          <div className="flex items-center gap-2 sm:pt-1 sm:shrink-0">
             <span className="text-sm text-muted-foreground">Status</span>
             <Select value={status} onValueChange={setStatus}>
-              <SelectTrigger size="sm" className="w-[190px]">
+              <SelectTrigger size="sm" className="flex-1 sm:flex-none sm:w-[190px]">
                 <span className="text-sm text-foreground">{status}</span>
               </SelectTrigger>
               <SelectContent className="max-h-[320px]">
@@ -485,7 +488,7 @@ export default function PlayerProfilePage() {
         </div>
 
         {/* Player meta info bar */}
-        <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
           {/* Type -- read-only */}
           <div className="flex items-center gap-1.5">
             <span className="text-sm text-muted-foreground">Type</span>
@@ -494,7 +497,7 @@ export default function PlayerProfilePage() {
             </span>
           </div>
 
-          <div className="h-4 w-px bg-border" />
+          <div className="hidden sm:block h-4 w-px bg-border" />
 
           {/* Online */}
           <div className="flex items-center gap-1.5">
@@ -502,7 +505,7 @@ export default function PlayerProfilePage() {
             <span className="text-sm text-muted-foreground">Offline</span>
           </div>
 
-          <div className="h-4 w-px bg-border" />
+          <div className="hidden sm:block h-4 w-px bg-border" />
 
           {/* VIP */}
           <label className="flex items-center gap-1.5 cursor-pointer select-none">
@@ -514,12 +517,12 @@ export default function PlayerProfilePage() {
             <span className="text-sm font-medium text-muted-foreground">VIP</span>
           </label>
 
-          <div className="h-4 w-px bg-border" />
+          <div className="hidden sm:block h-4 w-px bg-border" />
 
           {/* Duplicates */}
           <DuplicateFlag state={duplicate} />
 
-          <div className="h-4 w-px bg-border" />
+          <div className="hidden sm:block h-4 w-px bg-border" />
 
           {/* Currency */}
           <div className="flex items-center gap-1.5">
@@ -532,17 +535,25 @@ export default function PlayerProfilePage() {
         </div>
 
         <Tabs defaultValue="overview" className="flex flex-col gap-4">
-          <TabsList className="h-auto w-full justify-start gap-0 rounded-none border-b border-border bg-transparent p-0">
-            {TABS.map(tab => (
-              <TabsTrigger
-                key={tab.value}
-                value={tab.value}
-                className="rounded-none border-b-2 border-transparent px-4 py-2.5 text-sm font-medium data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none"
-              >
-                {tab.label}
-              </TabsTrigger>
-            ))}
-          </TabsList>
+          <div className="relative -mx-4 sm:mx-0">
+            {/* Left fade -- only visible on mobile when scrolled */}
+            <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-10 bg-gradient-to-r from-background to-transparent z-10 sm:hidden" />
+            {/* Right fade -- only visible on mobile */}
+            <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-background to-transparent z-10 sm:hidden" />
+            <div className="overflow-x-auto scrollbar-hide px-4 sm:px-0">
+              <TabsList className="h-auto w-max sm:w-full justify-start gap-0 rounded-none border-b border-border bg-transparent p-0">
+                {TABS.map(tab => (
+                  <TabsTrigger
+                    key={tab.value}
+                    value={tab.value}
+                    className="rounded-none border-b-2 border-transparent px-4 py-2.5 text-sm font-medium whitespace-nowrap data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+                  >
+                    {tab.label}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+            </div>
+          </div>
 
           <TabsContent value="overview" className="flex flex-col gap-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -736,7 +747,7 @@ export default function PlayerProfilePage() {
                 <Table>
                   <TableHeader className="bg-muted/60">
                     <TableRow className="hover:bg-transparent border-b border-border">
-                      <TableHead className="text-sm font-medium text-foreground pl-4">Player ID</TableHead>
+                      <TableHead className="text-sm font-medium text-foreground pl-4 sticky left-0 z-20 bg-muted after:absolute after:right-0 after:top-0 after:bottom-0 after:w-px after:bg-border after:content-['']">Player ID</TableHead>
                       <TableHead className="text-sm font-medium text-foreground">Name</TableHead>
                       <TableHead className="text-sm font-medium text-foreground">Status</TableHead>
                       <TableHead className="text-sm font-medium text-foreground">Match reason</TableHead>
@@ -753,14 +764,14 @@ export default function PlayerProfilePage() {
                         className="cursor-pointer"
                         onClick={() => { setSelectedDuplicate(dup); setDrawerOpen(true) }}
                       >
-                        <TableCell className="pl-4">
+                        <TableCell className="pl-4 sticky left-0 z-10 bg-background after:absolute after:right-0 after:top-0 after:bottom-0 after:w-px after:bg-border after:content-['']">
                           <div className="flex items-center gap-1.5">
                             {dup.duplicateFlag === 'blocked' ? (
                               <Flag className="size-3.5 fill-destructive text-destructive shrink-0" />
                             ) : (
                               <Flag className="size-3.5 fill-warning text-warning shrink-0" />
                             )}
-                            <span className="text-sm font-medium underline underline-offset-2">{dup.id}</span>
+                            <span className="text-sm font-medium underline underline-offset-2 whitespace-nowrap">{dup.id}</span>
                             <button
                               onClick={(e) => copyDupId(e, dup.id)}
                               className="text-muted-foreground/50 hover:text-muted-foreground transition-colors"
@@ -772,15 +783,29 @@ export default function PlayerProfilePage() {
                             </button>
                           </div>
                         </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-1.5 text-sm">
-                            {dup.name}
-                            {dup.verified && <BadgeCheck className="size-3.5 text-brand shrink-0" />}
-                            {dup.vip && <Crown className="size-3.5 text-warning shrink-0" />}
-                          </div>
+                        <TableCell className="max-w-[140px]">
+                          <TooltipProvider delayDuration={300}>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <div className="flex items-center gap-1.5 text-sm min-w-0">
+                                  <span className="truncate">{dup.name}</span>
+                                  {dup.verified && <BadgeCheck className="size-3.5 text-brand shrink-0" />}
+                                  {dup.vip && <Crown className="size-3.5 text-warning shrink-0" />}
+                                </div>
+                              </TooltipTrigger>
+                              <TooltipContent side="bottom">{dup.name}</TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
                         </TableCell>
-                        <TableCell className="text-sm text-muted-foreground">
-                          {dup.status}
+                        <TableCell className="max-w-[140px]">
+                          <TooltipProvider delayDuration={300}>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <span className="block text-sm text-muted-foreground truncate">{dup.status}</span>
+                              </TooltipTrigger>
+                              <TooltipContent side="bottom">{dup.status}</TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
                         </TableCell>
                         <TableCell>
                           <div className="flex flex-wrap gap-1">
