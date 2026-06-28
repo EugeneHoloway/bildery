@@ -2241,7 +2241,7 @@ export default function PlayerProfilePage() {
                   {/* Duration */}
                   <div className="flex flex-col gap-2">
                     <p className="text-sm font-medium">Duration</p>
-                    <Card className="mx-auto w-fit" size="sm">
+                    <Card className="mx-auto w-fit">
                       <CardContent className="pt-5">
                         <Calendar
                           mode="range"
