@@ -1058,7 +1058,7 @@ export default function PlayerProfilePage() {
             </div>
 
             {/* Toolbar */}
-            <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
               <div className="relative">
                 <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground pointer-events-none" />
                 <Input
@@ -1071,7 +1071,7 @@ export default function PlayerProfilePage() {
 
               <Button variant="outline" size="sm" className="gap-2">
                 <SlidersHorizontal className="size-3.5" />
-                Filters
+                <span className="hidden sm:inline">Filters</span>
               </Button>
 
               <div className="flex items-center gap-2 ml-auto">
@@ -1079,7 +1079,7 @@ export default function PlayerProfilePage() {
                   <PopoverTrigger asChild>
                     <Button variant="outline" size="sm" className="gap-2">
                       <Columns2 className="size-3.5" />
-                      Columns
+                      <span className="hidden sm:inline">Columns</span>
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent align="end" sideOffset={6} className="w-44 p-1">
@@ -1101,7 +1101,7 @@ export default function PlayerProfilePage() {
                   <PopoverTrigger asChild>
                     <Button variant="outline" size="sm" className="gap-2">
                       <CalendarDays className="size-3.5" />
-                      {financeDateLabel}
+                      <span className="hidden sm:inline">{financeDateLabel}</span>
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent align="end" sideOffset={6} className="w-auto p-0">
@@ -1138,17 +1138,19 @@ export default function PlayerProfilePage() {
 
                 <Button variant="outline" size="sm" className="gap-2">
                   <Download className="size-3.5" />
-                  Export
+                  <span className="hidden sm:inline">Export</span>
                 </Button>
               </div>
             </div>
 
-            <div className="rounded-2xl border border-border bg-card overflow-hidden">
+            <div className="relative rounded-2xl border border-border bg-card overflow-hidden">
+              {/* Right edge fade */}
+              <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-card to-transparent z-10" />
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader className="bg-muted/60">
                     <TableRow className="hover:bg-transparent border-b border-border">
-                      {financeVisibleCols.has('txId')          && <FinanceSortableHead>Transaction ID</FinanceSortableHead>}
+                      {financeVisibleCols.has('txId')          && <FinanceSortableHead className="sticky left-0 z-20 bg-muted after:absolute after:right-0 after:top-0 after:bottom-0 after:w-px after:bg-border after:content-['']">Transaction ID</FinanceSortableHead>}
                       {financeVisibleCols.has('debit')         && <FinanceSortableHead>Debit</FinanceSortableHead>}
                       {financeVisibleCols.has('credit')        && <FinanceSortableHead>Credit</FinanceSortableHead>}
                       {financeVisibleCols.has('rollover')      && <FinanceSortableHead>Rollover</FinanceSortableHead>}
@@ -1174,7 +1176,7 @@ export default function PlayerProfilePage() {
                           onClick={() => { setSelectedTx(row); setTxDrawerOpen(true) }}
                         >
                           {financeVisibleCols.has('txId') && (
-                            <TableCell>
+                            <TableCell className="sticky left-0 z-10 bg-background after:absolute after:right-0 after:top-0 after:bottom-0 after:w-px after:bg-border after:content-['']">
                               <div className="flex items-center gap-1.5">
                                 <span className="text-sm font-medium underline underline-offset-2 whitespace-nowrap">{row.txId}</span>
                                 <button
@@ -1317,7 +1319,9 @@ export default function PlayerProfilePage() {
               </p>
             </div>
 
-            <div className="rounded-2xl border border-border bg-card overflow-hidden">
+            <div className="relative rounded-2xl border border-border bg-card overflow-hidden">
+              {/* Right edge fade */}
+              <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-card to-transparent z-10" />
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader className="bg-muted/60">

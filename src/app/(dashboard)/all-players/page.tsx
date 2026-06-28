@@ -842,21 +842,23 @@ export default function AllPlayersPage() {
         <PlayerCharts />
 
         {/* Table card */}
-        <div className="rounded-2xl border border-border bg-card overflow-hidden">
+        <div className="relative rounded-2xl border border-border bg-card overflow-hidden">
+          {/* Right edge fade */}
+          <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-card to-transparent z-10" />
 
           {/* Scrollable table wrapper for mobile */}
           <div className="overflow-x-auto">
             <Table>
               <TableHeader className="bg-muted/60">
                 <TableRow className="hover:bg-transparent border-b border-border">
-                  <TableHead className="w-10 pl-4">
+                  <TableHead className="w-10 pl-4 sticky left-0 z-20 bg-muted">
                     <Checkbox
                       checked={allOnPageSelected ? true : someOnPageSelected ? 'indeterminate' : false}
                       onCheckedChange={toggleAll}
                       aria-label="Select all"
                     />
                   </TableHead>
-                  <SortableHead>Player ID</SortableHead>
+                  <SortableHead className="sticky left-10 z-20 bg-muted after:absolute after:right-0 after:top-0 after:bottom-0 after:w-px after:bg-border after:content-['']">Player ID</SortableHead>
                   <SortableHead>Full name</SortableHead>
                   <SortableHead>Email</SortableHead>
                   <TableHead className="text-sm font-medium text-foreground">Phone number</TableHead>
@@ -876,14 +878,14 @@ export default function AllPlayersPage() {
                     data-state={selectedRows.has(player.id) ? 'selected' : undefined}
                     className=""
                   >
-                    <TableCell className="pl-4">
+                    <TableCell className="pl-4 sticky left-0 z-10 bg-background">
                       <Checkbox
                         checked={selectedRows.has(player.id)}
                         onCheckedChange={() => toggleRow(player.id)}
                         aria-label={`Select ${player.name}`}
                       />
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="sticky left-10 z-10 bg-background after:absolute after:right-0 after:top-0 after:bottom-0 after:w-px after:bg-border after:content-['']">
                       <div className="flex items-center gap-1.5">
                         <Link
                           href={`/player/${player.id}`}
@@ -937,7 +939,7 @@ export default function AllPlayersPage() {
             {selectedRows.size} of {totalRows} row(s) selected.
           </span>
 
-          <div className="flex items-center gap-4">
+          <div className="flex flex-col items-end gap-2">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <span className="whitespace-nowrap font-medium text-foreground">Rows per page</span>
               <Select value={String(pageSize)} onValueChange={handlePageSizeChange}>
@@ -952,11 +954,12 @@ export default function AllPlayersPage() {
               </Select>
             </div>
 
-            <span className="whitespace-nowrap text-sm font-medium">
-              Page {currentPage} of {totalPages}
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="whitespace-nowrap text-sm font-medium">
+                Page {currentPage} of {totalPages}
+              </span>
 
-            <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1">
               <Button
                 variant="outline"
                 size="icon-sm"
@@ -993,6 +996,7 @@ export default function AllPlayersPage() {
               >
                 <ChevronsRight className="size-4" />
               </Button>
+            </div>
             </div>
           </div>
         </div>
