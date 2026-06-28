@@ -5,12 +5,19 @@ import { useParams, useRouter } from 'next/navigation'
 import { useAuth } from '@/components/AuthProvider'
 import { DashboardHeader } from '@/components/DashboardHeader'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Info, TrendingUp, TrendingDown, Flag, CircleDot, Copy, Check, Crown, X, ExternalLink, BadgeCheck, Gift, Clock, Wallet, ArrowDownLeft, ArrowUpRight, Flame } from 'lucide-react'
+import { Info, TrendingUp, TrendingDown, Flag, CircleDot, Copy, Check, Crown, X, ExternalLink, BadgeCheck, Gift, Clock, Wallet, ArrowDownLeft, ArrowUpRight, Flame, Trophy, Pencil, Plus, Shield, UserCog, User, Timer, Ban, Globe, Power, ArrowUpDown, CircleCheck, CircleMinus, CircleX, ShieldBan, MoreHorizontal, Search, CalendarDays, Columns2, SlidersHorizontal, Download } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Button } from '@/components/ui/button'
+import { Separator } from '@/components/ui/separator'
 import { Badge } from '@/components/ui/badge'
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerClose } from '@/components/ui/drawer'
+import { Calendar } from '@/components/ui/calendar'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { Input } from '@/components/ui/input'
+import { Card, CardContent, CardFooter } from '@/components/ui/card'
+import { addDays, startOfWeek, endOfWeek, startOfMonth, endOfMonth, subDays, subMonths, startOfYear } from 'date-fns'
+import type { DateRange } from 'react-day-picker'
 import Link from 'next/link'
 import {
   Select,
@@ -31,24 +38,24 @@ import {
   TableRow,
 } from '@/components/ui/table'
 
-const MOCK_PLAYERS: Record<string, { name: string }> = {
-  '2883575941': { name: 'Eugene Holoway' },
-  '4515450354': { name: 'Dmytro Bevz' },
-  '4712202994': { name: 'Test Test1' },
-  '2940440381': { name: 'Test Test' },
-  '2598013005': { name: 'Test Dima' },
-  '1018817027': { name: 'Dmytro Bevz' },
-  '8167315858': { name: 'Dmytro Bevz' },
-  '3392817465': { name: 'Ariana Kowalski' },
-  '7741209863': { name: 'Marco Ferretti' },
-  '5520334871': { name: 'Sofia Andersen' },
-  '9903847102': { name: 'Luca Müller' },
-  '1147382956': { name: 'Oksana Petrenko' },
-  '6628401739': { name: 'James Okafor' },
-  '4480129357': { name: 'Yuki Tanaka' },
-  '2271893640': { name: 'Fatima Al-Rashid' },
-  '8834567012': { name: 'Carlos Vega' },
-  '3315892074': { name: 'Emma Johansson' },
+const MOCK_PLAYERS: Record<string, { name: string; currency: string; fxRate: number; country?: string; countryFlag?: string }> = {
+  '2883575941': { name: 'Tony Stark',      currency: 'AUD', fxRate: 1.71, country: 'Australia', countryFlag: '🇦🇺' },
+  '4515450354': { name: 'John Wick',       currency: 'AUD', fxRate: 1.71 },
+  '4712202994': { name: 'Walter White',    currency: 'EUR', fxRate: 1.00 },
+  '2940440381': { name: 'Ellen Ripley',    currency: 'AUD', fxRate: 1.71 },
+  '2598013005': { name: 'Holly Golightly', currency: 'EUR', fxRate: 1.00 },
+  '1018817027': { name: 'Tyler Durden',    currency: 'AUD', fxRate: 1.71 },
+  '8167315858': { name: 'Patrick Bateman', currency: 'EUR', fxRate: 1.00 },
+  '3392817465': { name: 'Don Corleone',    currency: 'EUR', fxRate: 1.00 },
+  '7741209863': { name: 'Lara Croft',      currency: 'AUD', fxRate: 1.71 },
+  '5520334871': { name: 'Jack Torrance' },
+  '9903847102': { name: 'Hannibal Lecter' },
+  '1147382956': { name: 'Jules Winnfield' },
+  '6628401739': { name: 'Clarice Starling' },
+  '4480129357': { name: 'Travis Bickle' },
+  '2271893640': { name: 'Marge Gunderson' },
+  '8834567012': { name: 'Vincent Vega' },
+  '3315892074': { name: 'Beatrix Kiddo' },
 }
 
 type MatchReason = 'Email' | 'Phone' | 'IP' | 'Device' | 'Payment'
@@ -90,8 +97,8 @@ type DuplicateAccount = {
 const MOCK_DUPLICATES: DuplicateAccount[] = [
   {
     id: '4515450354',
-    name: 'Eugene H.',
-    email: 'eugene.holoway@gmail.com',
+    name: 'Tony S.',
+    email: 'tony.stark@starkindustries.com',
     phone: '+49 30 1234567',
     status: 'Frozen by Suspicion',
     statusGroup: 'restricted',
@@ -116,8 +123,8 @@ const MOCK_DUPLICATES: DuplicateAccount[] = [
   },
   {
     id: '8167315858',
-    name: 'E. Holoway',
-    email: 'e.holoway.alt@proton.me',
+    name: 'T. Stark',
+    email: 't.stark.alt@proton.me',
     phone: '+49 30 1234567',
     status: 'Closed by Antifraud',
     statusGroup: 'closed',
@@ -140,8 +147,8 @@ const MOCK_DUPLICATES: DuplicateAccount[] = [
   },
   {
     id: '2598013005',
-    name: 'Eugen Holov',
-    email: 'eugen.holov@yahoo.de',
+    name: 'Toni Stark',
+    email: 'toni.stark@yahoo.de',
     phone: '+49 30 1234567',
     status: 'Under Review',
     statusGroup: 'restricted',
@@ -163,8 +170,8 @@ const MOCK_DUPLICATES: DuplicateAccount[] = [
   },
   {
     id: '1018817027',
-    name: 'Gene Holoway',
-    email: 'gene.holoway@gmail.com',
+    name: 'Anton Stark',
+    email: 'anton.stark@gmail.com',
     phone: '+49 172 9988776',
     status: 'Frozen by Suspicion',
     statusGroup: 'restricted',
@@ -187,8 +194,8 @@ const MOCK_DUPLICATES: DuplicateAccount[] = [
   },
   {
     id: '2940440381',
-    name: 'E. H.',
-    email: 'e.h.anon@proton.me',
+    name: 'T. S.',
+    email: 't.s.anon@proton.me',
     phone: 'N/A',
     status: 'Archived',
     statusGroup: 'archived',
@@ -235,6 +242,77 @@ const TABS = [
   { value: 'duplicates', label: 'Duplicates' },
   { value: 'limits', label: 'Limits' },
 ]
+
+const FINANCE_COLS = [
+  { key: 'txId',          label: 'Transaction ID' },
+  { key: 'debit',         label: 'Debit' },
+  { key: 'credit',        label: 'Credit' },
+  { key: 'rollover',      label: 'Rollover' },
+  { key: 'type',          label: 'Type' },
+  { key: 'txStatus',      label: 'Status' },
+  { key: 'paymentMethod', label: 'Payment Method' },
+  { key: 'paymentSystem', label: 'Payment System' },
+  { key: 'createdAt',     label: 'Created at' },
+  { key: 'finishedAt',    label: 'Finished at' },
+] as const
+
+type FinanceColKey = typeof FINANCE_COLS[number]['key']
+type TxStatus = 'Completed' | 'Pending' | 'Failed' | 'Cancelled'
+type TxType = 'Deposit' | 'Withdrawal' | 'Bonus' | 'Adjustment'
+
+type FinanceRow = {
+  txId: string
+  debit: string
+  credit: string
+  rollover: string
+  type: TxType
+  txStatus: TxStatus
+  paymentMethod: string
+  paymentSystem: string
+  psStatus: TxStatus
+  createdAt: string
+  finishedAt: string
+}
+
+const FINANCE_ROWS: FinanceRow[] = [
+  { txId: 'TXN-00183821', debit: '€0.00',    credit: '€250.00', rollover: '€0.00', type: 'Deposit',    txStatus: 'Completed', paymentMethod: 'Visa •••• 4242',          paymentSystem: 'Stripe',     psStatus: 'Completed', createdAt: '2026-06-20 14:32', finishedAt: '2026-06-20 14:33' },
+  { txId: 'TXN-00183654', debit: '€120.00',  credit: '€0.00',   rollover: '€0.00', type: 'Withdrawal', txStatus: 'Pending',   paymentMethod: 'Mastercard •••• 1881',     paymentSystem: 'Adyen',      psStatus: 'Pending',   createdAt: '2026-06-19 09:11', finishedAt: '--' },
+  { txId: 'TXN-00183201', debit: '€0.00',    credit: '€50.00',  rollover: '€50.00', type: 'Bonus',      txStatus: 'Completed', paymentMethod: '--',                       paymentSystem: '--',         psStatus: 'Completed', createdAt: '2026-06-18 17:05', finishedAt: '2026-06-18 17:05' },
+  { txId: 'TXN-00182998', debit: '€75.00',   credit: '€0.00',   rollover: '€0.00', type: 'Withdrawal', txStatus: 'Failed',    paymentMethod: 'bc1qxy2...k3z (BTC)',      paymentSystem: 'Coinbase',   psStatus: 'Failed',    createdAt: '2026-06-15 11:48', finishedAt: '2026-06-15 11:50' },
+  { txId: 'TXN-00182741', debit: '€0.00',    credit: '€500.00', rollover: '€0.00', type: 'Deposit',    txStatus: 'Completed', paymentMethod: 'Paysafe •••• 3391',        paymentSystem: 'Paysafe',    psStatus: 'Completed', createdAt: '2026-06-12 08:22', finishedAt: '2026-06-12 08:24' },
+]
+
+function FinanceTruncCell({ text, className }: { text: string; className?: string }) {
+  return (
+    <TooltipProvider delayDuration={300}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <span className={`block truncate max-w-[160px] ${className ?? ''}`}>{text}</span>
+        </TooltipTrigger>
+        <TooltipContent>{text}</TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  )
+}
+
+function FinanceSortableHead({ children, className }: { children: React.ReactNode; className?: string }) {
+  return (
+    <TableHead className={className}>
+      <button className="inline-flex items-center gap-1.5 text-sm font-medium text-foreground hover:text-foreground/70 transition-colors">
+        {children}
+        <ArrowUpDown className="size-3.5 text-muted-foreground shrink-0" />
+      </button>
+    </TableHead>
+  )
+}
+
+function TxStatusBadge({ status }: { status: TxStatus }) {
+  const base = 'inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap'
+  if (status === 'Completed') return <span className={`${base} bg-success-bg text-success`}><CircleCheck className="size-3 shrink-0" />Completed</span>
+  if (status === 'Pending')   return <span className={`${base} bg-muted text-muted-foreground`}><CircleMinus className="size-3 shrink-0" />Pending</span>
+  if (status === 'Failed')    return <span className={`${base} bg-destructive-bg text-destructive`}><CircleX className="size-3 shrink-0" />Failed</span>
+  return <span className={`${base} bg-warning-bg text-warning`}><CircleMinus className="size-3 shrink-0" />Cancelled</span>
+}
 
 function StatCard({
   label,
@@ -287,6 +365,57 @@ function StatCard({
 
 // duplicate flag state: 'ok' | 'duplicate' | 'blocked'
 type DuplicateState = 'ok' | 'duplicate' | 'blocked'
+
+type PlayerLimitItem = {
+  name: string; scope: string; current: string; limit: string; unit: string
+  pct: number | null; disabled: boolean; _type: string; _scope: string; _value: string
+  setBy?: string; setByEmail?: string; setByDate?: string; setByPlayer?: boolean
+}
+type OperatorLimitItem = {
+  name: string; scope: string; value: string; valueNative?: string; tag: string; meta: string
+  metaHandle?: string; metaEmail?: string; metaDate?: string
+  disabled: boolean; _type: string; _scope: string
+}
+
+const PL_TYPES = [
+  { value: 'loss_limit', label: 'Loss limit', unit: '€', hint: 'Max amount player can lose' },
+  { value: 'deposit_limit', label: 'Deposit limit', unit: '€', hint: 'Max amount player can deposit' },
+  { value: 'wager_limit', label: 'Wager limit', unit: '€', hint: 'Max amount per single bet' },
+  { value: 'session_time', label: 'Session time', unit: 'h', hint: 'Max hours per session' },
+  { value: 'cooling_off', label: 'Cooling-off', unit: 'd', hint: 'Mandatory pause between sessions' },
+]
+const PL_SCOPES: Record<string, { value: string; label: string }[]> = {
+  loss_limit:    [{ value:'daily',label:'Daily'},{value:'weekly',label:'Weekly'},{value:'monthly',label:'Monthly'}],
+  deposit_limit: [{ value:'daily',label:'Daily'},{value:'weekly',label:'Weekly'},{value:'monthly',label:'Monthly'}],
+  wager_limit:   [{ value:'per_bet',label:'Per bet'}],
+  session_time:  [{ value:'daily',label:'Daily'}],
+  cooling_off:   [{ value:'one_time',label:'One-time'}],
+}
+const PL_SCOPE_LABELS: Record<string, string> = {
+  daily:'Daily', weekly:'Weekly', monthly:'Monthly', per_bet:'Per bet', one_time:'One-time',
+}
+
+const OL_TYPES = [
+  { value:'max_withdrawal', label:'Max withdrawal' },
+  { value:'max_deposit', label:'Max deposit' },
+  { value:'bonus_restriction', label:'Bonus restriction' },
+  { value:'review_threshold', label:'Review threshold' },
+  { value:'custom', label:'Custom' },
+]
+const OL_TYPE_NAMES: Record<string,string> = {
+  max_withdrawal:'Max withdrawal', max_deposit:'Max deposit',
+  bonus_restriction:'Bonus restriction', review_threshold:'Review threshold', custom:'Custom',
+}
+const OL_SCOPES = [
+  { value:'per_transaction', label:'Per transaction' },
+  { value:'daily', label:'Daily' },
+  { value:'weekly', label:'Weekly' },
+  { value:'permanent', label:'Permanent' },
+]
+const OL_SCOPE_LABELS: Record<string,string> = {
+  per_transaction:'Per transaction', daily:'Daily', weekly:'Weekly', permanent:'Permanent',
+}
+const OL_TAGS = ['AML flag','Abuse','Compliance','Manual review required','Fraud prevention']
 
 function DuplicateFlag({ state }: { state: DuplicateState }) {
   if (state === 'ok') {
@@ -347,6 +476,160 @@ export default function PlayerProfilePage() {
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [copiedDupId, setCopiedDupId] = useState<string | null>(null)
   const [copiedDrawerId, setCopiedDrawerId] = useState(false)
+  const [seDrawerOpen, setSeDrawerOpen] = useState(false)
+  const [seType, setSeType] = useState<'temporary' | 'permanent'>('temporary')
+  const [sePeriod, setSePeriod] = useState('30d')
+  const [seReason, setSeReason] = useState('')
+  const [seNote, setSeNote] = useState('')
+  const [coDrawerOpen, setCoDrawerOpen] = useState(false)
+  const [coStartDate, setCoStartDate] = useState<Date | undefined>(undefined)
+  const [coEndDate, setCoEndDate] = useState<Date | undefined>(undefined)
+  const [coReason, setCoReason] = useState('')
+  const [coNote, setCoNote] = useState('')
+
+  const [selectedTx, setSelectedTx] = useState<FinanceRow | null>(null)
+  const [txDrawerOpen, setTxDrawerOpen] = useState(false)
+  const [copiedTxId, setCopiedTxId] = useState<string | null>(null)
+
+  function copyTxId(e: React.MouseEvent, txId: string) {
+    e.stopPropagation()
+    navigator.clipboard.writeText(txId)
+    setCopiedTxId(txId)
+    setTimeout(() => setCopiedTxId(null), 1500)
+  }
+
+  const [financeSearch, setFinanceSearch] = useState('')
+  const [financeVisibleCols, setFinanceVisibleCols] = useState<Set<FinanceColKey>>(
+    new Set<FinanceColKey>(['txId','debit','credit','rollover','type','txStatus','paymentMethod','paymentSystem','createdAt','finishedAt'])
+  )
+  const [financeDateOpen, setFinanceDateOpen] = useState(false)
+  const [financeColOpen, setFinanceColOpen] = useState(false)
+  const [financeDateRange, setFinanceDateRange] = useState<DateRange | undefined>(undefined)
+
+  const financeDateLabel = (() => {
+    const fmt = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+    if (financeDateRange?.from && financeDateRange?.to) return `${fmt(financeDateRange.from)} - ${fmt(financeDateRange.to)}`
+    if (financeDateRange?.from) return fmt(financeDateRange.from)
+    return 'Date'
+  })()
+
+  const DATE_PRESETS = [
+    { label: 'Today',       range: () => { const d = new Date(); return { from: d, to: d } } },
+    { label: 'Yesterday',   range: () => { const d = subDays(new Date(), 1); return { from: d, to: d } } },
+    { label: 'This Week',   range: () => ({ from: startOfWeek(new Date(), { weekStartsOn: 0 }), to: endOfWeek(new Date(), { weekStartsOn: 0 }) }) },
+    { label: 'Last 7 Days', range: () => ({ from: subDays(new Date(), 6), to: new Date() }) },
+    { label: 'Last 28 Days',range: () => ({ from: subDays(new Date(), 27), to: new Date() }) },
+    { label: 'This Month',  range: () => ({ from: startOfMonth(new Date()), to: endOfMonth(new Date()) }) },
+    { label: 'Last Month',  range: () => { const d = subMonths(new Date(), 1); return { from: startOfMonth(d), to: endOfMonth(d) } } },
+    { label: 'This Year',   range: () => ({ from: startOfYear(new Date()), to: new Date() }) },
+  ]
+
+  function toggleFinanceCol(key: FinanceColKey) {
+    setFinanceVisibleCols(prev => {
+      const next = new Set(prev)
+      if (next.has(key)) next.delete(key)
+      else next.add(key)
+      return next
+    })
+  }
+
+  const [playerLimits, setPlayerLimits] = useState<PlayerLimitItem[]>([
+    { name:'Loss limit', scope:'Daily', current:'€80', limit:'€200', unit:'€', pct:40, disabled:false, _type:'loss_limit', _scope:'daily', _value:'200', setByDate:'11.05.2025', setByPlayer:true },
+    { name:'Deposit limit', scope:'Weekly', current:'€320', limit:'€500', unit:'€', pct:64, disabled:false, _type:'deposit_limit', _scope:'weekly', _value:'500', setBy:'@JasonDuval', setByEmail:'jason.duval@bildery.com', setByDate:'19.05.2026' },
+    { name:'Session time', scope:'Daily', current:'1h 20m', limit:'3h', unit:'h', pct:44, disabled:false, _type:'session_time', _scope:'daily', _value:'3', setByDate:'11.05.2025', setByPlayer:true },
+    { name:'Cooling-off', scope:'One-time', current:'—', limit:'Not set', unit:'', pct:null, disabled:false, _type:'cooling_off', _scope:'one_time', _value:'' },
+  ])
+  const [operatorLimits, setOperatorLimits] = useState<OperatorLimitItem[]>([
+    { name:'Max withdrawal', scope:'Per transaction', value:'€2,000', valueNative:'3,420 AUD', tag:'AML flag', meta:'', metaHandle:'@JasonDuval', metaEmail:'jason.duval@bildery.com', metaDate:'2026-06-20', disabled:false, _type:'max_withdrawal', _scope:'per_transaction' },
+    { name:'Bonus restriction', scope:'Permanent', value:'No bonuses', tag:'Abuse', meta:'', metaHandle:'@RiskTeam', metaEmail:'risk@bildery.com', metaDate:'2026-05-15', disabled:false, _type:'bonus_restriction', _scope:'permanent' },
+    { name:'Review threshold', scope:'Per transaction', value:'> €500', valueNative:'855 AUD', tag:'Manual review required', meta:'', metaHandle:'@ComplianceTeam', metaEmail:'compliance@bildery.com', metaDate:'2026-06-10', disabled:false, _type:'review_threshold', _scope:'per_transaction' },
+  ])
+
+  const [plDrawerOpen, setPlDrawerOpen] = useState(false)
+  const [plEditIndex, setPlEditIndex] = useState<number | null>(null)
+  const [plType, setPlType] = useState('loss_limit')
+  const [plScope, setPlScope] = useState('daily')
+  const [plValue, setPlValue] = useState('')
+
+  const [olDrawerOpen, setOlDrawerOpen] = useState(false)
+  const [olEditIndex, setOlEditIndex] = useState<number | null>(null)
+  const [olType, setOlType] = useState('max_withdrawal')
+  const [olScope, setOlScope] = useState('per_transaction')
+  const [olValue, setOlValue] = useState('')
+  const [olCurrency, setOlCurrency] = useState('EUR')
+  const [olTag, setOlTag] = useState('')
+  const [olNote, setOlNote] = useState('')
+
+  function openAddPl() {
+    setPlEditIndex(null); setPlType('loss_limit'); setPlScope('daily'); setPlValue(''); setPlDrawerOpen(true)
+  }
+  function openEditPl(idx: number) {
+    const l = playerLimits[idx]
+    setPlEditIndex(idx); setPlType(l._type); setPlScope(l._scope); setPlValue(l._value); setPlDrawerOpen(true)
+  }
+  function savePl() {
+    const typeDef = PL_TYPES.find(t => t.value === plType)!
+    const unit = typeDef.unit
+    const scopeLabel = PL_SCOPE_LABELS[plScope] || plScope
+    const displayLimit = plType === 'cooling_off' ? 'Not set' : plValue ? (unit === '€' ? `€${plValue}` : `${plValue}${unit}`) : 'Not set'
+    const newL: PlayerLimitItem = {
+      name: typeDef.label, scope: scopeLabel,
+      current: plType === 'cooling_off' ? '—' : unit === '€' ? '€0' : `0${unit}`,
+      limit: displayLimit, unit, pct: plType === 'cooling_off' ? null : 0,
+      disabled: false, _type: plType, _scope: plScope, _value: plValue,
+    }
+    if (plEditIndex !== null) {
+      setPlayerLimits(prev => prev.map((l, i) => i === plEditIndex ? { ...newL, current: l.current, pct: l.pct } : l))
+    } else {
+      setPlayerLimits(prev => [...prev, newL])
+    }
+    setPlDrawerOpen(false)
+  }
+  function togglePl(idx: number) {
+    setPlayerLimits(prev => prev.map((l, i) => i === idx ? { ...l, disabled: !l.disabled } : l))
+  }
+
+  function openAddOl() {
+    setOlEditIndex(null); setOlType('max_withdrawal'); setOlScope('per_transaction')
+    setOlValue(''); setOlCurrency('EUR'); setOlTag(''); setOlNote(''); setOlDrawerOpen(true)
+  }
+  function openEditOl(idx: number) {
+    const l = operatorLimits[idx]
+    setOlEditIndex(idx); setOlType(l._type); setOlScope(l._scope)
+    setOlValue(l.value); setOlCurrency('EUR'); setOlTag(l.tag); setOlNote(''); setOlDrawerOpen(true)
+  }
+  function saveOl() {
+    const name = OL_TYPE_NAMES[olType] || 'Custom'
+    const scope = OL_SCOPE_LABELS[olScope] || olScope
+    const today = new Date().toISOString().split('T')[0]
+    const fxRate = player?.fxRate ?? 1.71
+    const numericVal = parseFloat(olValue.replace(/[^\d.]/g, ''))
+    let displayValue = olValue
+    let valueNative: string | undefined
+    if (!isNaN(numericVal) && olType !== 'bonus_restriction') {
+      if (olCurrency === 'EUR') {
+        displayValue = `€${numericVal.toLocaleString('en')}`
+        valueNative = `${Math.round(numericVal * fxRate).toLocaleString('en')} ${playerCurrency}`
+      } else {
+        displayValue = `€${Math.round(numericVal / fxRate).toLocaleString('en')}`
+        valueNative = `${numericVal.toLocaleString('en')} ${playerCurrency}`
+      }
+    }
+    const newL: OperatorLimitItem = {
+      name, scope, value: displayValue, valueNative, tag: olTag,
+      meta: '', metaHandle: '@JasonDuval', metaEmail: 'jason.duval@bildery.com', metaDate: today,
+      disabled: false, _type: olType, _scope: olScope,
+    }
+    if (olEditIndex !== null) {
+      setOperatorLimits(prev => prev.map((l, i) => i === olEditIndex ? { ...newL, disabled: l.disabled } : l))
+    } else {
+      setOperatorLimits(prev => [...prev, newL])
+    }
+    setOlDrawerOpen(false)
+  }
+  function toggleOl(idx: number) {
+    setOperatorLimits(prev => prev.map((l, i) => i === idx ? { ...l, disabled: !l.disabled } : l))
+  }
 
   function copyDupId(e: React.MouseEvent, id: string) {
     e.stopPropagation()
@@ -415,6 +698,13 @@ export default function PlayerProfilePage() {
 
   const player = MOCK_PLAYERS[id]
   const playerName = player?.name ?? 'Unknown Player'
+  const playerCurrency = player?.currency ?? 'EUR'
+  const fxRate = player?.fxRate ?? 1.00
+  const toNative = (eurValue: number): string => {
+    if (playerCurrency === 'EUR') return ''
+    const native = eurValue * fxRate
+    return `${(native % 1 === 0 ? native.toFixed(0) : native.toFixed(0))} ${playerCurrency}`
+  }
 
   return (
     <>
@@ -441,8 +731,8 @@ export default function PlayerProfilePage() {
               <h1 className="text-lg sm:text-2xl font-semibold flex flex-wrap items-center gap-x-1.5 gap-y-0.5 leading-snug">
                 <span className="hidden sm:inline text-muted-foreground font-normal">Player Profile:</span>
                 <span className="truncate">{playerName}</span>
-                <BadgeCheck className="size-4 sm:size-5 text-brand shrink-0" />
-                {vip && <Crown className="size-4 sm:size-5 text-warning shrink-0" />}
+                <BadgeCheck className="size-3.5 sm:size-4 text-brand shrink-0 -mt-3" />
+                {vip && <Crown className="size-3.5 sm:size-4 text-warning shrink-0 -mt-3" />}
               </h1>
               <p className="mt-0.5 flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground">
                 <span className="hidden sm:inline">Player ID:</span>
@@ -463,7 +753,7 @@ export default function PlayerProfilePage() {
           <div className="flex items-center gap-2 sm:pt-1 sm:shrink-0">
             <span className="text-sm text-muted-foreground">Status</span>
             <Select value={status} onValueChange={setStatus}>
-              <SelectTrigger size="sm" className="flex-1 sm:flex-none sm:w-[190px]">
+              <SelectTrigger size="sm" className="w-auto sm:w-[190px]">
                 <span className="text-sm text-foreground">{status}</span>
               </SelectTrigger>
               <SelectContent className="max-h-[320px]">
@@ -489,6 +779,28 @@ export default function PlayerProfilePage() {
 
         {/* Player meta info bar */}
         <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+          {/* Country */}
+          {player?.country && (
+            <div className="flex items-center gap-1.5">
+              <span className="text-sm text-muted-foreground">Country</span>
+              <span className="inline-flex items-center rounded-md border border-border px-2 py-0.5 text-xs font-semibold text-foreground">
+                {player.country}
+              </span>
+            </div>
+          )}
+
+          <div className="hidden sm:block h-4 w-px bg-border" />
+
+          {/* Currency */}
+          <div className="flex items-center gap-1.5">
+            <span className="text-sm text-muted-foreground">Currency</span>
+            <span className="inline-flex items-center rounded-md border border-border px-2 py-0.5 text-xs font-semibold text-foreground">
+              AUD
+            </span>
+          </div>
+
+          <div className="hidden sm:block h-4 w-px bg-border" />
+
           {/* Type -- read-only */}
           <div className="flex items-center gap-1.5">
             <span className="text-sm text-muted-foreground">Type</span>
@@ -521,16 +833,6 @@ export default function PlayerProfilePage() {
 
           {/* Duplicates */}
           <DuplicateFlag state={duplicate} />
-
-          <div className="hidden sm:block h-4 w-px bg-border" />
-
-          {/* Currency */}
-          <div className="flex items-center gap-1.5">
-            <span className="text-sm text-muted-foreground">Currency</span>
-            <span className="inline-flex items-center rounded-md border border-border px-2 py-0.5 text-xs font-semibold text-foreground">
-              AUD
-            </span>
-          </div>
 
         </div>
 
@@ -719,8 +1021,273 @@ export default function PlayerProfilePage() {
             </div>
           </TabsContent>
 
-          <TabsContent value="finance">
-            <p className="text-sm text-muted-foreground">Finance content coming soon.</p>
+          <TabsContent value="finance" className="flex flex-col gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <StatCard
+                label="Balance"
+                value="€0.00"
+                original="0.00 AUD"
+                change="-€290.00"
+                trend="down"
+                tooltip="Current account balance, converted to EUR."
+              />
+              <StatCard
+                label="Total deposits"
+                value="€2,820.00"
+                original="4,820.00 AUD"
+                change="+12.5%"
+                trend="up"
+                tooltip="Total deposited, converted to EUR."
+              />
+              <StatCard
+                label="Total withdrawals"
+                value="€780.00"
+                original="1,340.00 AUD"
+                change="-3.2%"
+                trend="down"
+                tooltip="Total withdrawn, converted to EUR."
+              />
+              <StatCard
+                label="Net revenue"
+                value="€2,040.00"
+                original="3,480.00 AUD"
+                change="+8.1%"
+                trend="up"
+                tooltip="Net revenue (deposits minus withdrawals), converted to EUR."
+              />
+            </div>
+
+            {/* Toolbar */}
+            <div className="flex items-center justify-between gap-2">
+              <div className="relative">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground pointer-events-none" />
+                <Input
+                  placeholder="Search..."
+                  value={financeSearch}
+                  onChange={e => setFinanceSearch(e.target.value)}
+                  className="pl-8 h-8 w-48 text-sm"
+                />
+              </div>
+
+              <Button variant="outline" size="sm" className="gap-2">
+                <SlidersHorizontal className="size-3.5" />
+                Filters
+              </Button>
+
+              <div className="flex items-center gap-2 ml-auto">
+                <Popover open={financeColOpen} onOpenChange={setFinanceColOpen}>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" size="sm" className="gap-2">
+                      <Columns2 className="size-3.5" />
+                      Columns
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent align="end" sideOffset={6} className="w-44 p-1">
+                    {FINANCE_COLS.map(col => (
+                      <button
+                        key={col.key}
+                        type="button"
+                        onClick={() => toggleFinanceCol(col.key)}
+                        className="flex items-center gap-2 w-full px-2 py-1.5 text-sm rounded-md hover:bg-muted transition-colors"
+                      >
+                        <Check className={`size-3.5 shrink-0 ${financeVisibleCols.has(col.key) ? 'opacity-100' : 'opacity-0'}`} />
+                        {col.label}
+                      </button>
+                    ))}
+                  </PopoverContent>
+                </Popover>
+
+                <Popover open={financeDateOpen} onOpenChange={setFinanceDateOpen}>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" size="sm" className="gap-2">
+                      <CalendarDays className="size-3.5" />
+                      {financeDateLabel}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent align="end" sideOffset={6} className="w-auto p-0">
+                    <div className="flex">
+                      <div className="flex flex-col border-r border-border py-3 px-2 gap-0.5 min-w-[130px]">
+                        {DATE_PRESETS.map(p => {
+                          const active = (() => {
+                            if (!financeDateRange?.from || !financeDateRange?.to) return false
+                            const r = p.range()
+                            return r.from.toDateString() === financeDateRange.from.toDateString() &&
+                                   r.to.toDateString() === financeDateRange.to.toDateString()
+                          })()
+                          return (
+                            <button
+                              key={p.label}
+                              type="button"
+                              onClick={() => setFinanceDateRange(p.range())}
+                              className={`text-left px-3 py-1.5 text-sm rounded-md transition-colors ${active ? 'bg-muted font-medium' : 'hover:bg-muted text-muted-foreground hover:text-foreground'}`}
+                            >
+                              {p.label}
+                            </button>
+                          )
+                        })}
+                      </div>
+                      <Calendar
+                        mode="range"
+                        selected={financeDateRange}
+                        onSelect={setFinanceDateRange}
+                        numberOfMonths={1}
+                      />
+                    </div>
+                  </PopoverContent>
+                </Popover>
+
+                <Button variant="outline" size="sm" className="gap-2">
+                  <Download className="size-3.5" />
+                  Export
+                </Button>
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-border bg-card overflow-hidden">
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader className="bg-muted/60">
+                    <TableRow className="hover:bg-transparent border-b border-border">
+                      {financeVisibleCols.has('txId')          && <FinanceSortableHead>Transaction ID</FinanceSortableHead>}
+                      {financeVisibleCols.has('debit')         && <FinanceSortableHead>Debit</FinanceSortableHead>}
+                      {financeVisibleCols.has('credit')        && <FinanceSortableHead>Credit</FinanceSortableHead>}
+                      {financeVisibleCols.has('rollover')      && <FinanceSortableHead>Rollover</FinanceSortableHead>}
+                      {financeVisibleCols.has('type')          && <TableHead className="text-sm font-medium text-foreground">Type</TableHead>}
+                      {financeVisibleCols.has('txStatus')      && <FinanceSortableHead>Status</FinanceSortableHead>}
+                      {financeVisibleCols.has('paymentMethod') && <TableHead className="text-sm font-medium text-foreground">Payment Method</TableHead>}
+                      {financeVisibleCols.has('paymentSystem') && <TableHead className="text-sm font-medium text-foreground">Payment System</TableHead>}
+                      {financeVisibleCols.has('createdAt')     && <FinanceSortableHead>Created at</FinanceSortableHead>}
+                      {financeVisibleCols.has('finishedAt')    && <TableHead className="text-sm font-medium text-foreground">Finished at</TableHead>}
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {FINANCE_ROWS
+                      .filter(row =>
+                        financeSearch === '' ||
+                        row.txId.toLowerCase().includes(financeSearch.toLowerCase()) ||
+                        row.paymentMethod.toLowerCase().includes(financeSearch.toLowerCase())
+                      )
+                      .map(row => (
+                        <TableRow
+                          key={row.txId}
+                          className="cursor-pointer"
+                          onClick={() => { setSelectedTx(row); setTxDrawerOpen(true) }}
+                        >
+                          {financeVisibleCols.has('txId') && (
+                            <TableCell>
+                              <div className="flex items-center gap-1.5">
+                                <span className="text-sm font-medium underline underline-offset-2 whitespace-nowrap">{row.txId}</span>
+                                <button
+                                  onClick={(e) => copyTxId(e, row.txId)}
+                                  className="text-muted-foreground/50 hover:text-muted-foreground transition-colors"
+                                  aria-label="Copy transaction ID"
+                                >
+                                  {copiedTxId === row.txId
+                                    ? <Check className="size-3.5 text-muted-foreground" />
+                                    : <Copy className="size-3.5" />}
+                                </button>
+                              </div>
+                            </TableCell>
+                          )}
+                          {financeVisibleCols.has('debit') && (
+                            <TableCell>
+                              <span className="text-sm font-medium tabular-nums block">{row.debit}</span>
+                              {(() => { const n = toNative(parseFloat(row.debit.replace(/[^0-9.]/g, ''))); return n ? <span className="text-xs text-muted-foreground tabular-nums">{n}</span> : null })()}
+                            </TableCell>
+                          )}
+                          {financeVisibleCols.has('credit') && (
+                            <TableCell>
+                              <span className="text-sm font-medium tabular-nums block">{row.credit}</span>
+                              {(() => { const n = toNative(parseFloat(row.credit.replace(/[^0-9.]/g, ''))); return n ? <span className="text-xs text-muted-foreground tabular-nums">{n}</span> : null })()}
+                            </TableCell>
+                          )}
+                          {financeVisibleCols.has('rollover') && (
+                            <TableCell>
+                              <span className="text-sm tabular-nums block">{row.rollover}</span>
+                              {(() => { const n = toNative(parseFloat(row.rollover.replace(/[^0-9.]/g, ''))); return n ? <span className="text-xs text-muted-foreground tabular-nums">{n}</span> : null })()}
+                            </TableCell>
+                          )}
+                          {financeVisibleCols.has('type') && (
+                            <TableCell>
+                              <div className="flex items-center gap-1.5 text-sm">
+                                {row.type}
+                                {row.type === 'Bonus' && <Gift className="size-3.5 text-warning shrink-0" />}
+                              </div>
+                            </TableCell>
+                          )}
+                          {financeVisibleCols.has('txStatus')      && <TableCell><TxStatusBadge status={row.txStatus} /></TableCell>}
+                          {financeVisibleCols.has('paymentMethod') && (
+                            <TableCell className="text-sm text-muted-foreground max-w-[160px]">
+                              <FinanceTruncCell text={row.paymentMethod} className="text-muted-foreground" />
+                            </TableCell>
+                          )}
+                          {financeVisibleCols.has('paymentSystem') && <TableCell className="text-sm text-muted-foreground">{row.paymentSystem}</TableCell>}
+                          {financeVisibleCols.has('createdAt')     && <TableCell className="text-sm text-muted-foreground whitespace-nowrap">{row.createdAt}</TableCell>}
+                          {financeVisibleCols.has('finishedAt')    && <TableCell className="text-sm text-muted-foreground whitespace-nowrap">{row.finishedAt}</TableCell>}
+                        </TableRow>
+                      ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+
+            {/* Transaction detail drawer */}
+            <Drawer
+              open={txDrawerOpen}
+              onOpenChange={setTxDrawerOpen}
+              direction={isMobile ? 'bottom' : 'right'}
+            >
+              <DrawerContent className="sm:max-w-[400px] flex flex-col">
+                <DrawerHeader className="border-b border-border flex flex-row items-center justify-between">
+                  <div className="flex flex-col gap-0.5">
+                    <DrawerTitle className="text-base">Transaction details</DrawerTitle>
+                    {selectedTx && (
+                      <div className="flex items-center gap-1">
+                        <span className="text-xs text-muted-foreground font-mono">{selectedTx.txId}</span>
+                        <button
+                          onClick={() => {
+                            if (selectedTx) {
+                              navigator.clipboard.writeText(selectedTx.txId)
+                              setCopiedTxId(selectedTx.txId)
+                              setTimeout(() => setCopiedTxId(null), 1500)
+                            }
+                          }}
+                          className="text-muted-foreground/50 hover:text-muted-foreground transition-colors"
+                          aria-label="Copy ID"
+                        >
+                          {copiedTxId === selectedTx.txId
+                            ? <Check className="size-3 text-muted-foreground" />
+                            : <Copy className="size-3" />}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                  <DrawerClose asChild>
+                    <Button variant="ghost" size="icon-sm">
+                      <X className="size-4" />
+                    </Button>
+                  </DrawerClose>
+                </DrawerHeader>
+
+                {selectedTx && (
+                  <div className="flex flex-col gap-5 flex-1 overflow-y-auto px-4 py-5 min-h-0">
+                    <div className="divide-y divide-border">
+                      {[
+                        { label: 'Payment System', value: selectedTx.paymentSystem },
+                        { label: 'Payment Method', value: selectedTx.paymentMethod },
+                        { label: 'PS Status', value: <TxStatusBadge status={selectedTx.psStatus} /> },
+                      ].map(({ label, value }) => (
+                        <div key={label} className="flex items-center justify-between py-2.5">
+                          <span className="text-sm text-muted-foreground">{label}</span>
+                          <span className="text-sm font-medium">{value}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <p className="text-sm text-muted-foreground">More details coming soon.</p>
+                  </div>
+                )}
+              </DrawerContent>
+            </Drawer>
           </TabsContent>
           <TabsContent value="statistics">
             <p className="text-sm text-muted-foreground">Statistics content coming soon.</p>
@@ -732,7 +1299,15 @@ export default function PlayerProfilePage() {
             <p className="text-sm text-muted-foreground">Games history content coming soon.</p>
           </TabsContent>
           <TabsContent value="sport-history">
-            <p className="text-sm text-muted-foreground">Sport history content coming soon.</p>
+            <div className="flex flex-col items-center gap-3 text-center py-20">
+              <div className="size-12 rounded-xl bg-muted flex items-center justify-center">
+                <Trophy className="size-6 text-muted-foreground" />
+              </div>
+              <div>
+                <p className="text-base font-medium text-foreground">No sport history</p>
+                <p className="text-sm text-muted-foreground mt-1">This player has no sports betting activity yet.</p>
+              </div>
+            </div>
           </TabsContent>
           <TabsContent value="duplicates" className="flex flex-col gap-4">
             <div>
@@ -742,7 +1317,7 @@ export default function PlayerProfilePage() {
               </p>
             </div>
 
-            <div className="rounded-2xl border border-border bg-background overflow-hidden">
+            <div className="rounded-2xl border border-border bg-card overflow-hidden">
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader className="bg-muted/60">
@@ -1089,8 +1664,675 @@ export default function PlayerProfilePage() {
               </DrawerContent>
             </Drawer>
           </TabsContent>
-          <TabsContent value="limits">
-            <p className="text-sm text-muted-foreground">Limits content coming soon.</p>
+          <TabsContent value="limits" className="flex flex-col gap-6">
+
+            {/* Player limits + Operator limits */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+            {/* Column 1: Player limits */}
+            <div className="flex flex-col gap-6">
+            {/* Player limits */}
+            <div className="rounded-2xl border border-border bg-card overflow-hidden">
+              <div className="px-4 py-3 border-b border-border flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2 min-w-0">
+                  <User className="size-4 text-muted-foreground shrink-0" />
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium">Player limits</p>
+                    <p className="text-xs text-muted-foreground hidden sm:block">Set by the player or by the operator on the player's behalf.</p>
+                  </div>
+                </div>
+                <Button variant="outline" size="sm" className="gap-1.5 shrink-0" onClick={openAddPl}>
+                  <Pencil className="size-3.5" />
+                  <span>Edit limits</span>
+                </Button>
+              </div>
+              <div className="divide-y divide-border overflow-y-auto max-h-72">
+                {playerLimits.map((limit, idx) => {
+                  const barColor = 'bg-foreground'
+                  return (
+                    <div key={idx} className={`transition-opacity ${limit.disabled ? 'opacity-50' : ''}`}>
+                      <div className="flex items-center gap-2 justify-between px-4 pt-3 pb-2">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className={`text-sm font-medium ${limit.disabled ? 'line-through text-muted-foreground' : ''}`}>{limit.name}</span>
+                          <span className="inline-flex items-center rounded-md border border-border px-1.5 py-0.5 text-xs text-muted-foreground shrink-0">{limit.scope}</span>
+                          {limit.disabled && <span className="inline-flex items-center rounded-md bg-muted px-1.5 py-0.5 text-xs text-muted-foreground shrink-0">Disabled</span>}
+                        </div>
+                        <div className="flex flex-col items-end shrink-0">
+                          <span className="text-sm tabular-nums text-muted-foreground">
+                            {limit.pct !== null
+                              ? <><span className="text-foreground font-semibold">{limit.current}</span> / {limit.limit}</>
+                              : limit._type === 'cooling_off'
+                                ? <span className="text-muted-foreground">Not set</span>
+                                : <span>{limit.limit}</span>}
+                          </span>
+                          {limit.unit === '€' && limit.pct !== null && (() => {
+                            const cur = parseFloat(limit.current.replace(/[€,]/g, ''))
+                            const lim = parseFloat(limit._value)
+                            const nCur = toNative(cur)
+                            const nLim = toNative(lim)
+                            return nLim ? <span className="text-xs text-muted-foreground tabular-nums">{nCur} / {nLim}</span> : null
+                          })()}
+                        </div>
+                      </div>
+                      {limit.pct !== null && !limit.disabled ? (
+                        <div className="flex flex-col gap-1 px-4 pb-3">
+                          <div className="h-1.5 rounded-full bg-muted-foreground/15">
+                            <div className={`h-1.5 rounded-full ${barColor} transition-all`} style={{ width: `${limit.pct}%` }} />
+                          </div>
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="text-xs text-muted-foreground tabular-nums">{limit.pct}% achieved</span>
+                            {(limit.setBy || limit.setByPlayer) && (
+                              <span className="text-xs text-muted-foreground cursor-default">
+                                {limit.setByPlayer ? (
+                                  <>{limit.setByDate}{' · By Player'}</>
+                                ) : (
+                                  <>{limit.setByDate}{' · '}
+                                    <TooltipProvider delayDuration={200}>
+                                      <Tooltip>
+                                        <TooltipTrigger asChild>
+                                          <span>{limit.setBy}</span>
+                                        </TooltipTrigger>
+                                        <TooltipContent side="top" className="text-xs">{limit.setByEmail}</TooltipContent>
+                                      </Tooltip>
+                                    </TooltipProvider>
+                                    {' · On Player\'s behalf'}
+                                  </>
+                                )}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="pb-3" />
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+              <div className="border-t border-border bg-muted/50 px-4 py-5 flex items-center">
+                <p className="text-xs text-muted-foreground">Changes take effect immediately and reset on schedule.</p>
+              </div>
+            </div>
+            </div>{/* end column 1 */}
+
+            {/* Column 2: Self-exclusion + Cooling-off */}
+            <div className="flex flex-col gap-6">
+
+            {/* Self-exclusion */}
+            <div className="rounded-2xl border border-border bg-card overflow-hidden">
+              <div className="px-4 py-3 border-b border-border flex items-center gap-2">
+                <Ban className="size-4 text-muted-foreground shrink-0" />
+                <div>
+                  <p className="text-sm font-medium">Self-exclusion</p>
+                  <p className="text-xs text-muted-foreground hidden sm:block">Player-initiated account freezes. Cannot be overridden by operator during active period.</p>
+                </div>
+              </div>
+              <div className="flex flex-col items-center gap-3 text-center py-10">
+                <div className="size-10 rounded-xl bg-muted flex items-center justify-center">
+                  <Ban className="size-5 text-muted-foreground" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-foreground">No self-exclusion active</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">Player has not requested any exclusion period.</p>
+                </div>
+                <Button variant="outline" size="sm" className="mt-1 gap-1.5" onClick={() => setSeDrawerOpen(true)}>
+                  <Plus className="size-3.5" />
+                  Apply self-exclusion
+                </Button>
+              </div>
+            </div>
+
+            {/* Cooling-off */}
+            <div className="rounded-2xl border border-border bg-card overflow-hidden">
+              <div className="px-4 py-3 border-b border-border flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2 min-w-0">
+                  <Timer className="size-4 text-muted-foreground shrink-0" />
+                  <div>
+                    <p className="text-sm font-medium">Cooling-off</p>
+                    <p className="text-xs text-muted-foreground hidden sm:block">Player-requested temporary pause. Cannot be shortened.</p>
+                  </div>
+                </div>
+                <Button variant="outline" size="sm" className="gap-1.5 shrink-0" onClick={() => setCoDrawerOpen(true)}>
+                  <Pencil className="size-3.5" />
+                  <span>Edit</span>
+                </Button>
+              </div>
+              <div className="flex justify-center py-6">
+                {(() => {
+                  const size = 220
+                  const cx = 110
+                  const cy = 110
+                  const r = 86
+                  const stroke = 26
+                  const pct = 0.71
+                  const circ = 2 * Math.PI * r
+                  const dash = pct * circ
+                  const gap = circ - dash
+                  return (
+                    <svg width={size} height={size}>
+                      {/* track */}
+                      <circle cx={cx} cy={cy} r={r} fill="none" stroke="hsl(0,0%,90%)" strokeWidth={stroke} />
+                      {/* progress — start at top (rotate -90deg) */}
+                      <circle
+                        cx={cx} cy={cy} r={r} fill="none"
+                        stroke="hsl(220,9%,44%)"
+                        strokeWidth={stroke}
+                        strokeDasharray={`${dash} ${gap}`}
+                        strokeLinecap="round"
+                        transform={`rotate(-90 ${cx} ${cy})`}
+                      />
+                      <text x={cx} y={cy - 10} textAnchor="middle" dominantBaseline="middle" fontSize={18} fontWeight={700} fill="currentColor">5d 17h 49m</text>
+                      <text x={cx} y={cy + 14} textAnchor="middle" dominantBaseline="middle" fontSize={12} fill="hsl(220,9%,44%)">remaining</text>
+                    </svg>
+                  )
+                })()}
+              </div>
+              <div className="h-px bg-border" />
+              <div className="bg-muted/40 flex flex-col px-4">
+                {[
+                  { label: 'Started', value: '2026-06-22' },
+                  { label: 'Ends', value: '2026-06-29' },
+                  { label: 'Duration', value: '7 days' },
+                  { label: 'Times used', value: '3' },
+                ].map((item, idx, arr) => (
+                  <div key={item.label}>
+                    <div className={`flex w-full items-center justify-between ${idx === 0 ? 'pt-4 pb-3' : idx === arr.length - 1 ? 'pt-3 pb-4' : 'py-3'}`}>
+                      <span className="text-sm text-muted-foreground">{item.label}</span>
+                      <span className="text-sm font-semibold tabular-nums">{item.value}</span>
+                    </div>
+                    {idx < arr.length - 1 && <Separator />}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            </div>{/* end column 2 */}
+
+            {/* Column 3: Operator limits + Regulatory limits */}
+            <div className="flex flex-col gap-6">
+            {/* Operator limits */}
+            <div className="rounded-2xl border border-border bg-card overflow-hidden">
+              <div className="px-4 py-3 border-b border-border flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2 min-w-0">
+                  <UserCog className="size-4 text-muted-foreground shrink-0" />
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium">Operator limits</p>
+                    <p className="text-xs text-muted-foreground hidden sm:block">Manually applied by your team. Player cannot modify.</p>
+                  </div>
+                </div>
+                <Button variant="outline" size="sm" className="gap-1.5 shrink-0" onClick={openAddOl}>
+                  <Pencil className="size-3.5" />
+                  <span>Edit limits</span>
+                </Button>
+              </div>
+              <div className="divide-y divide-border">
+                {operatorLimits.map((limit, idx) => (
+                  <div key={idx} className={`flex items-start sm:items-center justify-between gap-3 px-4 py-3 transition-opacity ${limit.disabled ? 'opacity-50' : ''}`}>
+                    <div className="flex flex-col gap-0.5 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className={`text-sm font-medium ${limit.disabled ? 'line-through text-muted-foreground' : ''}`}>{limit.name}</span>
+                        <span className="inline-flex items-center rounded-md border border-border px-1.5 py-0.5 text-xs text-muted-foreground">{limit.scope}</span>
+                        {limit.tag && !limit.disabled && (
+                          <span className="inline-flex items-center rounded-md bg-destructive-bg px-1.5 py-0.5 text-xs text-destructive">{limit.tag}</span>
+                        )}
+                        {limit.disabled && <span className="inline-flex items-center rounded-md bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">Disabled</span>}
+                      </div>
+                      {limit.metaHandle ? (
+                        <TooltipProvider delayDuration={200}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <p className="text-xs text-muted-foreground cursor-default">{limit.metaDate} · {limit.metaHandle}</p>
+                            </TooltipTrigger>
+                            <TooltipContent side="top" className="text-xs">{limit.metaEmail}</TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      ) : (
+                        <p className="text-xs text-muted-foreground">{limit.meta}</p>
+                      )}
+                    </div>
+                    <div className="flex flex-col items-end shrink-0">
+                      <span className="text-sm font-medium tabular-nums">{limit.value}</span>
+                      {limit.valueNative && <span className="text-xs text-muted-foreground tabular-nums">{limit.valueNative}</span>}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Regulatory limits */}
+            <div className="rounded-2xl border border-border bg-card overflow-hidden">
+              <div className="px-4 py-3 border-b border-border flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2 min-w-0">
+                  <Shield className="size-4 text-muted-foreground shrink-0" />
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium">Regulatory limits</p>
+                    <p className="text-xs text-muted-foreground hidden sm:block">
+                      Jurisdiction: <span className="text-foreground font-medium">Australia (ACMA)</span> -- read-only, enforced by law.
+                    </p>
+                  </div>
+                </div>
+                <span className="inline-flex items-center gap-1.5 rounded-md bg-subtle px-2 py-1 text-xs text-muted-foreground border border-subtle-border shrink-0">
+                  <Globe className="size-3" />
+                  ACMA
+                </span>
+              </div>
+              <div className="divide-y divide-border">
+                {[
+                  { name: 'Max single bet', scope: 'Per bet', value: '€29.00', valueEur: '50.00 AUD', ref: 'ACMA §4.2', active: true },
+                  { name: 'Reality check', scope: 'Every 60 min', value: 'Enabled', ref: 'ACMA §6.1', active: true },
+                  { name: 'Self-exclusion register', scope: 'National', value: 'Not enrolled', ref: 'BetStop', active: false },
+                  { name: 'Credit card deposits', scope: 'Any amount', value: 'Prohibited', ref: 'ACMA §9', active: true },
+                ].map((limit) => (
+                  <div key={limit.name} className="flex items-center justify-between gap-3 px-4 py-3">
+                    <div className="flex flex-col gap-0.5 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-sm font-medium">{limit.name}</span>
+                        <span className="inline-flex items-center rounded-md border border-border px-1.5 py-0.5 text-xs text-muted-foreground">{limit.scope}</span>
+                      </div>
+                      <span className="text-xs text-muted-foreground">{limit.ref}</span>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <div className="flex flex-col items-end">
+                        <span className={`text-sm font-medium tabular-nums ${limit.active ? 'text-foreground' : 'text-muted-foreground'}`}>{limit.value}</span>
+                        {limit.valueEur && <span className="text-xs text-muted-foreground tabular-nums">{limit.valueEur}</span>}
+                      </div>
+                      <div className={`size-1.5 rounded-full shrink-0 ${limit.active ? 'bg-success' : 'bg-muted-foreground/40'}`} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            </div>{/* end right column */}
+            </div>{/* end grid */}
+
+            {/* Player limit add/edit drawer */}
+            <Drawer open={plDrawerOpen} onOpenChange={setPlDrawerOpen} direction={isMobile ? 'bottom' : 'right'}>
+              <DrawerContent className="sm:max-w-[400px] flex flex-col">
+                <DrawerHeader className="border-b border-border flex flex-row items-center justify-between">
+                  <DrawerTitle>{plEditIndex !== null ? 'Edit player limit' : 'Add player limit'}</DrawerTitle>
+                  <DrawerClose asChild>
+                    <Button variant="ghost" size="icon-sm"><X className="size-4" /></Button>
+                  </DrawerClose>
+                </DrawerHeader>
+                <div className="flex flex-col gap-5 flex-1 overflow-y-auto px-4 py-5 min-h-0">
+
+                  <div className="flex flex-col gap-2">
+                    <p className="text-sm font-medium">Limit type</p>
+                    <div className="flex flex-col gap-1.5">
+                      {PL_TYPES.filter(t => t.value !== 'cooling_off').map(t => (
+                        <button key={t.value}
+                          onClick={() => { setPlType(t.value); setPlScope(PL_SCOPES[t.value][0].value) }}
+                          className={`rounded-xl border px-4 py-2.5 text-left transition-colors ${
+                            plType === t.value
+                              ? 'border-foreground bg-muted'
+                              : 'border-border hover:border-foreground/40'
+                          }`}
+                        >
+                          <span className={`text-sm font-medium ${plType === t.value ? 'text-foreground' : 'text-muted-foreground'}`}>{t.label}</span>
+                          <span className="block text-xs text-muted-foreground mt-0.5">{t.hint}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {(PL_SCOPES[plType]?.length ?? 0) > 1 && (
+                    <div className="flex flex-col gap-2">
+                      <p className="text-sm font-medium">Period</p>
+                      <div className="flex flex-wrap gap-2">
+                        {PL_SCOPES[plType].map(s => (
+                          <button key={s.value} onClick={() => setPlScope(s.value)}
+                            className={`rounded-lg border px-3 py-1.5 text-sm transition-colors ${
+                              plScope === s.value
+                                ? 'border-foreground bg-muted font-medium text-foreground'
+                                : 'border-border text-muted-foreground hover:border-foreground/40'
+                            }`}>{s.label}</button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {plType !== 'cooling_off' && (
+                    <div className="flex flex-col gap-2">
+                      <p className="text-sm font-medium">Limit value</p>
+                      <div className="relative">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground select-none">
+                          {PL_TYPES.find(t => t.value === plType)?.unit}
+                        </span>
+                        <input type="number" value={plValue} onChange={e => setPlValue(e.target.value)}
+                          placeholder={plType === 'session_time' ? 'e.g. 3' : 'e.g. 500'}
+                          min="0"
+                          className="w-full rounded-xl border border-border bg-transparent pl-8 pr-4 py-2 text-sm placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-ring" />
+                      </div>
+                    </div>
+                  )}
+
+                </div>
+                <div className="shrink-0 border-t border-border bg-muted p-4 flex gap-2">
+                  <DrawerClose asChild>
+                    <Button variant="outline" className="flex-1">Cancel</Button>
+                  </DrawerClose>
+                  <Button className="flex-1" disabled={plType !== 'cooling_off' && !plValue} onClick={savePl}>
+                    {plEditIndex !== null ? 'Save changes' : 'Add limit'}
+                  </Button>
+                </div>
+              </DrawerContent>
+            </Drawer>
+
+            {/* Operator limit add/edit drawer */}
+            <Drawer open={olDrawerOpen} onOpenChange={setOlDrawerOpen} direction={isMobile ? 'bottom' : 'right'}>
+              <DrawerContent className="sm:max-w-[400px] flex flex-col">
+                <DrawerHeader className="border-b border-border flex flex-row items-center justify-between">
+                  <DrawerTitle>Edit operator limit</DrawerTitle>
+                  <DrawerClose asChild>
+                    <Button variant="ghost" size="icon-sm"><X className="size-4" /></Button>
+                  </DrawerClose>
+                </DrawerHeader>
+                <div className="flex flex-col gap-5 flex-1 overflow-y-auto px-4 py-5 min-h-0">
+
+                  <div className="flex flex-col gap-2">
+                    <p className="text-sm font-medium">Limit type</p>
+                    <Select value={olType} onValueChange={setOlType}>
+                      <SelectTrigger className="w-full text-sm"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        {OL_TYPES.map(t => <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    <p className="text-sm font-medium">Scope</p>
+                    <div className="flex flex-wrap gap-2">
+                      {OL_SCOPES.map(s => (
+                        <button key={s.value} onClick={() => setOlScope(s.value)}
+                          className={`rounded-lg border px-3 py-1.5 text-sm transition-colors ${
+                            olScope === s.value
+                              ? 'border-foreground bg-muted font-medium text-foreground'
+                              : 'border-border text-muted-foreground hover:border-foreground/40'
+                          }`}>{s.label}</button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    <p className="text-sm font-medium">Value</p>
+                    <div className="flex gap-2">
+                      {olType !== 'bonus_restriction' && (
+                        <Select value={olCurrency} onValueChange={setOlCurrency}>
+                          <SelectTrigger className="w-24 shrink-0 text-sm"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="EUR">EUR</SelectItem>
+                            <SelectItem value={playerCurrency}>{playerCurrency}</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      )}
+                      <input type="text" value={olValue} onChange={e => setOlValue(e.target.value)}
+                        placeholder={olType === 'bonus_restriction' ? 'e.g. No bonuses' : olType === 'review_threshold' ? 'e.g. 500' : 'e.g. 2000'}
+                        className="w-full rounded-lg border border-border bg-transparent px-3 py-[7px] text-sm focus:outline-none focus:ring-1 focus:ring-ring" />
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    <p className="text-sm font-medium">Reason tag <span className="text-muted-foreground font-normal">(optional)</span></p>
+                    <Select value={olTag} onValueChange={setOlTag}>
+                      <SelectTrigger className="w-full text-sm"><SelectValue placeholder="Select reason..." /></SelectTrigger>
+                      <SelectContent>
+                        {OL_TAGS.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    <p className="text-sm font-medium">Note <span className="text-muted-foreground font-normal">(optional)</span></p>
+                    <textarea value={olNote} onChange={e => setOlNote(e.target.value)}
+                      placeholder="Internal note for audit log..." rows={3}
+                      className="w-full resize-none rounded-xl border border-border bg-transparent px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring" />
+                  </div>
+
+                </div>
+                <div className="shrink-0 border-t border-border bg-muted p-4 flex gap-2">
+                  <DrawerClose asChild>
+                    <Button variant="outline" className="flex-1">Cancel</Button>
+                  </DrawerClose>
+                  <Button className="flex-1" disabled={!olValue} onClick={saveOl}>
+                    {olEditIndex !== null ? 'Save changes' : 'Add limit'}
+                  </Button>
+                </div>
+              </DrawerContent>
+            </Drawer>
+
+            {/* Self-exclusion drawer */}
+            <Drawer open={seDrawerOpen} onOpenChange={setSeDrawerOpen} direction={isMobile ? 'bottom' : 'right'}>
+              <DrawerContent className="sm:max-w-[400px] flex flex-col">
+                <DrawerHeader className="border-b border-border flex flex-row items-center justify-between">
+                  <div>
+                    <DrawerTitle>Apply self-exclusion</DrawerTitle>
+                    <p className="text-xs text-muted-foreground mt-0.5">For player: {playerName}</p>
+                  </div>
+                  <DrawerClose asChild>
+                    <Button variant="ghost" size="icon-sm"><X className="size-4" /></Button>
+                  </DrawerClose>
+                </DrawerHeader>
+
+                <div className="flex flex-col gap-5 flex-1 overflow-y-auto px-4 py-5 min-h-0">
+
+                  {/* Type */}
+                  <div className="flex flex-col gap-2">
+                    <p className="text-sm font-medium">Type</p>
+                    <div className="grid grid-cols-2 gap-2">
+                      {(['temporary', 'permanent'] as const).map(t => (
+                        <button
+                          key={t}
+                          onClick={() => setSeType(t)}
+                          className={`rounded-xl border px-4 py-3 text-sm font-medium text-left transition-colors ${
+                            seType === t
+                              ? 'border-foreground bg-muted text-foreground'
+                              : 'border-border text-muted-foreground hover:border-foreground/40'
+                          }`}
+                        >
+                          {t === 'temporary' ? 'Temporary' : 'Permanent'}
+                          <span className="block text-xs font-normal text-muted-foreground mt-0.5">
+                            {t === 'temporary' ? 'Fixed period, then auto-reopens' : 'Cannot be reversed by player'}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Period (only if temporary) */}
+                  {seType === 'temporary' && (
+                    <div className="flex flex-col gap-2">
+                      <p className="text-sm font-medium">Period</p>
+                      <div className="flex flex-wrap gap-2">
+                        {[
+                          { value: '1d', label: '1 day' },
+                          { value: '7d', label: '1 week' },
+                          { value: '30d', label: '1 month' },
+                          { value: '180d', label: '6 months' },
+                          { value: '365d', label: '1 year' },
+                        ].map(p => (
+                          <button
+                            key={p.value}
+                            onClick={() => setSePeriod(p.value)}
+                            className={`rounded-lg border px-3 py-1.5 text-sm transition-colors ${
+                              sePeriod === p.value
+                                ? 'border-foreground bg-muted font-medium text-foreground'
+                                : 'border-border text-muted-foreground hover:border-foreground/40'
+                            }`}
+                          >
+                            {p.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Reason */}
+                  <div className="flex flex-col gap-2">
+                    <p className="text-sm font-medium">Reason</p>
+                    <Select value={seReason} onValueChange={setSeReason}>
+                      <SelectTrigger size="sm" className="w-full">
+                        <SelectValue placeholder="Select a reason..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="player_request">Player request</SelectItem>
+                        <SelectItem value="problem_gambling">Problem gambling behaviour</SelectItem>
+                        <SelectItem value="regulatory">Regulatory requirement</SelectItem>
+                        <SelectItem value="operator_decision">Operator decision</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Note */}
+                  <div className="flex flex-col gap-2">
+                    <p className="text-sm font-medium">Note <span className="text-muted-foreground font-normal">(optional)</span></p>
+                    <textarea
+                      value={seNote}
+                      onChange={e => setSeNote(e.target.value)}
+                      placeholder="Internal note for audit log..."
+                      rows={3}
+                      className="w-full resize-none rounded-xl border border-border bg-transparent px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                    />
+                  </div>
+
+                  {/* Warning */}
+                  <div className="rounded-xl border border-destructive/30 bg-destructive-bg px-4 py-3 flex flex-col gap-1">
+                    <p className="text-sm font-medium text-destructive">This action takes effect immediately</p>
+                    <p className="text-xs text-destructive/80">
+                      {seType === 'temporary'
+                        ? 'The player will be locked and cannot log in until the exclusion period ends. The period cannot be shortened by the player.'
+                        : 'The player will be permanently locked. This cannot be reversed by the player and requires compliance review to lift.'}
+                    </p>
+                  </div>
+
+                </div>
+
+                <div className="shrink-0 border-t border-border bg-muted p-4 flex gap-2">
+                  <DrawerClose asChild>
+                    <Button variant="outline" className="flex-1">Cancel</Button>
+                  </DrawerClose>
+                  <Button
+                    variant="destructive"
+                    className="flex-1"
+                    disabled={!seReason}
+                    onClick={() => setSeDrawerOpen(false)}
+                  >
+                    <Ban className="size-4" />
+                    Apply exclusion
+                  </Button>
+                </div>
+              </DrawerContent>
+            </Drawer>
+
+            {/* Cooling-off drawer */}
+            <Drawer open={coDrawerOpen} onOpenChange={setCoDrawerOpen} direction={isMobile ? 'bottom' : 'right'}>
+              <DrawerContent className="sm:max-w-[400px] flex flex-col">
+                <DrawerHeader className="border-b border-border flex flex-row items-center justify-between">
+                  <div>
+                    <DrawerTitle>Edit cooling-off</DrawerTitle>
+                    <p className="text-xs text-muted-foreground mt-0.5">For player: {playerName}</p>
+                  </div>
+                  <DrawerClose asChild>
+                    <Button variant="ghost" size="icon-sm"><X className="size-4" /></Button>
+                  </DrawerClose>
+                </DrawerHeader>
+
+                <div className="flex flex-col gap-5 flex-1 overflow-y-auto px-4 py-5 min-h-0">
+
+                  {/* Duration */}
+                  <div className="flex flex-col gap-2">
+                    <p className="text-sm font-medium">Duration</p>
+                    <Card className="mx-auto w-fit" size="sm">
+                      <CardContent className="pt-5">
+                        <Calendar
+                          mode="range"
+                          selected={{ from: coStartDate, to: coEndDate }}
+                          onSelect={range => {
+                            if (!range) { setCoStartDate(undefined); setCoEndDate(undefined); return }
+                            if (coStartDate && coEndDate) {
+                              setCoStartDate(range.from); setCoEndDate(undefined)
+                            } else {
+                              setCoStartDate(range.from); setCoEndDate(range.to)
+                            }
+                          }}
+                          disabled={{ before: new Date() }}
+                          fixedWeeks
+                          className="p-0 [--cell-size:--spacing(9.5)]"
+                        />
+                      </CardContent>
+                      <CardFooter className="flex flex-wrap gap-2 border-t bg-muted p-3">
+                        {[
+                          { label: '1 day', days: 1 },
+                          { label: '1 week', days: 7 },
+                          { label: '1 month', days: 30 },
+                        ].map(({ label, days }) => {
+                          const from = new Date(); from.setHours(0,0,0,0)
+                          const to = addDays(from, days - 1)
+                          const active = coStartDate?.toDateString() === from.toDateString() && coEndDate?.toDateString() === to.toDateString()
+                          return (
+                            <Button key={label} variant={active ? 'default' : 'outline'} size="sm" className="flex-1"
+                              onClick={() => { setCoStartDate(from); setCoEndDate(to) }}>
+                              {label}
+                            </Button>
+                          )
+                        })}
+                      </CardFooter>
+                    </Card>
+                  </div>
+
+                  {/* Reason */}
+                  <div className="flex flex-col gap-2">
+                    <p className="text-sm font-medium">Reason</p>
+                    <Select value={coReason} onValueChange={setCoReason}>
+                      <SelectTrigger className="w-full text-sm">
+                        <SelectValue placeholder="Select a reason..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="player_request" className="text-sm">Player request</SelectItem>
+                        <SelectItem value="problem_gambling" className="text-sm">Problem gambling behaviour</SelectItem>
+                        <SelectItem value="regulatory" className="text-sm">Regulatory requirement</SelectItem>
+                        <SelectItem value="operator_decision" className="text-sm">Operator decision</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Note */}
+                  <div className="flex flex-col gap-2">
+                    <p className="text-sm font-medium">Note <span className="text-muted-foreground font-normal">(optional)</span></p>
+                    <textarea
+                      value={coNote}
+                      onChange={e => setCoNote(e.target.value)}
+                      placeholder="Internal note for audit log..."
+                      rows={3}
+                      className="w-full resize-none rounded-xl border border-border bg-transparent px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                    />
+                  </div>
+
+                  {/* Info */}
+                  <div className="rounded-xl border border-border bg-muted/40 px-4 py-3 flex flex-col gap-1">
+                    <p className="text-sm font-medium">Cooling-off takes effect immediately</p>
+                    <p className="text-xs text-muted-foreground">
+                      The player will be temporarily restricted. The period cannot be shortened once applied.
+                    </p>
+                  </div>
+
+                </div>
+
+                <div className="shrink-0 border-t border-border bg-muted p-4 flex gap-2">
+                  <DrawerClose asChild>
+                    <Button variant="outline" className="flex-1">Cancel</Button>
+                  </DrawerClose>
+                  <Button
+                    className="flex-1"
+                    disabled={!coReason}
+                    onClick={() => setCoDrawerOpen(false)}
+                  >
+                    <Timer className="size-4" />
+                    Apply cooling-off
+                  </Button>
+                </div>
+              </DrawerContent>
+            </Drawer>
+
           </TabsContent>
         </Tabs>
       </div>
