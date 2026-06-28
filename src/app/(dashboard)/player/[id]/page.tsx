@@ -48,14 +48,14 @@ const MOCK_PLAYERS: Record<string, { name: string; currency: string; fxRate: num
   '8167315858': { name: 'Patrick Bateman', currency: 'EUR', fxRate: 1.00 },
   '3392817465': { name: 'Don Corleone',    currency: 'EUR', fxRate: 1.00 },
   '7741209863': { name: 'Lara Croft',      currency: 'AUD', fxRate: 1.71 },
-  '5520334871': { name: 'Jack Torrance' },
-  '9903847102': { name: 'Hannibal Lecter' },
-  '1147382956': { name: 'Jules Winnfield' },
-  '6628401739': { name: 'Clarice Starling' },
-  '4480129357': { name: 'Travis Bickle' },
-  '2271893640': { name: 'Marge Gunderson' },
-  '8834567012': { name: 'Vincent Vega' },
-  '3315892074': { name: 'Beatrix Kiddo' },
+  '5520334871': { name: 'Jack Torrance',    currency: 'EUR', fxRate: 1.00 },
+  '9903847102': { name: 'Hannibal Lecter',  currency: 'EUR', fxRate: 1.00 },
+  '1147382956': { name: 'Jules Winnfield',  currency: 'AUD', fxRate: 1.71 },
+  '6628401739': { name: 'Clarice Starling', currency: 'EUR', fxRate: 1.00 },
+  '4480129357': { name: 'Travis Bickle',    currency: 'AUD', fxRate: 1.71 },
+  '2271893640': { name: 'Marge Gunderson',  currency: 'EUR', fxRate: 1.00 },
+  '8834567012': { name: 'Vincent Vega',     currency: 'AUD', fxRate: 1.71 },
+  '3315892074': { name: 'Beatrix Kiddo',    currency: 'EUR', fxRate: 1.00 },
 }
 
 type MatchReason = 'Email' | 'Phone' | 'IP' | 'Device' | 'Payment'
