@@ -1,17 +1,18 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { useAuth } from '@/components/AuthProvider'
 import { DashboardHeader } from '@/components/DashboardHeader'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Info, TrendingUp, TrendingDown, Flag, CircleDot, Copy, Check, Crown, X, ExternalLink, BadgeCheck, Gift, Clock, Wallet, ArrowDownLeft, ArrowUpRight, Flame, Trophy, Pencil, Plus, Shield, UserCog, User, Timer, Ban, Globe, Power, ArrowUpDown, CircleCheck, CircleMinus, CircleX, ShieldBan, MoreHorizontal, Search, CalendarDays, Columns2, SlidersHorizontal, Download } from 'lucide-react'
+import { Info, TrendingUp, TrendingDown, Flag, CircleDot, Copy, Check, Crown, X, ExternalLink, BadgeCheck, Gift, Clock, Wallet, ArrowDownLeft, ArrowUpRight, Flame, Trophy, Pencil, Plus, Shield, UserCog, User, Timer, Ban, Globe, Power, ArrowUpDown, CircleCheck, CircleMinus, CircleX, ShieldBan, MoreHorizontal, Search, CalendarDays, Columns2, SlidersHorizontal, Download, Pin, PinOff, Banknote, Gamepad2 } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { Badge } from '@/components/ui/badge'
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerClose } from '@/components/ui/drawer'
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog'
 import { Calendar } from '@/components/ui/calendar'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Input } from '@/components/ui/input'
@@ -257,6 +258,19 @@ const FINANCE_COLS = [
 ] as const
 
 type FinanceColKey = typeof FINANCE_COLS[number]['key']
+
+const DUP_COLS = [
+  { key: 'id',             label: 'Player ID' },
+  { key: 'name',           label: 'Name' },
+  { key: 'status',         label: 'Status' },
+  { key: 'matchReasons',   label: 'Match reason' },
+  { key: 'paymentMethods', label: 'Payment methods' },
+  { key: 'balance',        label: 'Balance' },
+  { key: 'lastLogin',      label: 'Last login' },
+] as const
+
+type DupColKey = typeof DUP_COLS[number]['key']
+
 type TxStatus = 'Completed' | 'Pending' | 'Failed' | 'Cancelled'
 type TxType = 'Deposit' | 'Withdrawal' | 'Bonus' | 'Adjustment'
 
@@ -272,14 +286,19 @@ type FinanceRow = {
   psStatus: TxStatus
   createdAt: string
   finishedAt: string
+  fxAmountEur?: string
+  fxAmountNative?: string
+  fxRate?: string
+  fxMethod?: string
+  fxDate?: string
 }
 
 const FINANCE_ROWS: FinanceRow[] = [
-  { txId: 'TXN-00183821', debit: '€0.00',    credit: '€250.00', rollover: '€0.00', type: 'Deposit',    txStatus: 'Completed', paymentMethod: 'Visa •••• 4242',          paymentSystem: 'Stripe',     psStatus: 'Completed', createdAt: '2026-06-20 14:32', finishedAt: '2026-06-20 14:33' },
-  { txId: 'TXN-00183654', debit: '€120.00',  credit: '€0.00',   rollover: '€0.00', type: 'Withdrawal', txStatus: 'Pending',   paymentMethod: 'Mastercard •••• 1881',     paymentSystem: 'Adyen',      psStatus: 'Pending',   createdAt: '2026-06-19 09:11', finishedAt: '--' },
+  { txId: 'TXN-00183821', debit: '€0.00',    credit: '€250.00', rollover: '€0.00', type: 'Deposit',    txStatus: 'Completed', paymentMethod: 'Visa •••• 4242',          paymentSystem: 'Stripe',     psStatus: 'Completed', createdAt: '2026-06-20 14:32', finishedAt: '2026-06-20 14:33', fxAmountEur: '€250.00', fxAmountNative: '427.50 AUD', fxRate: '1 EUR = 1.7100 AUD', fxMethod: 'Frankfurter API', fxDate: '2026-06-20 14:32' },
+  { txId: 'TXN-00183654', debit: '€120.00',  credit: '€0.00',   rollover: '€0.00', type: 'Withdrawal', txStatus: 'Pending',   paymentMethod: 'Mastercard •••• 1881',     paymentSystem: 'Adyen',      psStatus: 'Pending',   createdAt: '2026-06-19 09:11', finishedAt: '--', fxAmountEur: '€120.00', fxAmountNative: '205.20 AUD', fxRate: '1 EUR = 1.7100 AUD', fxMethod: 'Frankfurter API', fxDate: '2026-06-19 09:11' },
   { txId: 'TXN-00183201', debit: '€0.00',    credit: '€50.00',  rollover: '€50.00', type: 'Bonus',      txStatus: 'Completed', paymentMethod: '--',                       paymentSystem: '--',         psStatus: 'Completed', createdAt: '2026-06-18 17:05', finishedAt: '2026-06-18 17:05' },
-  { txId: 'TXN-00182998', debit: '€75.00',   credit: '€0.00',   rollover: '€0.00', type: 'Withdrawal', txStatus: 'Failed',    paymentMethod: 'bc1qxy2...k3z (BTC)',      paymentSystem: 'Coinbase',   psStatus: 'Failed',    createdAt: '2026-06-15 11:48', finishedAt: '2026-06-15 11:50' },
-  { txId: 'TXN-00182741', debit: '€0.00',    credit: '€500.00', rollover: '€0.00', type: 'Deposit',    txStatus: 'Completed', paymentMethod: 'Paysafe •••• 3391',        paymentSystem: 'Paysafe',    psStatus: 'Completed', createdAt: '2026-06-12 08:22', finishedAt: '2026-06-12 08:24' },
+  { txId: 'TXN-00182998', debit: '€75.00',   credit: '€0.00',   rollover: '€0.00', type: 'Withdrawal', txStatus: 'Failed',    paymentMethod: 'bc1qxy2...k3z (BTC)',      paymentSystem: 'Coinbase',   psStatus: 'Failed',    createdAt: '2026-06-15 11:48', finishedAt: '2026-06-15 11:50', fxAmountEur: '€75.00', fxAmountNative: '128.25 AUD', fxRate: '1 EUR = 1.7100 AUD', fxMethod: 'Frankfurter API', fxDate: '2026-06-15 11:48' },
+  { txId: 'TXN-00182741', debit: '€0.00',    credit: '€500.00', rollover: '€0.00', type: 'Deposit',    txStatus: 'Completed', paymentMethod: 'Paysafe •••• 3391',        paymentSystem: 'Paysafe',    psStatus: 'Completed', createdAt: '2026-06-12 08:22', finishedAt: '2026-06-12 08:24', fxAmountEur: '€500.00', fxAmountNative: '855.00 AUD', fxRate: '1 EUR = 1.7100 AUD', fxMethod: 'Frankfurter API', fxDate: '2026-06-12 08:22' },
 ]
 
 function FinanceTruncCell({ text, className }: { text: string; className?: string }) {
@@ -438,12 +457,13 @@ function DuplicateFlag({ state }: { state: DuplicateState }) {
       <TooltipProvider delayDuration={200}>
         <Tooltip>
           <TooltipTrigger asChild>
-            <span className="inline-flex items-center gap-1 text-sm font-medium text-warning">
-              <Flag className="size-3.5 fill-warning" />
+            <span className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground">
+              <Flag className="size-3.5 fill-destructive text-destructive" />
               Duplicates
+              <span className="inline-flex items-center rounded-md border border-border px-2 py-0.5 text-xs font-semibold text-foreground">6</span>
             </span>
           </TooltipTrigger>
-          <TooltipContent>This player has duplicate accounts</TooltipContent>
+          <TooltipContent>This player has 6 duplicate accounts</TooltipContent>
         </Tooltip>
       </TooltipProvider>
     )
@@ -470,6 +490,7 @@ export default function PlayerProfilePage() {
   const id = params.id as string
 
   const [status, setStatus] = useState<string>('Open')
+  const [pendingStatus, setPendingStatus] = useState<string | null>(null)
   const [vip, setVip] = useState(false)
   const [copied, setCopied] = useState(false)
   const [selectedDuplicate, setSelectedDuplicate] = useState<DuplicateAccount | null>(null)
@@ -498,12 +519,64 @@ export default function PlayerProfilePage() {
     setTimeout(() => setCopiedTxId(null), 1500)
   }
 
+  const [financeScrollNode, setFinanceScrollNode] = useState<HTMLDivElement | null>(null)
+  const [financeHasOverflow, setFinanceHasOverflow] = useState(false)
+  const financeScrollRef = useCallback((node: HTMLDivElement | null) => setFinanceScrollNode(node), [])
+  useLayoutEffect(() => {
+    if (!financeScrollNode) return
+    const check = () => setFinanceHasOverflow(financeScrollNode.scrollWidth > financeScrollNode.clientWidth)
+    check()
+    const ro = new ResizeObserver(check)
+    ro.observe(financeScrollNode)
+    window.addEventListener('resize', check)
+    return () => { ro.disconnect(); window.removeEventListener('resize', check) }
+  }, [financeScrollNode])
+
+  const [dupScrollNode, setDupScrollNode] = useState<HTMLDivElement | null>(null)
+  const [dupHasOverflow, setDupHasOverflow] = useState(false)
+  const dupScrollRef = useCallback((node: HTMLDivElement | null) => setDupScrollNode(node), [])
+  useLayoutEffect(() => {
+    if (!dupScrollNode) return
+    const check = () => setDupHasOverflow(dupScrollNode.scrollWidth > dupScrollNode.clientWidth)
+    check()
+    const ro = new ResizeObserver(check)
+    ro.observe(dupScrollNode)
+    window.addEventListener('resize', check)
+    return () => { ro.disconnect(); window.removeEventListener('resize', check) }
+  }, [dupScrollNode])
+
   const [financeSearch, setFinanceSearch] = useState('')
   const [financeVisibleCols, setFinanceVisibleCols] = useState<Set<FinanceColKey>>(
     new Set<FinanceColKey>(['txId','debit','credit','rollover','type','txStatus','paymentMethod','paymentSystem','createdAt','finishedAt'])
   )
   const [financeDateOpen, setFinanceDateOpen] = useState(false)
   const [financeColOpen, setFinanceColOpen] = useState(false)
+  const [financeTxIdFrozen, setFinanceTxIdFrozen] = useState(true)
+
+  const [dupSearch, setDupSearch] = useState('')
+  const [dupVisibleCols, setDupVisibleCols] = useState<Set<DupColKey>>(
+    new Set<DupColKey>(['id','name','status','matchReasons','paymentMethods','balance','lastLogin'])
+  )
+  const [dupColOpen, setDupColOpen] = useState(false)
+  const [dupPlayerIdFrozen, setDupPlayerIdFrozen] = useState(true)
+  const [dupDateOpen, setDupDateOpen] = useState(false)
+  const [dupDateRange, setDupDateRange] = useState<DateRange | undefined>(undefined)
+
+  function toggleDupCol(key: DupColKey) {
+    setDupVisibleCols(prev => {
+      const next = new Set(prev)
+      if (next.has(key)) next.delete(key)
+      else next.add(key)
+      return next
+    })
+  }
+
+  const dupDateLabel = (() => {
+    const fmt = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+    if (dupDateRange?.from && dupDateRange?.to) return `${fmt(dupDateRange.from)} - ${fmt(dupDateRange.to)}`
+    if (dupDateRange?.from) return fmt(dupDateRange.from)
+    return 'Date'
+  })()
   const [financeDateRange, setFinanceDateRange] = useState<DateRange | undefined>(undefined)
 
   const financeDateLabel = (() => {
@@ -644,7 +717,7 @@ export default function PlayerProfilePage() {
     setCopied(true)
     setTimeout(() => setCopied(false), 1500)
   }
-  const duplicate: DuplicateState = 'ok'
+  const duplicate: DuplicateState = 'duplicate'
 
   const STATUS_GROUPS = [
     {
@@ -752,7 +825,7 @@ export default function PlayerProfilePage() {
           {/* Status dropdown */}
           <div className="flex items-center gap-2 sm:pt-1 sm:shrink-0">
             <span className="text-sm text-muted-foreground">Status</span>
-            <Select value={status} onValueChange={setStatus}>
+            <Select value={status} onValueChange={val => setPendingStatus(val)}>
               <SelectTrigger size="sm" className="w-auto sm:w-[190px]">
                 <span className="text-sm text-foreground">{status}</span>
               </SelectTrigger>
@@ -776,6 +849,22 @@ export default function PlayerProfilePage() {
             </Select>
           </div>
         </div>
+
+        {/* Status change confirmation */}
+        <AlertDialog open={pendingStatus !== null} onOpenChange={open => { if (!open) setPendingStatus(null) }}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Change player status?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Status will be changed from <span className="font-medium text-foreground">{status}</span> to <span className="font-medium text-foreground">{pendingStatus}</span>. This action will take effect immediately.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => setPendingStatus(null)}>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={() => { if (pendingStatus) { setStatus(pendingStatus); setPendingStatus(null) } }}>Apply</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
 
         {/* Player meta info bar */}
         <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
@@ -1082,8 +1171,18 @@ export default function PlayerProfilePage() {
                       <span className="hidden sm:inline">Columns</span>
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent align="end" sideOffset={6} className="w-44 p-1">
-                    {FINANCE_COLS.map(col => (
+                  <PopoverContent align="end" sideOffset={6} className="w-48 p-1">
+                    <button
+                      type="button"
+                      onClick={() => setFinanceTxIdFrozen(v => !v)}
+                      className="flex items-center gap-2 w-full px-2 py-1.5 text-sm rounded-md hover:bg-muted transition-colors"
+                    >
+                      {financeTxIdFrozen
+                        ? <PinOff className="size-3.5 shrink-0" />
+                        : <Pin className="size-3.5 shrink-0" />}
+                      Transaction ID
+                    </button>
+                    {FINANCE_COLS.filter(col => col.key !== 'txId').map(col => (
                       <button
                         key={col.key}
                         type="button"
@@ -1144,13 +1243,12 @@ export default function PlayerProfilePage() {
             </div>
 
             <div className="relative rounded-2xl border border-border bg-card overflow-hidden">
-              {/* Right edge fade */}
-              <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-card to-transparent z-10" />
-              <div className="overflow-x-auto">
-                <Table>
+              {financeHasOverflow && <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-card to-transparent z-10" />}
+              <div className="overflow-x-auto" ref={financeScrollRef}>
+                <Table className="min-w-max">
                   <TableHeader className="bg-muted/60">
                     <TableRow className="hover:bg-transparent border-b border-border">
-                      {financeVisibleCols.has('txId')          && <FinanceSortableHead className="sticky left-0 z-20 bg-muted after:absolute after:right-0 after:top-0 after:bottom-0 after:w-px after:bg-border after:content-['']">Transaction ID</FinanceSortableHead>}
+                      <FinanceSortableHead className={financeTxIdFrozen ? "sticky left-0 z-20 bg-muted after:absolute after:right-0 after:top-0 after:bottom-0 after:w-px after:bg-border after:content-['']" : undefined}>Transaction ID</FinanceSortableHead>
                       {financeVisibleCols.has('debit')         && <FinanceSortableHead>Debit</FinanceSortableHead>}
                       {financeVisibleCols.has('credit')        && <FinanceSortableHead>Credit</FinanceSortableHead>}
                       {financeVisibleCols.has('rollover')      && <FinanceSortableHead>Rollover</FinanceSortableHead>}
@@ -1175,8 +1273,7 @@ export default function PlayerProfilePage() {
                           className="cursor-pointer"
                           onClick={() => { setSelectedTx(row); setTxDrawerOpen(true) }}
                         >
-                          {financeVisibleCols.has('txId') && (
-                            <TableCell className="sticky left-0 z-10 bg-background after:absolute after:right-0 after:top-0 after:bottom-0 after:w-px after:bg-border after:content-['']">
+                          <TableCell className={financeTxIdFrozen ? "sticky left-0 z-10 bg-background after:absolute after:right-0 after:top-0 after:bottom-0 after:w-px after:bg-border after:content-['']" : undefined}>
                               <div className="flex items-center gap-1.5">
                                 <span className="text-sm font-medium underline underline-offset-2 whitespace-nowrap">{row.txId}</span>
                                 <button
@@ -1190,7 +1287,6 @@ export default function PlayerProfilePage() {
                                 </button>
                               </div>
                             </TableCell>
-                          )}
                           {financeVisibleCols.has('debit') && (
                             <TableCell>
                               <span className="text-sm font-medium tabular-nums block">{row.debit}</span>
@@ -1273,19 +1369,86 @@ export default function PlayerProfilePage() {
 
                 {selectedTx && (
                   <div className="flex flex-col gap-5 flex-1 overflow-y-auto px-4 py-5 min-h-0">
-                    <div className="divide-y divide-border">
-                      {[
-                        { label: 'Payment System', value: selectedTx.paymentSystem },
-                        { label: 'Payment Method', value: selectedTx.paymentMethod },
-                        { label: 'PS Status', value: <TxStatusBadge status={selectedTx.psStatus} /> },
-                      ].map(({ label, value }) => (
-                        <div key={label} className="flex items-center justify-between py-2.5">
-                          <span className="text-sm text-muted-foreground">{label}</span>
-                          <span className="text-sm font-medium">{value}</span>
-                        </div>
-                      ))}
+                    {/* Amounts */}
+                    <div>
+                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">Amounts</p>
+                      <div className="divide-y divide-border">
+                        {[
+                          { label: 'Debit', value: selectedTx.debit },
+                          { label: 'Credit', value: selectedTx.credit },
+                          { label: 'Rollover', value: selectedTx.rollover },
+                          { label: 'Type', value: selectedTx.type },
+                          { label: 'Status', value: <TxStatusBadge status={selectedTx.txStatus} /> },
+                        ].map(({ label, value }) => (
+                          <div key={label} className="flex items-center justify-between py-2.5">
+                            <span className="text-sm text-muted-foreground">{label}</span>
+                            <span className="text-sm font-medium">{value}</span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                    <p className="text-sm text-muted-foreground">More details coming soon.</p>
+
+                    {/* Currency conversion */}
+                    {selectedTx.fxAmountEur && (
+                      <div>
+                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">Currency conversion</p>
+                        <div className="rounded-xl border border-border divide-y divide-border">
+                          <div className="flex items-center justify-between px-3 py-2.5">
+                            <span className="text-sm text-muted-foreground">Amount (EUR)</span>
+                            <span className="text-sm font-medium tabular-nums">{selectedTx.fxAmountEur}</span>
+                          </div>
+                          <div className="flex items-center justify-between px-3 py-2.5">
+                            <span className="text-sm text-muted-foreground">Amount ({playerCurrency})</span>
+                            <span className="text-sm font-medium tabular-nums">{selectedTx.fxAmountNative}</span>
+                          </div>
+                          <div className="flex items-center justify-between px-3 py-2.5">
+                            <span className="text-sm text-muted-foreground">Exchange rate</span>
+                            <span className="text-sm font-medium tabular-nums">{selectedTx.fxRate}</span>
+                          </div>
+                          <div className="flex items-center justify-between px-3 py-2.5">
+                            <span className="text-sm text-muted-foreground">Rate provider</span>
+                            <span className="text-sm font-medium">{selectedTx.fxMethod}</span>
+                          </div>
+                          <div className="flex items-center justify-between px-3 py-2.5">
+                            <span className="text-sm text-muted-foreground">Rate fetched at</span>
+                            <span className="text-sm font-medium tabular-nums">{selectedTx.fxDate}</span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Payment */}
+                    <div>
+                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">Payment</p>
+                      <div className="divide-y divide-border">
+                        {[
+                          { label: 'Payment System', value: selectedTx.paymentSystem },
+                          { label: 'Payment Method', value: selectedTx.paymentMethod },
+                          { label: 'PS Status', value: <TxStatusBadge status={selectedTx.psStatus} /> },
+                        ].map(({ label, value }) => (
+                          <div key={label} className="flex items-center justify-between py-2.5">
+                            <span className="text-sm text-muted-foreground">{label}</span>
+                            <span className="text-sm font-medium">{value}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Dates */}
+                    <div>
+                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">Dates</p>
+                      <div className="divide-y divide-border">
+                        {[
+                          { label: 'Created at', value: selectedTx.createdAt },
+                          { label: 'Finished at', value: selectedTx.finishedAt },
+                        ].map(({ label, value }) => (
+                          <div key={label} className="flex items-center justify-between py-2.5">
+                            <span className="text-sm text-muted-foreground">{label}</span>
+                            <span className="text-sm font-medium tabular-nums">{value}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 )}
               </DrawerContent>
@@ -1319,31 +1482,129 @@ export default function PlayerProfilePage() {
               </p>
             </div>
 
+            {/* Toolbar */}
+            <div className="flex items-center gap-2">
+              <div className="relative">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground pointer-events-none" />
+                <Input
+                  placeholder="Search..."
+                  value={dupSearch}
+                  onChange={e => setDupSearch(e.target.value)}
+                  className="pl-8 h-8 w-48 text-sm"
+                />
+              </div>
+
+              <Button variant="outline" size="sm" className="gap-2">
+                <SlidersHorizontal className="size-3.5" />
+                <span className="hidden sm:inline">Filters</span>
+              </Button>
+
+              <div className="flex items-center gap-2 ml-auto">
+                <Popover open={dupColOpen} onOpenChange={setDupColOpen}>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" size="sm" className="gap-2">
+                      <Columns2 className="size-3.5" />
+                      <span className="hidden sm:inline">Columns</span>
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent align="end" sideOffset={6} className="w-48 p-1">
+                    <button
+                      type="button"
+                      onClick={() => setDupPlayerIdFrozen(v => !v)}
+                      className="flex items-center gap-2 w-full px-2 py-1.5 text-sm rounded-md hover:bg-muted transition-colors"
+                    >
+                      {dupPlayerIdFrozen
+                        ? <PinOff className="size-3.5 shrink-0" />
+                        : <Pin className="size-3.5 shrink-0" />}
+                      Player ID
+                    </button>
+                    {DUP_COLS.filter(col => col.key !== 'id').map(col => (
+                      <button
+                        key={col.key}
+                        type="button"
+                        onClick={() => toggleDupCol(col.key)}
+                        className="flex items-center gap-2 w-full px-2 py-1.5 text-sm rounded-md hover:bg-muted transition-colors"
+                      >
+                        <Check className={`size-3.5 shrink-0 ${dupVisibleCols.has(col.key) ? 'opacity-100' : 'opacity-0'}`} />
+                        {col.label}
+                      </button>
+                    ))}
+                  </PopoverContent>
+                </Popover>
+
+                <Popover open={dupDateOpen} onOpenChange={setDupDateOpen}>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" size="sm" className="gap-2">
+                      <CalendarDays className="size-3.5" />
+                      <span className="hidden sm:inline">{dupDateLabel}</span>
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent align="end" sideOffset={6} className="w-auto p-0">
+                    <div className="flex">
+                      <div className="flex flex-col border-r border-border py-3 px-2 gap-0.5 min-w-[130px]">
+                        {DATE_PRESETS.map(p => {
+                          const active = (() => {
+                            if (!dupDateRange?.from || !dupDateRange?.to) return false
+                            const r = p.range()
+                            return r.from.toDateString() === dupDateRange.from.toDateString() &&
+                                   r.to.toDateString() === dupDateRange.to.toDateString()
+                          })()
+                          return (
+                            <button
+                              key={p.label}
+                              type="button"
+                              onClick={() => setDupDateRange(p.range())}
+                              className={`text-left px-3 py-1.5 text-sm rounded-md transition-colors ${active ? 'bg-muted font-medium' : 'hover:bg-muted text-muted-foreground hover:text-foreground'}`}
+                            >
+                              {p.label}
+                            </button>
+                          )
+                        })}
+                      </div>
+                      <Calendar
+                        mode="range"
+                        selected={dupDateRange}
+                        onSelect={setDupDateRange}
+                        numberOfMonths={1}
+                      />
+                    </div>
+                  </PopoverContent>
+                </Popover>
+
+                <Button variant="outline" size="sm" className="gap-2">
+                  <Download className="size-3.5" />
+                  <span className="hidden sm:inline">Export</span>
+                </Button>
+              </div>
+            </div>
+
             <div className="relative rounded-2xl border border-border bg-card overflow-hidden">
-              {/* Right edge fade */}
-              <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-card to-transparent z-10" />
-              <div className="overflow-x-auto">
-                <Table>
+              {dupHasOverflow && <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-card to-transparent z-10" />}
+              <div className="overflow-x-auto" ref={dupScrollRef}>
+                <Table className="min-w-max">
                   <TableHeader className="bg-muted/60">
                     <TableRow className="hover:bg-transparent border-b border-border">
-                      <TableHead className="text-sm font-medium text-foreground pl-4 sticky left-0 z-20 bg-muted after:absolute after:right-0 after:top-0 after:bottom-0 after:w-px after:bg-border after:content-['']">Player ID</TableHead>
-                      <TableHead className="text-sm font-medium text-foreground">Name</TableHead>
-                      <TableHead className="text-sm font-medium text-foreground">Status</TableHead>
-                      <TableHead className="text-sm font-medium text-foreground">Match reason</TableHead>
-                      <TableHead className="text-sm font-medium text-foreground">Payment methods</TableHead>
-                      <TableHead className="text-sm font-medium text-foreground">Balance</TableHead>
-                      <TableHead className="text-sm font-medium text-foreground">Last login</TableHead>
-                      <TableHead className="pr-4 text-sm font-medium text-foreground">Details</TableHead>
+                      <TableHead className={`text-sm font-medium text-foreground pl-4 ${dupPlayerIdFrozen ? "sticky left-0 z-20 bg-muted after:absolute after:right-0 after:top-0 after:bottom-0 after:w-px after:bg-border after:content-['']" : ""}`}>Player ID</TableHead>
+                      {dupVisibleCols.has('name')           && <TableHead className="text-sm font-medium text-foreground">Name</TableHead>}
+                      {dupVisibleCols.has('status')         && <TableHead className="text-sm font-medium text-foreground">Status</TableHead>}
+                      {dupVisibleCols.has('matchReasons')   && <TableHead className="text-sm font-medium text-foreground">Match reason</TableHead>}
+                      {dupVisibleCols.has('paymentMethods') && <TableHead className="text-sm font-medium text-foreground">Payment methods</TableHead>}
+                      {dupVisibleCols.has('balance')        && <TableHead className="text-sm font-medium text-foreground">Balance</TableHead>}
+                      {dupVisibleCols.has('lastLogin')      && <TableHead className="text-sm font-medium text-foreground">Last login</TableHead>}
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {MOCK_DUPLICATES.map(dup => (
+                    {MOCK_DUPLICATES.filter(dup =>
+                      dupSearch === '' ||
+                      dup.id.toLowerCase().includes(dupSearch.toLowerCase()) ||
+                      dup.name.toLowerCase().includes(dupSearch.toLowerCase())
+                    ).map(dup => (
                       <TableRow
                         key={dup.id}
                         className="cursor-pointer"
                         onClick={() => { setSelectedDuplicate(dup); setDrawerOpen(true) }}
                       >
-                        <TableCell className="pl-4 sticky left-0 z-10 bg-background after:absolute after:right-0 after:top-0 after:bottom-0 after:w-px after:bg-border after:content-['']">
+                        <TableCell className={`pl-4 ${dupPlayerIdFrozen ? "sticky left-0 z-10 bg-background after:absolute after:right-0 after:top-0 after:bottom-0 after:w-px after:bg-border after:content-['']" : ""}`}>
                           <div className="flex items-center gap-1.5">
                             {dup.duplicateFlag === 'blocked' ? (
                               <Flag className="size-3.5 fill-destructive text-destructive shrink-0" />
@@ -1362,74 +1623,81 @@ export default function PlayerProfilePage() {
                             </button>
                           </div>
                         </TableCell>
-                        <TableCell className="max-w-[140px]">
-                          <TooltipProvider delayDuration={300}>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <div className="flex items-center gap-1.5 text-sm min-w-0">
-                                  <span className="truncate">{dup.name}</span>
-                                  {dup.verified && <BadgeCheck className="size-3.5 text-brand shrink-0" />}
-                                  {dup.vip && <Crown className="size-3.5 text-warning shrink-0" />}
-                                </div>
-                              </TooltipTrigger>
-                              <TooltipContent side="bottom">{dup.name}</TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        </TableCell>
-                        <TableCell className="max-w-[140px]">
-                          <TooltipProvider delayDuration={300}>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <span className="block text-sm text-muted-foreground truncate">{dup.status}</span>
-                              </TooltipTrigger>
-                              <TooltipContent side="bottom">{dup.status}</TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex flex-wrap gap-1">
-                            {dup.matchReasons.map(r => (
-                              <span key={r} className={`inline-flex items-center rounded-md border px-1.5 py-0.5 text-xs font-medium ${MATCH_REASON_COLORS[r]}`}>
-                                {r}
-                              </span>
-                            ))}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          {dup.paymentMethods.length > 0 && (
-                            <div className="flex items-center gap-1.5">
-                              <span className="text-xs text-muted-foreground">
-                                {dup.paymentMethods[dup.paymentMethods.length - 1].method}
-                              </span>
-                              {dup.paymentMethods.length > 1 && (
-                                <TooltipProvider delayDuration={200}>
-                                  <Tooltip>
-                                    <TooltipTrigger asChild>
-                                      <span className="text-xs text-muted-foreground underline underline-offset-2 cursor-default">
-                                        +{dup.paymentMethods.length - 1} more
-                                      </span>
-                                    </TooltipTrigger>
-                                    <TooltipContent side="bottom" className="flex flex-col gap-1 text-xs">
-                                      {dup.paymentMethods.slice(0, -1).map(pm => (
-                                        <span key={pm.method}>{pm.method}</span>
-                                      ))}
-                                    </TooltipContent>
-                                  </Tooltip>
-                                </TooltipProvider>
-                              )}
+                        {dupVisibleCols.has('name') && (
+                          <TableCell className="max-w-[140px]">
+                            <TooltipProvider delayDuration={300}>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <div className="flex items-center gap-1.5 text-sm min-w-0">
+                                    <span className="truncate">{dup.name}</span>
+                                    {dup.verified && <BadgeCheck className="size-3.5 text-brand shrink-0" />}
+                                    {dup.vip && <Crown className="size-3.5 text-warning shrink-0" />}
+                                  </div>
+                                </TooltipTrigger>
+                                <TooltipContent side="bottom">{dup.name}</TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </TableCell>
+                        )}
+                        {dupVisibleCols.has('status') && (
+                          <TableCell className="max-w-[140px]">
+                            <TooltipProvider delayDuration={300}>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <span className="block text-sm text-muted-foreground truncate">{dup.status}</span>
+                                </TooltipTrigger>
+                                <TooltipContent side="bottom">{dup.status}</TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </TableCell>
+                        )}
+                        {dupVisibleCols.has('matchReasons') && (
+                          <TableCell>
+                            <div className="flex flex-wrap gap-1">
+                              {dup.matchReasons.map(r => (
+                                <span key={r} className={`inline-flex items-center rounded-md border px-1.5 py-0.5 text-xs font-medium ${MATCH_REASON_COLORS[r]}`}>
+                                  {r}
+                                </span>
+                              ))}
                             </div>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <span className="text-sm font-medium tabular-nums">{dup.balance}</span>
-                          <span className="block text-xs text-muted-foreground tabular-nums">{dup.balanceNative}</span>
-                        </TableCell>
-                        <TableCell className="text-sm text-muted-foreground whitespace-nowrap">{dup.lastLogin}</TableCell>
-                        <TableCell className="pr-4">
-                          <button className="text-sm text-muted-foreground underline underline-offset-2 hover:text-foreground transition-colors whitespace-nowrap">
-                            Details
-                          </button>
-                        </TableCell>
+                          </TableCell>
+                        )}
+                        {dupVisibleCols.has('paymentMethods') && (
+                          <TableCell>
+                            {dup.paymentMethods.length > 0 && (
+                              <div className="flex items-center gap-1.5">
+                                <span className="text-xs text-muted-foreground">
+                                  {dup.paymentMethods[dup.paymentMethods.length - 1].method}
+                                </span>
+                                {dup.paymentMethods.length > 1 && (
+                                  <TooltipProvider delayDuration={200}>
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <span className="text-xs text-muted-foreground underline underline-offset-2 cursor-default">
+                                          +{dup.paymentMethods.length - 1} more
+                                        </span>
+                                      </TooltipTrigger>
+                                      <TooltipContent side="bottom" className="flex flex-col gap-1 text-xs">
+                                        {dup.paymentMethods.slice(0, -1).map(pm => (
+                                          <span key={pm.method}>{pm.method}</span>
+                                        ))}
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  </TooltipProvider>
+                                )}
+                              </div>
+                            )}
+                          </TableCell>
+                        )}
+                        {dupVisibleCols.has('balance') && (
+                          <TableCell>
+                            <span className="text-sm font-medium tabular-nums">{dup.balance}</span>
+                            <span className="block text-xs text-muted-foreground tabular-nums">{dup.balanceNative}</span>
+                          </TableCell>
+                        )}
+                        {dupVisibleCols.has('lastLogin') && (
+                          <TableCell className="text-sm text-muted-foreground whitespace-nowrap">{dup.lastLogin}</TableCell>
+                        )}
                       </TableRow>
                     ))}
                   </TableBody>

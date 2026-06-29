@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/components/AuthProvider'
 import { DashboardHeader } from '@/components/DashboardHeader'
@@ -33,8 +33,11 @@ import {
   ChevronsRight,
   ChevronLeft,
   ChevronRight,
+  Columns3,
   Download,
-  MoreHorizontal,
+  Pin,
+  PinOff,
+  Search,
   SlidersHorizontal,
   Copy,
   Check,
@@ -364,28 +367,30 @@ type Player = {
   country: string
   locale: string
   status: 'Active' | 'Inactive' | 'Suspended' | 'Blocked'
-  balance: string
+  balanceEur: string | null
+  balanceNative: string | null
+  currency: string
   currencies: string
 }
 
 const MOCK_PLAYERS: Player[] = [
-  { id: '2883575941', name: 'Tony Stark',       email: 'tony.stark@starkindustries.com', phone: '+1 310 555 0101', country: 'US',        locale: 'en-US', status: 'Active',    balance: 'N/A',       currencies: 'USD, EUR' },
-  { id: '4515450354', name: 'John Wick',        email: 'j.wick@continental.com',        phone: 'N/A',             country: 'US',        locale: 'en-US', status: 'Active',    balance: 'N/A',       currencies: 'USD' },
-  { id: '4712202994', name: 'Walter White',     email: 'walter.white@gmail.com',        phone: '+1 505 555 0134', country: 'US',        locale: 'en-US', status: 'Active',    balance: 'N/A',       currencies: 'USD' },
-  { id: '2940440381', name: 'Ellen Ripley',     email: 'e.ripley@weyland-yutani.com',   phone: '+1 323 555 0177', country: 'US',        locale: 'en-US', status: 'Active',    balance: 'N/A',       currencies: 'USD, EUR' },
-  { id: '2598013005', name: 'Holly Golightly',  email: 'holly.golightly@outlook.com',   phone: 'N/A',             country: 'US',        locale: 'en-US', status: 'Active',    balance: 'N/A',       currencies: 'USD' },
-  { id: '1018817027', name: 'Tyler Durden',     email: 't.durden@paperstreet.com',      phone: '+1 313 555 0199', country: 'US',        locale: 'en-US', status: 'Active',    balance: 'N/A',       currencies: 'USD' },
-  { id: '8167315858', name: 'Patrick Bateman',  email: 'p.bateman@piercepierce.com',    phone: 'N/A',             country: 'US',        locale: 'en-US', status: 'Suspended', balance: 'N/A',       currencies: 'USD' },
-  { id: '3392817465', name: 'Don Corleone',     email: 'don.corleone@proton.me',        phone: '+1 212 555 0192', country: 'US',        locale: 'en-US', status: 'Active',    balance: '$240.00',   currencies: 'USD, EUR' },
-  { id: '7741209863', name: 'Lara Croft',       email: 'lara.croft@croft-manor.co.uk',  phone: '+44 20 7946 0147',country: 'UK',        locale: 'en-GB', status: 'Inactive',  balance: 'N/A',       currencies: 'USD, GBP' },
-  { id: '5520334871', name: 'Jack Torrance',    email: 'jack.torrance@overlook.com',    phone: 'N/A',             country: 'US',        locale: 'en-US', status: 'Active',    balance: '$85.50',    currencies: 'USD' },
-  { id: '9903847102', name: 'Hannibal Lecter',  email: 'h.lecter@proton.me',            phone: '+49 30 9876543',  country: 'Germany',   locale: 'de-DE', status: 'Active',    balance: '$1,200.00', currencies: 'EUR' },
-  { id: '1147382956', name: 'Jules Winnfield',  email: 'jules.winnfield@gmail.com',     phone: '+1 213 555 0011', country: 'US',        locale: 'en-US', status: 'Suspended', balance: 'N/A',       currencies: 'USD' },
-  { id: '6628401739', name: 'Clarice Starling', email: 'c.starling@fbi.gov',            phone: '+1 202 555 0133', country: 'US',        locale: 'en-US', status: 'Active',    balance: '$320.75',   currencies: 'USD' },
-  { id: '4480129357', name: 'Travis Bickle',    email: 'travis.bickle@yahoo.com',       phone: '+1 212 555 0178', country: 'US',        locale: 'en-US', status: 'Active',    balance: '$50.00',    currencies: 'USD' },
-  { id: '2271893640', name: 'Marge Gunderson',  email: 'm.gunderson@brainerd-pd.gov',   phone: 'N/A',             country: 'US',        locale: 'en-US', status: 'Blocked',   balance: 'N/A',       currencies: 'USD' },
-  { id: '8834567012', name: 'Vincent Vega',     email: 'vincent.vega@gmail.com',        phone: '+33 1 5555 5678', country: 'France',    locale: 'fr-FR', status: 'Active',    balance: '$760.20',   currencies: 'USD, EUR' },
-  { id: '3315892074', name: 'Beatrix Kiddo',    email: 'b.kiddo@divasofviolence.com',   phone: '+81 3 5555 4567', country: 'Japan',     locale: 'ja-JP', status: 'Active',    balance: '$130.00',   currencies: 'USD, JPY' },
+  { id: '2883575941', name: 'Tony Stark',       email: 'tony.stark@starkindustries.com', phone: '+1 310 555 0101', country: 'US',      locale: 'en-US', status: 'Active',    balanceEur: '€0.00',      balanceNative: '0.00 AUD',      currency: 'AUD', currencies: 'AUD, EUR' },
+  { id: '4515450354', name: 'John Wick',        email: 'j.wick@continental.com',        phone: 'N/A',             country: 'US',      locale: 'en-US', status: 'Active',    balanceEur: null,          balanceNative: null,            currency: 'AUD', currencies: 'AUD' },
+  { id: '4712202994', name: 'Walter White',     email: 'walter.white@gmail.com',        phone: '+1 505 555 0134', country: 'US',      locale: 'en-US', status: 'Active',    balanceEur: null,          balanceNative: null,            currency: 'EUR', currencies: 'EUR' },
+  { id: '2940440381', name: 'Ellen Ripley',     email: 'e.ripley@weyland-yutani.com',   phone: '+1 323 555 0177', country: 'US',      locale: 'en-US', status: 'Active',    balanceEur: null,          balanceNative: null,            currency: 'AUD', currencies: 'AUD, EUR' },
+  { id: '2598013005', name: 'Holly Golightly',  email: 'holly.golightly@outlook.com',   phone: 'N/A',             country: 'US',      locale: 'en-US', status: 'Active',    balanceEur: null,          balanceNative: null,            currency: 'EUR', currencies: 'EUR' },
+  { id: '1018817027', name: 'Tyler Durden',     email: 't.durden@paperstreet.com',      phone: '+1 313 555 0199', country: 'US',      locale: 'en-US', status: 'Active',    balanceEur: null,          balanceNative: null,            currency: 'AUD', currencies: 'AUD' },
+  { id: '8167315858', name: 'Patrick Bateman',  email: 'p.bateman@piercepierce.com',    phone: 'N/A',             country: 'US',      locale: 'en-US', status: 'Suspended', balanceEur: null,          balanceNative: null,            currency: 'EUR', currencies: 'EUR' },
+  { id: '3392817465', name: 'Don Corleone',     email: 'don.corleone@proton.me',        phone: '+1 212 555 0192', country: 'US',      locale: 'en-US', status: 'Active',    balanceEur: '€140.35',    balanceNative: '240.00 AUD',    currency: 'AUD', currencies: 'AUD, EUR' },
+  { id: '7741209863', name: 'Lara Croft',       email: 'lara.croft@croft-manor.co.uk',  phone: '+44 20 7946 0147',country: 'UK',      locale: 'en-GB', status: 'Inactive',  balanceEur: null,          balanceNative: null,            currency: 'GBP', currencies: 'GBP' },
+  { id: '5520334871', name: 'Jack Torrance',    email: 'jack.torrance@overlook.com',    phone: 'N/A',             country: 'US',      locale: 'en-US', status: 'Active',    balanceEur: '€50.00',     balanceNative: '85.50 AUD',     currency: 'AUD', currencies: 'AUD' },
+  { id: '9903847102', name: 'Hannibal Lecter',  email: 'h.lecter@proton.me',            phone: '+49 30 9876543',  country: 'Germany', locale: 'de-DE', status: 'Active',    balanceEur: '€1,200.00',  balanceNative: null,            currency: 'EUR', currencies: 'EUR' },
+  { id: '1147382956', name: 'Jules Winnfield',  email: 'jules.winnfield@gmail.com',     phone: '+1 213 555 0011', country: 'US',      locale: 'en-US', status: 'Suspended', balanceEur: null,          balanceNative: null,            currency: 'AUD', currencies: 'AUD' },
+  { id: '6628401739', name: 'Clarice Starling', email: 'c.starling@fbi.gov',            phone: '+1 202 555 0133', country: 'US',      locale: 'en-US', status: 'Active',    balanceEur: '€320.75',    balanceNative: '548.48 AUD',    currency: 'AUD', currencies: 'AUD' },
+  { id: '4480129357', name: 'Travis Bickle',    email: 'travis.bickle@yahoo.com',       phone: '+1 212 555 0178', country: 'US',      locale: 'en-US', status: 'Active',    balanceEur: '€29.24',     balanceNative: '50.00 AUD',     currency: 'AUD', currencies: 'AUD' },
+  { id: '2271893640', name: 'Marge Gunderson',  email: 'm.gunderson@brainerd-pd.gov',   phone: 'N/A',             country: 'US',      locale: 'en-US', status: 'Blocked',   balanceEur: null,          balanceNative: null,            currency: 'EUR', currencies: 'EUR' },
+  { id: '8834567012', name: 'Vincent Vega',     email: 'vincent.vega@gmail.com',        phone: '+33 1 5555 5678', country: 'France',  locale: 'fr-FR', status: 'Active',    balanceEur: '€760.20',    balanceNative: '1,300.94 AUD',  currency: 'AUD', currencies: 'AUD, EUR' },
+  { id: '3315892074', name: 'Beatrix Kiddo',    email: 'b.kiddo@divasofviolence.com',   phone: '+81 3 5555 4567', country: 'Japan',   locale: 'ja-JP', status: 'Active',    balanceEur: '€130.00',    balanceNative: '21,541.00 JPY', currency: 'JPY', currencies: 'JPY' },
 ]
 
 function TruncCell({ text, className, maxW = 'max-w-[160px]' }: { text: string; className?: string; maxW?: string }) {
@@ -472,9 +477,9 @@ function FiltersPopover() {
       <PopoverTrigger asChild>
         <Button variant="outline" size="sm" className="gap-2">
           <SlidersHorizontal className="size-3.5" />
-          Filters
+          <span className="hidden sm:inline">Filters</span>
           {isDirty && (
-            <span className="ml-0.5 flex size-4 items-center justify-center rounded-full bg-brand text-[10px] font-semibold text-white">
+            <span className="ml-0.5 flex size-4 items-center justify-center rounded-full bg-foreground text-[10px] font-semibold text-background">
               {[filters.email, filters.phone, filters.firstName, filters.lastName]
                 .filter(Boolean).length +
                 (filters.country !== 'Any' ? 1 : 0) +
@@ -692,6 +697,18 @@ function StatusBadge({ status }: { status: Player['status'] }) {
 
 const PAGE_SIZE_OPTIONS = ['10', '20', '50', '100']
 
+const ALL_COLS = [
+  { key: 'fullName',   label: 'Full name' },
+  { key: 'email',      label: 'Email' },
+  { key: 'phone',      label: 'Phone number' },
+  { key: 'country',    label: 'Country' },
+  { key: 'locale',     label: 'Locale' },
+  { key: 'status',     label: 'Status' },
+  { key: 'balance',    label: 'Balance' },
+  { key: 'currencies', label: 'Currency' },
+] as const
+type ColKey = typeof ALL_COLS[number]['key']
+
 export default function AllPlayersPage() {
   const { user, loading } = useAuth()
   const router = useRouter()
@@ -702,6 +719,35 @@ export default function AllPlayersPage() {
   const [dateOpen, setDateOpen] = useState(false)
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined)
   const [copiedId, setCopiedId] = useState<string | null>(null)
+
+  const [search, setSearch] = useState('')
+  const [playerIdFrozen, setPlayerIdFrozen] = useState(true)
+  const [colOpen, setColOpen] = useState(false)
+  const [visibleCols, setVisibleCols] = useState<Set<ColKey>>(
+    new Set<ColKey>(['fullName', 'email', 'phone', 'country', 'locale', 'status', 'balance', 'currencies'])
+  )
+
+  const [scrollNode, setScrollNode] = useState<HTMLDivElement | null>(null)
+  const [hasOverflow, setHasOverflow] = useState(false)
+  const scrollRef = useCallback((node: HTMLDivElement | null) => setScrollNode(node), [])
+  useLayoutEffect(() => {
+    if (!scrollNode) return
+    const check = () => setHasOverflow(scrollNode.scrollWidth > scrollNode.clientWidth)
+    check()
+    const ro = new ResizeObserver(check)
+    ro.observe(scrollNode)
+    window.addEventListener('resize', check)
+    return () => { ro.disconnect(); window.removeEventListener('resize', check) }
+  }, [scrollNode])
+
+  function toggleCol(key: ColKey) {
+    setVisibleCols(prev => {
+      const next = new Set(prev)
+      if (next.has(key)) next.delete(key)
+      else next.add(key)
+      return next
+    })
+  }
 
   function copyPlayerId(id: string) {
     navigator.clipboard.writeText(id)
@@ -791,13 +837,55 @@ export default function AllPlayersPage() {
 
         {/* Toolbar — outside the table card */}
         <div className="flex items-center justify-between">
-          <FiltersPopover />
           <div className="flex items-center gap-2">
+            <div className="relative">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground pointer-events-none" />
+              <Input
+                placeholder="Search..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                className="pl-8 h-8 w-48 text-sm"
+              />
+            </div>
+            <FiltersPopover />
+          </div>
+          <div className="flex items-center gap-2">
+            <Popover open={colOpen} onOpenChange={setColOpen}>
+              <PopoverTrigger asChild>
+                <Button variant="outline" size="sm" className="gap-2">
+                  <Columns3 className="size-3.5" />
+                  <span className="hidden sm:inline">Columns</span>
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent align="end" sideOffset={6} className="w-48 p-1">
+                <button
+                  type="button"
+                  onClick={() => setPlayerIdFrozen(v => !v)}
+                  className="flex items-center gap-2 w-full px-2 py-1.5 text-sm rounded-md hover:bg-muted transition-colors"
+                >
+                  {playerIdFrozen
+                    ? <PinOff className="size-3.5 shrink-0" />
+                    : <Pin className="size-3.5 shrink-0" />}
+                  Player ID
+                </button>
+                {ALL_COLS.map(col => (
+                  <button
+                    key={col.key}
+                    type="button"
+                    onClick={() => toggleCol(col.key)}
+                    className="flex items-center gap-2 w-full px-2 py-1.5 text-sm rounded-md hover:bg-muted transition-colors"
+                  >
+                    <Check className={`size-3.5 shrink-0 ${visibleCols.has(col.key) ? 'opacity-100' : 'opacity-0'}`} />
+                    {col.label}
+                  </button>
+                ))}
+              </PopoverContent>
+            </Popover>
             <Popover open={dateOpen} onOpenChange={setDateOpen}>
               <PopoverTrigger asChild>
                 <Button variant="outline" size="sm" className="gap-2">
                   <CalendarDays className="size-3.5" />
-                  {dateLabel}
+                  <span className="hidden sm:inline">{dateLabel}</span>
                 </Button>
               </PopoverTrigger>
               <PopoverContent align="end" sideOffset={6} className="w-auto p-0">
@@ -833,7 +921,7 @@ export default function AllPlayersPage() {
             </Popover>
             <Button variant="outline" size="sm" className="gap-2">
               <Download className="size-3.5" />
-              Export
+              <span className="hidden sm:inline">Export</span>
             </Button>
           </div>
         </div>
@@ -843,12 +931,10 @@ export default function AllPlayersPage() {
 
         {/* Table card */}
         <div className="relative rounded-2xl border border-border bg-card overflow-hidden">
-          {/* Right edge fade */}
-          <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-card to-transparent z-10" />
+          {hasOverflow && <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-card to-transparent z-10" />}
 
-          {/* Scrollable table wrapper for mobile */}
-          <div className="overflow-x-auto">
-            <Table>
+          <div className="overflow-x-auto" ref={scrollRef}>
+            <Table className="min-w-max">
               <TableHeader className="bg-muted/60">
                 <TableRow className="hover:bg-transparent border-b border-border">
                   <TableHead className="w-10 pl-4 sticky left-0 z-20 bg-muted">
@@ -858,16 +944,15 @@ export default function AllPlayersPage() {
                       aria-label="Select all"
                     />
                   </TableHead>
-                  <SortableHead className="sticky left-10 z-20 bg-muted after:absolute after:right-0 after:top-0 after:bottom-0 after:w-px after:bg-border after:content-['']">Player ID</SortableHead>
-                  <SortableHead>Full name</SortableHead>
-                  <SortableHead>Email</SortableHead>
-                  <TableHead className="text-sm font-medium text-foreground">Phone number</TableHead>
-                  <SortableHead>Country</SortableHead>
-                  <SortableHead>Locale</SortableHead>
-                  <SortableHead>Status</SortableHead>
-                  <TableHead className="text-sm font-medium text-foreground">Balance</TableHead>
-                  <TableHead className="text-sm font-medium text-foreground">Currencies</TableHead>
-                  <TableHead className="w-10 pr-4" />
+                  <SortableHead className={playerIdFrozen ? "sticky left-10 z-20 bg-muted after:absolute after:right-0 after:top-0 after:bottom-0 after:w-px after:bg-border after:content-['']" : undefined}>Player ID</SortableHead>
+                  {visibleCols.has('fullName') && <SortableHead>Full name</SortableHead>}
+                  {visibleCols.has('email') && <SortableHead>Email</SortableHead>}
+                  {visibleCols.has('phone') && <TableHead className="text-sm font-medium text-foreground">Phone number</TableHead>}
+                  {visibleCols.has('country') && <SortableHead>Country</SortableHead>}
+                  {visibleCols.has('locale') && <SortableHead>Locale</SortableHead>}
+                  {visibleCols.has('status') && <SortableHead>Status</SortableHead>}
+                  {visibleCols.has('balance') && <TableHead className="text-sm font-medium text-foreground">Balance</TableHead>}
+                  {visibleCols.has('currencies') && <TableHead className="text-sm font-medium text-foreground">Currency</TableHead>}
                 </TableRow>
               </TableHeader>
 
@@ -885,7 +970,7 @@ export default function AllPlayersPage() {
                         aria-label={`Select ${player.name}`}
                       />
                     </TableCell>
-                    <TableCell className="sticky left-10 z-10 bg-background after:absolute after:right-0 after:top-0 after:bottom-0 after:w-px after:bg-border after:content-['']">
+                    <TableCell className={playerIdFrozen ? "sticky left-10 z-10 bg-background after:absolute after:right-0 after:top-0 after:bottom-0 after:w-px after:bg-border after:content-['']" : undefined}>
                       <div className="flex items-center gap-1.5">
                         <Link
                           href={`/player/${player.id}`}
@@ -904,27 +989,27 @@ export default function AllPlayersPage() {
                         </button>
                       </div>
                     </TableCell>
-                    <TableCell className="text-sm max-w-[140px]">
-                      <TruncCell text={player.name} maxW="max-w-full" />
-                    </TableCell>
-                    <TableCell className="text-sm text-muted-foreground max-w-[180px]">
-                      <TruncCell text={player.email} maxW="max-w-full" className="text-muted-foreground" />
-                    </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">{player.phone}</TableCell>
-                    <TableCell className="text-sm">{player.country}</TableCell>
-                    <TableCell className="text-sm text-muted-foreground">{player.locale}</TableCell>
-                    <TableCell>
-                      <StatusBadge status={player.status} />
-                    </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">{player.balance}</TableCell>
-                    <TableCell className="text-sm text-muted-foreground max-w-[120px]">
-                      <TruncCell text={player.currencies} maxW="max-w-full" className="text-muted-foreground" />
-                    </TableCell>
-                    <TableCell className="pr-4">
-                      <Button variant="ghost" size="icon-sm" aria-label="Actions">
-                        <MoreHorizontal className="size-4" />
-                      </Button>
-                    </TableCell>
+                    {visibleCols.has('fullName') && <TableCell className="text-sm"><TruncCell text={player.name} /></TableCell>}
+                    {visibleCols.has('email') && <TableCell className="text-sm text-muted-foreground"><TruncCell text={player.email} className="text-muted-foreground" /></TableCell>}
+                    {visibleCols.has('phone') && <TableCell className="text-sm text-muted-foreground whitespace-nowrap">{player.phone}</TableCell>}
+                    {visibleCols.has('country') && <TableCell className="text-sm whitespace-nowrap">{player.country}</TableCell>}
+                    {visibleCols.has('locale') && <TableCell className="text-sm text-muted-foreground whitespace-nowrap">{player.locale}</TableCell>}
+                    {visibleCols.has('status') && <TableCell><StatusBadge status={player.status} /></TableCell>}
+                    {visibleCols.has('balance') && (
+                      <TableCell className="whitespace-nowrap">
+                        {player.balanceEur ? (
+                          <>
+                            <span className="text-sm font-medium tabular-nums block">{player.balanceEur}</span>
+                            {player.balanceNative && (
+                              <span className="text-xs text-muted-foreground tabular-nums">{player.balanceNative}</span>
+                            )}
+                          </>
+                        ) : (
+                          <span className="text-sm text-muted-foreground">--</span>
+                        )}
+                      </TableCell>
+                    )}
+                    {visibleCols.has('currencies') && <TableCell className="text-sm text-muted-foreground">{player.currency}</TableCell>}
                   </TableRow>
                 ))}
               </TableBody>
@@ -939,7 +1024,7 @@ export default function AllPlayersPage() {
             {selectedRows.size} of {totalRows} row(s) selected.
           </span>
 
-          <div className="flex flex-col items-end gap-2">
+          <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <span className="whitespace-nowrap font-medium text-foreground">Rows per page</span>
               <Select value={String(pageSize)} onValueChange={handlePageSizeChange}>
