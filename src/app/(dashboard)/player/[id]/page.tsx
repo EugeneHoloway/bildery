@@ -436,6 +436,256 @@ const OL_SCOPE_LABELS: Record<string,string> = {
 }
 const OL_TAGS = ['AML flag','Abuse','Compliance','Manual review required','Fraud prevention']
 
+function PillToggle({ label, selected, onToggle }: { label: string; selected: boolean; onToggle: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      className={`inline-flex items-center rounded-md border h-7 px-2.5 text-[0.8rem] transition-colors ${
+        selected
+          ? 'border-foreground bg-foreground text-background'
+          : 'border-border bg-background text-foreground hover:bg-muted'
+      }`}
+    >
+      {label}
+    </button>
+  )
+}
+
+const TX_TYPES: TxType[] = ['Deposit', 'Withdrawal', 'Bonus', 'Adjustment']
+const TX_STATUSES: TxStatus[] = ['Completed', 'Pending', 'Failed', 'Cancelled']
+const PAYMENT_SYSTEMS = ['Visa', 'Mastercard', 'PayPal', 'Bitcoin', 'Ethereum', 'Paysafe', 'Bank Transfer']
+
+type FinanceFilterState = {
+  types: Set<TxType>
+  statuses: Set<TxStatus>
+  paymentSystems: Set<string>
+  amountMin: string
+  amountMax: string
+}
+
+function emptyFinanceFilters(): FinanceFilterState {
+  return { types: new Set(), statuses: new Set(), paymentSystems: new Set(), amountMin: '', amountMax: '' }
+}
+
+function FinanceFiltersPopover() {
+  const [filters, setFilters] = useState<FinanceFilterState>(emptyFinanceFilters)
+
+  function toggleSet<T extends string>(key: 'types' | 'statuses' | 'paymentSystems', val: T) {
+    setFilters(prev => {
+      const next = new Set(prev[key]) as Set<T>
+      if (next.has(val)) next.delete(val)
+      else next.add(val)
+      return { ...prev, [key]: next }
+    })
+  }
+
+  const dirtyCount =
+    filters.types.size + filters.statuses.size + filters.paymentSystems.size +
+    (filters.amountMin ? 1 : 0) + (filters.amountMax ? 1 : 0)
+
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button variant="outline" size="sm" className="gap-2">
+          <SlidersHorizontal className="size-3.5" />
+          <span className="hidden sm:inline">Filters</span>
+          {dirtyCount > 0 && (
+            <span className="ml-0.5 flex size-4 items-center justify-center rounded-full bg-foreground text-[10px] font-semibold text-background">
+              {dirtyCount}
+            </span>
+          )}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent align="start" sideOffset={6} className="w-[300px] p-0 flex flex-col max-h-[min(480px,var(--radix-popover-content-available-height))]">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+          <span className="text-sm font-semibold">Filters</span>
+          <button
+            type="button"
+            onClick={() => setFilters(emptyFinanceFilters())}
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Clear
+          </button>
+        </div>
+        <div className="flex flex-col gap-4 px-4 py-4 flex-1 overflow-y-auto min-h-0">
+          <div className="flex flex-col gap-2">
+            <span className="text-sm font-semibold">Type</span>
+            <div className="flex flex-wrap gap-2">
+              {TX_TYPES.map(t => (
+                <PillToggle key={t} label={t} selected={filters.types.has(t)} onToggle={() => toggleSet('types', t)} />
+              ))}
+            </div>
+          </div>
+          <div className="flex flex-col gap-2">
+            <span className="text-sm font-semibold">Status</span>
+            <div className="flex flex-wrap gap-2">
+              {TX_STATUSES.map(s => (
+                <PillToggle key={s} label={s} selected={filters.statuses.has(s)} onToggle={() => toggleSet('statuses', s)} />
+              ))}
+            </div>
+          </div>
+          <div className="flex flex-col gap-2">
+            <span className="text-sm font-semibold">Payment system</span>
+            <div className="flex flex-wrap gap-2">
+              {PAYMENT_SYSTEMS.map(p => (
+                <PillToggle key={p} label={p} selected={filters.paymentSystems.has(p)} onToggle={() => toggleSet('paymentSystems', p)} />
+              ))}
+            </div>
+          </div>
+          <div className="flex flex-col gap-2">
+            <span className="text-sm font-semibold">Amount (EUR)</span>
+            <div className="flex items-center gap-2">
+              <Input
+                placeholder="Min"
+                type="number"
+                value={filters.amountMin}
+                onChange={e => setFilters(f => ({ ...f, amountMin: e.target.value }))}
+              />
+              <span className="text-muted-foreground text-sm shrink-0">—</span>
+              <Input
+                placeholder="Max"
+                type="number"
+                value={filters.amountMax}
+                onChange={e => setFilters(f => ({ ...f, amountMax: e.target.value }))}
+              />
+            </div>
+          </div>
+        </div>
+        <div className="border-t border-border px-4 py-3">
+          <Button className="w-full">Apply</Button>
+        </div>
+      </PopoverContent>
+    </Popover>
+  )
+}
+
+const DUP_STATUSES = ['active', 'restricted', 'closed', 'archived'] as const
+const MATCH_REASONS: MatchReason[] = ['Email', 'Phone', 'IP', 'Device', 'Payment']
+const DUP_FLAGS: DuplicateState[] = ['ok', 'duplicate', 'blocked']
+const DUP_CURRENCIES = ['EUR', 'AUD', 'USD', 'GBP']
+
+type DupFilterState = {
+  statusGroups: Set<string>
+  matchReasons: Set<MatchReason>
+  flags: Set<DuplicateState>
+  currencies: Set<string>
+  vip: '' | 'yes' | 'no'
+  verified: '' | 'yes' | 'no'
+}
+
+function emptyDupFilters(): DupFilterState {
+  return { statusGroups: new Set(), matchReasons: new Set(), flags: new Set(), currencies: new Set(), vip: '', verified: '' }
+}
+
+function DupFiltersPopover() {
+  const [filters, setFilters] = useState<DupFilterState>(emptyDupFilters)
+
+  function toggleSet<T extends string>(key: 'statusGroups' | 'matchReasons' | 'flags' | 'currencies', val: T) {
+    setFilters(prev => {
+      const next = new Set(prev[key]) as Set<T>
+      if (next.has(val)) next.delete(val)
+      else next.add(val)
+      return { ...prev, [key]: next }
+    })
+  }
+
+  const dirtyCount =
+    filters.statusGroups.size + filters.matchReasons.size + filters.flags.size +
+    filters.currencies.size + (filters.vip ? 1 : 0) + (filters.verified ? 1 : 0)
+
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button variant="outline" size="sm" className="gap-2">
+          <SlidersHorizontal className="size-3.5" />
+          <span className="hidden sm:inline">Filters</span>
+          {dirtyCount > 0 && (
+            <span className="ml-0.5 flex size-4 items-center justify-center rounded-full bg-foreground text-[10px] font-semibold text-background">
+              {dirtyCount}
+            </span>
+          )}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent align="start" sideOffset={6} className="w-[300px] p-0 flex flex-col max-h-[min(480px,var(--radix-popover-content-available-height))]">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+          <span className="text-sm font-semibold">Filters</span>
+          <button
+            type="button"
+            onClick={() => setFilters(emptyDupFilters())}
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Clear
+          </button>
+        </div>
+        <div className="flex flex-col gap-4 px-4 py-4 flex-1 overflow-y-auto min-h-0">
+          <div className="flex flex-col gap-2">
+            <span className="text-sm font-semibold">Status</span>
+            <div className="flex flex-wrap gap-2">
+              {DUP_STATUSES.map(s => (
+                <PillToggle
+                  key={s}
+                  label={s.charAt(0).toUpperCase() + s.slice(1)}
+                  selected={filters.statusGroups.has(s)}
+                  onToggle={() => toggleSet('statusGroups', s)}
+                />
+              ))}
+            </div>
+          </div>
+          <div className="flex flex-col gap-2">
+            <span className="text-sm font-semibold">Match reason</span>
+            <div className="flex flex-wrap gap-2">
+              {MATCH_REASONS.map(r => (
+                <PillToggle key={r} label={r} selected={filters.matchReasons.has(r)} onToggle={() => toggleSet('matchReasons', r)} />
+              ))}
+            </div>
+          </div>
+          <div className="flex flex-col gap-2">
+            <span className="text-sm font-semibold">Flag</span>
+            <div className="flex flex-wrap gap-2">
+              {DUP_FLAGS.map(f => (
+                <PillToggle
+                  key={f}
+                  label={f.charAt(0).toUpperCase() + f.slice(1)}
+                  selected={filters.flags.has(f)}
+                  onToggle={() => toggleSet('flags', f)}
+                />
+              ))}
+            </div>
+          </div>
+          <div className="flex flex-col gap-2">
+            <span className="text-sm font-semibold">Currency</span>
+            <div className="flex flex-wrap gap-2">
+              {DUP_CURRENCIES.map(c => (
+                <PillToggle key={c} label={c} selected={filters.currencies.has(c)} onToggle={() => toggleSet('currencies', c)} />
+              ))}
+            </div>
+          </div>
+          <div className="flex flex-col gap-2">
+            <span className="text-sm font-semibold">VIP</span>
+            <div className="flex gap-2">
+              {(['', 'yes', 'no'] as const).map(v => (
+                <PillToggle key={v || 'any'} label={v === '' ? 'Any' : v === 'yes' ? 'Yes' : 'No'} selected={filters.vip === v} onToggle={() => setFilters(f => ({ ...f, vip: f.vip === v ? '' : v }))} />
+              ))}
+            </div>
+          </div>
+          <div className="flex flex-col gap-2">
+            <span className="text-sm font-semibold">Verified</span>
+            <div className="flex gap-2">
+              {(['', 'yes', 'no'] as const).map(v => (
+                <PillToggle key={v || 'any'} label={v === '' ? 'Any' : v === 'yes' ? 'Yes' : 'No'} selected={filters.verified === v} onToggle={() => setFilters(f => ({ ...f, verified: f.verified === v ? '' : v }))} />
+              ))}
+            </div>
+          </div>
+        </div>
+        <div className="border-t border-border px-4 py-3">
+          <Button className="w-full">Apply</Button>
+        </div>
+      </PopoverContent>
+    </Popover>
+  )
+}
+
 function DuplicateFlag({ state }: { state: DuplicateState }) {
   if (state === 'ok') {
     return (
@@ -1158,10 +1408,7 @@ export default function PlayerProfilePage() {
                 />
               </div>
 
-              <Button variant="outline" size="sm" className="gap-2">
-                <SlidersHorizontal className="size-3.5" />
-                <span className="hidden sm:inline">Filters</span>
-              </Button>
+              <FinanceFiltersPopover />
 
               <div className="flex items-center gap-2 ml-auto">
                 <Popover open={financeColOpen} onOpenChange={setFinanceColOpen}>
@@ -1494,10 +1741,7 @@ export default function PlayerProfilePage() {
                 />
               </div>
 
-              <Button variant="outline" size="sm" className="gap-2">
-                <SlidersHorizontal className="size-3.5" />
-                <span className="hidden sm:inline">Filters</span>
-              </Button>
+              <DupFiltersPopover />
 
               <div className="flex items-center gap-2 ml-auto">
                 <Popover open={dupColOpen} onOpenChange={setDupColOpen}>
