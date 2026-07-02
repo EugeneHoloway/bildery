@@ -728,6 +728,21 @@ function AllConversationsContent() {
   const [extraMessages, setExtraMessages] = useState<Record<string, Message[]>>({})
   const messagesContainerRef = useRef<HTMLDivElement>(null)
   const [showScrollDown, setShowScrollDown] = useState(false)
+  const [showInactivityMenu, setShowInactivityMenu] = useState(false)
+  const [elapsedSeconds, setElapsedSeconds] = useState(0)
+  const lastMessageTimeRef = useRef<number>(Date.now())
+
+  useEffect(() => {
+    lastMessageTimeRef.current = Date.now()
+    setElapsedSeconds(0)
+  }, [selectedId])
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      setElapsedSeconds(Math.floor((Date.now() - lastMessageTimeRef.current) / 1000))
+    }, 1000)
+    return () => clearInterval(id)
+  }, [])
 
   function handleMessagesScroll(e: React.UIEvent<HTMLDivElement>) {
     const el = e.currentTarget
@@ -747,6 +762,8 @@ function AllConversationsContent() {
     setReplyText('')
     setManualHeight(null)
     if (replyTextareaRef.current) replyTextareaRef.current.style.height = 'auto'
+    lastMessageTimeRef.current = Date.now()
+    setElapsedSeconds(0)
   }
   const onDragStart = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -1293,7 +1310,7 @@ function AllConversationsContent() {
                 </div>
 
                 {/* Reply input */}
-                <div className="shrink-0 p-3 select-none overflow-hidden">
+                <div className="shrink-0 p-3 select-none">
                   {/* Drag handle */}
                   <div
                     onMouseDown={onDragStart}
@@ -1362,6 +1379,63 @@ function AllConversationsContent() {
                             <Icon className="size-4" />
                           </button>
                         ))}
+                        {/* Inactivity message templates */}
+                        <div className="relative">
+                          <button
+                            onClick={() => setShowInactivityMenu(o => !o)}
+                            className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground"
+                            title="Inactivity messages"
+                          >
+                            <Clock className="size-4" />
+                          </button>
+                          {showInactivityMenu && (
+                            <div className="absolute bottom-full left-0 mb-2 z-50 bg-popover border border-border rounded-xl shadow-lg w-80 overflow-y-auto max-h-80">
+                              <div className="px-3 py-2 border-b border-border">
+                                <p className="text-xs font-medium text-muted-foreground">Inactivity messages</p>
+                              </div>
+                              {[
+                                {
+                                  label: 'Warning #1',
+                                  threshold: 37,
+                                  text: 'I hope we are connected. To stay connected, simply send a message within 60 seconds to refresh the session otherwise the chat will be disconnected automatically after 2 minutes of inactivity.',
+                                },
+                                {
+                                  label: 'Warning #2',
+                                  threshold: 97,
+                                  text: 'Are we still connected?',
+                                },
+                                {
+                                  label: 'Closing message',
+                                  threshold: 157,
+                                  text: 'As there is no response, this session will be disconnected now due to inactivity. You may contact us for further assistance; we will be more than happy to help you. \n\nWhen the chat closes, there will be an opportunity to provide feedback about your experience today. You will be able to rate this chat on a scale of 1 to 5, with 1 being the lowest and 5 being the highest. All feedback is greatly appreciated! \n\nThank you for contacting Casino chat support. \n\nHave a great day ahead.',
+                                },
+                              ].map((tpl) => {
+                                const remaining = tpl.threshold - elapsedSeconds
+                                const sent = remaining <= 0
+                                const mins = Math.floor(Math.max(remaining, 0) / 60)
+                                const secs = Math.max(remaining, 0) % 60
+                                const timeLabel = sent ? 'Sent' : `${mins}:${String(secs).padStart(2, '0')}`
+                                return (
+                                  <button
+                                    key={tpl.label}
+                                    onClick={() => {
+                                      setReplyText(tpl.text)
+                                      setShowInactivityMenu(false)
+                                      replyTextareaRef.current?.focus()
+                                    }}
+                                    className="w-full text-left px-3 py-2.5 hover:bg-muted transition-colors border-b border-border last:border-0 flex flex-col gap-0.5"
+                                  >
+                                    <div className="flex items-center justify-between gap-2">
+                                      <span className="text-xs font-medium text-foreground">{tpl.label}</span>
+                                      <span className={cn('text-xs font-medium tabular-nums shrink-0', sent ? 'text-muted-foreground' : 'text-muted-foreground')}>{timeLabel}</span>
+                                    </div>
+                                    <span className="text-xs text-muted-foreground line-clamp-2">{tpl.text}</span>
+                                  </button>
+                                )
+                              })}
+                            </div>
+                          )}
+                        </div>
                       </div>
                       <span className="ml-auto text-xs text-muted-foreground flex items-center gap-1">
                         Use <KbdGroup><Kbd>⌘ + ↵</Kbd></KbdGroup> to send message

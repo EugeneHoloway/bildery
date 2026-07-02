@@ -251,6 +251,7 @@ const FINANCE_COLS = [
   { key: 'rollover',      label: 'Rollover' },
   { key: 'type',          label: 'Type' },
   { key: 'txStatus',      label: 'Status' },
+  { key: 'source',        label: 'Source' },
   { key: 'paymentMethod', label: 'Payment Method' },
   { key: 'paymentSystem', label: 'Payment System' },
   { key: 'createdAt',     label: 'Created at' },
@@ -281,9 +282,17 @@ type FinanceRow = {
   rollover: string
   type: TxType
   txStatus: TxStatus
+  source: string
   paymentMethod: string
   paymentSystem: string
   psStatus: TxStatus
+  successFlag: boolean
+  manual: boolean
+  approvedBy: string
+  returnType: string
+  by: string
+  comments: string
+  sumsubPmv: string
   createdAt: string
   finishedAt: string
   fxAmountEur?: string
@@ -291,14 +300,20 @@ type FinanceRow = {
   fxRate?: string
   fxMethod?: string
   fxDate?: string
+  binBankName?: string
+  binBankCountry?: string
+  binCardType?: string
+  binStage?: string
+  errorCode?: string
+  errorMessage?: string
 }
 
 const FINANCE_ROWS: FinanceRow[] = [
-  { txId: 'TXN-00183821', debit: '€0.00',    credit: '€250.00', rollover: '€0.00', type: 'Deposit',    txStatus: 'Completed', paymentMethod: 'Visa •••• 4242',          paymentSystem: 'Stripe',     psStatus: 'Completed', createdAt: '2026-06-20 14:32', finishedAt: '2026-06-20 14:33', fxAmountEur: '€250.00', fxAmountNative: '427.50 AUD', fxRate: '1 EUR = 1.7100 AUD', fxMethod: 'Frankfurter API', fxDate: '2026-06-20 14:32' },
-  { txId: 'TXN-00183654', debit: '€120.00',  credit: '€0.00',   rollover: '€0.00', type: 'Withdrawal', txStatus: 'Pending',   paymentMethod: 'Mastercard •••• 1881',     paymentSystem: 'Adyen',      psStatus: 'Pending',   createdAt: '2026-06-19 09:11', finishedAt: '--', fxAmountEur: '€120.00', fxAmountNative: '205.20 AUD', fxRate: '1 EUR = 1.7100 AUD', fxMethod: 'Frankfurter API', fxDate: '2026-06-19 09:11' },
-  { txId: 'TXN-00183201', debit: '€0.00',    credit: '€50.00',  rollover: '€50.00', type: 'Bonus',      txStatus: 'Completed', paymentMethod: '--',                       paymentSystem: '--',         psStatus: 'Completed', createdAt: '2026-06-18 17:05', finishedAt: '2026-06-18 17:05' },
-  { txId: 'TXN-00182998', debit: '€75.00',   credit: '€0.00',   rollover: '€0.00', type: 'Withdrawal', txStatus: 'Failed',    paymentMethod: 'bc1qxy2...k3z (BTC)',      paymentSystem: 'Coinbase',   psStatus: 'Failed',    createdAt: '2026-06-15 11:48', finishedAt: '2026-06-15 11:50', fxAmountEur: '€75.00', fxAmountNative: '128.25 AUD', fxRate: '1 EUR = 1.7100 AUD', fxMethod: 'Frankfurter API', fxDate: '2026-06-15 11:48' },
-  { txId: 'TXN-00182741', debit: '€0.00',    credit: '€500.00', rollover: '€0.00', type: 'Deposit',    txStatus: 'Completed', paymentMethod: 'Paysafe •••• 3391',        paymentSystem: 'Paysafe',    psStatus: 'Completed', createdAt: '2026-06-12 08:22', finishedAt: '2026-06-12 08:24', fxAmountEur: '€500.00', fxAmountNative: '855.00 AUD', fxRate: '1 EUR = 1.7100 AUD', fxMethod: 'Frankfurter API', fxDate: '2026-06-12 08:22' },
+  { txId: 'TXN-00183821', debit: '€0.00',   credit: '€250.00', rollover: '€0.00',  type: 'Deposit',    txStatus: 'Completed', source: 'Finteqhub Seamless -- card-acquirer', paymentMethod: 'Visa •••• 4242',      paymentSystem: 'Stripe',   psStatus: 'Completed', successFlag: true,  manual: false, approvedBy: 'Auto',         returnType: '--',      by: 'Player', comments: '',                      sumsubPmv: 'Approved', createdAt: '2026-06-20 14:32', finishedAt: '2026-06-20 14:33', fxAmountEur: '€250.00', fxAmountNative: '427.50 AUD', fxRate: '1 EUR = 1.7100 AUD', fxMethod: 'Frankfurter API', fxDate: '2026-06-20 14:32', binBankName: 'Commonwealth Bank', binBankCountry: 'AU', binCardType: 'debit',   binStage: 'succeeded' },
+  { txId: 'TXN-00183654', debit: '€120.00', credit: '€0.00',   rollover: '€0.00',  type: 'Withdrawal', txStatus: 'Pending',   source: 'Finteqhub Seamless -- card-acquirer', paymentMethod: 'Mastercard •••• 1881', paymentSystem: 'Adyen',    psStatus: 'Pending',   successFlag: false, manual: false, approvedBy: 'Auto',         returnType: '--',      by: 'Player', comments: 'Pending AML review',    sumsubPmv: 'Pending',  createdAt: '2026-06-19 09:11', finishedAt: '--',               fxAmountEur: '€120.00', fxAmountNative: '205.20 AUD', fxRate: '1 EUR = 1.7100 AUD', fxMethod: 'Frankfurter API', fxDate: '2026-06-19 09:11', binBankName: 'ANZ',               binBankCountry: 'AU', binCardType: 'credit',  binStage: 'pending'   },
+  { txId: 'TXN-00183201', debit: '€0.00',   credit: '€50.00',  rollover: '€50.00', type: 'Bonus',      txStatus: 'Completed', source: '--',                                  paymentMethod: '--',                  paymentSystem: '--',       psStatus: 'Completed', successFlag: true,  manual: true,  approvedBy: 'System',       returnType: '--',      by: 'System', comments: '',                      sumsubPmv: '--',       createdAt: '2026-06-18 17:05', finishedAt: '2026-06-18 17:05' },
+  { txId: 'TXN-00182998', debit: '€75.00',  credit: '€0.00',   rollover: '€0.00',  type: 'Withdrawal', txStatus: 'Failed',    source: 'Coinbase Commerce -- crypto',         paymentMethod: 'bc1qxy2...k3z (BTC)', paymentSystem: 'Coinbase', psStatus: 'Failed',    successFlag: false, manual: false, approvedBy: 'Auto',         returnType: 'Chargeback', by: 'Player', comments: 'Crypto tx hash mismatch', sumsubPmv: '--',    createdAt: '2026-06-15 11:48', finishedAt: '2026-06-15 11:50', fxAmountEur: '€75.00',  fxAmountNative: '128.25 AUD', fxRate: '1 EUR = 1.7100 AUD', fxMethod: 'Frankfurter API', fxDate: '2026-06-15 11:48', errorCode: 'INSUFFICIENT_FUNDS', errorMessage: 'Insufficient funds' },
+  { txId: 'TXN-00182741', debit: '€0.00',   credit: '€500.00', rollover: '€0.00',  type: 'Deposit',    txStatus: 'Completed', source: 'Paysafe Group -- voucher',            paymentMethod: 'Paysafe •••• 3391',   paymentSystem: 'Paysafe',  psStatus: 'Completed', successFlag: true,  manual: false, approvedBy: 'j.smith (ops)', returnType: '--',      by: 'Player', comments: '',                      sumsubPmv: 'Approved', createdAt: '2026-06-12 08:22', finishedAt: '2026-06-12 08:24', fxAmountEur: '€500.00', fxAmountNative: '855.00 AUD',  fxRate: '1 EUR = 1.7100 AUD', fxMethod: 'Frankfurter API', fxDate: '2026-06-12 08:22' },
 ]
 
 function FinanceTruncCell({ text, className }: { text: string; className?: string }) {
@@ -797,7 +812,7 @@ export default function PlayerProfilePage() {
 
   const [financeSearch, setFinanceSearch] = useState('')
   const [financeVisibleCols, setFinanceVisibleCols] = useState<Set<FinanceColKey>>(
-    new Set<FinanceColKey>(['txId','debit','credit','rollover','type','txStatus','paymentMethod','paymentSystem','createdAt','finishedAt'])
+    new Set<FinanceColKey>(['txId','debit','credit','rollover','type','txStatus','source','paymentMethod','paymentSystem','createdAt','finishedAt'])
   )
   const [financeDateOpen, setFinanceDateOpen] = useState(false)
   const [financeColOpen, setFinanceColOpen] = useState(false)
@@ -1501,6 +1516,7 @@ export default function PlayerProfilePage() {
                       {financeVisibleCols.has('rollover')      && <FinanceSortableHead>Rollover</FinanceSortableHead>}
                       {financeVisibleCols.has('type')          && <TableHead className="text-sm font-medium text-foreground">Type</TableHead>}
                       {financeVisibleCols.has('txStatus')      && <FinanceSortableHead>Status</FinanceSortableHead>}
+                      {financeVisibleCols.has('source')        && <TableHead className="text-sm font-medium text-foreground">Source</TableHead>}
                       {financeVisibleCols.has('paymentMethod') && <TableHead className="text-sm font-medium text-foreground">Payment Method</TableHead>}
                       {financeVisibleCols.has('paymentSystem') && <TableHead className="text-sm font-medium text-foreground">Payment System</TableHead>}
                       {financeVisibleCols.has('createdAt')     && <FinanceSortableHead>Created at</FinanceSortableHead>}
@@ -1512,7 +1528,8 @@ export default function PlayerProfilePage() {
                       .filter(row =>
                         financeSearch === '' ||
                         row.txId.toLowerCase().includes(financeSearch.toLowerCase()) ||
-                        row.paymentMethod.toLowerCase().includes(financeSearch.toLowerCase())
+                        row.paymentMethod.toLowerCase().includes(financeSearch.toLowerCase()) ||
+                        row.source.toLowerCase().includes(financeSearch.toLowerCase())
                       )
                       .map(row => (
                         <TableRow
@@ -1561,6 +1578,16 @@ export default function PlayerProfilePage() {
                             </TableCell>
                           )}
                           {financeVisibleCols.has('txStatus')      && <TableCell><TxStatusBadge status={row.txStatus} /></TableCell>}
+                          {financeVisibleCols.has('source') && (
+                            <TableCell>
+                              {(() => {
+                                const tag = row.source.split(' -- ')[1]
+                                return tag
+                                  ? <span className="inline-flex items-center rounded-md border border-border bg-muted px-1.5 py-0.5 text-xs font-medium text-muted-foreground whitespace-nowrap">{tag}</span>
+                                  : <span className="text-sm text-muted-foreground">--</span>
+                              })()}
+                            </TableCell>
+                          )}
                           {financeVisibleCols.has('paymentMethod') && (
                             <TableCell className="text-sm text-muted-foreground max-w-[160px]">
                               <FinanceTruncCell text={row.paymentMethod} className="text-muted-foreground" />
@@ -1615,63 +1642,58 @@ export default function PlayerProfilePage() {
                 </DrawerHeader>
 
                 {selectedTx && (
-                  <div className="flex flex-col gap-5 flex-1 overflow-y-auto px-4 py-5 min-h-0">
-                    {/* Amounts */}
-                    <div>
-                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">Amounts</p>
-                      <div className="divide-y divide-border">
-                        {[
-                          { label: 'Debit', value: selectedTx.debit },
-                          { label: 'Credit', value: selectedTx.credit },
-                          { label: 'Rollover', value: selectedTx.rollover },
-                          { label: 'Type', value: selectedTx.type },
-                          { label: 'Status', value: <TxStatusBadge status={selectedTx.txStatus} /> },
-                        ].map(({ label, value }) => (
-                          <div key={label} className="flex items-center justify-between py-2.5">
-                            <span className="text-sm text-muted-foreground">{label}</span>
-                            <span className="text-sm font-medium">{value}</span>
-                          </div>
-                        ))}
+                  <div className="flex flex-col flex-1 overflow-y-auto min-h-0">
+
+                    {/* Hero */}
+                    <div className="px-4 py-5 flex flex-col gap-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-muted-foreground">{selectedTx.type}</span>
+                        <TxStatusBadge status={selectedTx.txStatus} />
+                      </div>
+                      <div className="flex flex-col gap-0.5">
+                        <span className="text-3xl font-semibold tabular-nums">
+                          {selectedTx.credit !== '€0.00' ? selectedTx.credit : selectedTx.debit}
+                        </span>
+                        {selectedTx.fxAmountNative && (
+                          <span className="text-sm text-muted-foreground tabular-nums">{selectedTx.fxAmountNative}</span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                        <span>{selectedTx.createdAt}</span>
+                        {selectedTx.rollover !== '€0.00' && (
+                          <span className="inline-flex items-center gap-1">
+                            <span className="text-muted-foreground/50">·</span>
+                            Rollover {selectedTx.rollover}
+                          </span>
+                        )}
                       </div>
                     </div>
 
-                    {/* Currency conversion */}
-                    {selectedTx.fxAmountEur && (
-                      <div>
-                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">Currency conversion</p>
-                        <div className="rounded-xl border border-border divide-y divide-border">
-                          <div className="flex items-center justify-between px-3 py-2.5">
-                            <span className="text-sm text-muted-foreground">Amount (EUR)</span>
-                            <span className="text-sm font-medium tabular-nums">{selectedTx.fxAmountEur}</span>
-                          </div>
-                          <div className="flex items-center justify-between px-3 py-2.5">
-                            <span className="text-sm text-muted-foreground">Amount ({playerCurrency})</span>
-                            <span className="text-sm font-medium tabular-nums">{selectedTx.fxAmountNative}</span>
-                          </div>
-                          <div className="flex items-center justify-between px-3 py-2.5">
-                            <span className="text-sm text-muted-foreground">Exchange rate</span>
-                            <span className="text-sm font-medium tabular-nums">{selectedTx.fxRate}</span>
-                          </div>
-                          <div className="flex items-center justify-between px-3 py-2.5">
-                            <span className="text-sm text-muted-foreground">Rate provider</span>
-                            <span className="text-sm font-medium">{selectedTx.fxMethod}</span>
-                          </div>
-                          <div className="flex items-center justify-between px-3 py-2.5">
-                            <span className="text-sm text-muted-foreground">Rate fetched at</span>
-                            <span className="text-sm font-medium tabular-nums">{selectedTx.fxDate}</span>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
                     {/* Payment */}
-                    <div>
-                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">Payment</p>
+                    <hr className="border-border" />
+                    <div className="flex flex-col gap-1.5 px-4 py-5">
+                      <div>
+                        <p className="text-base font-medium">Payment</p>
+                        <p className="text-sm text-muted-foreground">Payment method and processor details.</p>
+                      </div>
                       <div className="divide-y divide-border">
                         {[
+                          { label: 'Source', value: (() => {
+                            const [name, tag] = selectedTx.source.split(' -- ')
+                            return tag
+                              ? <span className="flex items-center gap-1.5 justify-end flex-wrap">
+                                  <span className="text-sm font-medium">{name}</span>
+                                  <span className="inline-flex items-center rounded-md border border-border bg-muted px-1.5 py-0.5 text-xs font-medium text-muted-foreground">{tag}</span>
+                                </span>
+                              : <span className="text-sm font-medium">{selectedTx.source}</span>
+                          })() },
                           { label: 'Payment System', value: selectedTx.paymentSystem },
                           { label: 'Payment Method', value: selectedTx.paymentMethod },
                           { label: 'PS Status', value: <TxStatusBadge status={selectedTx.psStatus} /> },
+                          { label: 'Success', value: selectedTx.successFlag
+                            ? <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full font-medium bg-success-bg text-success"><CircleCheck className="size-3 shrink-0" />Yes</span>
+                            : <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full font-medium bg-destructive-bg text-destructive"><CircleX className="size-3 shrink-0" />No</span>
+                          },
                         ].map(({ label, value }) => (
                           <div key={label} className="flex items-center justify-between py-2.5">
                             <span className="text-sm text-muted-foreground">{label}</span>
@@ -1681,9 +1703,133 @@ export default function PlayerProfilePage() {
                       </div>
                     </div>
 
+                    {/* BIN info — only for card transactions */}
+                    {selectedTx.binBankName && (
+                      <>
+                        <hr className="border-border" />
+                        <div className="flex flex-col gap-1.5 px-4 py-5">
+                          <div>
+                            <p className="text-base font-medium">BIN info</p>
+                            <p className="text-sm text-muted-foreground">Issuing bank and card details.</p>
+                          </div>
+                          <div className="rounded-xl border border-border divide-y divide-border">
+                            {[
+                              { label: 'Bank', value: selectedTx.binBankName },
+                              { label: 'Country', value: selectedTx.binBankCountry },
+                              { label: 'Card type', value: selectedTx.binCardType },
+                              { label: 'Stage', value: selectedTx.binStage },
+                            ].map(({ label, value }) => (
+                              <div key={label} className="flex items-center justify-between px-3 py-2.5">
+                                <span className="text-sm text-muted-foreground">{label}</span>
+                                <span className="text-sm font-medium capitalize">{value}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </>
+                    )}
+
+                    {/* Error — only for failed transactions */}
+                    {selectedTx.errorCode && (
+                      <>
+                        <hr className="border-border" />
+                        <div className="flex flex-col gap-1.5 px-4 py-5">
+                          <div>
+                            <p className="text-base font-medium">Error</p>
+                            <p className="text-sm text-muted-foreground">Failure reason returned by the payment processor.</p>
+                          </div>
+                          <div className="rounded-xl border border-destructive/30 bg-destructive-bg divide-y divide-destructive/10">
+                            <div className="flex items-center justify-between px-3 py-2.5">
+                              <span className="text-sm text-muted-foreground">Code</span>
+                              <span className="text-sm font-mono font-medium text-destructive">{selectedTx.errorCode}</span>
+                            </div>
+                            <div className="flex items-center justify-between px-3 py-2.5">
+                              <span className="text-sm text-muted-foreground">Description</span>
+                              <span className="text-sm font-medium text-destructive">{selectedTx.errorMessage}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </>
+                    )}
+
+                    {/* Currency conversion */}
+                    {selectedTx.fxAmountEur && (
+                      <>
+                        <hr className="border-border" />
+                        <div className="flex flex-col gap-1.5 px-4 py-5">
+                          <div>
+                            <p className="text-base font-medium">Currency conversion</p>
+                            <p className="text-sm text-muted-foreground">FX rate applied to this transaction.</p>
+                          </div>
+                          <div className="rounded-xl border border-border divide-y divide-border">
+                            <div className="flex items-center justify-between px-3 py-2.5">
+                              <span className="text-sm text-muted-foreground">Amount (EUR)</span>
+                              <span className="text-sm font-medium tabular-nums">{selectedTx.fxAmountEur}</span>
+                            </div>
+                            <div className="flex items-center justify-between px-3 py-2.5">
+                              <span className="text-sm text-muted-foreground">Amount ({playerCurrency})</span>
+                              <span className="text-sm font-medium tabular-nums">{selectedTx.fxAmountNative}</span>
+                            </div>
+                            <div className="flex items-center justify-between px-3 py-2.5">
+                              <span className="text-sm text-muted-foreground">Exchange rate</span>
+                              <span className="text-sm font-medium tabular-nums">{selectedTx.fxRate}</span>
+                            </div>
+                            <div className="flex items-center justify-between px-3 py-2.5">
+                              <span className="text-sm text-muted-foreground">Rate provider</span>
+                              <span className="text-sm font-medium">{selectedTx.fxMethod}</span>
+                            </div>
+                            <div className="flex items-center justify-between px-3 py-2.5">
+                              <span className="text-sm text-muted-foreground">Rate fetched at</span>
+                              <span className="text-sm font-medium tabular-nums">{selectedTx.fxDate}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </>
+                    )}
+
+                    {/* Processing */}
+                    <hr className="border-border" />
+                    <div className="flex flex-col gap-1.5 px-4 py-5">
+                      <div>
+                        <p className="text-base font-medium">Processing</p>
+                        <p className="text-sm text-muted-foreground">Approval and handling details.</p>
+                      </div>
+                      <div className="divide-y divide-border">
+                        {[
+                          { label: 'By', value: selectedTx.by },
+                          { label: 'Manual', value: selectedTx.manual ? 'Yes' : 'No' },
+                          { label: 'Approved by', value: selectedTx.approvedBy },
+                          { label: 'Return type', value: selectedTx.returnType },
+                        ].map(({ label, value }) => (
+                          <div key={label} className="flex items-center justify-between py-2.5">
+                            <span className="text-sm text-muted-foreground">{label}</span>
+                            <span className="text-sm font-medium">{value}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Comments */}
+                    {selectedTx.comments && (
+                      <>
+                        <hr className="border-border" />
+                        <div className="flex flex-col gap-1.5 px-4 py-5">
+                          <div>
+                            <p className="text-base font-medium">Comments</p>
+                            <p className="text-sm text-muted-foreground">Operator notes for this transaction.</p>
+                          </div>
+                          <p className="text-sm text-foreground bg-muted rounded-xl px-3 py-2.5">{selectedTx.comments}</p>
+                        </div>
+                      </>
+                    )}
+
                     {/* Dates */}
-                    <div>
-                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">Dates</p>
+                    <hr className="border-border" />
+                    <div className="flex flex-col gap-1.5 px-4 py-5">
+                      <div>
+                        <p className="text-base font-medium">Dates</p>
+                        <p className="text-sm text-muted-foreground">When this transaction was created and settled.</p>
+                      </div>
                       <div className="divide-y divide-border">
                         {[
                           { label: 'Created at', value: selectedTx.createdAt },
@@ -1696,6 +1842,22 @@ export default function PlayerProfilePage() {
                         ))}
                       </div>
                     </div>
+
+                    {/* Compliance */}
+                    <hr className="border-border" />
+                    <div className="flex flex-col gap-1.5 px-4 py-5">
+                      <div>
+                        <p className="text-base font-medium">Compliance</p>
+                        <p className="text-sm text-muted-foreground">AML and KYC verification results.</p>
+                      </div>
+                      <div className="divide-y divide-border">
+                        <div className="flex items-center justify-between py-2.5">
+                          <span className="text-sm text-muted-foreground">Sumsub PMV</span>
+                          <span className="text-sm font-medium">{selectedTx.sumsubPmv}</span>
+                        </div>
+                      </div>
+                    </div>
+
                   </div>
                 )}
               </DrawerContent>
@@ -2040,25 +2202,8 @@ export default function PlayerProfilePage() {
                         <span className="text-3xl font-semibold tabular-nums">{selectedDuplicate.balance}</span>
                         <span className="text-xs text-muted-foreground tabular-nums">{selectedDuplicate.balanceNative}</span>
                       </div>
-                      {/* Bonus + Pending withdrawal */}
-                      <div className="border-t border-border divide-y divide-border">
-                        <div className="flex items-center justify-between px-4 py-2">
-                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                            <Gift className="size-4 shrink-0" />
-                            Bonus
-                          </div>
-                          <span className="text-sm font-medium tabular-nums">{selectedDuplicate.bonus}</span>
-                        </div>
-                        <div className="flex items-center justify-between px-4 py-2">
-                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                            <Clock className="size-4 shrink-0" />
-                            Pending withdrawal
-                          </div>
-                          <span className="text-sm font-medium tabular-nums">{selectedDuplicate.pendingWithdrawal}</span>
-                        </div>
-                      </div>
                       {/* Deposits / Withdrawals */}
-                      <div className="border-t border-border grid grid-cols-2 divide-x divide-border">
+                      <div className="grid grid-cols-2 divide-x divide-border">
                         <div className="px-4 py-3 flex flex-col gap-0.5">
                           <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
                             <ArrowDownLeft className="size-4 shrink-0" />
@@ -2074,6 +2219,23 @@ export default function PlayerProfilePage() {
                           </div>
                           <span className="text-xl font-semibold tabular-nums">{selectedDuplicate.withdrawals}</span>
                           <span className="text-sm text-muted-foreground">{selectedDuplicate.withdrawalCount} times</span>
+                        </div>
+                      </div>
+                      {/* Bonuses received + Pending withdrawals */}
+                      <div className="border-t border-border divide-y divide-border">
+                        <div className="flex items-center justify-between px-4 py-2">
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <Gift className="size-4 shrink-0" />
+                            Bonuses received
+                          </div>
+                          <span className="text-sm font-medium tabular-nums">{selectedDuplicate.bonus}</span>
+                        </div>
+                        <div className="flex items-center justify-between px-4 py-2">
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <Clock className="size-4 shrink-0" />
+                            Pending withdrawals
+                          </div>
+                          <span className="text-sm font-medium tabular-nums">{selectedDuplicate.pendingWithdrawal}</span>
                         </div>
                       </div>
                     </div>

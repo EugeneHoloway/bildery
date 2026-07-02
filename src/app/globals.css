@@ -54,9 +54,9 @@
   --color-accent: hsl(0 0% 97%);
   --color-accent-foreground: hsl(0 0% 13%);
 
-  --color-destructive: hsl(0 84% 60%);
+  --color-destructive: hsl(345 75% 54%);
   --color-destructive-foreground: hsl(0 0% 98%);
-  --color-destructive-bg: hsl(0 93% 94%);
+  --color-destructive-bg: hsl(345 80% 95%);
 
   --color-border: hsl(220 13% 91%);
   --color-input: hsl(220 13% 91%);
@@ -66,10 +66,10 @@
   --color-brand: hsl(221 91% 55%);
   --color-brand-bg: hsl(221 100% 97%);
 
-  --color-success: hsl(142 71% 45%);
+  --color-success: hsl(134 58% 45%);
   --color-success-foreground: hsl(0 0% 100%);
-  --color-success-bg: hsl(138 76% 97%);
-  --color-success-border: hsl(141 69% 75%);
+  --color-success-bg: hsl(134 70% 95%);
+  --color-success-border: hsl(134 55% 72%);
 
   --color-subtle: hsl(220 14% 96%);
   --color-subtle-border: hsl(220 9% 84%);
@@ -102,9 +102,9 @@
   --color-crimson: #d90091;
 
   /* === Warning (amber) === */
-  --color-warning: hsl(45 100% 45%);
-  --color-warning-bg: hsl(48 100% 95%);
-  --color-warning-border: hsl(46 90% 78%);
+  --color-warning: hsl(40 100% 44%);
+  --color-warning-bg: hsl(40 100% 94%);
+  --color-warning-border: hsl(40 90% 76%);
 
   /* === Info (blue) === */
   --color-info: hsl(213 94% 55%);
@@ -158,9 +158,9 @@
   --color-accent: hsl(0 0% 17%);
   --color-accent-foreground: hsl(0 0% 98%);
 
-  --color-destructive: hsl(0 72% 51%);
+  --color-destructive: hsl(345 75% 60%);
   --color-destructive-foreground: hsl(0 0% 98%);
-  --color-destructive-bg: hsl(0 40% 18%);
+  --color-destructive-bg: hsl(345 40% 18%);
 
   --color-border: hsl(0 0% 20%);
   --color-input: hsl(0 0% 20%);
@@ -169,10 +169,10 @@
   /* === Extended tokens (dark) === */
   --color-brand-bg: hsl(221 30% 20%);
 
-  --color-success: hsl(142 60% 45%);
+  --color-success: hsl(134 58% 55%);
   --color-success-foreground: hsl(0 0% 100%);
-  --color-success-bg: hsl(142 40% 14%);
-  --color-success-border: hsl(141 45% 28%);
+  --color-success-bg: hsl(134 40% 14%);
+  --color-success-border: hsl(134 45% 28%);
 
   --color-subtle: hsl(0 0% 15%);
   --color-subtle-border: hsl(0 0% 26%);
@@ -204,9 +204,9 @@
   --color-sidebar-ring: hsl(217.2 91.2% 59.8%);
 
   /* === Warning (dark) === */
-  --color-warning: hsl(45 100% 55%);
-  --color-warning-bg: hsl(45 50% 14%);
-  --color-warning-border: hsl(45 70% 28%);
+  --color-warning: hsl(40 100% 55%);
+  --color-warning-bg: hsl(40 50% 14%);
+  --color-warning-border: hsl(40 70% 28%);
 
   /* === Info (dark) === */
   --color-info: hsl(213 90% 68%);
