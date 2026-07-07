@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { useAuth } from '@/components/AuthProvider'
 import { DashboardHeader } from '@/components/DashboardHeader'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Info, TrendingUp, TrendingDown, Flag, CircleDot, Copy, Check, Crown, X, ExternalLink, BadgeCheck, Gift, Clock, Wallet, ArrowDownLeft, ArrowUpRight, Flame, Trophy, Pencil, Plus, Shield, UserCog, User, Timer, Ban, Globe, Power, ArrowUpDown, CircleCheck, CircleMinus, CircleX, ShieldBan, MoreHorizontal, Search, CalendarDays, Columns2, SlidersHorizontal, Download, Pin, PinOff, Banknote, Gamepad2, ShoppingBag } from 'lucide-react'
+import { Info, TrendingUp, TrendingDown, Flag, CircleDot, Copy, Check, Crown, X, ExternalLink, BadgeCheck, Gift, Clock, Wallet, ArrowDownLeft, ArrowUpRight, Flame, Trophy, Pencil, Plus, Shield, UserCog, User, Timer, Ban, Globe, Power, ArrowUpDown, CircleCheck, CircleMinus, CircleX, ShieldBan, MoreHorizontal, Search, CalendarDays, Columns2, SlidersHorizontal, Download, Pin, PinOff, Banknote, Gamepad2, ShoppingBag, ChevronDown, ChevronUp } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Button } from '@/components/ui/button'
@@ -249,6 +249,7 @@ const FINANCE_COLS = [
   { key: 'debit',         label: 'Debit' },
   { key: 'credit',        label: 'Credit' },
   { key: 'rollover',      label: 'Rollover' },
+  { key: 'wallet',        label: 'Wallet' },
   { key: 'type',          label: 'Type' },
   { key: 'txStatus',      label: 'Status' },
   { key: 'source',        label: 'Source' },
@@ -280,6 +281,7 @@ type FinanceRow = {
   debit: string
   credit: string
   rollover: string
+  wallet: string
   type: TxType
   txStatus: TxStatus
   source: string
@@ -309,11 +311,14 @@ type FinanceRow = {
 }
 
 const FINANCE_ROWS: FinanceRow[] = [
-  { txId: 'TXN-00183821', debit: '€0.00',   credit: '€250.00', rollover: '€0.00',  type: 'Deposit',    txStatus: 'Completed', source: 'Finteqhub Seamless -- card-acquirer', paymentMethod: 'Visa •••• 4242',      paymentSystem: 'Stripe',   psStatus: 'Completed', successFlag: true,  manual: false, approvedBy: 'Auto',         returnType: '--',      by: 'Player', comments: '',                      sumsubPmv: 'Approved', createdAt: '2026-06-20 14:32', finishedAt: '2026-06-20 14:33', fxAmountEur: '€250.00', fxAmountNative: '427.50 AUD', fxRate: '1 EUR = 1.7100 AUD', fxMethod: 'Frankfurter API', fxDate: '2026-06-20 14:32', binBankName: 'Commonwealth Bank', binBankCountry: 'AU', binCardType: 'debit',   binStage: 'succeeded' },
-  { txId: 'TXN-00183654', debit: '€120.00', credit: '€0.00',   rollover: '€0.00',  type: 'Withdrawal', txStatus: 'Pending',   source: 'Finteqhub Seamless -- card-acquirer', paymentMethod: 'Mastercard •••• 1881', paymentSystem: 'Adyen',    psStatus: 'Pending',   successFlag: false, manual: false, approvedBy: 'Auto',         returnType: '--',      by: 'Player', comments: 'Pending AML review',    sumsubPmv: 'Pending',  createdAt: '2026-06-19 09:11', finishedAt: '--',               fxAmountEur: '€120.00', fxAmountNative: '205.20 AUD', fxRate: '1 EUR = 1.7100 AUD', fxMethod: 'Frankfurter API', fxDate: '2026-06-19 09:11', binBankName: 'ANZ',               binBankCountry: 'AU', binCardType: 'credit',  binStage: 'pending'   },
-  { txId: 'TXN-00183201', debit: '€0.00',   credit: '€50.00',  rollover: '€50.00', type: 'Bonus',      txStatus: 'Completed', source: '--',                                  paymentMethod: '--',                  paymentSystem: '--',       psStatus: 'Completed', successFlag: true,  manual: true,  approvedBy: 'System',       returnType: '--',      by: 'System', comments: '',                      sumsubPmv: '--',       createdAt: '2026-06-18 17:05', finishedAt: '2026-06-18 17:05' },
-  { txId: 'TXN-00182998', debit: '€75.00',  credit: '€0.00',   rollover: '€0.00',  type: 'Withdrawal', txStatus: 'Failed',    source: 'Coinbase Commerce -- crypto',         paymentMethod: 'bc1qxy2...k3z (BTC)', paymentSystem: 'Coinbase', psStatus: 'Failed',    successFlag: false, manual: false, approvedBy: 'Auto',         returnType: 'Chargeback', by: 'Player', comments: 'Crypto tx hash mismatch', sumsubPmv: '--',    createdAt: '2026-06-15 11:48', finishedAt: '2026-06-15 11:50', fxAmountEur: '€75.00',  fxAmountNative: '128.25 AUD', fxRate: '1 EUR = 1.7100 AUD', fxMethod: 'Frankfurter API', fxDate: '2026-06-15 11:48', errorCode: 'INSUFFICIENT_FUNDS', errorMessage: 'Insufficient funds' },
-  { txId: 'TXN-00182741', debit: '€0.00',   credit: '€500.00', rollover: '€0.00',  type: 'Deposit',    txStatus: 'Completed', source: 'Paysafe Group -- voucher',            paymentMethod: 'Paysafe •••• 3391',   paymentSystem: 'Paysafe',  psStatus: 'Completed', successFlag: true,  manual: false, approvedBy: 'j.smith (ops)', returnType: '--',      by: 'Player', comments: '',                      sumsubPmv: 'Approved', createdAt: '2026-06-12 08:22', finishedAt: '2026-06-12 08:24', fxAmountEur: '€500.00', fxAmountNative: '855.00 AUD',  fxRate: '1 EUR = 1.7100 AUD', fxMethod: 'Frankfurter API', fxDate: '2026-06-12 08:22' },
+  { txId: 'TXN-00183988', debit: '€102.24', credit: '€0.00',   rollover: '€0.00',  wallet: 'USDT', type: 'Withdrawal', txStatus: 'Pending',   source: 'Coinbase Commerce -- crypto',         paymentMethod: 'TQrYx8...fKz3 (USDT · TRC-20)', paymentSystem: 'Coinbase', psStatus: 'Pending',   successFlag: false, manual: false, approvedBy: 'Auto',         returnType: '--',      by: 'Player', comments: 'Awaiting on-chain confirmation', sumsubPmv: 'Approved', createdAt: '2026-06-22 16:40', finishedAt: '--',               fxAmountEur: '€102.24', fxAmountNative: '120.00 USDT', fxRate: '1 EUR = 1.1737 USDT', fxMethod: 'Kraken mid-price', fxDate: '2026-06-22 16:40' },
+  { txId: 'TXN-00183950', debit: '€0.00',   credit: '€724.20', rollover: '€0.00',  wallet: 'USDT', type: 'Deposit',    txStatus: 'Completed', source: 'Coinbase Commerce -- crypto',         paymentMethod: 'TQrYx8...fKz3 (USDT · TRC-20)', paymentSystem: 'Coinbase', psStatus: 'Completed', successFlag: true,  manual: false, approvedBy: 'Auto',         returnType: '--',      by: 'Player', comments: '',                      sumsubPmv: 'Approved', createdAt: '2026-06-21 10:05', finishedAt: '2026-06-21 10:07', fxAmountEur: '€724.20', fxAmountNative: '850.00 USDT', fxRate: '1 EUR = 1.1737 USDT', fxMethod: 'Kraken mid-price', fxDate: '2026-06-21 10:05' },
+  { txId: 'TXN-00183821', debit: '€0.00',   credit: '€250.00', rollover: '€0.00',  wallet: 'AUD',  type: 'Deposit',    txStatus: 'Completed', source: 'Finteqhub Seamless -- card-acquirer', paymentMethod: 'Visa •••• 4242',      paymentSystem: 'Stripe',   psStatus: 'Completed', successFlag: true,  manual: false, approvedBy: 'Auto',         returnType: '--',      by: 'Player', comments: '',                      sumsubPmv: 'Approved', createdAt: '2026-06-20 14:32', finishedAt: '2026-06-20 14:33', fxAmountEur: '€250.00', fxAmountNative: '427.50 AUD', fxRate: '1 EUR = 1.7100 AUD', fxMethod: 'Frankfurter API', fxDate: '2026-06-20 14:32', binBankName: 'Commonwealth Bank', binBankCountry: 'AU', binCardType: 'debit',   binStage: 'succeeded' },
+  { txId: 'TXN-00183654', debit: '€120.00', credit: '€0.00',   rollover: '€0.00',  wallet: 'AUD',  type: 'Withdrawal', txStatus: 'Pending',   source: 'Finteqhub Seamless -- card-acquirer', paymentMethod: 'Mastercard •••• 1881', paymentSystem: 'Adyen',    psStatus: 'Pending',   successFlag: false, manual: false, approvedBy: 'Auto',         returnType: '--',      by: 'Player', comments: 'Pending AML review',    sumsubPmv: 'Pending',  createdAt: '2026-06-19 09:11', finishedAt: '--',               fxAmountEur: '€120.00', fxAmountNative: '205.20 AUD', fxRate: '1 EUR = 1.7100 AUD', fxMethod: 'Frankfurter API', fxDate: '2026-06-19 09:11', binBankName: 'ANZ',               binBankCountry: 'AU', binCardType: 'credit',  binStage: 'pending'   },
+  { txId: 'TXN-00183201', debit: '€0.00',   credit: '€50.00',  rollover: '€50.00', wallet: 'AUD',  type: 'Bonus',      txStatus: 'Completed', source: '--',                                  paymentMethod: '--',                  paymentSystem: '--',       psStatus: 'Completed', successFlag: true,  manual: true,  approvedBy: 'System',       returnType: '--',      by: 'System', comments: '',                      sumsubPmv: '--',       createdAt: '2026-06-18 17:05', finishedAt: '2026-06-18 17:05' },
+  { txId: 'TXN-00183112', debit: '€0.00',   credit: '€62.16',  rollover: '€0.00',  wallet: 'ETH',  type: 'Deposit',    txStatus: 'Completed', source: 'Coinbase Commerce -- crypto',         paymentMethod: '0x3aF2...9c1D (ETH · ERC-20)',  paymentSystem: 'Coinbase', psStatus: 'Completed', successFlag: true,  manual: false, approvedBy: 'Auto',         returnType: '--',      by: 'Player', comments: '',                      sumsubPmv: 'Approved', createdAt: '2026-06-17 19:24', finishedAt: '2026-06-17 19:26', fxAmountEur: '€62.16',  fxAmountNative: '0.021000 ETH', fxRate: '1 ETH = 2,960.00 EUR', fxMethod: 'Kraken mid-price', fxDate: '2026-06-17 19:24' },
+  { txId: 'TXN-00182998', debit: '€75.00',  credit: '€0.00',   rollover: '€0.00',  wallet: 'BTC',  type: 'Withdrawal', txStatus: 'Failed',    source: 'Coinbase Commerce -- crypto',         paymentMethod: 'bc1qxy2...k3z (BTC)', paymentSystem: 'Coinbase', psStatus: 'Failed',    successFlag: false, manual: false, approvedBy: 'Auto',         returnType: 'Chargeback', by: 'Player', comments: 'Crypto tx hash mismatch', sumsubPmv: '--',    createdAt: '2026-06-15 11:48', finishedAt: '2026-06-15 11:50', fxAmountEur: '€75.00',  fxAmountNative: '0.00126046 BTC', fxRate: '1 BTC = 59,502.43 EUR', fxMethod: 'Kraken mid-price', fxDate: '2026-06-15 11:48', errorCode: 'INSUFFICIENT_FUNDS', errorMessage: 'Insufficient funds' },
+  { txId: 'TXN-00182741', debit: '€0.00',   credit: '€500.00', rollover: '€0.00',  wallet: 'AUD',  type: 'Deposit',    txStatus: 'Completed', source: 'Paysafe Group -- voucher',            paymentMethod: 'Paysafe •••• 3391',   paymentSystem: 'Paysafe',  psStatus: 'Completed', successFlag: true,  manual: false, approvedBy: 'j.smith (ops)', returnType: '--',      by: 'Player', comments: '',                      sumsubPmv: 'Approved', createdAt: '2026-06-12 08:22', finishedAt: '2026-06-12 08:24', fxAmountEur: '€500.00', fxAmountNative: '855.00 AUD',  fxRate: '1 EUR = 1.7100 AUD', fxMethod: 'Frankfurter API', fxDate: '2026-06-12 08:22' },
 ]
 
 function FinanceTruncCell({ text, className }: { text: string; className?: string }) {
@@ -397,6 +402,158 @@ function StatCard({
   )
 }
 
+// Multi-currency wallets. Balances live in the wallet currency; `eurValue` is the
+// real balance converted at the current rate. Historical figures (deposits, GGR)
+// always use per-transaction FX snapshots and are never recomputed with live rates.
+type WalletKind = 'Fiat' | 'Crypto' | 'Stablecoin'
+
+type PlayerWallet = {
+  currency: string
+  glyph: string
+  kind: WalletKind
+  network?: string
+  real: number
+  bonus: number
+  locked: number
+  eurValue: number
+  isBase?: boolean
+  inPlay?: boolean
+}
+
+const PLAYER_WALLETS: PlayerWallet[] = [
+  { currency: 'USDT', glyph: '₮',  kind: 'Stablecoin', network: 'TRC-20', real: 850,      bonus: 0,  locked: 120, eurValue: 724.20 },
+  { currency: 'BTC',  glyph: '₿',  kind: 'Crypto',                        real: 0.00412,  bonus: 0,  locked: 0,   eurValue: 245.15 },
+  { currency: 'AUD',  glyph: 'A$', kind: 'Fiat',                          real: 410.50,   bonus: 85, locked: 0,   eurValue: 240.06, isBase: true, inPlay: true },
+  { currency: 'ETH',  glyph: 'Ξ',  kind: 'Crypto',                        real: 0.021,    bonus: 0,  locked: 0,   eurValue: 62.16 },
+  { currency: 'DOGE', glyph: 'Ð',  kind: 'Crypto',                        real: 0,        bonus: 0,  locked: 0,   eurValue: 0 },
+  { currency: 'XRP',  glyph: 'X',  kind: 'Crypto',                        real: 0,        bonus: 0,  locked: 0,   eurValue: 0 },
+]
+
+// Never truncate crypto amounts to 2 decimals -- 0.004 vs 0.0041 BTC is a real difference.
+const WALLET_CRYPTO_DECIMALS: Record<string, number> = { BTC: 8, ETH: 6, DOGE: 2, XRP: 2 }
+
+function fmtWalletAmount(n: number, w: PlayerWallet): string {
+  const decimals = w.kind === 'Crypto' ? (WALLET_CRYPTO_DECIMALS[w.currency] ?? 8) : 2
+  return n.toLocaleString('en', { minimumFractionDigits: decimals, maximumFractionDigits: decimals })
+}
+
+const fmtEur = (n: number) => `€${n.toLocaleString('en', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+
+const WALLETS_TOTAL_EUR = PLAYER_WALLETS.reduce((sum, w) => sum + w.eurValue, 0)
+const FUNDED_WALLETS = PLAYER_WALLETS.filter(w => w.real > 0 || w.bonus > 0 || w.locked > 0)
+const EMPTY_WALLETS = PLAYER_WALLETS.filter(w => !(w.real > 0 || w.bonus > 0 || w.locked > 0))
+
+function WalletsCard() {
+  const [showEmpty, setShowEmpty] = useState(false)
+  const wallets = showEmpty ? [...FUNDED_WALLETS, ...EMPTY_WALLETS] : FUNDED_WALLETS
+  return (
+    <div className="rounded-2xl border border-border bg-card overflow-hidden">
+      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 px-4 py-3 border-b border-border">
+        <div className="flex items-baseline gap-2">
+          <span className="text-sm font-medium">Wallets</span>
+          <span className="text-xs text-muted-foreground">{PLAYER_WALLETS.length} currencies</span>
+        </div>
+        <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+          <span className="text-sm font-semibold tabular-nums">Total ≈ {fmtEur(WALLETS_TOTAL_EUR)}</span>
+          <span className="text-xs text-muted-foreground">Rates as of 14:32 · Frankfurter / Kraken</span>
+        </div>
+      </div>
+      <div className="overflow-x-auto">
+        <Table className="min-w-max sm:min-w-full">
+          <TableHeader className="bg-muted/60">
+            <TableRow className="hover:bg-transparent border-b border-border">
+              <TableHead className="text-sm font-medium text-foreground">Currency</TableHead>
+              <TableHead className="text-sm font-medium text-foreground text-right">Real</TableHead>
+              <TableHead className="text-sm font-medium text-foreground text-right">Bonus</TableHead>
+              <TableHead className="text-sm font-medium text-foreground text-right">Locked</TableHead>
+              <TableHead className="text-sm font-medium text-foreground text-right">≈ EUR</TableHead>
+              <TableHead className="text-sm font-medium text-foreground text-right w-[110px]">Share</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {wallets.map(w => {
+              const empty = !(w.real > 0 || w.bonus > 0 || w.locked > 0)
+              const share = WALLETS_TOTAL_EUR > 0 ? Math.round((w.eurValue / WALLETS_TOTAL_EUR) * 100) : 0
+              return (
+                <TableRow key={w.currency}>
+                  <TableCell>
+                    <div className="flex items-center gap-2.5">
+                      <div className="flex size-10 items-center justify-center rounded-lg bg-muted shrink-0">
+                        <span className="text-xs font-semibold text-muted-foreground">{w.glyph}</span>
+                      </div>
+                      <div className="flex flex-col">
+                        <div className="flex items-center gap-1.5">
+                          <span className={`text-sm font-medium ${empty ? 'text-muted-foreground' : ''}`}>{w.currency}</span>
+                          {w.isBase && (
+                            <span className="inline-flex items-center rounded-md border border-border bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">Base</span>
+                          )}
+                          {w.inPlay && (
+                            <span className="inline-flex items-center rounded-full bg-success-bg px-2 py-0.5 text-[10px] font-medium text-success whitespace-nowrap">In play</span>
+                          )}
+                        </div>
+                        <span className="text-xs text-muted-foreground">{w.kind}{w.network ? ` · ${w.network}` : ''}</span>
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <span className={`text-sm font-medium tabular-nums ${empty ? 'text-muted-foreground' : ''}`}>{fmtWalletAmount(w.real, w)}</span>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <span className="text-sm text-muted-foreground tabular-nums">{fmtWalletAmount(w.bonus, w)}</span>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {w.locked > 0 ? (
+                      <TooltipProvider delayDuration={200}>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span className="text-sm text-muted-foreground tabular-nums underline decoration-dotted underline-offset-2 cursor-default">{fmtWalletAmount(w.locked, w)}</span>
+                          </TooltipTrigger>
+                          <TooltipContent side="top" className="max-w-[220px] text-xs">
+                            Held by a pending withdrawal.
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    ) : (
+                      <span className="text-sm text-muted-foreground tabular-nums">{fmtWalletAmount(w.locked, w)}</span>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-right whitespace-nowrap">
+                    <span className={`text-sm font-medium tabular-nums ${empty ? 'text-muted-foreground' : ''}`}>
+                      {w.kind === 'Fiat' || w.eurValue === 0 ? fmtEur(w.eurValue) : `≈ ${fmtEur(w.eurValue)}`}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center justify-end gap-2">
+                      <div className="h-1.5 w-12 rounded-full bg-muted-foreground/15">
+                        <div className="h-1.5 rounded-full bg-foreground transition-all" style={{ width: `${share}%` }} />
+                      </div>
+                      <span className="text-xs text-muted-foreground tabular-nums w-8 text-right">{share}%</span>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              )
+            })}
+          </TableBody>
+        </Table>
+      </div>
+      {EMPTY_WALLETS.length > 0 && (
+        <button
+          type="button"
+          onClick={() => setShowEmpty(v => !v)}
+          className="flex w-full items-center gap-1.5 border-t border-border px-4 py-2.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+        >
+          {showEmpty
+            ? <ChevronUp className="size-3.5 shrink-0" />
+            : <ChevronDown className="size-3.5 shrink-0" />}
+          {showEmpty
+            ? 'Hide empty wallets'
+            : `Show ${EMPTY_WALLETS.length} empty wallets (${EMPTY_WALLETS.map(w => w.currency).join(', ')})`}
+        </button>
+      )}
+    </div>
+  )
+}
+
 // duplicate flag state: 'ok' | 'duplicate' | 'blocked'
 type DuplicateState = 'ok' | 'duplicate' | 'blocked'
 
@@ -470,23 +627,25 @@ function PillToggle({ label, selected, onToggle }: { label: string; selected: bo
 const TX_TYPES: TxType[] = ['Deposit', 'Withdrawal', 'Bonus', 'Adjustment']
 const TX_STATUSES: TxStatus[] = ['Completed', 'Pending', 'Failed', 'Cancelled']
 const PAYMENT_SYSTEMS = ['Visa', 'Mastercard', 'PayPal', 'Bitcoin', 'Ethereum', 'Paysafe', 'Bank Transfer']
+const TX_WALLETS = ['AUD', 'USDT', 'BTC', 'ETH']
 
 type FinanceFilterState = {
   types: Set<TxType>
   statuses: Set<TxStatus>
+  wallets: Set<string>
   paymentSystems: Set<string>
   amountMin: string
   amountMax: string
 }
 
 function emptyFinanceFilters(): FinanceFilterState {
-  return { types: new Set(), statuses: new Set(), paymentSystems: new Set(), amountMin: '', amountMax: '' }
+  return { types: new Set(), statuses: new Set(), wallets: new Set(), paymentSystems: new Set(), amountMin: '', amountMax: '' }
 }
 
 function FinanceFiltersPopover() {
   const [filters, setFilters] = useState<FinanceFilterState>(emptyFinanceFilters)
 
-  function toggleSet<T extends string>(key: 'types' | 'statuses' | 'paymentSystems', val: T) {
+  function toggleSet<T extends string>(key: 'types' | 'statuses' | 'wallets' | 'paymentSystems', val: T) {
     setFilters(prev => {
       const next = new Set(prev[key]) as Set<T>
       if (next.has(val)) next.delete(val)
@@ -496,7 +655,7 @@ function FinanceFiltersPopover() {
   }
 
   const dirtyCount =
-    filters.types.size + filters.statuses.size + filters.paymentSystems.size +
+    filters.types.size + filters.statuses.size + filters.wallets.size + filters.paymentSystems.size +
     (filters.amountMin ? 1 : 0) + (filters.amountMax ? 1 : 0)
 
   return (
@@ -537,6 +696,14 @@ function FinanceFiltersPopover() {
             <div className="flex flex-wrap gap-2">
               {TX_STATUSES.map(s => (
                 <PillToggle key={s} label={s} selected={filters.statuses.has(s)} onToggle={() => toggleSet('statuses', s)} />
+              ))}
+            </div>
+          </div>
+          <div className="flex flex-col gap-2">
+            <span className="text-sm font-semibold">Wallet</span>
+            <div className="flex flex-wrap gap-2">
+              {TX_WALLETS.map(w => (
+                <PillToggle key={w} label={w} selected={filters.wallets.has(w)} onToggle={() => toggleSet('wallets', w)} />
               ))}
             </div>
           </div>
@@ -1052,7 +1219,7 @@ export default function PlayerProfilePage() {
 
   const [financeSearch, setFinanceSearch] = useState('')
   const [financeVisibleCols, setFinanceVisibleCols] = useState<Set<FinanceColKey>>(
-    new Set<FinanceColKey>(['txId','debit','credit','rollover','type','txStatus','source','paymentMethod','paymentSystem','createdAt','finishedAt'])
+    new Set<FinanceColKey>(['txId','debit','credit','rollover','wallet','type','txStatus','source','paymentMethod','paymentSystem','createdAt','finishedAt'])
   )
   const [financeDateOpen, setFinanceDateOpen] = useState(false)
   const [financeColOpen, setFinanceColOpen] = useState(false)
@@ -1362,6 +1529,14 @@ export default function PlayerProfilePage() {
     const native = eurValue * fxRate
     return `${(native % 1 === 0 ? native.toFixed(0) : native.toFixed(0))} ${playerCurrency}`
   }
+  // Secondary line for money cells: base-currency wallets convert like before,
+  // crypto wallets show the FX snapshot amount in the wallet currency.
+  const txSecondary = (row: FinanceRow, eurStr: string): string | null => {
+    const amount = parseFloat(eurStr.replace(/[^0-9.]/g, ''))
+    if (row.wallet === playerCurrency) return toNative(amount) || null
+    if (amount === 0) return null
+    return row.fxAmountNative ?? null
+  }
 
   return (
     <>
@@ -1464,11 +1639,21 @@ export default function PlayerProfilePage() {
 
           <div className="hidden sm:block h-4 w-px bg-border" />
 
-          {/* Currency */}
+          {/* Base currency -- registration currency; bonuses, limits and segmentation are defined in it */}
           <div className="flex items-center gap-1.5">
-            <span className="text-sm text-muted-foreground">Currency</span>
+            <span className="text-sm text-muted-foreground">Base currency</span>
             <span className="inline-flex items-center rounded-md border border-border px-2 py-0.5 text-xs font-semibold text-foreground">
-              AUD
+              {playerCurrency}
+            </span>
+          </div>
+
+          <div className="hidden sm:block h-4 w-px bg-border" />
+
+          {/* Wallets */}
+          <div className="flex items-center gap-1.5">
+            <span className="text-sm text-muted-foreground">Wallets</span>
+            <span className="inline-flex items-center rounded-md border border-border px-2 py-0.5 text-xs font-semibold text-foreground">
+              {PLAYER_WALLETS.length}
             </span>
           </div>
 
@@ -1533,20 +1718,20 @@ export default function PlayerProfilePage() {
           <TabsContent value="overview" className="flex flex-col gap-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <StatCard
-                label="Balance"
-                value="€0.00"
-                original="0.00 AUD"
+                label="Total balance"
+                value={`≈ ${fmtEur(WALLETS_TOTAL_EUR)}`}
+                original={`${PLAYER_WALLETS.length} wallets · ${FUNDED_WALLETS.length} with funds`}
                 change="-€290.00"
                 trend="down"
-                tooltip="Current account balance, converted to EUR."
+                tooltip="Sum of all wallet balances converted to EUR at the current rate. Historical totals use per-transaction FX snapshots."
               />
               <StatCard
                 label="Total deposits"
-                value="€2,820.00"
-                original="4,820.00 AUD"
+                value="€3,606.36"
+                original="6,166.88 AUD"
                 change="+12.5%"
                 trend="up"
-                tooltip="Total deposited, converted to EUR."
+                tooltip="Total deposited across all wallets, converted to EUR at the FX rate snapshotted on each transaction."
               />
               <StatCard
                 label="Total withdrawals"
@@ -1554,17 +1739,20 @@ export default function PlayerProfilePage() {
                 original="1,340.00 AUD"
                 change="-3.2%"
                 trend="down"
-                tooltip="Total withdrawn, converted to EUR."
+                tooltip="Total withdrawn across all wallets, converted to EUR at the FX rate snapshotted on each transaction."
               />
               <StatCard
                 label="Net revenue"
-                value="€2,040.00"
-                original="3,480.00 AUD"
+                value="€2,826.36"
+                original="4,833.08 AUD"
                 change="+8.1%"
                 trend="up"
-                tooltip="Net revenue (deposits minus withdrawals), converted to EUR."
+                tooltip="Net revenue (deposits minus withdrawals), converted to EUR at per-transaction FX snapshots."
               />
             </div>
+
+            {/* Wallets */}
+            <WalletsCard />
 
             {/* Info blocks — row 1 */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -1578,8 +1766,8 @@ export default function PlayerProfilePage() {
                   <div className="flex items-center justify-between px-4 py-3">
                     <span className="text-sm text-muted-foreground">Pending cashouts</span>
                     <div className="text-right">
-                      <span className="text-sm font-medium tabular-nums">€0.00</span>
-                      <span className="block text-xs text-muted-foreground tabular-nums">0.00 AUD</span>
+                      <span className="text-sm font-medium tabular-nums">€102.24</span>
+                      <span className="block text-xs text-muted-foreground tabular-nums">120.00 USDT</span>
                     </div>
                   </div>
                 </div>
@@ -1697,20 +1885,20 @@ export default function PlayerProfilePage() {
           <TabsContent value="finance" className="flex flex-col gap-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <StatCard
-                label="Balance"
-                value="€0.00"
-                original="0.00 AUD"
+                label="Total balance"
+                value={`≈ ${fmtEur(WALLETS_TOTAL_EUR)}`}
+                original={`${PLAYER_WALLETS.length} wallets · ${FUNDED_WALLETS.length} with funds`}
                 change="-€290.00"
                 trend="down"
-                tooltip="Current account balance, converted to EUR."
+                tooltip="Sum of all wallet balances converted to EUR at the current rate. Historical totals use per-transaction FX snapshots."
               />
               <StatCard
                 label="Total deposits"
-                value="€2,820.00"
-                original="4,820.00 AUD"
+                value="€3,606.36"
+                original="6,166.88 AUD"
                 change="+12.5%"
                 trend="up"
-                tooltip="Total deposited, converted to EUR."
+                tooltip="Total deposited across all wallets, converted to EUR at the FX rate snapshotted on each transaction."
               />
               <StatCard
                 label="Total withdrawals"
@@ -1718,15 +1906,15 @@ export default function PlayerProfilePage() {
                 original="1,340.00 AUD"
                 change="-3.2%"
                 trend="down"
-                tooltip="Total withdrawn, converted to EUR."
+                tooltip="Total withdrawn across all wallets, converted to EUR at the FX rate snapshotted on each transaction."
               />
               <StatCard
                 label="Net revenue"
-                value="€2,040.00"
-                original="3,480.00 AUD"
+                value="€2,826.36"
+                original="4,833.08 AUD"
                 change="+8.1%"
                 trend="up"
-                tooltip="Net revenue (deposits minus withdrawals), converted to EUR."
+                tooltip="Net revenue (deposits minus withdrawals), converted to EUR at per-transaction FX snapshots."
               />
             </div>
 
@@ -1833,6 +2021,7 @@ export default function PlayerProfilePage() {
                       {financeVisibleCols.has('debit')         && <FinanceSortableHead>Debit</FinanceSortableHead>}
                       {financeVisibleCols.has('credit')        && <FinanceSortableHead>Credit</FinanceSortableHead>}
                       {financeVisibleCols.has('rollover')      && <FinanceSortableHead>Rollover</FinanceSortableHead>}
+                      {financeVisibleCols.has('wallet')        && <TableHead className="text-sm font-medium text-foreground">Wallet</TableHead>}
                       {financeVisibleCols.has('type')          && <TableHead className="text-sm font-medium text-foreground">Type</TableHead>}
                       {financeVisibleCols.has('txStatus')      && <FinanceSortableHead>Status</FinanceSortableHead>}
                       {financeVisibleCols.has('source')        && <TableHead className="text-sm font-medium text-foreground">Source</TableHead>}
@@ -1848,7 +2037,8 @@ export default function PlayerProfilePage() {
                         financeSearch === '' ||
                         row.txId.toLowerCase().includes(financeSearch.toLowerCase()) ||
                         row.paymentMethod.toLowerCase().includes(financeSearch.toLowerCase()) ||
-                        row.source.toLowerCase().includes(financeSearch.toLowerCase())
+                        row.source.toLowerCase().includes(financeSearch.toLowerCase()) ||
+                        row.wallet.toLowerCase().includes(financeSearch.toLowerCase())
                       )
                       .map(row => (
                         <TableRow
@@ -1873,19 +2063,24 @@ export default function PlayerProfilePage() {
                           {financeVisibleCols.has('debit') && (
                             <TableCell>
                               <span className="text-sm font-medium tabular-nums block">{row.debit}</span>
-                              {(() => { const n = toNative(parseFloat(row.debit.replace(/[^0-9.]/g, ''))); return n ? <span className="text-xs text-muted-foreground tabular-nums">{n}</span> : null })()}
+                              {(() => { const n = txSecondary(row, row.debit); return n ? <span className="text-xs text-muted-foreground tabular-nums whitespace-nowrap">{n}</span> : null })()}
                             </TableCell>
                           )}
                           {financeVisibleCols.has('credit') && (
                             <TableCell>
                               <span className="text-sm font-medium tabular-nums block">{row.credit}</span>
-                              {(() => { const n = toNative(parseFloat(row.credit.replace(/[^0-9.]/g, ''))); return n ? <span className="text-xs text-muted-foreground tabular-nums">{n}</span> : null })()}
+                              {(() => { const n = txSecondary(row, row.credit); return n ? <span className="text-xs text-muted-foreground tabular-nums whitespace-nowrap">{n}</span> : null })()}
                             </TableCell>
                           )}
                           {financeVisibleCols.has('rollover') && (
                             <TableCell>
                               <span className="text-sm tabular-nums block">{row.rollover}</span>
-                              {(() => { const n = toNative(parseFloat(row.rollover.replace(/[^0-9.]/g, ''))); return n ? <span className="text-xs text-muted-foreground tabular-nums">{n}</span> : null })()}
+                              {(() => { const n = txSecondary(row, row.rollover); return n ? <span className="text-xs text-muted-foreground tabular-nums whitespace-nowrap">{n}</span> : null })()}
+                            </TableCell>
+                          )}
+                          {financeVisibleCols.has('wallet') && (
+                            <TableCell>
+                              <span className="inline-flex items-center rounded-md border border-border bg-muted px-1.5 py-0.5 text-xs font-medium text-muted-foreground">{row.wallet}</span>
                             </TableCell>
                           )}
                           {financeVisibleCols.has('type') && (
@@ -2086,7 +2281,7 @@ export default function PlayerProfilePage() {
                               <span className="text-sm font-medium tabular-nums">{selectedTx.fxAmountEur}</span>
                             </div>
                             <div className="flex items-center justify-between px-3 py-2.5">
-                              <span className="text-sm text-muted-foreground">Amount ({playerCurrency})</span>
+                              <span className="text-sm text-muted-foreground">Amount ({selectedTx.wallet})</span>
                               <span className="text-sm font-medium tabular-nums">{selectedTx.fxAmountNative}</span>
                             </div>
                             <div className="flex items-center justify-between px-3 py-2.5">
