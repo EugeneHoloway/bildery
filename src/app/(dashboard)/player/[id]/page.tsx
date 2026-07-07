@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { useAuth } from '@/components/AuthProvider'
 import { DashboardHeader } from '@/components/DashboardHeader'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Info, TrendingUp, TrendingDown, Flag, CircleDot, Copy, Check, Crown, X, ExternalLink, BadgeCheck, Gift, Clock, Wallet, ArrowDownLeft, ArrowUpRight, Flame, Trophy, Pencil, Plus, Shield, UserCog, User, Timer, Ban, Globe, Power, ArrowUpDown, CircleCheck, CircleMinus, CircleX, ShieldBan, MoreHorizontal, Search, CalendarDays, Columns2, SlidersHorizontal, Download, Pin, PinOff, Banknote, Gamepad2, ShoppingBag, ChevronDown, ChevronUp } from 'lucide-react'
+import { Info, TrendingUp, TrendingDown, Flag, CircleDot, Copy, Check, Crown, X, ExternalLink, BadgeCheck, Gift, Clock, Wallet, ArrowDownLeft, ArrowUpRight, Flame, Trophy, Pencil, Plus, Shield, UserCog, User, Timer, Ban, Globe, Power, ArrowUpDown, CircleCheck, CircleMinus, CircleX, ShieldBan, MoreHorizontal, Search, Columns2, SlidersHorizontal, Download, Pin, PinOff, Banknote, Gamepad2, ShoppingBag, ChevronDown, ChevronUp } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Button } from '@/components/ui/button'
@@ -14,10 +14,11 @@ import { Badge } from '@/components/ui/badge'
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerClose } from '@/components/ui/drawer'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog'
 import { Calendar } from '@/components/ui/calendar'
+import { DateRangeFilter } from '@/components/ui/date-range-filter'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardFooter } from '@/components/ui/card'
-import { addDays, startOfWeek, endOfWeek, startOfMonth, endOfMonth, subDays, subMonths, startOfYear } from 'date-fns'
+import { addDays } from 'date-fns'
 import type { DateRange } from 'react-day-picker'
 import Link from 'next/link'
 import {
@@ -1221,7 +1222,6 @@ export default function PlayerProfilePage() {
   const [financeVisibleCols, setFinanceVisibleCols] = useState<Set<FinanceColKey>>(
     new Set<FinanceColKey>(['txId','debit','credit','rollover','wallet','type','txStatus','source','paymentMethod','paymentSystem','createdAt','finishedAt'])
   )
-  const [financeDateOpen, setFinanceDateOpen] = useState(false)
   const [financeColOpen, setFinanceColOpen] = useState(false)
   const [financeTxIdFrozen, setFinanceTxIdFrozen] = useState(true)
 
@@ -1231,7 +1231,6 @@ export default function PlayerProfilePage() {
   )
   const [dupColOpen, setDupColOpen] = useState(false)
   const [dupPlayerIdFrozen, setDupPlayerIdFrozen] = useState(true)
-  const [dupDateOpen, setDupDateOpen] = useState(false)
   const [dupDateRange, setDupDateRange] = useState<DateRange | undefined>(undefined)
 
   function toggleDupCol(key: DupColKey) {
@@ -1243,20 +1242,12 @@ export default function PlayerProfilePage() {
     })
   }
 
-  const dupDateLabel = (() => {
-    const fmt = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
-    if (dupDateRange?.from && dupDateRange?.to) return `${fmt(dupDateRange.from)} - ${fmt(dupDateRange.to)}`
-    if (dupDateRange?.from) return fmt(dupDateRange.from)
-    return 'Date'
-  })()
-
   const [bonusSearch, setBonusSearch] = useState('')
   const [bonusVisibleCols, setBonusVisibleCols] = useState<Set<BonusColKey>>(
     new Set<BonusColKey>(['id','name','parentId','description','amount','wager','type','status'])
   )
   const [bonusColOpen, setBonusColOpen] = useState(false)
   const [bonusIdFrozen, setBonusIdFrozen] = useState(true)
-  const [bonusDateOpen, setBonusDateOpen] = useState(false)
   const [bonusDateRange, setBonusDateRange] = useState<DateRange | undefined>(undefined)
   const [bonusStatuses, setBonusStatuses] = useState<Record<string, BonusStatus>>({})
   const [pendingBonusStatus, setPendingBonusStatus] = useState<{ id: string; from: BonusStatus; to: BonusStatus } | null>(null)
@@ -1281,7 +1272,6 @@ export default function PlayerProfilePage() {
   )
   const [gameColOpen, setGameColOpen] = useState(false)
   const [gameNameFrozen, setGameNameFrozen] = useState(true)
-  const [gameDateOpen, setGameDateOpen] = useState(false)
   const [gameDateRange, setGameDateRange] = useState<DateRange | undefined>(undefined)
 
   function toggleGameCol(key: GameHistoryColKey) {
@@ -1292,13 +1282,6 @@ export default function PlayerProfilePage() {
       return next
     })
   }
-
-  const gameDateLabel = (() => {
-    const fmt = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
-    if (gameDateRange?.from && gameDateRange?.to) return `${fmt(gameDateRange.from)} - ${fmt(gameDateRange.to)}`
-    if (gameDateRange?.from) return fmt(gameDateRange.from)
-    return 'Date'
-  })()
 
   // Money is stored in EUR; show EUR with the player's native currency (e.g. AUD) as a secondary line.
   const gameEur = (n: number) => `${n < 0 ? '-' : ''}€${Math.abs(n).toLocaleString('en', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
@@ -1322,31 +1305,7 @@ export default function PlayerProfilePage() {
   const statusOf = (b: Bonus): BonusStatus => bonusStatuses[b.id] ?? b.status
   const setBonusStatus = (id: string, s: BonusStatus) => setBonusStatuses(prev => ({ ...prev, [id]: s }))
 
-  const bonusDateLabel = (() => {
-    const fmt = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
-    if (bonusDateRange?.from && bonusDateRange?.to) return `${fmt(bonusDateRange.from)} - ${fmt(bonusDateRange.to)}`
-    if (bonusDateRange?.from) return fmt(bonusDateRange.from)
-    return 'Date'
-  })()
   const [financeDateRange, setFinanceDateRange] = useState<DateRange | undefined>(undefined)
-
-  const financeDateLabel = (() => {
-    const fmt = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
-    if (financeDateRange?.from && financeDateRange?.to) return `${fmt(financeDateRange.from)} - ${fmt(financeDateRange.to)}`
-    if (financeDateRange?.from) return fmt(financeDateRange.from)
-    return 'Date'
-  })()
-
-  const DATE_PRESETS = [
-    { label: 'Today',       range: () => { const d = new Date(); return { from: d, to: d } } },
-    { label: 'Yesterday',   range: () => { const d = subDays(new Date(), 1); return { from: d, to: d } } },
-    { label: 'This Week',   range: () => ({ from: startOfWeek(new Date(), { weekStartsOn: 0 }), to: endOfWeek(new Date(), { weekStartsOn: 0 }) }) },
-    { label: 'Last 7 Days', range: () => ({ from: subDays(new Date(), 6), to: new Date() }) },
-    { label: 'Last 28 Days',range: () => ({ from: subDays(new Date(), 27), to: new Date() }) },
-    { label: 'This Month',  range: () => ({ from: startOfMonth(new Date()), to: endOfMonth(new Date()) }) },
-    { label: 'Last Month',  range: () => { const d = subMonths(new Date(), 1); return { from: startOfMonth(d), to: endOfMonth(d) } } },
-    { label: 'This Year',   range: () => ({ from: startOfYear(new Date()), to: new Date() }) },
-  ]
 
   function toggleFinanceCol(key: FinanceColKey) {
     setFinanceVisibleCols(prev => {
@@ -1965,44 +1924,7 @@ export default function PlayerProfilePage() {
                   </PopoverContent>
                 </Popover>
 
-                <Popover open={financeDateOpen} onOpenChange={setFinanceDateOpen}>
-                  <PopoverTrigger asChild>
-                    <Button variant="outline" size="sm" className="gap-2">
-                      <CalendarDays className="size-3.5" />
-                      <span className="hidden sm:inline">{financeDateLabel}</span>
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent align="end" sideOffset={6} className="w-auto p-0">
-                    <div className="flex">
-                      <div className="flex flex-col border-r border-border py-3 px-2 gap-0.5 min-w-[130px]">
-                        {DATE_PRESETS.map(p => {
-                          const active = (() => {
-                            if (!financeDateRange?.from || !financeDateRange?.to) return false
-                            const r = p.range()
-                            return r.from.toDateString() === financeDateRange.from.toDateString() &&
-                                   r.to.toDateString() === financeDateRange.to.toDateString()
-                          })()
-                          return (
-                            <button
-                              key={p.label}
-                              type="button"
-                              onClick={() => setFinanceDateRange(p.range())}
-                              className={`text-left px-3 py-1.5 text-sm rounded-md transition-colors ${active ? 'bg-muted font-medium' : 'hover:bg-muted text-muted-foreground hover:text-foreground'}`}
-                            >
-                              {p.label}
-                            </button>
-                          )
-                        })}
-                      </div>
-                      <Calendar
-                        mode="range"
-                        selected={financeDateRange}
-                        onSelect={setFinanceDateRange}
-                        numberOfMonths={1}
-                      />
-                    </div>
-                  </PopoverContent>
-                </Popover>
+                <DateRangeFilter value={financeDateRange} onChange={setFinanceDateRange} mobileLabel="none" />
 
                 <Button variant="outline" size="sm" className="gap-2">
                   <Download className="size-3.5" />
@@ -2445,44 +2367,7 @@ export default function PlayerProfilePage() {
                   </PopoverContent>
                 </Popover>
 
-                <Popover open={bonusDateOpen} onOpenChange={setBonusDateOpen}>
-                  <PopoverTrigger asChild>
-                    <Button variant="outline" size="sm" className="gap-2">
-                      <CalendarDays className="size-3.5" />
-                      <span className="hidden sm:inline">{bonusDateLabel}</span>
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent align="end" sideOffset={6} className="w-auto p-0">
-                    <div className="flex">
-                      <div className="flex flex-col border-r border-border py-3 px-2 gap-0.5 min-w-[130px]">
-                        {DATE_PRESETS.map(p => {
-                          const active = (() => {
-                            if (!bonusDateRange?.from || !bonusDateRange?.to) return false
-                            const r = p.range()
-                            return r.from.toDateString() === bonusDateRange.from.toDateString() &&
-                                   r.to.toDateString() === bonusDateRange.to.toDateString()
-                          })()
-                          return (
-                            <button
-                              key={p.label}
-                              type="button"
-                              onClick={() => setBonusDateRange(p.range())}
-                              className={`text-left px-3 py-1.5 text-sm rounded-md transition-colors ${active ? 'bg-muted font-medium' : 'hover:bg-muted text-muted-foreground hover:text-foreground'}`}
-                            >
-                              {p.label}
-                            </button>
-                          )
-                        })}
-                      </div>
-                      <Calendar
-                        mode="range"
-                        selected={bonusDateRange}
-                        onSelect={setBonusDateRange}
-                        numberOfMonths={1}
-                      />
-                    </div>
-                  </PopoverContent>
-                </Popover>
+                <DateRangeFilter value={bonusDateRange} onChange={setBonusDateRange} mobileLabel="none" />
 
                 <Button variant="outline" size="sm" className="gap-2">
                   <Download className="size-3.5" />
@@ -2880,44 +2765,7 @@ export default function PlayerProfilePage() {
                   </PopoverContent>
                 </Popover>
 
-                <Popover open={gameDateOpen} onOpenChange={setGameDateOpen}>
-                  <PopoverTrigger asChild>
-                    <Button variant="outline" size="sm" className="gap-2">
-                      <CalendarDays className="size-3.5" />
-                      <span className="hidden sm:inline">{gameDateLabel}</span>
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent align="end" sideOffset={6} className="w-auto p-0">
-                    <div className="flex">
-                      <div className="flex flex-col border-r border-border py-3 px-2 gap-0.5 min-w-[130px]">
-                        {DATE_PRESETS.map(p => {
-                          const active = (() => {
-                            if (!gameDateRange?.from || !gameDateRange?.to) return false
-                            const r = p.range()
-                            return r.from.toDateString() === gameDateRange.from.toDateString() &&
-                                   r.to.toDateString() === gameDateRange.to.toDateString()
-                          })()
-                          return (
-                            <button
-                              key={p.label}
-                              type="button"
-                              onClick={() => setGameDateRange(p.range())}
-                              className={`text-left px-3 py-1.5 text-sm rounded-md transition-colors ${active ? 'bg-muted font-medium' : 'hover:bg-muted text-muted-foreground hover:text-foreground'}`}
-                            >
-                              {p.label}
-                            </button>
-                          )
-                        })}
-                      </div>
-                      <Calendar
-                        mode="range"
-                        selected={gameDateRange}
-                        onSelect={setGameDateRange}
-                        numberOfMonths={1}
-                      />
-                    </div>
-                  </PopoverContent>
-                </Popover>
+                <DateRangeFilter value={gameDateRange} onChange={setGameDateRange} mobileLabel="none" />
 
                 <Button variant="outline" size="sm" className="gap-2">
                   <Download className="size-3.5" />
@@ -3044,44 +2892,7 @@ export default function PlayerProfilePage() {
                   </PopoverContent>
                 </Popover>
 
-                <Popover open={dupDateOpen} onOpenChange={setDupDateOpen}>
-                  <PopoverTrigger asChild>
-                    <Button variant="outline" size="sm" className="gap-2">
-                      <CalendarDays className="size-3.5" />
-                      <span className="hidden sm:inline">{dupDateLabel}</span>
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent align="end" sideOffset={6} className="w-auto p-0">
-                    <div className="flex">
-                      <div className="flex flex-col border-r border-border py-3 px-2 gap-0.5 min-w-[130px]">
-                        {DATE_PRESETS.map(p => {
-                          const active = (() => {
-                            if (!dupDateRange?.from || !dupDateRange?.to) return false
-                            const r = p.range()
-                            return r.from.toDateString() === dupDateRange.from.toDateString() &&
-                                   r.to.toDateString() === dupDateRange.to.toDateString()
-                          })()
-                          return (
-                            <button
-                              key={p.label}
-                              type="button"
-                              onClick={() => setDupDateRange(p.range())}
-                              className={`text-left px-3 py-1.5 text-sm rounded-md transition-colors ${active ? 'bg-muted font-medium' : 'hover:bg-muted text-muted-foreground hover:text-foreground'}`}
-                            >
-                              {p.label}
-                            </button>
-                          )
-                        })}
-                      </div>
-                      <Calendar
-                        mode="range"
-                        selected={dupDateRange}
-                        onSelect={setDupDateRange}
-                        numberOfMonths={1}
-                      />
-                    </div>
-                  </PopoverContent>
-                </Popover>
+                <DateRangeFilter value={dupDateRange} onChange={setDupDateRange} mobileLabel="none" />
 
                 <Button variant="outline" size="sm" className="gap-2">
                   <Download className="size-3.5" />

@@ -42,7 +42,6 @@ import {
   Copy,
   Check,
   TrendingUp,
-  CalendarDays,
 } from 'lucide-react'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Input } from '@/components/ui/input'
@@ -61,8 +60,7 @@ import {
   areaDefaults,
   type ChartConfig,
 } from '@/components/ui/chart'
-import { Calendar } from '@/components/ui/calendar'
-import { format, subDays, subMonths, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear } from 'date-fns'
+import { DateRangeFilter } from '@/components/ui/date-range-filter'
 import type { DateRange } from 'react-day-picker'
 
 // ─── Chart data ───────────────────────────────────────────────────────────────
@@ -205,8 +203,6 @@ type RegPeriod = 'day' | 'week' | 'month' | 'custom'
 
 function PlayerCharts() {
   const [period, setPeriod] = useState<RegPeriod>('month')
-  const [customRange, setCustomRange] = useState<DateRange | undefined>()
-  const [customOpen, setCustomOpen] = useState(false)
 
   const chartData = period === 'custom' ? regData.month : regData[period]
   const totalPlayers = statusEntries.reduce((s, d) => s + d.value, 0)
@@ -716,7 +712,6 @@ export default function AllPlayersPage() {
   const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set())
   const [pageSize, setPageSize] = useState(20)
   const [currentPage, setCurrentPage] = useState(1)
-  const [dateOpen, setDateOpen] = useState(false)
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined)
   const [copiedId, setCopiedId] = useState<string | null>(null)
 
@@ -754,24 +749,6 @@ export default function AllPlayersPage() {
     setCopiedId(id)
     setTimeout(() => setCopiedId(null), 1500)
   }
-
-  const dateLabel = (() => {
-    const fmt = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
-    if (dateRange?.from && dateRange?.to) return `${fmt(dateRange.from)} -- ${fmt(dateRange.to)}`
-    if (dateRange?.from) return fmt(dateRange.from)
-    return 'Date'
-  })()
-
-  const DATE_PRESETS = [
-    { label: 'Today',        range: () => { const d = new Date(); return { from: d, to: d } } },
-    { label: 'Yesterday',    range: () => { const d = subDays(new Date(), 1); return { from: d, to: d } } },
-    { label: 'This Week',    range: () => ({ from: startOfWeek(new Date(), { weekStartsOn: 0 }), to: endOfWeek(new Date(), { weekStartsOn: 0 }) }) },
-    { label: 'Last 7 Days',  range: () => ({ from: subDays(new Date(), 6), to: new Date() }) },
-    { label: 'Last 28 Days', range: () => ({ from: subDays(new Date(), 27), to: new Date() }) },
-    { label: 'This Month',   range: () => ({ from: startOfMonth(new Date()), to: endOfMonth(new Date()) }) },
-    { label: 'Last Month',   range: () => { const d = subMonths(new Date(), 1); return { from: startOfMonth(d), to: endOfMonth(d) } } },
-    { label: 'This Year',    range: () => ({ from: startOfYear(new Date()), to: new Date() }) },
-  ]
 
   useEffect(() => {
     if (!loading && !user) router.replace('/')
@@ -881,44 +858,7 @@ export default function AllPlayersPage() {
                 ))}
               </PopoverContent>
             </Popover>
-            <Popover open={dateOpen} onOpenChange={setDateOpen}>
-              <PopoverTrigger asChild>
-                <Button variant="outline" size="sm" className="gap-2">
-                  <CalendarDays className="size-3.5" />
-                  <span className="hidden sm:inline">{dateLabel}</span>
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent align="end" sideOffset={6} className="w-auto p-0">
-                <div className="flex">
-                  <div className="flex flex-col border-r border-border py-3 px-2 gap-0.5 min-w-[130px]">
-                    {DATE_PRESETS.map(p => {
-                      const active = (() => {
-                        if (!dateRange?.from || !dateRange?.to) return false
-                        const r = p.range()
-                        return r.from.toDateString() === dateRange.from.toDateString() &&
-                               r.to.toDateString() === dateRange.to.toDateString()
-                      })()
-                      return (
-                        <button
-                          key={p.label}
-                          type="button"
-                          onClick={() => setDateRange(p.range())}
-                          className={`text-left px-3 py-1.5 text-sm rounded-md transition-colors ${active ? 'bg-muted font-medium' : 'hover:bg-muted text-muted-foreground hover:text-foreground'}`}
-                        >
-                          {p.label}
-                        </button>
-                      )
-                    })}
-                  </div>
-                  <Calendar
-                    mode="range"
-                    selected={dateRange}
-                    onSelect={setDateRange}
-                    numberOfMonths={1}
-                  />
-                </div>
-              </PopoverContent>
-            </Popover>
+            <DateRangeFilter value={dateRange} onChange={setDateRange} mobileLabel="none" />
             <Button variant="outline" size="sm" className="gap-2">
               <Download className="size-3.5" />
               <span className="hidden sm:inline">Export</span>

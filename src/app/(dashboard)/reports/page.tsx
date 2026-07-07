@@ -5,14 +5,13 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/components/AuthProvider'
 import { DashboardHeader } from '@/components/DashboardHeader'
 import { Button } from '@/components/ui/button'
-import { Calendar } from '@/components/ui/calendar'
+import { DateRangeFilter } from '@/components/ui/date-range-filter'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { Download, CalendarIcon, TrendingUp, TrendingDown, Info, ArrowUp, ArrowDown, ChevronsUpDown, Angry, Frown, Meh, Smile, Laugh, MessageSquareOff } from 'lucide-react'
+import { Download, TrendingUp, TrendingDown, Info, ArrowUp, ArrowDown, ChevronsUpDown, Angry, Frown, Meh, Smile, Laugh, MessageSquareOff } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectSeparator } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { type DateRange } from 'react-day-picker'
 import { cn } from '@/lib/utils'
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts'
 import {
@@ -34,86 +33,6 @@ function LiveBadge() {
       <span className="size-1.5 rounded-full bg-success" />
       Live
     </span>
-  )
-}
-
-// ── Date Range Picker ──────────────────────────────────────────────────────
-
-const PRESETS = [
-  { label: 'Today', days: 0 },
-  { label: 'Yesterday', days: 1 },
-  { label: 'This Week', days: 7 },
-  { label: 'Last 7 Days', days: 7 },
-  { label: 'Last 28 Days', days: 28 },
-  { label: 'This Month', days: 30 },
-  { label: 'Last Month', days: 60 },
-  { label: 'This Year', days: 365 },
-]
-
-function formatDate(d: Date) {
-  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
-}
-
-function DateRangePicker({ compact = false }: { compact?: boolean }) {
-  const today = new Date()
-  const defaultFrom = new Date(today)
-  defaultFrom.setDate(today.getDate() - 27)
-
-  const [range, setRange] = useState<DateRange>({ from: defaultFrom, to: today })
-  const [activePreset, setActivePreset] = useState('Last 28 Days')
-  const [open, setOpen] = useState(false)
-
-  function applyPreset(label: string, days: number) {
-    const to = new Date()
-    const from = new Date()
-    from.setDate(to.getDate() - (days === 0 ? 0 : days - 1))
-    setRange({ from, to })
-    setActivePreset(label)
-  }
-
-  const fullLabel = range?.from && range?.to
-    ? `${formatDate(range.from)} – ${formatDate(range.to)}`
-    : 'Select range'
-
-  const shortLabel = activePreset
-
-  return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button variant="outline" className="gap-2 text-sm font-normal">
-          <CalendarIcon className="size-4 text-muted-foreground shrink-0" />
-          <span className={compact ? 'sm:hidden' : 'hidden'}>{shortLabel}</span>
-          <span className={compact ? 'hidden sm:inline' : 'inline'}>{fullLabel}</span>
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-auto p-0" align="end">
-        <div className="flex flex-col sm:flex-row">
-          {/* Presets */}
-          <div className="flex flex-row flex-wrap gap-0.5 border-b sm:border-b-0 sm:border-r border-border p-2 sm:p-3 sm:w-40 sm:flex-col">
-            {PRESETS.map(({ label, days }) => (
-              <button
-                key={label}
-                onClick={() => applyPreset(label, days)}
-                className={cn(
-                  'rounded-md px-3 py-1.5 text-left text-sm transition-colors hover:bg-muted',
-                  activePreset === label ? 'bg-muted font-medium text-foreground' : 'text-muted-foreground'
-                )}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-          {/* Calendar */}
-          <Calendar
-            mode="range"
-            selected={range}
-            onSelect={(r) => { if (r) setRange(r) }}
-            defaultMonth={range?.from}
-            numberOfMonths={1}
-          />
-        </div>
-      </PopoverContent>
-    </Popover>
   )
 }
 
@@ -505,7 +424,7 @@ function LabelsOverview() {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-4">
         <h2 className="text-2xl font-semibold">Labels</h2>
         <div className="flex items-center gap-2">
-          <DateRangePicker compact />
+          <DateRangeFilter size="default" mobileLabel="preset" defaultPreset="Last 28 Days" />
           <Button variant="default" size="default" className="gap-2 shrink-0">
             <Download className="size-4" />
             <span className="hidden sm:inline">Download</span>
@@ -726,7 +645,7 @@ function CsatSection() {
             <span className="text-sm text-muted-foreground">{showData ? 'Data' : 'Empty state'}</span>
             <Switch checked={showData} onCheckedChange={setShowData} />
           </label>
-          <DateRangePicker compact />
+          <DateRangeFilter size="default" mobileLabel="preset" defaultPreset="Last 28 Days" />
           <Button variant="default" size="default" className="gap-2 shrink-0">
             <Download className="size-4" />
             <span className="hidden sm:inline">Download</span>
@@ -843,7 +762,7 @@ export default function ReportsPage() {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <h1 className="text-2xl font-semibold">Conversations</h1>
           <div className="flex items-center gap-2">
-            <DateRangePicker compact />
+            <DateRangeFilter size="default" mobileLabel="preset" defaultPreset="Last 28 Days" />
             <Button variant="default" size="default" className="gap-2 shrink-0">
               <Download className="size-4" />
               <span className="hidden sm:inline">Download</span>
@@ -947,7 +866,7 @@ export default function ReportsPage() {
           <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <span className="text-2xl font-semibold">Agent status</span>
             <div className="flex items-center gap-2">
-              <DateRangePicker compact />
+              <DateRangeFilter size="default" mobileLabel="preset" defaultPreset="Last 28 Days" />
               <Button variant="default" size="default" className="gap-2 shrink-0">
                 <Download className="size-4" />
                 <span className="hidden sm:inline">Download</span>
