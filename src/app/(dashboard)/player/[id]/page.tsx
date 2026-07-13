@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useLayoutEffect, useState } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/components/AuthProvider'
 import { DashboardHeader } from '@/components/DashboardHeader'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -244,6 +244,10 @@ const TABS = [
   { value: 'duplicates', label: 'Duplicates' },
   { value: 'limits', label: 'Limits' },
 ]
+
+const TAB_VALUES = new Set(TABS.map(t => t.value))
+// benefits/packages are disabled sub-tabs -- not restorable from URL
+const BONUS_SUBTAB_VALUES = new Set(['bonuses', 'shop'])
 
 const FINANCE_COLS = [
   { key: 'txId',          label: 'Transaction ID' },
@@ -1136,6 +1140,12 @@ export default function PlayerProfilePage() {
   const params = useParams()
   const id = params.id as string
 
+  const searchParams = useSearchParams()
+  const [tab, setTab] = useState<string>(() => {
+    const t = searchParams.get('tab')
+    return t && TAB_VALUES.has(t) ? t : 'overview'
+  })
+
   const [status, setStatus] = useState<string>('Open')
   const [pendingStatus, setPendingStatus] = useState<string | null>(null)
   const [vip, setVip] = useState(false)
@@ -1255,7 +1265,20 @@ export default function PlayerProfilePage() {
   const [selectedBonus, setSelectedBonus] = useState<Bonus | null>(null)
   const [bonusDrawerOpen, setBonusDrawerOpen] = useState(false)
   const [copiedBonusDrawerId, setCopiedBonusDrawerId] = useState(false)
-  const [bonusSubtab, setBonusSubtab] = useState('bonuses')
+  const [bonusSubtab, setBonusSubtab] = useState(() => {
+    const s = searchParams.get('subtab')
+    return searchParams.get('tab') === 'bonuses' && s && BONUS_SUBTAB_VALUES.has(s) ? s : 'bonuses'
+  })
+
+  // Single URL sync point -- only deviations from defaults end up in the query,
+  // via replaceState so tab switches never pollute browser history.
+  useEffect(() => {
+    const url = new URL(window.location.href)
+    url.search = ''
+    if (tab !== 'overview') url.searchParams.set('tab', tab)
+    if (tab === 'bonuses' && bonusSubtab !== 'bonuses') url.searchParams.set('subtab', bonusSubtab)
+    window.history.replaceState(null, '', url)
+  }, [tab, bonusSubtab])
 
   function toggleBonusCol(key: BonusColKey) {
     setBonusVisibleCols(prev => {
@@ -1653,7 +1676,7 @@ export default function PlayerProfilePage() {
 
         </div>
 
-        <Tabs defaultValue="overview" className="flex flex-col gap-4">
+        <Tabs value={tab} onValueChange={setTab} className="flex flex-col gap-4">
           <div className="relative -mx-4 sm:mx-0">
             {/* Left fade -- only visible on mobile when scrolled */}
             <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-10 bg-gradient-to-r from-background to-transparent z-10 sm:hidden" />
