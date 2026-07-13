@@ -1,6 +1,6 @@
 'use client'
 
-import { Flag } from 'lucide-react'
+import { Flag, Info, TrendingDown, TrendingUp } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 
 // duplicate flag state: 'ok' | 'duplicate' | 'blocked'
@@ -68,3 +68,93 @@ export function DuplicateFlag({ state }: { state: DuplicateState }) {
     </TooltipProvider>
   )
 }
+
+export function StatCard({
+  label,
+  value,
+  original,
+  change,
+  trend,
+  tooltip,
+}: {
+  label: string
+  value: string
+  original?: string
+  change: string
+  trend: 'up' | 'down'
+  tooltip: string
+}) {
+  return (
+    <div className="rounded-2xl border border-border bg-card p-4 sm:p-5 flex flex-col gap-2">
+      <div className="flex items-center gap-1.5">
+        <span className="text-xs sm:text-sm text-muted-foreground">{label}</span>
+        <TooltipProvider delayDuration={200}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Info className="size-3.5 text-muted-foreground/50 hover:text-muted-foreground cursor-default shrink-0" />
+            </TooltipTrigger>
+            <TooltipContent side="top" className="max-w-[220px] text-xs">
+              {tooltip}
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </div>
+      <div className="flex flex-col gap-0.5">
+        <span className="text-2xl sm:text-3xl font-semibold tabular-nums">{value}</span>
+        {original && (
+          <span className="text-xs text-muted-foreground tabular-nums">{original}</span>
+        )}
+      </div>
+      <div className="flex items-center gap-1 text-xs sm:text-sm">
+        {trend === 'up'
+          ? <TrendingUp className="size-3.5 text-success shrink-0" />
+          : <TrendingDown className="size-3.5 text-destructive shrink-0" />}
+        <span className={trend === 'up' ? 'text-success font-medium' : 'text-destructive font-medium'}>
+          {change}
+        </span>
+        <span className="text-muted-foreground hidden sm:inline">vs. previous period</span>
+      </div>
+    </div>
+  )
+}
+
+// Multi-currency wallets. Balances live in the wallet currency; `eurValue` is the
+// real balance converted at the current rate. Historical figures (deposits, GGR)
+// always use per-transaction FX snapshots and are never recomputed with live rates.
+export type WalletKind = 'Fiat' | 'Crypto' | 'Stablecoin'
+
+export type PlayerWallet = {
+  currency: string
+  glyph: string
+  kind: WalletKind
+  network?: string
+  real: number
+  bonus: number
+  locked: number
+  eurValue: number
+  isBase?: boolean
+  inPlay?: boolean
+}
+
+export const PLAYER_WALLETS: PlayerWallet[] = [
+  { currency: 'USDT', glyph: '₮',  kind: 'Stablecoin', network: 'TRC-20', real: 850,      bonus: 0,  locked: 120, eurValue: 724.20 },
+  { currency: 'BTC',  glyph: '₿',  kind: 'Crypto',                        real: 0.00412,  bonus: 0,  locked: 0,   eurValue: 245.15 },
+  { currency: 'AUD',  glyph: 'A$', kind: 'Fiat',                          real: 410.50,   bonus: 85, locked: 0,   eurValue: 240.06, isBase: true, inPlay: true },
+  { currency: 'ETH',  glyph: 'Ξ',  kind: 'Crypto',                        real: 0.021,    bonus: 0,  locked: 0,   eurValue: 62.16 },
+  { currency: 'DOGE', glyph: 'Ð',  kind: 'Crypto',                        real: 0,        bonus: 0,  locked: 0,   eurValue: 0 },
+  { currency: 'XRP',  glyph: 'X',  kind: 'Crypto',                        real: 0,        bonus: 0,  locked: 0,   eurValue: 0 },
+]
+
+// Never truncate crypto amounts to 2 decimals -- 0.004 vs 0.0041 BTC is a real difference.
+export const WALLET_CRYPTO_DECIMALS: Record<string, number> = { BTC: 8, ETH: 6, DOGE: 2, XRP: 2 }
+
+export function fmtWalletAmount(n: number, w: PlayerWallet): string {
+  const decimals = w.kind === 'Crypto' ? (WALLET_CRYPTO_DECIMALS[w.currency] ?? 8) : 2
+  return n.toLocaleString('en', { minimumFractionDigits: decimals, maximumFractionDigits: decimals })
+}
+
+export const fmtEur = (n: number) => `€${n.toLocaleString('en', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+
+export const WALLETS_TOTAL_EUR = PLAYER_WALLETS.reduce((sum, w) => sum + w.eurValue, 0)
+export const FUNDED_WALLETS = PLAYER_WALLETS.filter(w => w.real > 0 || w.bonus > 0 || w.locked > 0)
+export const EMPTY_WALLETS = PLAYER_WALLETS.filter(w => !(w.real > 0 || w.bonus > 0 || w.locked > 0))
