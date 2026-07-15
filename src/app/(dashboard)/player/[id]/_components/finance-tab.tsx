@@ -234,7 +234,12 @@ function FinanceFiltersPopover() {
   )
 }
 
-export function FinanceTab({ playerCurrency, fxRate }: { playerCurrency: string; fxRate: number }) {
+export function FinanceTab({ playerCurrency, fxRate, dateRange, onDateRangeChange }: {
+  playerCurrency: string
+  fxRate: number
+  dateRange: DateRange | undefined
+  onDateRangeChange: (range: DateRange | undefined) => void
+}) {
   const [selectedTx, setSelectedTx] = useState<FinanceRow | null>(null)
   const [txDrawerOpen, setTxDrawerOpen] = useState(false)
   const [copiedTxId, setCopiedTxId] = useState<string | null>(null)
@@ -266,7 +271,6 @@ export function FinanceTab({ playerCurrency, fxRate }: { playerCurrency: string;
   const [financeColOpen, setFinanceColOpen] = useState(false)
   const [financeTxIdFrozen, setFinanceTxIdFrozen] = useState(true)
 
-  const [financeDateRange, setFinanceDateRange] = useState<DateRange | undefined>(undefined)
 
   function toggleFinanceCol(key: FinanceColKey) {
     setFinanceVisibleCols(prev => {
@@ -376,7 +380,7 @@ export function FinanceTab({ playerCurrency, fxRate }: { playerCurrency: string;
             </PopoverContent>
           </Popover>
 
-          <DateRangeFilter value={financeDateRange} onChange={setFinanceDateRange} mobileLabel="none" />
+          <DateRangeFilter value={dateRange} onChange={onDateRangeChange} mobileLabel="none" />
 
           <Button variant="outline" size="sm" className="gap-2">
             <Download className="size-3.5" />

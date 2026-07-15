@@ -153,11 +153,13 @@ function BonusFiltersPopover() {
   )
 }
 
-export function BonusesTab({ playerCurrency, fxRate, subtab, onSubtabChange }: {
+export function BonusesTab({ playerCurrency, fxRate, subtab, onSubtabChange, dateRange, onDateRangeChange }: {
   playerCurrency: string
   fxRate: number
   subtab: string
   onSubtabChange: (v: string) => void
+  dateRange: DateRange | undefined
+  onDateRangeChange: (range: DateRange | undefined) => void
 }) {
   const [bonusScrollNode, setBonusScrollNode] = useState<HTMLDivElement | null>(null)
   const [bonusHasOverflow, setBonusHasOverflow] = useState(false)
@@ -178,7 +180,6 @@ export function BonusesTab({ playerCurrency, fxRate, subtab, onSubtabChange }: {
   )
   const [bonusColOpen, setBonusColOpen] = useState(false)
   const [bonusIdFrozen, setBonusIdFrozen] = useState(true)
-  const [bonusDateRange, setBonusDateRange] = useState<DateRange | undefined>(undefined)
   const [bonusStatuses, setBonusStatuses] = useState<Record<string, BonusStatus>>({})
   const [pendingBonusStatus, setPendingBonusStatus] = useState<{ id: string; from: BonusStatus; to: BonusStatus } | null>(null)
   const [copiedBonusId, setCopiedBonusId] = useState<string | null>(null)
@@ -278,7 +279,7 @@ export function BonusesTab({ playerCurrency, fxRate, subtab, onSubtabChange }: {
             </PopoverContent>
           </Popover>
 
-          <DateRangeFilter value={bonusDateRange} onChange={setBonusDateRange} mobileLabel="none" />
+          <DateRangeFilter value={dateRange} onChange={onDateRangeChange} mobileLabel="none" />
 
           <Button variant="outline" size="sm" className="gap-2">
             <Download className="size-3.5" />

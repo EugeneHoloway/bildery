@@ -72,11 +72,11 @@ src/app/(dashboard)/player/[id]/
 
 ## Этап 3 -- период (DateRangeFilter) активной табы в URL (маленький, один коммит)
 
-- [ ] Сериализация только для АКТИВНОЙ табы (решение №4): если выбранный диапазон совпадает с пресетом -- `?period=<slug>` (slug из label пресета, напр. `last-28-days`); если кастомный -- `?from=YYYY-MM-DD&to=YYYY-MM-DD`. Дефолтный пресет -> параметра нет.
-- [ ] При маунте табы: если в URL есть period/from/to и таба активна -- инициализировать её dateRange из URL.
-- [ ] При переключении табы period/from/to из URL убираются (общая функция синка из этапа 1), состояние неактивных таб остаётся в React.
-- [ ] `src/components/ui/date-range-filter.tsx` НЕ трогать (используется reports и all-players). Вся сериализация -- на уровне страницы/таб. Проверить, что reports и all-players не задеты.
-- [ ] Коммит: `feat(player): reflect active tab date range in URL`.
+- [x] Сериализация только для АКТИВНОЙ табы (решение №4): если выбранный диапазон совпадает с пресетом -- `?period=<slug>` (slug из label пресета, напр. `last-28-days`); если кастомный -- `?from=YYYY-MM-DD&to=YYYY-MM-DD`. Дефолтный пресет -> параметра нет.
+- [x] При маунте табы: если в URL есть period/from/to и таба активна -- инициализировать её dateRange из URL.
+- [x] При переключении табы period/from/to из URL убираются (общая функция синка из этапа 1), состояние неактивных таб остаётся в React.
+- [x] `src/components/ui/date-range-filter.tsx` НЕ трогать (используется reports и all-players). Вся сериализация -- на уровне страницы/таб. Проверить, что reports и all-players не задеты.
+- [x] Коммит: `feat(player): reflect active tab date range in URL`.
 
 ## Этап 4 (опциональный, делать по потребности) -- фильтры таблиц в URL
 

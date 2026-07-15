@@ -96,14 +96,18 @@ const MOCK_GAME_HISTORY: GameHistoryRow[] = [
   { game: 'Purrrminator',                     time: '2025-09-13 06:29:47.155', id: '226256390981', exitId: '29304152-6374-5f78-0819-203142536475', provider: 'Relax',    brand: 'Relax',         bet: 0.5,  win: 0,      balanceBet: 0.5,  balanceWin: 0,      bonusBet: 0, bonusWin: 0,    balanceGgr: 0.5,   bonusGgr: 0, ggr: 0.5, rollover: 0 },
 ]
 
-export function GameHistoryTab({ playerCurrency, fxRate }: { playerCurrency: string; fxRate: number }) {
+export function GameHistoryTab({ playerCurrency, fxRate, dateRange, onDateRangeChange }: {
+  playerCurrency: string
+  fxRate: number
+  dateRange: DateRange | undefined
+  onDateRangeChange: (range: DateRange | undefined) => void
+}) {
   const [gameSearch, setGameSearch] = useState('')
   const [gameVisibleCols, setGameVisibleCols] = useState<Set<GameHistoryColKey>>(
     new Set<GameHistoryColKey>(['time','id','provider','brand','bet','win','balanceBet','balanceWin','bonusBet','bonusWin','balanceGgr','bonusGgr','ggr','rollover','exitId'])
   )
   const [gameColOpen, setGameColOpen] = useState(false)
   const [gameNameFrozen, setGameNameFrozen] = useState(true)
-  const [gameDateRange, setGameDateRange] = useState<DateRange | undefined>(undefined)
 
   function toggleGameCol(key: GameHistoryColKey) {
     setGameVisibleCols(prev => {
@@ -193,7 +197,7 @@ export function GameHistoryTab({ playerCurrency, fxRate }: { playerCurrency: str
             </PopoverContent>
           </Popover>
 
-          <DateRangeFilter value={gameDateRange} onChange={setGameDateRange} mobileLabel="none" />
+          <DateRangeFilter value={dateRange} onChange={onDateRangeChange} mobileLabel="none" />
 
           <Button variant="outline" size="sm" className="gap-2">
             <Download className="size-3.5" />

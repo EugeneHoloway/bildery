@@ -12,6 +12,8 @@ import { LimitsTab } from './_components/limits-tab'
 import { OverviewTab } from './_components/overview-tab'
 import { DuplicateFlag, type DuplicateState, PLAYER_WALLETS } from './_components/shared'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { DATE_RANGE_PRESETS } from '@/components/ui/date-range-filter'
+import type { DateRange } from 'react-day-picker'
 import { CircleDot, Copy, Check, Crown, BadgeCheck, Trophy } from 'lucide-react'
 import { Checkbox } from '@/components/ui/checkbox'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog'
@@ -60,6 +62,49 @@ const TAB_VALUES = new Set(TABS.map(t => t.value))
 // benefits/packages are disabled sub-tabs -- not restorable from URL
 const BONUS_SUBTAB_VALUES = new Set(['bonuses', 'shop'])
 
+// Tabs that have a DateRangeFilter; only the active tab's range is reflected in the URL
+const DATE_TABS = new Set(['finance', 'bonuses', 'games-history', 'duplicates'])
+
+const periodSlug = (label: string) => label.toLowerCase().replace(/\s+/g, '-')
+
+// Local-date YYYY-MM-DD (toISOString would shift the day across timezones)
+const fmtDateParam = (d: Date) =>
+  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+
+function parseDateParam(s: string | null): Date | undefined {
+  const m = s && /^(\d{4})-(\d{2})-(\d{2})$/.exec(s)
+  if (!m) return undefined
+  const d = new Date(+m[1], +m[2] - 1, +m[3])
+  // JS Date rolls invalid months/days over (2026-99-99 -> a 2034 date) -- require a round-trip match
+  return d.getMonth() === +m[2] - 1 && d.getDate() === +m[3] ? d : undefined
+}
+
+function dateRangeFromParams(params: { get(name: string): string | null }): DateRange | undefined {
+  const period = params.get('period')
+  if (period) {
+    const preset = DATE_RANGE_PRESETS.find(p => periodSlug(p.label) === period)
+    return preset?.range()
+  }
+  const from = parseDateParam(params.get('from'))
+  if (!from) return undefined
+  return { from, to: parseDateParam(params.get('to')) }
+}
+
+// Preset match -> ?period=<slug>; custom range -> ?from/?to; no range -> no params
+function dateRangeParams(range: DateRange | undefined): [string, string][] {
+  if (!range?.from) return []
+  const { from, to } = range
+  if (to) {
+    const preset = DATE_RANGE_PRESETS.find(p => {
+      const r = p.range()
+      return r.from.toDateString() === from.toDateString() && r.to.toDateString() === to.toDateString()
+    })
+    if (preset) return [['period', periodSlug(preset.label)]]
+    return [['from', fmtDateParam(from)], ['to', fmtDateParam(to)]]
+  }
+  return [['from', fmtDateParam(from)]]
+}
+
 
 export default function PlayerProfilePage() {
   const { user, loading } = useAuth()
@@ -83,6 +128,17 @@ export default function PlayerProfilePage() {
     return searchParams.get('tab') === 'bonuses' && s && BONUS_SUBTAB_VALUES.has(s) ? s : 'bonuses'
   })
 
+  // Date range per tab, keyed by tab value; inactive tabs keep theirs in React only
+  const [dateRanges, setDateRanges] = useState<Record<string, DateRange | undefined>>(() => {
+    const t = searchParams.get('tab')
+    if (!t || !DATE_TABS.has(t)) return {}
+    const range = dateRangeFromParams(searchParams)
+    return range ? { [t]: range } : {}
+  })
+
+  const setTabDateRange = (tabValue: string) => (range: DateRange | undefined) =>
+    setDateRanges(prev => ({ ...prev, [tabValue]: range }))
+
   // Single URL sync point -- only deviations from defaults end up in the query,
   // via replaceState so tab switches never pollute browser history.
   useEffect(() => {
@@ -90,8 +146,9 @@ export default function PlayerProfilePage() {
     url.search = ''
     if (tab !== 'overview') url.searchParams.set('tab', tab)
     if (tab === 'bonuses' && bonusSubtab !== 'bonuses') url.searchParams.set('subtab', bonusSubtab)
+    for (const [k, v] of dateRangeParams(dateRanges[tab])) url.searchParams.set(k, v)
     window.history.replaceState(null, '', url)
-  }, [tab, bonusSubtab])
+  }, [tab, bonusSubtab, dateRanges])
 
   function copyId() {
     navigator.clipboard.writeText(id)
@@ -333,16 +390,16 @@ export default function PlayerProfilePage() {
           </TabsContent>
 
           <TabsContent value="finance" forceMount className="flex flex-col gap-4 data-[state=inactive]:hidden">
-            <FinanceTab playerCurrency={playerCurrency} fxRate={fxRate} />
+            <FinanceTab playerCurrency={playerCurrency} fxRate={fxRate} dateRange={dateRanges['finance']} onDateRangeChange={setTabDateRange('finance')} />
           </TabsContent>
           <TabsContent value="statistics">
             <p className="text-sm text-muted-foreground">Statistics content coming soon.</p>
           </TabsContent>
           <TabsContent value="bonuses" forceMount className="flex flex-col gap-4 data-[state=inactive]:hidden">
-            <BonusesTab playerCurrency={playerCurrency} fxRate={fxRate} subtab={bonusSubtab} onSubtabChange={setBonusSubtab} />
+            <BonusesTab playerCurrency={playerCurrency} fxRate={fxRate} subtab={bonusSubtab} onSubtabChange={setBonusSubtab} dateRange={dateRanges['bonuses']} onDateRangeChange={setTabDateRange('bonuses')} />
           </TabsContent>
           <TabsContent value="games-history" forceMount className="flex flex-col gap-4 data-[state=inactive]:hidden">
-            <GameHistoryTab playerCurrency={playerCurrency} fxRate={fxRate} />
+            <GameHistoryTab playerCurrency={playerCurrency} fxRate={fxRate} dateRange={dateRanges['games-history']} onDateRangeChange={setTabDateRange('games-history')} />
           </TabsContent>
           <TabsContent value="sport-history">
             <div className="flex flex-col items-center gap-3 text-center py-20">
@@ -356,7 +413,7 @@ export default function PlayerProfilePage() {
             </div>
           </TabsContent>
           <TabsContent value="duplicates" forceMount className="flex flex-col gap-4 data-[state=inactive]:hidden">
-            <DuplicatesTab />
+            <DuplicatesTab dateRange={dateRanges['duplicates']} onDateRangeChange={setTabDateRange('duplicates')} />
           </TabsContent>
           <TabsContent value="limits" forceMount className="flex flex-col gap-6 data-[state=inactive]:hidden">
             <LimitsTab playerName={playerName} playerCurrency={playerCurrency} fxRate={fxRate} />

@@ -326,7 +326,10 @@ function DupFiltersPopover() {
   )
 }
 
-export function DuplicatesTab() {
+export function DuplicatesTab({ dateRange, onDateRangeChange }: {
+  dateRange: DateRange | undefined
+  onDateRangeChange: (range: DateRange | undefined) => void
+}) {
   const [selectedDuplicate, setSelectedDuplicate] = useState<DuplicateAccount | null>(null)
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [copiedDupId, setCopiedDupId] = useState<string | null>(null)
@@ -351,7 +354,6 @@ export function DuplicatesTab() {
   )
   const [dupColOpen, setDupColOpen] = useState(false)
   const [dupPlayerIdFrozen, setDupPlayerIdFrozen] = useState(true)
-  const [dupDateRange, setDupDateRange] = useState<DateRange | undefined>(undefined)
 
   function toggleDupCol(key: DupColKey) {
     setDupVisibleCols(prev => {
@@ -426,7 +428,7 @@ export function DuplicatesTab() {
             </PopoverContent>
           </Popover>
 
-          <DateRangeFilter value={dupDateRange} onChange={setDupDateRange} mobileLabel="none" />
+          <DateRangeFilter value={dateRange} onChange={onDateRangeChange} mobileLabel="none" />
 
           <Button variant="outline" size="sm" className="gap-2">
             <Download className="size-3.5" />
