@@ -188,13 +188,6 @@ const MATCH_REASON_COLORS: Record<MatchReason, string> = {
   Payment: 'bg-muted text-muted-foreground border-border',
 }
 
-const STATUS_GROUP_COLOR: Record<string, string> = {
-  active:     'text-success',
-  restricted: 'text-warning',
-  closed:     'text-destructive',
-  archived:   'text-muted-foreground',
-}
-
 const DUP_COLS = [
   { key: 'id',             label: 'Player ID' },
   { key: 'name',           label: 'Name' },

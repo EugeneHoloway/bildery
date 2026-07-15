@@ -25,16 +25,16 @@
 
 ## Этап 0 -- подготовка
 
-- [ ] Убедиться, что рабочее дерево чистое; незакоммиченные изменения (all-players, player page, reports, date-range-filter.tsx) закоммитить отдельно ДО начала.
-- [ ] `npm run dev`, открыть `http://localhost:3000/player/2883575941`, зафиксировать текущее поведение (все табы, суб-табы, дровери) как базу для сравнения.
+- [x] Убедиться, что рабочее дерево чистое; незакоммиченные изменения (all-players, player page, reports, date-range-filter.tsx) закоммитить отдельно ДО начала.
+- [x] `npm run dev`, открыть `http://localhost:3000/player/2883575941`, зафиксировать текущее поведение (все табы, суб-табы, дровери) как базу для сравнения.
 
 ## Этап 1 -- `?tab=` и `?subtab=` в URL (маленький, один коммит)
 
-- [ ] Перевести главный `<Tabs>` в контролируемый режим: `const [tab, setTab] = useState(...)`.
-- [ ] Начальное значение читать из query (`useSearchParams` из `next/navigation`; если Next потребует Suspense-границу для `useSearchParams` -- обернуть, либо читать `window.location.search` в `useState`-инициализаторе с fallback `'overview'` на сервере). Валидация: значение должно входить в список `TABS.map(t => t.value)`, иначе `overview`.
-- [ ] Аналогично `bonusSubtab`: читать `?subtab=`, валидные значения только `bonuses` и `shop` (disabled-табы `benefits`/`packages` отклонять).
-- [ ] Единая функция синхронизации URL: собирает query из текущего состояния и вызывает `window.history.replaceState(null, '', url)`. Правила: `tab=overview` -> параметр отсутствует; `subtab` пишется только при `tab=bonuses` и `subtab !== 'bonuses'`; при уходе с bonuses `subtab` удаляется.
-- [ ] Проверка (чеклист внизу) + коммит: `feat(player): reflect active tab in URL query params`.
+- [x] Перевести главный `<Tabs>` в контролируемый режим: `const [tab, setTab] = useState(...)`.
+- [x] Начальное значение читать из query (`useSearchParams` из `next/navigation`; если Next потребует Suspense-границу для `useSearchParams` -- обернуть, либо читать `window.location.search` в `useState`-инициализаторе с fallback `'overview'` на сервере). Валидация: значение должно входить в список `TABS.map(t => t.value)`, иначе `overview`.
+- [x] Аналогично `bonusSubtab`: читать `?subtab=`, валидные значения только `bonuses` и `shop` (disabled-табы `benefits`/`packages` отклонять).
+- [x] Единая функция синхронизации URL: собирает query из текущего состояния и вызывает `window.history.replaceState(null, '', url)`. Правила: `tab=overview` -> параметр отсутствует; `subtab` пишется только при `tab=bonuses` и `subtab !== 'bonuses'`; при уходе с bonuses `subtab` удаляется.
+- [x] Проверка (чеклист внизу) + коммит: `feat(player): reflect active tab in URL query params`.
 
 ## Этап 2 -- разрез монолита (по одной табе = один коммит)
 
@@ -62,13 +62,13 @@ src/app/(dashboard)/player/[id]/
 
 Порядок (от простого к сложному, каждый шаг -- проверка в браузере + коммит `refactor(player): extract <name> tab`):
 
-- [ ] 2.1 `game-history-tab.tsx` (самая самодостаточная -- обкатка паттерна)
-- [ ] 2.2 `duplicates-tab.tsx`
-- [ ] 2.3 `finance-tab.tsx`
-- [ ] 2.4 `bonuses-tab.tsx` (самая большая: суб-табы, дровер с wagering progress)
-- [ ] 2.5 `limits-tab.tsx`
-- [ ] 2.6 `overview-tab.tsx` + `shared.tsx`; заглушки statistics/sport-history можно оставить inline в page.tsx
-- [ ] 2.7 Финальный проход: `page.tsx` должен остаться ~400-600 строк; `npm run build` без ошибок
+- [x] 2.1 `game-history-tab.tsx` (самая самодостаточная -- обкатка паттерна)
+- [x] 2.2 `duplicates-tab.tsx`
+- [x] 2.3 `finance-tab.tsx`
+- [x] 2.4 `bonuses-tab.tsx` (самая большая: суб-табы, дровер с wagering progress)
+- [x] 2.5 `limits-tab.tsx`
+- [x] 2.6 `overview-tab.tsx` + `shared.tsx`; заглушки statistics/sport-history можно оставить inline в page.tsx
+- [x] 2.7 Финальный проход: `page.tsx` должен остаться ~400-600 строк; `npm run build` без ошибок
 
 ## Этап 3 -- период (DateRangeFilter) активной табы в URL (маленький, один коммит)
 

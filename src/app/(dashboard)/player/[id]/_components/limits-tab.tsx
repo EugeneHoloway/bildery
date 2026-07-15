@@ -114,12 +114,7 @@ export function LimitsTab({ playerName, playerCurrency, fxRate }: {
 
   function openAddPl() {
     setPlEditIndex(null); setPlType('loss_limit'); setPlScope('daily'); setPlValue(''); setPlDrawerOpen(true)
-  }
-  function openEditPl(idx: number) {
-    const l = playerLimits[idx]
-    setPlEditIndex(idx); setPlType(l._type); setPlScope(l._scope); setPlValue(l._value); setPlDrawerOpen(true)
-  }
-  function savePl() {
+  }  function savePl() {
     const typeDef = PL_TYPES.find(t => t.value === plType)!
     const unit = typeDef.unit
     const scopeLabel = PL_SCOPE_LABELS[plScope] || plScope
@@ -137,20 +132,10 @@ export function LimitsTab({ playerName, playerCurrency, fxRate }: {
     }
     setPlDrawerOpen(false)
   }
-  function togglePl(idx: number) {
-    setPlayerLimits(prev => prev.map((l, i) => i === idx ? { ...l, disabled: !l.disabled } : l))
-  }
-
   function openAddOl() {
     setOlEditIndex(null); setOlType('max_withdrawal'); setOlScope('per_transaction')
     setOlValue(''); setOlCurrency('EUR'); setOlTag(''); setOlNote(''); setOlDrawerOpen(true)
-  }
-  function openEditOl(idx: number) {
-    const l = operatorLimits[idx]
-    setOlEditIndex(idx); setOlType(l._type); setOlScope(l._scope)
-    setOlValue(l.value); setOlCurrency('EUR'); setOlTag(l.tag); setOlNote(''); setOlDrawerOpen(true)
-  }
-  function saveOl() {
+  }  function saveOl() {
     const name = OL_TYPE_NAMES[olType] || 'Custom'
     const scope = OL_SCOPE_LABELS[olScope] || olScope
     const today = new Date().toISOString().split('T')[0]
@@ -178,10 +163,6 @@ export function LimitsTab({ playerName, playerCurrency, fxRate }: {
     }
     setOlDrawerOpen(false)
   }
-  function toggleOl(idx: number) {
-    setOperatorLimits(prev => prev.map((l, i) => i === idx ? { ...l, disabled: !l.disabled } : l))
-  }
-
   return (
     <>
 

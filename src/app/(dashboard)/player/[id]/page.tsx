@@ -14,7 +14,6 @@ import { DuplicateFlag, type DuplicateState, PLAYER_WALLETS } from './_component
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { CircleDot, Copy, Check, Crown, BadgeCheck, Trophy } from 'lucide-react'
 import { Checkbox } from '@/components/ui/checkbox'
-import { Button } from '@/components/ui/button'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog'
 import {
   Select,
@@ -140,10 +139,6 @@ export default function PlayerProfilePage() {
       statuses: ['Not Verified', 'Archived'],
     },
   ]
-
-  const groupColorByStatus = Object.fromEntries(
-    STATUS_GROUPS.flatMap(g => g.statuses.map(s => [s, g.color]))
-  )
 
   useEffect(() => {
     if (!loading && !user) router.replace('/')
