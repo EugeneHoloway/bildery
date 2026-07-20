@@ -44,7 +44,6 @@ export function DuplicateFlag({ state }: { state: DuplicateState }) {
         <Tooltip>
           <TooltipTrigger asChild>
             <span className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground">
-              <Flag className="size-3.5 fill-destructive text-destructive" />
               Duplicates
               <span className="inline-flex items-center rounded-md border border-border px-2 py-0.5 text-xs font-semibold text-foreground">6</span>
             </span>
@@ -132,17 +131,19 @@ export type PlayerWallet = {
   bonus: number
   locked: number
   eurValue: number
+  fxRate: string
+  fxSource: string
   isBase?: boolean
   inPlay?: boolean
 }
 
 export const PLAYER_WALLETS: PlayerWallet[] = [
-  { currency: 'USDT', glyph: '₮',  kind: 'Stablecoin', network: 'TRC-20', real: 850,      bonus: 0,  locked: 120, eurValue: 724.20 },
-  { currency: 'BTC',  glyph: '₿',  kind: 'Crypto',                        real: 0.00412,  bonus: 0,  locked: 0,   eurValue: 245.15 },
-  { currency: 'AUD',  glyph: 'A$', kind: 'Fiat',                          real: 410.50,   bonus: 85, locked: 0,   eurValue: 240.06, isBase: true, inPlay: true },
-  { currency: 'ETH',  glyph: 'Ξ',  kind: 'Crypto',                        real: 0.021,    bonus: 0,  locked: 0,   eurValue: 62.16 },
-  { currency: 'DOGE', glyph: 'Ð',  kind: 'Crypto',                        real: 0,        bonus: 0,  locked: 0,   eurValue: 0 },
-  { currency: 'XRP',  glyph: 'X',  kind: 'Crypto',                        real: 0,        bonus: 0,  locked: 0,   eurValue: 0 },
+  { currency: 'USDT', glyph: '₮',  kind: 'Stablecoin', network: 'TRC-20', real: 850,      bonus: 0,  locked: 120, eurValue: 724.20, fxRate: '1 USDT = €0.8520',      fxSource: 'Kraken · 14:32' },
+  { currency: 'BTC',  glyph: '₿',  kind: 'Crypto',                        real: 0.00412,  bonus: 0,  locked: 0,   eurValue: 245.15, fxRate: '1 BTC = €59,502.43',    fxSource: 'Kraken · 14:32' },
+  { currency: 'AUD',  glyph: 'A$', kind: 'Fiat',                          real: 410.50,   bonus: 85, locked: 0,   eurValue: 240.06, fxRate: '1 AUD = €0.5848',       fxSource: 'Frankfurter · 14:32', isBase: true, inPlay: true },
+  { currency: 'ETH',  glyph: 'Ξ',  kind: 'Crypto',                        real: 0.021,    bonus: 0,  locked: 0,   eurValue: 62.16,  fxRate: '1 ETH = €2,960.00',     fxSource: 'Kraken · 14:32' },
+  { currency: 'DOGE', glyph: 'Ð',  kind: 'Crypto',                        real: 0,        bonus: 0,  locked: 0,   eurValue: 0,      fxRate: '1 DOGE = €0.1832',      fxSource: 'Kraken · 14:32' },
+  { currency: 'XRP',  glyph: 'X',  kind: 'Crypto',                        real: 0,        bonus: 0,  locked: 0,   eurValue: 0,      fxRate: '1 XRP = €1.9420',       fxSource: 'Kraken · 14:32' },
 ]
 
 // Never truncate crypto amounts to 2 decimals -- 0.004 vs 0.0041 BTC is a real difference.

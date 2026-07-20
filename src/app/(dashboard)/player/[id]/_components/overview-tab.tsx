@@ -13,21 +13,25 @@ import {
 } from '@/components/ui/table'
 import { StatCard, PLAYER_WALLETS, FUNDED_WALLETS, EMPTY_WALLETS, WALLETS_TOTAL_EUR, fmtEur, fmtWalletAmount } from './shared'
 
+function ShareRing({ share }: { share: number }) {
+  const ring = 'radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 3px))'
+  return (
+    <div
+      className="size-4 rounded-full shrink-0"
+      style={{
+        background: `conic-gradient(var(--color-foreground) ${share * 3.6}deg, var(--color-border) 0)`,
+        mask: ring,
+        WebkitMask: ring,
+      }}
+    />
+  )
+}
+
 function WalletsCard() {
   const [showEmpty, setShowEmpty] = useState(false)
   const wallets = showEmpty ? [...FUNDED_WALLETS, ...EMPTY_WALLETS] : FUNDED_WALLETS
   return (
     <div className="rounded-2xl border border-border bg-card overflow-hidden">
-      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 px-4 py-3 border-b border-border">
-        <div className="flex items-baseline gap-2">
-          <span className="text-sm font-medium">Wallets</span>
-          <span className="text-xs text-muted-foreground">{PLAYER_WALLETS.length} currencies</span>
-        </div>
-        <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-          <span className="text-sm font-semibold tabular-nums">Total ≈ {fmtEur(WALLETS_TOTAL_EUR)}</span>
-          <span className="text-xs text-muted-foreground">Rates as of 14:32 · Frankfurter / Kraken</span>
-        </div>
-      </div>
       <div className="overflow-x-auto">
         <Table className="min-w-max sm:min-w-full">
           <TableHeader className="bg-muted/60">
@@ -37,6 +41,7 @@ function WalletsCard() {
               <TableHead className="text-sm font-medium text-foreground text-right">Bonus</TableHead>
               <TableHead className="text-sm font-medium text-foreground text-right">Locked</TableHead>
               <TableHead className="text-sm font-medium text-foreground text-right">≈ EUR</TableHead>
+              <TableHead className="text-sm font-medium text-foreground text-right">Exchange</TableHead>
               <TableHead className="text-sm font-medium text-foreground text-right w-[110px]">Share</TableHead>
             </TableRow>
           </TableHeader>
@@ -89,14 +94,16 @@ function WalletsCard() {
                   </TableCell>
                   <TableCell className="text-right whitespace-nowrap">
                     <span className={`text-sm font-medium tabular-nums ${empty ? 'text-muted-foreground' : ''}`}>
-                      {w.kind === 'Fiat' || w.eurValue === 0 ? fmtEur(w.eurValue) : `≈ ${fmtEur(w.eurValue)}`}
+                      {fmtEur(w.eurValue)}
                     </span>
+                  </TableCell>
+                  <TableCell className="text-right whitespace-nowrap">
+                    <span className="block text-sm tabular-nums">{w.fxRate}</span>
+                    <span className="block text-xs text-muted-foreground">{w.fxSource}</span>
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center justify-end gap-2">
-                      <div className="h-1.5 w-12 rounded-full bg-muted-foreground/15">
-                        <div className="h-1.5 rounded-full bg-foreground transition-all" style={{ width: `${share}%` }} />
-                      </div>
+                      <ShareRing share={share} />
                       <span className="text-xs text-muted-foreground tabular-nums w-8 text-right">{share}%</span>
                     </div>
                   </TableCell>
@@ -130,7 +137,7 @@ export function OverviewTab() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <StatCard
                 label="Total balance"
-                value={`≈ ${fmtEur(WALLETS_TOTAL_EUR)}`}
+                value={fmtEur(WALLETS_TOTAL_EUR)}
                 original={`${PLAYER_WALLETS.length} wallets · ${FUNDED_WALLETS.length} with funds`}
                 change="-€290.00"
                 trend="down"
