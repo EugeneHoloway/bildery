@@ -121,6 +121,7 @@ export default function PlayerProfilePage() {
   const [status, setStatus] = useState<string>('Open')
   const [pendingStatus, setPendingStatus] = useState<string | null>(null)
   const [vip, setVip] = useState(false)
+  const [pendingVip, setPendingVip] = useState<boolean | null>(null)
   const [copied, setCopied] = useState(false)
 
   const [bonusSubtab, setBonusSubtab] = useState(() => {
@@ -295,6 +296,24 @@ export default function PlayerProfilePage() {
           </AlertDialogContent>
         </AlertDialog>
 
+        {/* VIP change confirmation */}
+        <AlertDialog open={pendingVip !== null} onOpenChange={open => { if (!open) setPendingVip(null) }}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>{pendingVip ? 'Grant VIP status?' : 'Remove VIP status?'}</AlertDialogTitle>
+              <AlertDialogDescription>
+                {pendingVip
+                  ? <>The player will be marked as <span className="font-medium text-foreground">VIP</span> and will get access to VIP terms. This action will take effect immediately.</>
+                  : <>The <span className="font-medium text-foreground">VIP</span> mark will be removed and the player will lose access to VIP terms. This action will take effect immediately.</>}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => setPendingVip(null)}>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={() => { if (pendingVip !== null) { setVip(pendingVip); setPendingVip(null) } }}>Apply</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
         {/* Player meta info bar */}
         <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
           {/* Country */}
@@ -351,7 +370,7 @@ export default function PlayerProfilePage() {
           <label className="flex items-center gap-1.5 cursor-pointer select-none">
             <Checkbox
               checked={vip}
-              onCheckedChange={checked => setVip(checked === true)}
+              onCheckedChange={checked => setPendingVip(checked === true)}
               id="vip-toggle"
             />
             <span className="text-sm font-medium text-muted-foreground">VIP</span>
