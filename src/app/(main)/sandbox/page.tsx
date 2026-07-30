@@ -15,6 +15,26 @@ import {
 
 const cards: SandboxCardData[] = [
   {
+    id: 'nps-feedback-loop',
+    tag: 'Architecture',
+    title: 'Client Feedback Intelligence',
+    description:
+      'Establish a proactive feedback loop to drive immediate action.',
+    cardStatus: 'Done',
+    sections: 17,
+    href: '/sandbox/nps-feedback-loop',
+    highlight: {
+      label: 'Deliverables:',
+      bullets: [
+        'Part A -- Feedback Response Loop',
+        'Part B -- Proactive NPS Survey',
+        'Backlog, taxonomy, severity matrix',
+      ],
+    },
+    languages: ['RU'],
+    locked: true,
+  },
+  {
     id: 'lemon',
     tag: 'Tech Task',
     title: 'Vetting Flow Iteration',

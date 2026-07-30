@@ -12,9 +12,11 @@ type Props = {
   open: boolean
   mode?: Mode
   onOpenChange: (open: boolean) => void
+  /** Called instead of the default redirect to /dashboard. */
+  onAuthenticated?: () => void
 }
 
-export function AuthDialog({ open, mode: initialMode = 'login', onOpenChange }: Props) {
+export function AuthDialog({ open, mode: initialMode = 'login', onOpenChange, onAuthenticated }: Props) {
   const [mode, setMode] = useState<Mode>(initialMode)
 
   useEffect(() => {
@@ -24,7 +26,8 @@ export function AuthDialog({ open, mode: initialMode = 'login', onOpenChange }: 
 
   function handleSuccess() {
     onOpenChange(false)
-    router.push('/dashboard')
+    if (onAuthenticated) onAuthenticated()
+    else router.push('/dashboard')
   }
 
   return (

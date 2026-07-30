@@ -3,11 +3,13 @@
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Activity, Check } from 'lucide-react'
+import { Activity, Check, Lock } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { useAuth } from '@/components/AuthProvider'
+import { AuthDialog } from '@/components/auth/AuthDialog'
 
 export type CardStatus = 'Initiated' | 'In progress' | 'Done'
 
@@ -24,14 +26,15 @@ export interface SandboxCardData {
     bullets: string[]
   }
   languages?: string[]
+  /** Card opens only for a signed-in user; otherwise the login dialog is shown. */
+  locked?: boolean
 }
 
 // Shows a tooltip with full text only when the content is actually truncated.
-// Navigates to href on click so the bullet behaves like the rest of the card.
-function TruncatedBullet({ text, href }: { text: string; href: string }) {
+// Click does whatever the rest of the card does — navigate, or ask for login.
+function TruncatedBullet({ text, onActivate }: { text: string; onActivate: () => void }) {
   const ref = useRef<HTMLSpanElement>(null)
   const [truncated, setTruncated] = useState(false)
-  const router = useRouter()
 
   useEffect(() => {
     const el = ref.current
@@ -48,7 +51,7 @@ function TruncatedBullet({ text, href }: { text: string; href: string }) {
       <TooltipTrigger asChild>
         <span
           ref={ref}
-          onClick={() => router.push(href)}
+          onClick={onActivate}
           className="truncate text-sm leading-snug text-muted-foreground pointer-events-auto cursor-pointer"
         >
           {text}
@@ -60,6 +63,19 @@ function TruncatedBullet({ text, href }: { text: string; href: string }) {
 }
 
 export function SandboxCard({ card }: { card: SandboxCardData }) {
+  const { user, loading } = useAuth()
+  const router = useRouter()
+  const [authOpen, setAuthOpen] = useState(false)
+
+  // While the session is still loading we keep the plain link — the page itself
+  // gates the content anyway, so a stale click can never leak anything.
+  const gated = Boolean(card.locked) && !loading && !user
+
+  const activate = () => {
+    if (gated) setAuthOpen(true)
+    else router.push(card.href)
+  }
+
   return (
     <div
       className={cn(
@@ -74,12 +90,21 @@ export function SandboxCard({ card }: { card: SandboxCardData }) {
         'hover:border-subtle-border hover:shadow-card-hover',
       )}
     >
-      {/* Stretched link — makes the whole card clickable */}
-      <Link
-        href={card.href}
-        className="absolute inset-0 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-        aria-label={`View ${card.title}`}
-      />
+      {/* Stretched hit area — makes the whole card clickable */}
+      {gated ? (
+        <button
+          type="button"
+          onClick={() => setAuthOpen(true)}
+          className="absolute inset-0 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          aria-label={`Login to view ${card.title}`}
+        />
+      ) : (
+        <Link
+          href={card.href}
+          className="absolute inset-0 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          aria-label={`View ${card.title}`}
+        />
+      )}
 
       {/* Top */}
       <div className="flex flex-1 flex-col gap-3">
@@ -92,12 +117,17 @@ export function SandboxCard({ card }: { card: SandboxCardData }) {
               {card.sections} sections
             </span>
           </div>
-          <Badge
-            variant="secondary"
-            className="relative z-10 shrink-0"
-          >
-            {card.tag}
-          </Badge>
+          <div className="flex shrink-0 items-center gap-1.5">
+            {gated && (
+              <Lock className="size-3.5 text-muted-foreground" aria-label="Requires login" />
+            )}
+            <Badge
+              variant="secondary"
+              className="relative z-10 shrink-0"
+            >
+              {card.tag}
+            </Badge>
+          </div>
         </div>
 
         {card.highlight ? (
@@ -111,7 +141,7 @@ export function SandboxCard({ card }: { card: SandboxCardData }) {
                   <span className="mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-full bg-foreground text-background">
                     <Check className="size-2.5" strokeWidth={3} />
                   </span>
-                  <TruncatedBullet text={bullet} href={card.href} />
+                  <TruncatedBullet text={bullet} onActivate={activate} />
                 </li>
               ))}
             </ul>
@@ -140,10 +170,25 @@ export function SandboxCard({ card }: { card: SandboxCardData }) {
           <Activity className="size-3.5 shrink-0" />
           <span className="font-medium">{card.cardStatus}</span>
         </div>
-        <Button asChild className="relative z-10">
-          <Link href={card.href}>View details</Link>
-        </Button>
+        {gated ? (
+          <Button className="relative z-10" onClick={() => setAuthOpen(true)}>
+            View details
+          </Button>
+        ) : (
+          <Button asChild className="relative z-10">
+            <Link href={card.href}>View details</Link>
+          </Button>
+        )}
       </div>
+
+      {card.locked && (
+        <AuthDialog
+          open={authOpen}
+          mode="login"
+          onOpenChange={setAuthOpen}
+          onAuthenticated={() => router.push(card.href)}
+        />
+      )}
     </div>
   )
 }
