@@ -1,12 +1,30 @@
 'use client'
 
-import { useCallback, useLayoutEffect, useState } from 'react'
-import { Check, Columns2, Download, Pin, PinOff, Search } from 'lucide-react'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import {
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+  Columns2,
+  Download,
+  Pin,
+  PinOff,
+  Search,
+} from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { Button } from '@/components/ui/button'
 import { DateRangeFilter } from '@/components/ui/date-range-filter'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Input } from '@/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import type { DateRange } from 'react-day-picker'
 import {
   Table,
@@ -56,6 +74,12 @@ const GAME_HISTORY_COLS = [
 ] as const
 
 type GameHistoryColKey = typeof GAME_HISTORY_COLS[number]['key']
+
+const PAGE_SIZE_OPTIONS = ['10', '20', '50', '100']
+
+// Resizable "Game" column -- min/max content width (padding excluded).
+const GAME_COL_MIN_WIDTH = 96
+const GAME_COL_MAX_WIDTH = 560
 
 const GAME_COL_TIP: Record<GameHistoryColKey, string> = Object.fromEntries(
   GAME_HISTORY_COLS.map(c => [c.key, c.tip]),
@@ -108,6 +132,8 @@ export function GameHistoryTab({ playerCurrency, fxRate, dateRange, onDateRangeC
   )
   const [gameColOpen, setGameColOpen] = useState(false)
   const [gameNameFrozen, setGameNameFrozen] = useState(true)
+  const [gamePageSize, setGamePageSize] = useState(10)
+  const [gameCurrentPage, setGameCurrentPage] = useState(1)
 
   function toggleGameCol(key: GameHistoryColKey) {
     setGameVisibleCols(prev => {
@@ -130,6 +156,71 @@ export function GameHistoryTab({ playerCurrency, fxRate, dateRange, onDateRangeC
     window.addEventListener('resize', check)
     return () => { ro.disconnect(); window.removeEventListener('resize', check) }
   }, [gameScrollNode])
+
+  // Game column resize: width lives on an inner box so the auto table layout follows it.
+  const [gameColWidth, setGameColWidth] = useState<number | null>(null)
+  const [gameColResizing, setGameColResizing] = useState(false)
+  const gameNameBoxRef = useRef<HTMLSpanElement | null>(null)
+  const gameResizeStart = useRef<{ x: number; width: number } | null>(null)
+
+  const onGameResizeStart = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.pointerType === 'mouse' && e.button !== 0) return
+    const width = gameColWidth ?? gameNameBoxRef.current?.getBoundingClientRect().width ?? GAME_COL_MIN_WIDTH
+    gameResizeStart.current = { x: e.clientX, width }
+    setGameColWidth(width)
+    setGameColResizing(true)
+    e.currentTarget.setPointerCapture(e.pointerId)
+    e.preventDefault()
+  }
+
+  const onGameResizeMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    const start = gameResizeStart.current
+    if (!start) return
+    const next = Math.min(GAME_COL_MAX_WIDTH, Math.max(GAME_COL_MIN_WIDTH, start.width + (e.clientX - start.x)))
+    setGameColWidth(next)
+    e.preventDefault()
+  }
+
+  const onGameResizeEnd = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!gameResizeStart.current) return
+    gameResizeStart.current = null
+    setGameColResizing(false)
+    if (e.currentTarget.hasPointerCapture(e.pointerId)) e.currentTarget.releasePointerCapture(e.pointerId)
+  }
+
+  // Keep the resize cursor while dragging over the rest of the page, and kill text selection.
+  useEffect(() => {
+    if (!gameColResizing) return
+    const { body } = document
+    const prevCursor = body.style.cursor
+    const prevSelect = body.style.userSelect
+    body.style.cursor = 'col-resize'
+    body.style.userSelect = 'none'
+    return () => { body.style.cursor = prevCursor; body.style.userSelect = prevSelect }
+  }, [gameColResizing])
+
+  const gameFilteredRows = MOCK_GAME_HISTORY.filter(g =>
+    gameSearch === '' ||
+    g.game.toLowerCase().includes(gameSearch.toLowerCase()) ||
+    g.provider.toLowerCase().includes(gameSearch.toLowerCase()) ||
+    g.brand.toLowerCase().includes(gameSearch.toLowerCase()) ||
+    g.exitId.toLowerCase().includes(gameSearch.toLowerCase())
+  )
+  const gameTotalRows = gameFilteredRows.length
+  const gameTotalPages = Math.max(1, Math.ceil(gameTotalRows / gamePageSize))
+  const gamePage = Math.min(gameCurrentPage, gameTotalPages)
+  const gamePageStart = (gamePage - 1) * gamePageSize
+  const gamePageRows = gameFilteredRows.slice(gamePageStart, gamePageStart + gamePageSize)
+
+  function handleGamePageSizeChange(val: string) {
+    setGamePageSize(Number(val))
+    setGameCurrentPage(1)
+  }
+
+  const gameNameBoxStyle = gameColWidth === null ? undefined : { width: gameColWidth }
+  const gameColDivider = gameColResizing
+    ? "after:absolute after:right-0 after:top-0 after:bottom-0 after:w-px after:bg-muted-foreground after:content-['']"
+    : "after:absolute after:right-0 after:top-0 after:bottom-0 after:w-px after:bg-border after:content-['']"
 
   // Money is stored in EUR; show EUR with the player's native currency (e.g. AUD) as a secondary line.
   const gameEur = (n: number) => `${n < 0 ? '-' : ''}€${Math.abs(n).toLocaleString('en', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
@@ -159,7 +250,7 @@ export function GameHistoryTab({ playerCurrency, fxRate, dateRange, onDateRangeC
           <Input
             placeholder="Search..."
             value={gameSearch}
-            onChange={e => setGameSearch(e.target.value)}
+            onChange={e => { setGameSearch(e.target.value); setGameCurrentPage(1) }}
             className="pl-8 h-8 w-48 text-sm"
           />
         </div>
@@ -212,8 +303,23 @@ export function GameHistoryTab({ playerCurrency, fxRate, dateRange, onDateRangeC
           <Table className="min-w-max">
             <TableHeader className="bg-muted/60">
               <TableRow className="hover:bg-transparent border-b border-border">
-                <TableHead className={`text-sm font-medium text-foreground pl-4 ${gameNameFrozen ? "sticky left-0 z-20 bg-muted after:absolute after:right-0 after:top-0 after:bottom-0 after:w-px after:bg-border after:content-['']" : ""}`}>
-                  <GameHeadLabel label="Game" tip={GAME_COL_TIP.game} />
+                <TableHead className={`relative text-sm font-medium text-foreground pl-4 pr-3 ${gameNameFrozen ? 'sticky left-0 z-20 bg-muted' : ''} ${gameNameFrozen || gameColResizing ? gameColDivider : ''}`}>
+                  <span ref={gameNameBoxRef} style={gameNameBoxStyle} className="block truncate">
+                    <GameHeadLabel label="Game" tip={GAME_COL_TIP.game} />
+                  </span>
+                  <div
+                    role="separator"
+                    aria-orientation="vertical"
+                    aria-label="Resize Game column"
+                    onPointerDown={onGameResizeStart}
+                    onPointerMove={onGameResizeMove}
+                    onPointerUp={onGameResizeEnd}
+                    onPointerCancel={onGameResizeEnd}
+                    onDoubleClick={() => setGameColWidth(null)}
+                    className="group absolute -right-2 top-0 bottom-0 z-30 flex w-4 cursor-col-resize touch-none select-none items-center justify-center"
+                  >
+                    <span className={`h-5 w-1 rounded-full bg-muted-foreground transition-opacity ${gameColResizing ? 'opacity-100' : 'opacity-0 group-hover:opacity-100 [@media(hover:none)]:opacity-60'}`} />
+                  </div>
                 </TableHead>
                 {GAME_HISTORY_COLS.filter(col => col.key !== 'game').map(col => (
                   gameVisibleCols.has(col.key) && (
@@ -225,16 +331,16 @@ export function GameHistoryTab({ playerCurrency, fxRate, dateRange, onDateRangeC
               </TableRow>
             </TableHeader>
             <TableBody>
-              {MOCK_GAME_HISTORY.filter(g =>
-                gameSearch === '' ||
-                g.game.toLowerCase().includes(gameSearch.toLowerCase()) ||
-                g.provider.toLowerCase().includes(gameSearch.toLowerCase()) ||
-                g.brand.toLowerCase().includes(gameSearch.toLowerCase()) ||
-                g.exitId.toLowerCase().includes(gameSearch.toLowerCase())
-              ).map(g => (
+              {gamePageRows.map(g => (
                 <TableRow key={g.game}>
-                  <TableCell className={`pl-4 ${gameNameFrozen ? "sticky left-0 z-10 bg-background after:absolute after:right-0 after:top-0 after:bottom-0 after:w-px after:bg-border after:content-['']" : ""}`}>
-                    <span className="text-sm font-medium whitespace-nowrap">{g.game}</span>
+                  <TableCell className={`relative pl-4 pr-3 ${gameNameFrozen ? 'sticky left-0 z-10 bg-background' : ''} ${gameNameFrozen || gameColResizing ? gameColDivider : ''}`}>
+                    <span
+                      style={gameNameBoxStyle}
+                      title={g.game}
+                      className="block truncate text-sm font-medium whitespace-nowrap"
+                    >
+                      {g.game}
+                    </span>
                   </TableCell>
                   {gameVisibleCols.has('time')       && <TableCell className="text-sm text-muted-foreground tabular-nums whitespace-nowrap">{g.time}</TableCell>}
                   {gameVisibleCols.has('id')         && <TableCell className="text-sm tabular-nums whitespace-nowrap">{g.id}</TableCell>}
@@ -255,6 +361,76 @@ export function GameHistoryTab({ playerCurrency, fxRate, dateRange, onDateRangeC
               ))}
             </TableBody>
           </Table>
+        </div>
+      </div>
+
+      {/* Pagination — outside the table card */}
+      <div className="flex items-center justify-between gap-4">
+        <span className="text-sm text-muted-foreground">
+          {gameTotalRows === 0
+            ? 'No rows.'
+            : `${gamePageStart + 1}-${gamePageStart + gamePageRows.length} of ${gameTotalRows} row(s).`}
+        </span>
+
+        <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <span className="whitespace-nowrap font-medium text-foreground">Rows per page</span>
+            <Select value={String(gamePageSize)} onValueChange={handleGamePageSizeChange}>
+              <SelectTrigger size="sm" className="w-16">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {PAGE_SIZE_OPTIONS.map(opt => (
+                  <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="whitespace-nowrap text-sm font-medium">
+              Page {gamePage} of {gameTotalPages}
+            </span>
+
+            <div className="flex items-center gap-1">
+              <Button
+                variant="outline"
+                size="icon-sm"
+                onClick={() => setGameCurrentPage(1)}
+                disabled={gamePage === 1}
+                aria-label="First page"
+              >
+                <ChevronsLeft className="size-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon-sm"
+                onClick={() => setGameCurrentPage(Math.max(1, gamePage - 1))}
+                disabled={gamePage === 1}
+                aria-label="Previous page"
+              >
+                <ChevronLeft className="size-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon-sm"
+                onClick={() => setGameCurrentPage(Math.min(gameTotalPages, gamePage + 1))}
+                disabled={gamePage === gameTotalPages}
+                aria-label="Next page"
+              >
+                <ChevronRight className="size-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon-sm"
+                onClick={() => setGameCurrentPage(gameTotalPages)}
+                disabled={gamePage === gameTotalPages}
+                aria-label="Last page"
+              >
+                <ChevronsRight className="size-4" />
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
     </>
