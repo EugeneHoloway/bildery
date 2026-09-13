@@ -15,12 +15,11 @@ import {
   Palette,
   PanelBottom,
   PanelLeft,
-  Plus,
+  Languages,
   Share2,
   Trash2,
   Upload,
   WalletCards,
-  X,
   type LucideIcon,
 } from 'lucide-react'
 import { useAuth } from '@/components/AuthProvider'
@@ -209,24 +208,26 @@ function GeneralSection() {
             <CopyableId value={BRAND.operatorId} label="operator ID" />
           </div>
         </div>
-        <div className="space-y-1.5">
-          <label className="text-sm font-medium text-foreground">
-            Name <span className="text-destructive">*</span>
-          </label>
-          <Input
-            placeholder="Brand name"
-            value={name}
-            onChange={e => setName(e.target.value)}
-          />
-        </div>
-        <div className="flex items-center justify-between gap-4">
+        <div className="grid grid-cols-1 gap-5 tablet:grid-cols-2">
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium text-foreground">
+              Name <span className="text-destructive">*</span>
+            </label>
+            <Input
+              placeholder="Brand name"
+              value={name}
+              onChange={e => setName(e.target.value)}
+            />
+          </div>
           <div className="space-y-1.5">
             <label className="text-sm font-medium text-foreground">Active</label>
+            <div className="flex h-8 items-center">
+              <Switch checked={active} onCheckedChange={setActive} aria-label="Brand active" />
+            </div>
             <p className="text-xs text-muted-foreground">
               Inactive brands are hidden from players.
             </p>
           </div>
-          <Switch checked={active} onCheckedChange={setActive} aria-label="Brand active" />
         </div>
       </div>
       {saved && (
@@ -253,32 +254,36 @@ interface AssetFieldProps {
   onReplace: (file: File) => void
   onChooseFromLibrary: () => void
   onRemove: () => void
+  /** Ширина колонки превью+подсказка; превью растягивается на всю ширину */
+  columnClassName: string
   previewClassName?: string
 }
 
-function AssetField({ label, hint, preview, emptyLabel, onReplace, onChooseFromLibrary, onRemove, previewClassName }: AssetFieldProps) {
+function AssetField({ label, hint, preview, emptyLabel, onReplace, onChooseFromLibrary, onRemove, columnClassName, previewClassName }: AssetFieldProps) {
   const inputRef = useRef<HTMLInputElement>(null)
 
   return (
     <div className="space-y-1.5">
       <label className="text-sm font-medium text-foreground">{label}</label>
       <div className="flex items-start gap-4">
-        <div
-          className={cn(
-            'flex items-center justify-center rounded-xl border border-border bg-muted shrink-0 overflow-hidden',
-            previewClassName
-          )}
-        >
-          {preview ?? (
-            <div className="flex flex-col items-center gap-1.5 text-muted-foreground">
-              <Images className="size-5" />
-              <span className="text-xs">{emptyLabel}</span>
-            </div>
-          )}
+        <div className={cn('flex flex-col gap-1.5 shrink-0', columnClassName)}>
+          <div
+            className={cn(
+              'flex w-full items-center justify-center rounded-xl border border-border bg-muted overflow-hidden',
+              previewClassName
+            )}
+          >
+            {preview ?? (
+              <div className="flex flex-col items-center gap-1.5 text-muted-foreground">
+                <Images className="size-5" />
+                <span className="text-xs">{emptyLabel}</span>
+              </div>
+            )}
+          </div>
+          <p className="text-xs text-muted-foreground">{hint}</p>
         </div>
         <div className="flex flex-1 flex-col gap-3 min-w-0">
-          <p className="text-xs text-muted-foreground">{hint}</p>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-col items-start gap-2">
             <input
               ref={inputRef}
               type="file"
@@ -382,9 +387,10 @@ function IdentitySection() {
       <div className="grid grid-cols-1 gap-8 desktop:grid-cols-2">
         <AssetField
           label="Logo"
-          hint="SVG or PNG with transparent background, at least 224 × 64 px."
+          hint="SVG or PNG with transparent background, min. 224 × 64 px."
           emptyLabel="No logo"
-          previewClassName="h-24 w-48 p-4"
+          columnClassName="w-48"
+          previewClassName="h-24 p-4"
           preview={logo && (
             <>
               <img src={logo.light} alt="Logo" className="max-h-full max-w-full object-contain dark:hidden" />
@@ -400,9 +406,10 @@ function IdentitySection() {
         />
         <AssetField
           label="Favicon"
-          hint="Square PNG or SVG, 512 × 512 px recommended."
+          hint="PNG or SVG, 512 × 512 px."
           emptyLabel="No favicon"
-          previewClassName="size-24 p-4"
+          columnClassName="w-24"
+          previewClassName="h-24 p-4"
           preview={favicon && (
             <img src={favicon} alt="Favicon" className="size-12 rounded-lg object-contain" />
           )}
@@ -417,34 +424,12 @@ function IdentitySection() {
         <p className="text-xs text-muted-foreground">
           Attach or detach locales available for this brand.
         </p>
-        <div className="mt-2 flex flex-wrap items-center gap-2">
-          {locales.map(locale => {
-            const isDefault = locale === DEFAULT_LOCALE
-            return isDefault ? (
-              <Badge key={locale} variant="ghost" className="font-normal">
-                {locale}
-                <span className="ml-1">· default</span>
-              </Badge>
-            ) : (
-              <Badge key={locale} variant="outline" className="pr-1 gap-1 font-normal text-muted-foreground">
-                {locale}
-                <button
-                  type="button"
-                  onClick={() => setLocales(ls => ls.filter(l => l !== locale))}
-                  className="inline-flex size-4 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-                  aria-label={`Detach ${locale}`}
-                >
-                  <X className="size-3" />
-                </button>
-              </Badge>
-            )
-          })}
-
+        <div className="mt-2">
           <Popover open={localeOpen} onOpenChange={setLocaleOpen}>
             <PopoverTrigger asChild>
               <Button variant="outline" size="sm" className="gap-2">
-                <Plus className="size-3.5" />
-                Add locale
+                <Languages className="size-3.5" />
+                Manage locales
               </Button>
             </PopoverTrigger>
             <PopoverContent align="start" sideOffset={6} className="w-48 p-1">
@@ -468,6 +453,21 @@ function IdentitySection() {
               })}
             </PopoverContent>
           </Popover>
+        </div>
+        <div className="flex flex-wrap items-center gap-2 pt-1">
+          {locales.map(locale => {
+            const isDefault = locale === DEFAULT_LOCALE
+            return isDefault ? (
+              <Badge key={locale} variant="ghost" className="font-normal">
+                {locale}
+                <span className="ml-1">· default</span>
+              </Badge>
+            ) : (
+              <Badge key={locale} className="font-normal">
+                {locale}
+              </Badge>
+            )
+          })}
         </div>
         <p className="pt-2 text-xs text-muted-foreground">
 <span className="font-medium text-foreground">{DEFAULT_LOCALE}</span> is the platform-wide default and cannot be
@@ -525,16 +525,14 @@ export default function BrandSettingsPage() {
       />
       <div className="flex flex-1 flex-col px-6 pt-4 pb-8">
         <div>
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <h1 className="text-2xl font-semibold">Brand Settings</h1>
-              <p className="mt-1 text-sm text-muted-foreground">
-                {BRAND.name} · {BRAND.operatorName}
-              </p>
-            </div>
+          <h1 className="text-2xl font-semibold">Brand Settings</h1>
+          <div className="mt-1 flex items-center gap-2">
+            <p className="text-sm text-muted-foreground">
+              {BRAND.name} · {BRAND.operatorName}
+            </p>
             <span
               className={cn(
-                'mt-1 inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium shrink-0',
+                'inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium shrink-0',
                 BRAND.active ? 'bg-success-bg text-success' : 'bg-muted text-muted-foreground'
               )}
             >
@@ -542,6 +540,7 @@ export default function BrandSettingsPage() {
               {BRAND.active ? 'Active' : 'Inactive'}
             </span>
           </div>
+
           <div className="mt-8 flex flex-col sm:flex-row sm:gap-10">
             <BrandSettingsNav active={section} onChange={setSection} />
             <div className="flex-1 min-w-0 mt-4 sm:mt-0">
