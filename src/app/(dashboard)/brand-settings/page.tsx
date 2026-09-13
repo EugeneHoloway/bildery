@@ -1,6 +1,5 @@
 'use client'
-
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   Check,
@@ -10,20 +9,28 @@ import {
   Fingerprint,
   GalleryHorizontal,
   House,
+  Images,
   Info,
+  Lock,
   Palette,
   PanelBottom,
   PanelLeft,
+  Plus,
   Share2,
+  Trash2,
+  Upload,
   WalletCards,
+  X,
   type LucideIcon,
 } from 'lucide-react'
 import { useAuth } from '@/components/AuthProvider'
 import { DashboardHeader } from '@/components/DashboardHeader'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Separator } from '@/components/ui/separator'
 import { Switch } from '@/components/ui/switch'
+import { Separator } from '@/components/ui/separator'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { cn } from '@/lib/utils'
 
 type SectionId =
@@ -32,6 +39,7 @@ type SectionId =
   | 'deposit-methods' | 'wallet-auto-provision'
 
 interface NavItem { id: SectionId; label: string; icon: LucideIcon }
+
 interface NavGroup { label: string; items: NavItem[] }
 
 const NAV: NavGroup[] = [
@@ -72,6 +80,18 @@ const BRAND = {
   active: true,
 }
 
+const DEFAULT_LOCALE = 'en'
+
+// Locales registered in the Translation Service (catalog)
+const LOCALE_CATALOG = ['en', 'en-CA', 'fr-CA', 'uk-UA', 'en-NZ', 'de-CH', 'en-AU', 'de-DE', 'fr-FR', 'es-ES']
+
+const IDENTITY = {
+  canonicalUrl: 'https://depo44.website.servermacminihome.com',
+  logo: { light: '/logos/betup-logo-black.svg', dark: '/logos/betup-logo.svg' } as { light: string; dark: string } | null,
+  favicon: '/favicon-192.png' as string | null,
+  locales: ['en', 'en-CA', 'fr-CA', 'uk-UA', 'en-NZ', 'de-CH', 'en-AU'],
+}
+
 function CopyableId({ value, label }: { value: string; label: string }) {
   const [copied, setCopied] = useState(false)
   function copy() {
@@ -79,9 +99,10 @@ function CopyableId({ value, label }: { value: string; label: string }) {
     setCopied(true)
     setTimeout(() => setCopied(false), 1500)
   }
+
   return (
     <div className="flex items-center gap-1.5">
-      <span className="font-mono text-sm text-foreground">{value}</span>
+      <span className="text-sm text-foreground">{value}</span>
       <button
         type="button"
         onClick={copy}
@@ -117,7 +138,6 @@ function BrandSettingsNav({ active, onChange }: { active: SectionId; onChange: (
           </button>
         ))}
       </nav>
-
       {/* Desktop: grouped vertical nav */}
       <nav className="hidden sm:flex flex-col gap-5 w-48 shrink-0">
         {NAV.map(group => (
@@ -153,9 +173,7 @@ function GeneralSection() {
   const [active, setActive] = useState(BRAND.active)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
-
   const dirty = name !== BRAND.name || active !== BRAND.active
-
   function reset() {
     setName(BRAND.name)
     setActive(BRAND.active)
@@ -177,33 +195,30 @@ function GeneralSection() {
       <p className="mt-1 text-sm text-muted-foreground">
         Brand identity and status.
       </p>
-
       <div className="mt-8 space-y-5">
-        <div className="space-y-1.5">
-          <label className="text-sm font-medium text-foreground">Brand ID</label>
-          <CopyableId value={BRAND.id} label="brand ID" />
-          <p className="text-xs text-muted-foreground">
-            Brand ID cannot be changed.
-          </p>
+        <div className="grid grid-cols-1 gap-5 tablet:grid-cols-2">
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium text-foreground">Brand ID</label>
+            <CopyableId value={BRAND.id} label="brand ID" />
+            <p className="text-xs text-muted-foreground">
+              Brand ID cannot be changed.
+            </p>
+          </div>
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium text-foreground">Operator ID</label>
+            <CopyableId value={BRAND.operatorId} label="operator ID" />
+          </div>
         </div>
-
-        <div className="space-y-1.5">
-          <label className="text-sm font-medium text-foreground">Operator ID</label>
-          <CopyableId value={BRAND.operatorId} label="operator ID" />
-        </div>
-
         <div className="space-y-1.5">
           <label className="text-sm font-medium text-foreground">
             Name <span className="text-destructive">*</span>
           </label>
           <Input
-            size="xl"
             placeholder="Brand name"
             value={name}
             onChange={e => setName(e.target.value)}
           />
         </div>
-
         <div className="flex items-center justify-between gap-4">
           <div className="space-y-1.5">
             <label className="text-sm font-medium text-foreground">Active</label>
@@ -214,13 +229,258 @@ function GeneralSection() {
           <Switch checked={active} onCheckedChange={setActive} aria-label="Brand active" />
         </div>
       </div>
-
       {saved && (
         <p className="mt-4 text-sm text-success">Changes saved successfully.</p>
       )}
 
       <div className="mt-6 flex items-center gap-3">
         <Button onClick={save} disabled={!dirty || saving || !name.trim()}>
+          {saving ? 'Saving…' : 'Save changes'}
+        </Button>
+        <Button variant="outline" onClick={reset} disabled={!dirty || saving}>
+          Reset
+        </Button>
+      </div>
+    </>
+  )
+}
+
+interface AssetFieldProps {
+  label: string
+  hint: string
+  preview: React.ReactNode | null
+  emptyLabel: string
+  onReplace: (file: File) => void
+  onChooseFromLibrary: () => void
+  onRemove: () => void
+  previewClassName?: string
+}
+
+function AssetField({ label, hint, preview, emptyLabel, onReplace, onChooseFromLibrary, onRemove, previewClassName }: AssetFieldProps) {
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  return (
+    <div className="space-y-1.5">
+      <label className="text-sm font-medium text-foreground">{label}</label>
+      <div className="flex items-start gap-4">
+        <div
+          className={cn(
+            'flex items-center justify-center rounded-xl border border-border bg-muted shrink-0 overflow-hidden',
+            previewClassName
+          )}
+        >
+          {preview ?? (
+            <div className="flex flex-col items-center gap-1.5 text-muted-foreground">
+              <Images className="size-5" />
+              <span className="text-xs">{emptyLabel}</span>
+            </div>
+          )}
+        </div>
+        <div className="flex flex-1 flex-col gap-3 min-w-0">
+          <p className="text-xs text-muted-foreground">{hint}</p>
+          <div className="flex flex-wrap gap-2">
+            <input
+              ref={inputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={e => {
+                const file = e.target.files?.[0]
+                if (file) onReplace(file)
+                e.target.value = ''
+              }}
+            />
+            <Button variant="outline" onClick={() => inputRef.current?.click()}>
+              <Upload />
+              {preview ? 'Replace' : 'Upload'}
+            </Button>
+            <Button variant="outline" onClick={onChooseFromLibrary}>
+              <Images />
+              Choose from library
+            </Button>
+            {preview && (
+              <Button variant="ghost" className="text-destructive hover:text-destructive" onClick={onRemove}>
+                <Trash2 />
+                Remove
+              </Button>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function IdentitySection() {
+  const [canonicalUrl, setCanonicalUrl] = useState(IDENTITY.canonicalUrl)
+  const [logo, setLogo] = useState<{ light: string; dark: string } | null>(IDENTITY.logo)
+  const [favicon, setFavicon] = useState<string | null>(IDENTITY.favicon)
+  const [locales, setLocales] = useState<string[]>(IDENTITY.locales)
+  const [localeOpen, setLocaleOpen] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [saved, setSaved] = useState(false)
+  const dirty =
+    canonicalUrl !== IDENTITY.canonicalUrl ||
+    logo !== IDENTITY.logo ||
+    favicon !== IDENTITY.favicon ||
+    locales.join() !== IDENTITY.locales.join()
+  function reset() {
+    setCanonicalUrl(IDENTITY.canonicalUrl)
+    setLogo(IDENTITY.logo)
+    setFavicon(IDENTITY.favicon)
+    setLocales(IDENTITY.locales)
+    setSaved(false)
+  }
+
+  function save() {
+    setSaving(true)
+    setTimeout(() => {
+      setSaving(false)
+      setSaved(true)
+      setTimeout(() => setSaved(false), 3000)
+    }, 400)
+  }
+
+  return (
+    <>
+      <h2 className="text-xl font-semibold">Identity</h2>
+      <p className="mt-1 text-sm text-muted-foreground">
+        Site name, canonical URL, logo, favicon and locales.
+      </p>
+      <div className="mt-8 space-y-5">
+        <div className="grid grid-cols-1 gap-5 tablet:grid-cols-2">
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium text-foreground">Site name</label>
+            <Input value={BRAND.name} disabled />
+            <p className="text-xs text-muted-foreground">
+              Synced from Name in the General section.
+            </p>
+          </div>
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium text-foreground">Default locale</label>
+            <Input value={DEFAULT_LOCALE} disabled />
+            <p className="text-xs text-muted-foreground">
+              Platform-wide default, cannot be changed. Lives unprefixed on the website
+              (/auth/login); other locales are prefixed (/fr-ca/auth/login).
+            </p>
+          </div>
+        </div>
+        <div className="space-y-1.5">
+          <label className="text-sm font-medium text-foreground">Canonical URL</label>
+          <Input
+            type="url"
+            placeholder="https://example.com"
+            value={canonicalUrl}
+            onChange={e => setCanonicalUrl(e.target.value)}
+          />
+          <p className="text-xs text-muted-foreground">
+            Used for SEO canonical tags, sitemaps and absolute links in emails.
+          </p>
+        </div>
+      </div>
+      <Separator className="my-8" />
+      <div className="grid grid-cols-1 gap-8 desktop:grid-cols-2">
+        <AssetField
+          label="Logo"
+          hint="SVG or PNG with transparent background, at least 224 × 64 px."
+          emptyLabel="No logo"
+          previewClassName="h-24 w-48 p-4"
+          preview={logo && (
+            <>
+              <img src={logo.light} alt="Logo" className="max-h-full max-w-full object-contain dark:hidden" />
+              <img src={logo.dark} alt="Logo" className="max-h-full max-w-full object-contain hidden dark:block" />
+            </>
+          )}
+          onReplace={file => {
+            const url = URL.createObjectURL(file)
+            setLogo({ light: url, dark: url })
+          }}
+          onChooseFromLibrary={() => {}}
+          onRemove={() => setLogo(null)}
+        />
+        <AssetField
+          label="Favicon"
+          hint="Square PNG or SVG, 512 × 512 px recommended."
+          emptyLabel="No favicon"
+          previewClassName="size-24 p-4"
+          preview={favicon && (
+            <img src={favicon} alt="Favicon" className="size-12 rounded-lg object-contain" />
+          )}
+          onReplace={file => setFavicon(URL.createObjectURL(file))}
+          onChooseFromLibrary={() => {}}
+          onRemove={() => setFavicon(null)}
+        />
+      </div>
+      <Separator className="my-8" />
+      <div className="space-y-1.5">
+        <label className="text-sm font-medium text-foreground">Locales</label>
+        <p className="text-xs text-muted-foreground">
+          Attach or detach locales available for this brand.
+        </p>
+        <div className="mt-2 flex flex-wrap items-center gap-2">
+          {locales.map(locale => {
+            const isDefault = locale === DEFAULT_LOCALE
+            return isDefault ? (
+              <Badge key={locale} variant="ghost" className="font-normal">
+                {locale}
+                <span className="ml-1">· default</span>
+              </Badge>
+            ) : (
+              <Badge key={locale} variant="outline" className="pr-1 gap-1 font-normal text-muted-foreground">
+                {locale}
+                <button
+                  type="button"
+                  onClick={() => setLocales(ls => ls.filter(l => l !== locale))}
+                  className="inline-flex size-4 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                  aria-label={`Detach ${locale}`}
+                >
+                  <X className="size-3" />
+                </button>
+              </Badge>
+            )
+          })}
+
+          <Popover open={localeOpen} onOpenChange={setLocaleOpen}>
+            <PopoverTrigger asChild>
+              <Button variant="outline" size="sm" className="gap-2">
+                <Plus className="size-3.5" />
+                Add locale
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent align="start" sideOffset={6} className="w-48 p-1">
+              {LOCALE_CATALOG.map(locale => {
+                const isDefault = locale === DEFAULT_LOCALE
+                const attached = locales.includes(locale)
+                return (
+                  <button
+                    key={locale}
+                    type="button"
+                    disabled={isDefault}
+                    onClick={() => setLocales(ls => attached ? ls.filter(l => l !== locale) : [...ls, locale])}
+                    className="flex items-center gap-2 w-full px-2 py-1.5 text-sm rounded-md hover:bg-muted transition-colors disabled:pointer-events-none disabled:text-muted-foreground"
+                  >
+                    {isDefault
+                      ? <Lock className="size-3.5 shrink-0" />
+                      : <Check className={cn('size-3.5 shrink-0', attached ? 'opacity-100' : 'opacity-0')} />}
+                    {locale}
+                  </button>
+                )
+              })}
+            </PopoverContent>
+          </Popover>
+        </div>
+        <p className="pt-2 text-xs text-muted-foreground">
+<span className="font-medium text-foreground">{DEFAULT_LOCALE}</span> is the platform-wide default and cannot be
+          removed. Only locales registered in the Translation Service can be attached -- manage the
+          catalog on the Localization page.
+        </p>
+      </div>
+      {saved && (
+        <p className="mt-4 text-sm text-success">Changes saved successfully.</p>
+      )}
+
+      <div className="mt-6 flex items-center gap-3">
+        <Button onClick={save} disabled={!dirty || saving}>
           {saving ? 'Saving…' : 'Save changes'}
         </Button>
         <Button variant="outline" onClick={reset} disabled={!dirty || saving}>
@@ -238,7 +498,6 @@ function PlaceholderSection({ item }: { item: NavItem }) {
       <p className="mt-1 text-sm text-muted-foreground">
         Manage {item.label.toLowerCase()} settings for this brand.
       </p>
-
       <p className="mt-8 text-sm text-muted-foreground">Coming soon.</p>
     </>
   )
@@ -248,13 +507,11 @@ export default function BrandSettingsPage() {
   const { user, loading } = useAuth()
   const router = useRouter()
   const [section, setSection] = useState<SectionId>('general')
-
   useEffect(() => {
     if (!loading && !user) router.replace('/')
   }, [user, loading, router])
 
   if (loading || !user) return null
-
   const current = ALL_ITEMS.find(i => i.id === section) ?? ALL_ITEMS[0]
 
   return (
@@ -266,35 +523,32 @@ export default function BrandSettingsPage() {
           { label: 'Brand Settings' },
         ]}
       />
-
       <div className="flex flex-1 flex-col px-6 pt-4 pb-8">
-        <div className="max-w-3xl flex items-start justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-semibold">Brand Settings</h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {BRAND.name} · {BRAND.operatorName}
-            </p>
+        <div>
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h1 className="text-2xl font-semibold">Brand Settings</h1>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {BRAND.name} · {BRAND.operatorName}
+              </p>
+            </div>
+            <span
+              className={cn(
+                'mt-1 inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium shrink-0',
+                BRAND.active ? 'bg-success-bg text-success' : 'bg-muted text-muted-foreground'
+              )}
+            >
+              <CircleCheck className="size-3.5" />
+              {BRAND.active ? 'Active' : 'Inactive'}
+            </span>
           </div>
-          <span
-            className={cn(
-              'mt-1 inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium shrink-0',
-              BRAND.active ? 'bg-success-bg text-success' : 'bg-muted text-muted-foreground'
-            )}
-          >
-            <CircleCheck className="size-3.5" />
-            {BRAND.active ? 'Active' : 'Inactive'}
-          </span>
-        </div>
-
-        <Separator className="mt-6" />
-
-        <div className="mt-6 flex flex-col sm:flex-row sm:gap-10">
-          <BrandSettingsNav active={section} onChange={setSection} />
-
-          <div className="flex-1 mt-4 sm:mt-0 max-w-lg">
-            {section === 'general'
-              ? <GeneralSection />
-              : <PlaceholderSection item={current} />}
+          <div className="mt-8 flex flex-col sm:flex-row sm:gap-10">
+            <BrandSettingsNav active={section} onChange={setSection} />
+            <div className="flex-1 min-w-0 mt-4 sm:mt-0">
+              {section === 'general' && <GeneralSection />}
+              {section === 'identity' && <IdentitySection />}
+              {section !== 'general' && section !== 'identity' && <PlaceholderSection item={current} />}
+            </div>
           </div>
         </div>
       </div>
