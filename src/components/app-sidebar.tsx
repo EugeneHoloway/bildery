@@ -76,14 +76,12 @@ const data = {
       ],
     },
     {
-      title: "Settings",
+      title: "CMS",
       url: "#",
       icon: Settings2,
+      isActive: true,
       items: [
-        { title: "General", url: "#" },
-        { title: "Team", url: "#" },
-        { title: "Billing", url: "#" },
-        { title: "Limits", url: "#" },
+        { title: "Brand Settings", url: "/brand-settings" },
       ],
     },
     {
