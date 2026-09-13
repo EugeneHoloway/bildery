@@ -28,12 +28,11 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
-import { Separator } from '@/components/ui/separator'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { cn } from '@/lib/utils'
 
 type SectionId =
-  | 'general' | 'identity' | 'theme'
+  | 'general' | 'identity' | 'locale' | 'theme'
   | 'home' | 'banners' | 'sidebar' | 'footer' | 'social'
   | 'deposit-methods' | 'wallet-auto-provision'
 
@@ -47,6 +46,7 @@ const NAV: NavGroup[] = [
     items: [
       { id: 'general',  label: 'General',  icon: Info },
       { id: 'identity', label: 'Identity', icon: Fingerprint },
+      { id: 'locale',   label: 'Locale',   icon: Languages },
       { id: 'theme',    label: 'Theme',    icon: Palette },
     ],
   },
@@ -88,6 +88,9 @@ const IDENTITY = {
   canonicalUrl: 'https://depo44.website.servermacminihome.com',
   logo: { light: '/logos/betup-logo-black.svg', dark: '/logos/betup-logo.svg' } as { light: string; dark: string } | null,
   favicon: '/favicon-192.png' as string | null,
+}
+
+const LOCALE_SETTINGS = {
   locales: ['en', 'en-CA', 'fr-CA', 'uk-UA', 'en-NZ', 'de-CH', 'en-AU'],
 }
 
@@ -320,20 +323,16 @@ function IdentitySection() {
   const [canonicalUrl, setCanonicalUrl] = useState(IDENTITY.canonicalUrl)
   const [logo, setLogo] = useState<{ light: string; dark: string } | null>(IDENTITY.logo)
   const [favicon, setFavicon] = useState<string | null>(IDENTITY.favicon)
-  const [locales, setLocales] = useState<string[]>(IDENTITY.locales)
-  const [localeOpen, setLocaleOpen] = useState(false)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const dirty =
     canonicalUrl !== IDENTITY.canonicalUrl ||
     logo !== IDENTITY.logo ||
-    favicon !== IDENTITY.favicon ||
-    locales.join() !== IDENTITY.locales.join()
+    favicon !== IDENTITY.favicon
   function reset() {
     setCanonicalUrl(IDENTITY.canonicalUrl)
     setLogo(IDENTITY.logo)
     setFavicon(IDENTITY.favicon)
-    setLocales(IDENTITY.locales)
     setSaved(false)
   }
 
@@ -350,7 +349,7 @@ function IdentitySection() {
     <>
       <h2 className="text-xl font-semibold">Identity</h2>
       <p className="mt-1 text-sm text-muted-foreground">
-        Site name, canonical URL, logo, favicon and locales.
+        Site name, canonical URL, logo and favicon.
       </p>
       <div className="mt-8 space-y-5">
         <div className="grid grid-cols-1 gap-5 tablet:grid-cols-2">
@@ -362,29 +361,20 @@ function IdentitySection() {
             </p>
           </div>
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-foreground">Default locale</label>
-            <Input value={DEFAULT_LOCALE} disabled />
+            <label className="text-sm font-medium text-foreground">Canonical URL</label>
+            <Input
+              type="url"
+              placeholder="https://example.com"
+              value={canonicalUrl}
+              onChange={e => setCanonicalUrl(e.target.value)}
+            />
             <p className="text-xs text-muted-foreground">
-              Platform-wide default, cannot be changed. Lives unprefixed on the website
-              (/auth/login); other locales are prefixed (/fr-ca/auth/login).
+              Used for SEO canonical tags, sitemaps and absolute links in emails.
             </p>
           </div>
         </div>
-        <div className="space-y-1.5">
-          <label className="text-sm font-medium text-foreground">Canonical URL</label>
-          <Input
-            type="url"
-            placeholder="https://example.com"
-            value={canonicalUrl}
-            onChange={e => setCanonicalUrl(e.target.value)}
-          />
-          <p className="text-xs text-muted-foreground">
-            Used for SEO canonical tags, sitemaps and absolute links in emails.
-          </p>
-        </div>
       </div>
-      <Separator className="my-8" />
-      <div className="grid grid-cols-1 gap-8 desktop:grid-cols-2">
+      <div className="mt-8 grid grid-cols-1 gap-8 desktop:grid-cols-2">
         <AssetField
           label="Logo"
           hint="SVG or PNG with transparent background, min. 224 × 64 px."
@@ -418,7 +408,61 @@ function IdentitySection() {
           onRemove={() => setFavicon(null)}
         />
       </div>
-      <Separator className="my-8" />
+      {saved && (
+        <p className="mt-4 text-sm text-success">Changes saved successfully.</p>
+      )}
+
+      <div className="mt-6 flex items-center gap-3">
+        <Button onClick={save} disabled={!dirty || saving}>
+          {saving ? 'Saving…' : 'Save changes'}
+        </Button>
+        <Button variant="outline" onClick={reset} disabled={!dirty || saving}>
+          Reset
+        </Button>
+      </div>
+    </>
+  )
+}
+
+function LocaleSection() {
+  const [locales, setLocales] = useState<string[]>(LOCALE_SETTINGS.locales)
+  const [localeOpen, setLocaleOpen] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [saved, setSaved] = useState(false)
+  const dirty = locales.join() !== LOCALE_SETTINGS.locales.join()
+
+  function reset() {
+    setLocales(LOCALE_SETTINGS.locales)
+    setSaved(false)
+  }
+
+  function save() {
+    setSaving(true)
+    setTimeout(() => {
+      setSaving(false)
+      setSaved(true)
+      setTimeout(() => setSaved(false), 3000)
+    }, 400)
+  }
+
+  return (
+    <>
+      <h2 className="text-xl font-semibold">Locale</h2>
+      <p className="mt-1 text-sm text-muted-foreground">
+        Default locale and locales available for this brand.
+      </p>
+
+      <div className="mt-8 space-y-5">
+        <div className="grid grid-cols-1 gap-5 tablet:grid-cols-2">
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium text-foreground">Default locale</label>
+            <Input value={DEFAULT_LOCALE} disabled />
+            <p className="text-xs text-muted-foreground">
+              Platform-wide default, cannot be changed. Lives unprefixed on the website
+              (/auth/login); other locales are prefixed (/fr-ca/auth/login).
+            </p>
+          </div>
+        </div>
       <div className="space-y-1.5">
         <label className="text-sm font-medium text-foreground">Locales</label>
         <p className="text-xs text-muted-foreground">
@@ -474,6 +518,7 @@ function IdentitySection() {
           removed. Only locales registered in the Translation Service can be attached -- manage the
           catalog on the Localization page.
         </p>
+      </div>
       </div>
       {saved && (
         <p className="mt-4 text-sm text-success">Changes saved successfully.</p>
@@ -546,7 +591,8 @@ export default function BrandSettingsPage() {
             <div className="flex-1 min-w-0 mt-4 sm:mt-0">
               {section === 'general' && <GeneralSection />}
               {section === 'identity' && <IdentitySection />}
-              {section !== 'general' && section !== 'identity' && <PlaceholderSection item={current} />}
+              {section === 'locale' && <LocaleSection />}
+              {!['general', 'identity', 'locale'].includes(section) && <PlaceholderSection item={current} />}
             </div>
           </div>
         </div>
