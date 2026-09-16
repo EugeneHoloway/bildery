@@ -254,12 +254,12 @@ function PlayerCharts() {
       </Card>
 
       {/* Status donut */}
-        <Card className="flex flex-col min-w-0">
+        <Card className="pt-0 flex flex-col min-w-0">
           <CardHeader className="flex items-center gap-2 space-y-0 border-b py-4 sm:flex-row">
             <p className="text-sm text-muted-foreground">Player status distribution</p>
           </CardHeader>
-          <CardContent className="px-0 pb-0 pt-4 sm:pt-4 flex-1 flex items-start justify-center">
-            <div className="w-full aspect-square max-w-[170px]">
+          <CardContent className="px-0 flex-1 flex items-center justify-center">
+            <div className="w-full aspect-square max-w-[150px]">
             <ChartContainer config={statusChartConfig} className="w-full h-full">
               <PieChart>
                 <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
@@ -267,7 +267,7 @@ function PlayerCharts() {
                   data={statusData}
                   dataKey="value"
                   nameKey="name"
-                  innerRadius={47}
+                  innerRadius={42}
                   strokeWidth={4}
                   activeIndex={0}
                   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -290,7 +290,7 @@ function PlayerCharts() {
             </ChartContainer>
             </div>
           </CardContent>
-          <CardFooter className="flex-col gap-1 text-sm px-5 pt-0 pb-5 text-center">
+          <CardFooter className="flex-col gap-1 text-sm px-5 pt-4 pb-5 text-center">
             <div className="flex items-center gap-1.5 font-medium leading-none">
               Active players +5% this month <TrendingUp className="size-4" />
             </div>
@@ -301,11 +301,11 @@ function PlayerCharts() {
         </Card>
 
         {/* Countries bar */}
-        <Card className="min-w-0 flex flex-col">
+        <Card className="pt-0 min-w-0 flex flex-col">
           <CardHeader className="flex items-center gap-2 space-y-0 border-b py-4 sm:flex-row">
             <p className="text-sm text-muted-foreground">Players by country</p>
           </CardHeader>
-          <CardContent className="px-2 pt-4 sm:px-4 sm:pt-4 flex-1">
+          <CardContent className="px-2 sm:px-4 flex-1">
             <ChartContainer config={countriesChartConfig} className="h-[150px] w-full">
               <BarChart
                 data={countriesData}

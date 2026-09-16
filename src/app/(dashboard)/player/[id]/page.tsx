@@ -389,14 +389,10 @@ export default function PlayerProfilePage() {
             <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-10 bg-gradient-to-r from-background to-transparent z-10 sm:hidden" />
             {/* Right fade -- only visible on mobile */}
             <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-background to-transparent z-10 sm:hidden" />
-            <div className="overflow-x-auto scrollbar-hide px-4 sm:px-0">
-              <TabsList className="h-auto w-max sm:w-full justify-start gap-0 rounded-none border-b border-border bg-transparent p-0">
+            <div className="overflow-x-auto no-scrollbar px-4 sm:px-0">
+              <TabsList variant="line" className="w-max sm:w-full justify-start border-b border-border">
                 {TABS.map(tab => (
-                  <TabsTrigger
-                    key={tab.value}
-                    value={tab.value}
-                    className="rounded-none border-b-2 border-transparent px-4 py-2.5 text-sm font-medium whitespace-nowrap data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none"
-                  >
+                  <TabsTrigger key={tab.value} value={tab.value} className="flex-none px-4">
                     {tab.label}
                   </TabsTrigger>
                 ))}

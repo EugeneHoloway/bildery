@@ -146,12 +146,12 @@ export default function MockupSeoPage() {
 
       <Tabs defaultValue="main">
         <div className="border-b">
-          <TabsList className="h-auto w-max gap-0 rounded-none bg-transparent p-0">
+          <TabsList variant="line" className="w-max">
             {Object.entries(TAB_LABELS).map(([value, label]) => (
               <TabsTrigger
                 key={value}
                 value={value}
-                className="mb-[-1px] rounded-none border-b-2 border-transparent px-4 py-2.5 text-sm font-medium text-muted-foreground data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none"
+                className="flex-none px-4"
               >
                 {label}
               </TabsTrigger>
