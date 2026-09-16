@@ -15,6 +15,7 @@ import {
   Info,
   Loader2,
   Palette,
+  Plus,
   Power,
   PanelBottom,
   PanelLeft,
@@ -48,6 +49,7 @@ import { Kbd } from '@/components/ui/kbd'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from '@/components/ui/input-group'
 import {
   Select,
@@ -134,6 +136,23 @@ const LOCALE_SETTINGS = {
 // Currencies registered in the Currency Rate Service (catalog)
 const CURRENCY_CATALOG = ['USD', 'EUR', 'CAD', 'AUD', 'NZD', 'CHF', 'BTC', 'ETH', 'LTC', 'TRX', 'USDT', 'USDC']
 
+// Networks a brand can link to (catalog); the order is the display order
+const SOCIAL_CATALOG: { id: string; label: string; placeholder: string }[] = [
+  { id: 'x',         label: 'X (Twitter)', placeholder: 'https://x.com/betup' },
+  { id: 'telegram',  label: 'Telegram',    placeholder: 'https://t.me/betup' },
+  { id: 'instagram', label: 'Instagram',   placeholder: 'https://instagram.com/betup' },
+  { id: 'facebook',  label: 'Facebook',    placeholder: 'https://facebook.com/betup' },
+  { id: 'youtube',   label: 'YouTube',     placeholder: 'https://youtube.com/@betup' },
+  { id: 'twitch',    label: 'Twitch',      placeholder: 'https://twitch.tv/betup' },
+  { id: 'discord',   label: 'Discord',     placeholder: 'https://discord.gg/betup' },
+]
+
+type SocialLinks = Record<string, string>
+
+const SOCIAL = {
+  links: { x: 'https://x.com/betup', telegram: 'https://t.me/betup', instagram: '' } as SocialLinks,
+}
+
 const WALLET_AUTO_PROVISION = {
   currencies: ['TRX', 'USDT'],
 }
@@ -144,8 +163,8 @@ function validateRequired(value: string, label: string) {
   return value.trim() ? undefined : `${label} is required`
 }
 
-function validateUrl(value: string) {
-  if (!value.trim()) return 'Canonical URL is required'
+function validateUrl(value: string, label = 'URL') {
+  if (!value.trim()) return `${label} is required`
   try {
     const u = new URL(value)
     if (u.protocol !== 'https:' && u.protocol !== 'http:') return 'URL must start with https:// or http://'
@@ -645,7 +664,7 @@ function IdentitySection() {
     setLogo(v.logo)
     setFavicon(v.favicon)
   })
-  const urlError = validateUrl(canonicalUrl)
+  const urlError = validateUrl(canonicalUrl, 'Canonical URL')
 
   return (
     <>
@@ -1075,6 +1094,95 @@ function SectionSkeleton() {
   )
 }
 
+function SocialSection() {
+  const [links, setLinks] = useState<SocialLinks>(SOCIAL.links)
+  const { dirty, saving, save, reset } = useSaveable({ links }, v => setLinks(v.links))
+
+  const rows = SOCIAL_CATALOG.filter(n => n.id in links)
+  const available = SOCIAL_CATALOG.filter(n => !(n.id in links))
+  const errors = Object.fromEntries(rows.map(n => [n.id, validateUrl(links[n.id], `${n.label} link`)]))
+  const valid = rows.every(n => !errors[n.id])
+
+  function add(id: string) {
+    setLinks(l => ({ ...l, [id]: '' }))
+  }
+
+  function remove(id: string) {
+    setLinks(l => {
+      const next = { ...l }
+      delete next[id]
+      return next
+    })
+  }
+
+  const addMenu = available.length > 0 && (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline" size="sm">
+          <Plus data-icon="inline-start" />
+          Add social link
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start">
+        {available.map(n => (
+          <DropdownMenuItem key={n.id} onSelect={() => add(n.id)}>{n.label}</DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
+
+  return (
+    <>
+      <SectionHeader title="Social" description="Links to the brand's social media accounts shown on the storefront." />
+
+      {rows.length === 0 ? (
+        <div className="mt-8 flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border px-4 py-8 text-center">
+          <div className="flex size-10 items-center justify-center rounded-xl bg-muted">
+            <Share2 className="size-5 text-muted-foreground" />
+          </div>
+          <p className="text-sm text-muted-foreground">No social links yet.</p>
+          {addMenu}
+        </div>
+      ) : (
+        <FieldGroup className="mt-8">
+          {rows.map(n => {
+            const error = errors[n.id]
+            const inputId = `social-${n.id}`
+            return (
+              <div key={n.id} className="grid grid-cols-1 gap-2 tablet:grid-cols-[8rem_minmax(0,1fr)_auto] tablet:gap-3">
+                <FieldLabel htmlFor={inputId} className="tablet:h-8 tablet:items-center">{n.label}</FieldLabel>
+                <Field data-invalid={!!error || undefined} className="relative">
+                  <Input
+                    id={inputId}
+                    type="url"
+                    placeholder={n.placeholder}
+                    value={links[n.id]}
+                    onChange={e => setLinks(l => ({ ...l, [n.id]: e.target.value }))}
+                    aria-invalid={!!error || undefined}
+                  />
+                  {/* Overlaid so rows keep their height whether or not there is an error */}
+                  <FieldError className="absolute top-full left-0 mt-0.5">{error}</FieldError>
+                </Field>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon" aria-label={`Remove ${n.label}`} onClick={() => remove(n.id)}>
+                      <Trash2 className="text-muted-foreground" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Remove</TooltipContent>
+                </Tooltip>
+              </div>
+            )
+          })}
+          {addMenu && <div>{addMenu}</div>}
+        </FieldGroup>
+      )}
+
+      <SectionActions dirty={dirty} saving={saving} onSave={save} onReset={reset} canSave={valid} />
+    </>
+  )
+}
+
 function PlaceholderSection({ item }: { item: NavItem }) {
   return (
     <>
@@ -1163,8 +1271,9 @@ function BrandSettingsPage() {
                   {section === 'identity' && <IdentitySection />}
                   {section === 'locale' && <LocaleSection />}
                   {section === 'theme' && <ThemeSection />}
+                  {section === 'social' && <SocialSection />}
                   {section === 'wallet-auto-provision' && <WalletAutoProvisionSection />}
-                  {!['general', 'identity', 'locale', 'theme', 'wallet-auto-provision'].includes(section) && <PlaceholderSection item={current} />}
+                  {!['general', 'identity', 'locale', 'theme', 'social', 'wallet-auto-provision'].includes(section) && <PlaceholderSection item={current} />}
                 </SectionContext.Provider>
               )}
             </div>
