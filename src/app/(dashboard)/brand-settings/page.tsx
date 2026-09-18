@@ -4,16 +4,20 @@ import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import {
   Check,
+  ChevronDown,
+  CircleAlert,
   CircleCheck,
   CircleOff,
   Copy,
   CreditCard,
   Fingerprint,
   GalleryHorizontal,
+  GripVertical,
   House,
   Images,
   Info,
   Loader2,
+  Monitor,
   Palette,
   Plus,
   Power,
@@ -21,11 +25,30 @@ import {
   PanelLeft,
   Languages,
   Share2,
+  Smartphone,
+  Tablet,
   Trash2,
   Upload,
   WalletCards,
   type LucideIcon,
 } from 'lucide-react'
+import {
+  closestCenter,
+  DndContext,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core'
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 import { useAuth } from '@/components/AuthProvider'
 import { DashboardHeader } from '@/components/DashboardHeader'
 import { CatalogPicker } from '@/components/CatalogPicker'
@@ -43,10 +66,12 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
+import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel, FieldSeparator } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { Kbd } from '@/components/ui/kbd'
 import { Skeleton } from '@/components/ui/skeleton'
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
@@ -155,6 +180,53 @@ const SOCIAL = {
 
 const WALLET_AUTO_PROVISION = {
   currencies: ['TRX', 'USDT'],
+}
+
+type Breakpoint = 'desktop' | 'tablet' | 'mobile'
+type SlidesPerView = 1 | 3
+
+interface BannerItem {
+  id: string
+  title: string
+  /** Where the banner leads on click; empty means not clickable. */
+  href: string
+  images: Record<Breakpoint, string | null>
+}
+
+const BREAKPOINTS: { key: Breakpoint; label: string; icon: LucideIcon; hint: string }[] = [
+  { key: 'desktop', label: 'Desktop', icon: Monitor,    hint: '1920 × 640 px. JPG, PNG or WebP.' },
+  { key: 'tablet',  label: 'Tablet',  icon: Tablet,     hint: '1024 × 512 px. Falls back to desktop.' },
+  { key: 'mobile',  label: 'Mobile',  icon: Smartphone, hint: '640 × 640 px. Falls back to desktop.' },
+]
+
+const AUTOPLAY_MIN = 1000
+const AUTOPLAY_DEFAULT = 5000
+
+function bannerImages(seed: string): Record<Breakpoint, string> {
+  return {
+    desktop: `https://picsum.photos/seed/${seed}/960/320`,
+    tablet:  `https://picsum.photos/seed/${seed}/512/256`,
+    mobile:  `https://picsum.photos/seed/${seed}/320/320`,
+  }
+}
+
+const BANNERS = {
+  slidesPerView: 3 as SlidesPerView,
+  autoplayDelay: AUTOPLAY_DEFAULT,
+  items: [
+    { id: 'b1', title: 'Welcome bonus',    href: 'https://betup.com/promotions/welcome', images: bannerImages('betup-crown') },
+    { id: 'b2', title: 'Live casino',      href: 'https://betup.com/live',               images: bannerImages('betup-live') },
+    { id: 'b3', title: 'Joker tournament', href: 'https://betup.com/tournaments/joker',  images: bannerImages('betup-joker') },
+    { id: 'b4', title: 'New slots',        href: '',                                     images: bannerImages('betup-slots') },
+    { id: 'b5', title: 'Pirate drops',     href: 'https://betup.com/promotions/drops',   images: { ...bannerImages('betup-pirate'), mobile: null } },
+    { id: 'b6', title: 'Gift of the week', href: 'https://betup.com/promotions/gift',    images: bannerImages('betup-gift') },
+  ] as BannerItem[],
+}
+
+function validateAutoplay(value: string) {
+  const n = Number(value)
+  if (!value.trim() || !Number.isInteger(n)) return 'Enter a whole number of milliseconds'
+  return n >= AUTOPLAY_MIN ? undefined : `Minimum is ${AUTOPLAY_MIN} ms`
 }
 
 const HEX_COLOR = /^#[0-9a-f]{6}$/i
@@ -639,13 +711,8 @@ function LogoSurface({ src }: { src: string }) {
   )
 }
 
-function IdentitySection() {
-  const { go } = useContext(SectionContext)
-  const [canonicalUrl, setCanonicalUrl] = useState(IDENTITY.canonicalUrl)
-  const [logo, setLogo] = useState<{ light: string; dark: string } | null>(IDENTITY.logo)
-  const [favicon, setFavicon] = useState<string | null>(IDENTITY.favicon)
-
-  // Object URLs created for local previews; revoked when replaced and on unmount
+/** Object URLs created for local previews; revoked when replaced and on unmount. */
+function useBlobUrls() {
   const blobUrls = useRef(new Set<string>())
   function blobUrl(file: File) {
     const url = URL.createObjectURL(file)
@@ -659,6 +726,15 @@ function IdentitySection() {
     const urls = blobUrls.current
     return () => { urls.forEach(u => URL.revokeObjectURL(u)) }
   }, [])
+  return { blobUrl, release }
+}
+
+function IdentitySection() {
+  const { go } = useContext(SectionContext)
+  const [canonicalUrl, setCanonicalUrl] = useState(IDENTITY.canonicalUrl)
+  const [logo, setLogo] = useState<{ light: string; dark: string } | null>(IDENTITY.logo)
+  const [favicon, setFavicon] = useState<string | null>(IDENTITY.favicon)
+  const { blobUrl, release } = useBlobUrls()
   const { dirty, saving, save, reset } = useSaveable({ canonicalUrl, logo, favicon }, v => {
     setCanonicalUrl(v.canonicalUrl)
     setLogo(v.logo)
@@ -1183,6 +1259,360 @@ function SocialSection() {
   )
 }
 
+// Schematic of the carousel layout for the selected slides-per-view value
+function CarouselPreview({ slides }: { slides: SlidesPerView }) {
+  return (
+    <div className="flex w-44 flex-col items-center gap-2" aria-hidden>
+      <div className="flex w-full gap-1.5">
+        {Array.from({ length: slides }, (_, i) => (
+          <div key={i} className="h-10 flex-1 rounded-md border border-border bg-muted" />
+        ))}
+      </div>
+      <div className="flex items-center gap-1">
+        <span className="h-1 w-3 rounded-full bg-foreground" />
+        <span className="size-1 rounded-full bg-muted-foreground/40" />
+        <span className="size-1 rounded-full bg-muted-foreground/40" />
+      </div>
+    </div>
+  )
+}
+
+function BreakpointImageField({ breakpoint, value, onReplace, onRemove }: {
+  breakpoint: (typeof BREAKPOINTS)[number]
+  value: string | null
+  onReplace: (file: File) => void
+  onRemove: () => void
+}) {
+  const inputRef = useRef<HTMLInputElement>(null)
+  const Icon = breakpoint.icon
+
+  return (
+    <Field>
+      <FieldLabel className="items-center">
+        <Icon className="size-4 text-muted-foreground" />
+        {breakpoint.label}
+      </FieldLabel>
+      <div className="flex h-28 w-full items-center justify-center overflow-hidden rounded-xl border border-border bg-muted">
+        {value ? (
+          <img src={value} alt={`${breakpoint.label} banner image`} className="size-full object-cover" />
+        ) : (
+          <div className="flex flex-col items-center gap-1.5 text-muted-foreground">
+            <Images className="size-5" />
+            <span className="text-xs">No image</span>
+          </div>
+        )}
+      </div>
+      <div className="flex items-center gap-2">
+        <input
+          ref={inputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={e => {
+            const file = e.target.files?.[0]
+            if (file) onReplace(file)
+            e.target.value = ''
+          }}
+        />
+        <Button variant="outline" size="sm" onClick={() => inputRef.current?.click()}>
+          <Upload data-icon="inline-start" />
+          {value ? 'Replace' : 'Upload'}
+        </Button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button variant="outline" size="icon-sm" aria-label="Choose from library">
+              <Images />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Choose from library</TooltipContent>
+        </Tooltip>
+        {value && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="ghost" size="icon-sm" aria-label={`Remove ${breakpoint.label} image`} onClick={onRemove}>
+                <Trash2 className="text-muted-foreground" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Remove</TooltipContent>
+          </Tooltip>
+        )}
+      </div>
+      <FieldDescription>{breakpoint.hint}</FieldDescription>
+    </Field>
+  )
+}
+
+function BannerRow({ item, index, open, onOpenChange, onChange, onRemove }: {
+  item: BannerItem
+  index: number
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  onChange: (item: BannerItem) => void
+  onRemove: () => void
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id })
+  const { blobUrl, release } = useBlobUrls()
+  const titleError = validateRequired(item.title, 'Title')
+  const hrefError = item.href.trim() ? validateUrl(item.href, 'Link') : undefined
+  const imageError = item.images.desktop ? undefined : 'Desktop image is required'
+  const invalid = !!(titleError || hrefError || imageError)
+  const thumb = item.images.desktop ?? item.images.tablet ?? item.images.mobile
+  const name = item.title.trim() || `Banner ${index + 1}`
+
+  function setImage(key: Breakpoint, url: string | null) {
+    release(item.images[key])
+    onChange({ ...item, images: { ...item.images, [key]: url } })
+  }
+
+  return (
+    <div
+      ref={setNodeRef}
+      // Позиция элемента во время перетаскивания -- единственный оправданный inline-style
+      style={{ transform: CSS.Transform.toString(transform), transition }}
+      className={cn('rounded-xl border border-border bg-card', isDragging && 'relative z-10 opacity-80 shadow-md')}
+    >
+      <Collapsible open={open} onOpenChange={onOpenChange}>
+        <div className="flex items-center gap-1 p-2">
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            className="shrink-0 cursor-grab touch-none text-muted-foreground active:cursor-grabbing"
+            aria-label={`Reorder ${name}`}
+            {...attributes}
+            {...listeners}
+          >
+            <GripVertical />
+          </Button>
+          <CollapsibleTrigger asChild>
+            <button
+              type="button"
+              className="group/banner flex min-w-0 flex-1 items-center gap-3 rounded-lg px-1.5 py-1 text-left outline-none transition-colors hover:bg-muted/50 focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              <div className="flex h-10 w-16 shrink-0 items-center justify-center overflow-hidden rounded-md border border-border bg-muted">
+                {thumb ? (
+                  <img src={thumb} alt="" className="size-full object-cover" />
+                ) : (
+                  <Images className="size-4 text-muted-foreground" />
+                )}
+              </div>
+              <span className="truncate text-sm font-medium">{name}</span>
+              {invalid && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <CircleAlert className="size-4 shrink-0 text-destructive" aria-label="Needs attention" />
+                  </TooltipTrigger>
+                  <TooltipContent>{titleError ?? hrefError ?? imageError}</TooltipContent>
+                </Tooltip>
+              )}
+              <ChevronDown className="ml-auto size-4 shrink-0 text-muted-foreground transition-transform group-data-[state=open]/banner:rotate-180" />
+            </button>
+          </CollapsibleTrigger>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="ghost" size="icon-sm" aria-label={`Remove ${name}`} onClick={onRemove}>
+                <Trash2 className="text-muted-foreground" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Remove</TooltipContent>
+          </Tooltip>
+        </div>
+        <CollapsibleContent>
+          <FieldGroup className="border-t border-border p-4">
+            <div className="grid grid-cols-1 gap-5 tablet:grid-cols-2">
+              <Field data-invalid={!!titleError || undefined}>
+                <FieldLabel htmlFor={`banner-title-${item.id}`}>
+                  Title <span className="text-destructive">*</span>
+                </FieldLabel>
+                <Input
+                  id={`banner-title-${item.id}`}
+                  placeholder="Welcome bonus"
+                  value={item.title}
+                  onChange={e => onChange({ ...item, title: e.target.value })}
+                  aria-invalid={!!titleError || undefined}
+                />
+                <FieldDescription>Used as the image alt text; not shown on the storefront.</FieldDescription>
+                <FieldError>{titleError}</FieldError>
+              </Field>
+              <Field data-invalid={!!hrefError || undefined}>
+                <FieldLabel htmlFor={`banner-href-${item.id}`}>Link</FieldLabel>
+                <Input
+                  id={`banner-href-${item.id}`}
+                  type="url"
+                  placeholder="https://example.com/promotions"
+                  value={item.href}
+                  onChange={e => onChange({ ...item, href: e.target.value })}
+                  aria-invalid={!!hrefError || undefined}
+                />
+                <FieldDescription>Leave empty to make the banner non-clickable.</FieldDescription>
+                <FieldError>{hrefError}</FieldError>
+              </Field>
+            </div>
+            <div className="grid grid-cols-1 gap-5 tablet:grid-cols-3">
+              {BREAKPOINTS.map(bp => (
+                <BreakpointImageField
+                  key={bp.key}
+                  breakpoint={bp}
+                  value={item.images[bp.key]}
+                  onReplace={file => setImage(bp.key, blobUrl(file))}
+                  onRemove={() => setImage(bp.key, null)}
+                />
+              ))}
+            </div>
+          </FieldGroup>
+        </CollapsibleContent>
+      </Collapsible>
+    </div>
+  )
+}
+
+function BannersSection() {
+  const [slidesPerView, setSlidesPerView] = useState<SlidesPerView>(BANNERS.slidesPerView)
+  const [autoplayDelay, setAutoplayDelay] = useState(String(BANNERS.autoplayDelay))
+  const [items, setItems] = useState<BannerItem[]>(BANNERS.items)
+  const [openIds, setOpenIds] = useState<string[]>([])
+  const { dirty, saving, save, reset } = useSaveable({ slidesPerView, autoplayDelay, items }, v => {
+    setSlidesPerView(v.slidesPerView)
+    setAutoplayDelay(v.autoplayDelay)
+    setItems(v.items)
+  })
+
+  const autoplayError = validateAutoplay(autoplayDelay)
+  const itemsValid = items.every(i =>
+    !validateRequired(i.title, 'Title') && (!i.href.trim() || !validateUrl(i.href)) && i.images.desktop
+  )
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  )
+
+  function onDragEnd({ active, over }: DragEndEvent) {
+    if (!over || active.id === over.id) return
+    setItems(list => arrayMove(list, list.findIndex(i => i.id === active.id), list.findIndex(i => i.id === over.id)))
+  }
+
+  function setOpen(id: string, open: boolean) {
+    setOpenIds(ids => open ? [...ids, id] : ids.filter(i => i !== id))
+  }
+
+  function add() {
+    const id = `b${Date.now()}`
+    setItems(list => [...list, { id, title: '', href: '', images: { desktop: null, tablet: null, mobile: null } }])
+    setOpen(id, true)
+  }
+
+  function remove(id: string) {
+    setItems(list => list.filter(i => i.id !== id))
+    setOpen(id, false)
+  }
+
+  const addButton = (
+    <Button variant="outline" size="sm" onClick={add}>
+      <Plus data-icon="inline-start" />
+      Add banner
+    </Button>
+  )
+
+  return (
+    <>
+      <SectionHeader title="Banners" description="Home page carousel: layout, timing and banner images per breakpoint." />
+
+      <Card className="mt-8">
+        <CardHeader>
+          <CardTitle>Carousel</CardTitle>
+          <CardDescription>How banners are laid out and rotated on the storefront.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <FieldGroup>
+            <Field>
+              <FieldLabel>Slides per view</FieldLabel>
+              <div className="flex flex-wrap items-center gap-6">
+                <ToggleGroup
+                  type="single"
+                  variant="outline"
+                  spacing={0}
+                  value={String(slidesPerView)}
+                  onValueChange={v => { if (v) setSlidesPerView(Number(v) as SlidesPerView) }}
+                  aria-label="Slides per view"
+                >
+                  <ToggleGroupItem value="1">1 banner</ToggleGroupItem>
+                  <ToggleGroupItem value="3">3 banners</ToggleGroupItem>
+                </ToggleGroup>
+                <CarouselPreview slides={slidesPerView} />
+              </div>
+              <FieldDescription>
+                <span className="font-medium text-foreground">1</span> is a single full-width hero.{' '}
+                <span className="font-medium text-foreground">3</span> shows a compact row (2 on tablet,
+                1 on mobile) with pagination dots below.
+              </FieldDescription>
+            </Field>
+            <FieldSeparator />
+            <Field data-invalid={!!autoplayError || undefined}>
+              <FieldLabel htmlFor="autoplay-delay">Autoplay delay</FieldLabel>
+              <InputGroup className="w-40">
+                <InputGroupInput
+                  id="autoplay-delay"
+                  type="number"
+                  inputMode="numeric"
+                  min={AUTOPLAY_MIN}
+                  step={500}
+                  value={autoplayDelay}
+                  onChange={e => setAutoplayDelay(e.target.value)}
+                  aria-invalid={!!autoplayError || undefined}
+                />
+                <InputGroupAddon align="inline-end">ms</InputGroupAddon>
+              </InputGroup>
+              <FieldDescription>
+                How long each hero slide stays before advancing. Default {AUTOPLAY_DEFAULT} ({AUTOPLAY_DEFAULT / 1000} s),
+                minimum {AUTOPLAY_MIN}. Applies to the single-banner layout.
+              </FieldDescription>
+              <FieldError>{autoplayError}</FieldError>
+            </Field>
+          </FieldGroup>
+        </CardContent>
+      </Card>
+
+      <div className="mt-8 flex items-center justify-between gap-3">
+        <div>
+          <h3 className="text-base font-medium">Banners</h3>
+          <p className="text-sm text-muted-foreground">Shown in this order -- drag the handle to reorder.</p>
+        </div>
+        {items.length > 0 && addButton}
+      </div>
+
+      {items.length === 0 ? (
+        <div className="mt-4 flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border px-4 py-8 text-center">
+          <div className="flex size-10 items-center justify-center rounded-xl bg-muted">
+            <GalleryHorizontal className="size-5 text-muted-foreground" />
+          </div>
+          <p className="text-sm text-muted-foreground">No banners yet. The carousel is hidden on the storefront.</p>
+          {addButton}
+        </div>
+      ) : (
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+          <SortableContext items={items.map(i => i.id)} strategy={verticalListSortingStrategy}>
+            <div className="mt-4 flex flex-col gap-2">
+              {items.map((item, index) => (
+                <BannerRow
+                  key={item.id}
+                  item={item}
+                  index={index}
+                  open={openIds.includes(item.id)}
+                  onOpenChange={o => setOpen(item.id, o)}
+                  onChange={next => setItems(list => list.map(i => (i.id === item.id ? next : i)))}
+                  onRemove={() => remove(item.id)}
+                />
+              ))}
+            </div>
+          </SortableContext>
+        </DndContext>
+      )}
+
+      <SectionActions dirty={dirty} saving={saving} onSave={save} onReset={reset} canSave={!autoplayError && itemsValid} />
+    </>
+  )
+}
+
 function PlaceholderSection({ item }: { item: NavItem }) {
   return (
     <>
@@ -1271,9 +1701,10 @@ function BrandSettingsPage() {
                   {section === 'identity' && <IdentitySection />}
                   {section === 'locale' && <LocaleSection />}
                   {section === 'theme' && <ThemeSection />}
+                  {section === 'banners' && <BannersSection />}
                   {section === 'social' && <SocialSection />}
                   {section === 'wallet-auto-provision' && <WalletAutoProvisionSection />}
-                  {!['general', 'identity', 'locale', 'theme', 'social', 'wallet-auto-provision'].includes(section) && <PlaceholderSection item={current} />}
+                  {!['general', 'identity', 'locale', 'theme', 'banners', 'social', 'wallet-auto-provision'].includes(section) && <PlaceholderSection item={current} />}
                 </SectionContext.Provider>
               )}
             </div>
