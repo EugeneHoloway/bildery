@@ -21,6 +21,7 @@ import {
   Palette,
   Plus,
   Power,
+  RotateCcw,
   PanelBottom,
   PanelLeft,
   Languages,
@@ -70,6 +71,7 @@ import { Field, FieldContent, FieldDescription, FieldError, FieldGroup, FieldLab
 import { Input } from '@/components/ui/input'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Skeleton } from '@/components/ui/skeleton'
+import { Switch } from '@/components/ui/switch'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
@@ -103,6 +105,20 @@ import {
   type BannerState,
   type SlidesPerView,
 } from './_lib/banners'
+import {
+  commitDepositMethods,
+  DEPOSIT_KIND_ICON,
+  DEPOSIT_KIND_LABEL,
+  DEPOSIT_KINDS,
+  DEPOSIT_METHODS,
+  DEPOSIT_METHODS_DEFAULTS,
+  depositMethodHref,
+  depositMethodName,
+  newDepositMethod,
+  providerLabel,
+  type DepositKind,
+  type DepositMethod,
+} from './_lib/deposit-methods'
 import { SectionActions, SectionContext, SectionHeader, useSaveable } from './_lib/section'
 import { BRAND_COLORS, readableOn } from './_lib/theme'
 import { useBlobUrls } from './_lib/use-blob-urls'
@@ -974,6 +990,169 @@ function WalletAutoProvisionSection() {
   )
 }
 
+function DepositMethodRow({ method, onToggle, onRemove }: {
+  method: DepositMethod
+  onToggle: (enabled: boolean) => void
+  onRemove: () => void
+}) {
+  const { navigate } = useContext(SectionContext)
+  const Icon = DEPOSIT_KIND_ICON[method.kind]
+  const name = depositMethodName(method)
+  const href = depositMethodHref(method.id)
+  const main = providerLabel(method)
+  const enabledCount = method.options.filter(o => o.enabled).length
+  const switchId = `deposit-${method.id}-enabled`
+
+  return (
+    <li className="flex items-center gap-1 px-2 py-1.5">
+      {/* The whole icon + text area opens the method page, like banner rows; toggle and delete stay outside it */}
+      <Link
+        href={href}
+        onClick={e => {
+          // Modifier clicks open a new tab and bypass the dirty guard on purpose
+          if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return
+          e.preventDefault()
+          navigate(href)
+        }}
+        className="flex min-w-0 flex-1 items-center gap-3 rounded-lg px-1.5 py-1 outline-none transition-colors hover:bg-muted/50 focus-visible:ring-3 focus-visible:ring-ring/50"
+      >
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-muted">
+          <Icon className={cn('size-5', method.enabled ? 'text-foreground' : 'text-muted-foreground')} />
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="flex items-center gap-2">
+            <span className={cn('truncate text-sm font-medium', !method.enabled && 'text-muted-foreground')}>{name}</span>
+            <Badge variant="secondary">{DEPOSIT_KIND_LABEL[method.kind]}</Badge>
+          </span>
+          <span className="block truncate text-xs text-muted-foreground">
+            Main: {main ?? 'not set'} · {enabledCount}/{method.options.length} options on
+          </span>
+        </span>
+        <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
+      </Link>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          {/* Wrapper takes the trigger's data-state/data-slot, which would otherwise override the Switch's own */}
+          <span className="mx-2 flex">
+            <Switch
+              id={switchId}
+              checked={method.enabled}
+              onCheckedChange={onToggle}
+              aria-label={`${method.enabled ? 'Disable' : 'Enable'} ${name}`}
+            />
+          </span>
+        </TooltipTrigger>
+        <TooltipContent>{method.enabled ? 'Shown in the deposit modal' : 'Hidden from the deposit modal'}</TooltipContent>
+      </Tooltip>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button variant="ghost" size="icon-sm" aria-label={`Remove ${name}`} onClick={onRemove}>
+            <Trash2 className="text-muted-foreground" />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>Remove method</TooltipContent>
+      </Tooltip>
+    </li>
+  )
+}
+
+function DepositMethodsSection() {
+  const [methods, setMethods] = useState<DepositMethod[]>(DEPOSIT_METHODS)
+  const { dirty, saving, save, reset } = useSaveable({ methods }, v => setMethods(v.methods), v => commitDepositMethods(v.methods))
+
+  const missing = DEPOSIT_KINDS.filter(k => !methods.some(m => m.kind === k))
+  const isDefault = JSON.stringify(methods) === JSON.stringify(DEPOSIT_METHODS_DEFAULTS)
+
+  function add(kind: DepositKind) {
+    // Keep Crypto above Fiat regardless of the order they were added in
+    setMethods(list => [...list, newDepositMethod(kind)].sort((a, b) => DEPOSIT_KINDS.indexOf(a.kind) - DEPOSIT_KINDS.indexOf(b.kind)))
+  }
+
+  function restoreDefaults() {
+    setMethods(DEPOSIT_METHODS_DEFAULTS)
+    toast('Defaults restored. Save to apply them.')
+  }
+
+  const addButton = (
+    <DropdownMenu>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          {/* The span keeps the tooltip on the disabled button */}
+          <span>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" disabled={missing.length === 0}>
+                <Plus data-icon="inline-start" />
+                Add method
+              </Button>
+            </DropdownMenuTrigger>
+          </span>
+        </TooltipTrigger>
+        {missing.length === 0 && <TooltipContent>Both Crypto and Fiat blocks are already added</TooltipContent>}
+      </Tooltip>
+      <DropdownMenuContent align="start">
+        {missing.map(kind => (
+          <DropdownMenuItem key={kind} onSelect={() => add(kind)}>{DEPOSIT_KIND_LABEL[kind]}</DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
+
+  const restoreButton = (
+    <Button variant="ghost" size="sm" onClick={restoreDefaults} disabled={isDefault}>
+      <RotateCcw data-icon="inline-start" />
+      Restore defaults
+    </Button>
+  )
+
+  return (
+    <>
+      <SectionHeader
+        title="Deposit methods"
+        description="Configure the deposit modal: which payment methods players see and how they can deposit within each one."
+      />
+
+      <div className="mt-8">
+        <h3 className="text-base font-medium">Methods</h3>
+        <p className="text-sm text-muted-foreground">
+          One Crypto and one Fiat block ({methods.length}/{DEPOSIT_KINDS.length}). Each block opens the deposit with its Main provider.
+        </p>
+      </div>
+
+      {methods.length === 0 ? (
+        <div className="mt-4 flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border px-4 py-8 text-center">
+          <div className="flex size-10 items-center justify-center rounded-xl bg-muted">
+            <CreditCard className="size-5 text-muted-foreground" />
+          </div>
+          <p className="text-sm text-muted-foreground">No deposit methods. Players can't deposit on this brand.</p>
+          <div className="flex items-center gap-2">
+            {addButton}
+            {restoreButton}
+          </div>
+        </div>
+      ) : (
+        <>
+          <ul className="mt-4 divide-y divide-border rounded-2xl border border-border">
+            {methods.map(method => (
+              <DepositMethodRow
+                key={method.id}
+                method={method}
+                onToggle={enabled => setMethods(list => list.map(m => (m.id === method.id ? { ...m, enabled } : m)))}
+                onRemove={() => setMethods(list => list.filter(m => m.id !== method.id))}
+              />
+            ))}
+          </ul>
+          <div className="mt-4 flex items-center gap-2">
+            {addButton}
+            {restoreButton}
+          </div>
+        </>
+      )}
+
+      <SectionActions dirty={dirty} saving={saving} onSave={save} onReset={reset} />
+    </>
+  )
+}
+
 function SectionSkeleton() {
   return (
     <div aria-busy="true" aria-label="Loading section">
@@ -1523,8 +1702,9 @@ function BrandSettingsPage() {
                   {section === 'theme' && <ThemeSection />}
                   {section === 'banners' && <BannersSection />}
                   {section === 'social' && <SocialSection />}
+                  {section === 'deposit-methods' && <DepositMethodsSection />}
                   {section === 'wallet-auto-provision' && <WalletAutoProvisionSection />}
-                  {!['general', 'identity', 'locale', 'theme', 'banners', 'social', 'wallet-auto-provision'].includes(section) && <PlaceholderSection item={current} />}
+                  {!['general', 'identity', 'locale', 'theme', 'banners', 'social', 'deposit-methods', 'wallet-auto-provision'].includes(section) && <PlaceholderSection item={current} />}
                 </SectionContext.Provider>
               )}
             </div>
