@@ -1180,7 +1180,7 @@ function ImageRow({ item, index, onArchive }: { item: BannerItem; index: number;
           </Tooltip>
         </span>
         <span className="hidden w-44 shrink-0 flex-col text-xs tabular-nums text-muted-foreground desktop:flex">
-          <span className="truncate">{item.schedule.startsAt ? formatDateTime(new Date(item.schedule.startsAt)) : 'Right away'}</span>
+          <span className="truncate">{formatDateTime(new Date(item.schedule.startsAt))}</span>
           <span className="truncate">{item.schedule.endsAt ? formatDateTime(new Date(item.schedule.endsAt)) : 'No end date'}</span>
         </span>
         <span className="hidden w-28 shrink-0 items-center gap-3 text-xs tabular-nums text-muted-foreground sm:flex">

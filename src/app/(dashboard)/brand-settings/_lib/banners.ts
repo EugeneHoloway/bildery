@@ -34,8 +34,8 @@ export interface BannerItem {
   artwork: BannerImages
   /** Publish / Stop toggle; a draft is never shown regardless of its schedule. */
   published: boolean
-  /** ISO timestamps, applied while published. Empty start = shown right away; empty end = shown until archived. */
-  schedule: { startsAt: string | null; endsAt: string | null }
+  /** ISO timestamps, applied while published. The start is always set; empty end = shown until archived. */
+  schedule: { startsAt: string; endsAt: string | null }
   /** ISO timestamp; archived banners are hidden from the storefront and purged after ARCHIVE_RETENTION_DAYS. */
   archivedAt: string | null
 }
@@ -84,9 +84,16 @@ export function emptyBanner(id: string): BannerItem {
     background: { ...EMPTY_IMAGES },
     artwork: { ...EMPTY_IMAGES },
     published: false,
-    schedule: { startsAt: null, endsAt: null },
+    // Defaults to the start of the current hour -- the picker lists whole hours
+    schedule: { startsAt: new Date(new Date().setMinutes(0, 0, 0)).toISOString(), endsAt: null },
     archivedAt: null,
   }
+}
+
+/** Mock persistence: writes a saved banner back into BANNERS so the list shows it after navigating back (lost on reload). */
+export function commitBanner(patch: Pick<BannerItem, 'id'> & Partial<BannerItem>) {
+  const i = BANNERS.items.findIndex(b => b.id === patch.id)
+  if (i !== -1) BANNERS.items[i] = { ...BANNERS.items[i], ...patch }
 }
 
 /** Display name for lists and headings. */
@@ -158,7 +165,7 @@ export const BANNERS = {
       background: backgrounds('betup-crown'),
       artwork: { ...EMPTY_IMAGES },
       published: true,
-      schedule: { startsAt: null, endsAt: null },
+      schedule: { startsAt: iso(-30 * DAY_MS), endsAt: null },
       archivedAt: null,
     },
     {
@@ -171,7 +178,7 @@ export const BANNERS = {
       background: backgrounds('betup-live'),
       artwork: artworks('artwork-chips.svg', ['tablet', 'laptop', 'desktop', 'desktopXl']),
       published: true,
-      schedule: { startsAt: null, endsAt: null },
+      schedule: { startsAt: iso(-14 * DAY_MS), endsAt: null },
       archivedAt: null,
     },
     {
@@ -197,7 +204,7 @@ export const BANNERS = {
       background: backgrounds('betup-slots', ['mobile', 'tablet', 'laptop']),
       artwork: { ...EMPTY_IMAGES },
       published: false,
-      schedule: { startsAt: null, endsAt: null },
+      schedule: { startsAt: iso(-7 * DAY_MS), endsAt: null },
       archivedAt: null,
     },
     {
@@ -236,7 +243,7 @@ export const BANNERS = {
       background: backgrounds('betup-summer'),
       artwork: { ...EMPTY_IMAGES },
       published: true,
-      schedule: { startsAt: null, endsAt: null },
+      schedule: { startsAt: iso(-60 * DAY_MS), endsAt: null },
       archivedAt: new Date(Date.now() - 3 * DAY_MS).toISOString(),
     },
   ] as BannerItem[],
@@ -291,9 +298,9 @@ export function bannerStatus(
   now = new Date()
 ): { state: BannerState; label: string } {
   if (!published) return { state: 'draft', label: 'Not published -- hidden from the storefront' }
-  const start = schedule.startsAt ? new Date(schedule.startsAt) : null
+  const start = new Date(schedule.startsAt)
   const end = schedule.endsAt ? new Date(schedule.endsAt) : null
-  if (start && isAfter(start, now)) {
+  if (isAfter(start, now)) {
     return { state: 'scheduled', label: `Starts in ${formatDistanceToNowStrict(start)}` }
   }
   if (end && isBefore(end, now)) {
@@ -303,7 +310,7 @@ export function bannerStatus(
 }
 
 export function validateSchedule(schedule: BannerItem['schedule']) {
-  if (schedule.startsAt && schedule.endsAt && !isAfter(new Date(schedule.endsAt), new Date(schedule.startsAt))) {
+  if (schedule.endsAt && !isAfter(new Date(schedule.endsAt), new Date(schedule.startsAt))) {
     return 'End must be after start'
   }
   return undefined

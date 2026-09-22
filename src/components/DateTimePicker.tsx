@@ -15,6 +15,8 @@ interface DateTimePickerProps {
   placeholder?: string
   /** Minutes between time options. */
   minuteStep?: number
+  /** Shows the Clear button; off for values that are always required. */
+  clearable?: boolean
   /** Days that cannot be picked (react-day-picker matcher). */
   disabled?: React.ComponentProps<typeof Calendar>['disabled']
   'aria-invalid'?: boolean
@@ -41,7 +43,8 @@ export function DateTimePicker({
   value,
   onChange,
   placeholder = 'Pick date and time',
-  minuteStep = 30,
+  minuteStep = 60,
+  clearable = true,
   disabled,
   'aria-invalid': ariaInvalid,
   className,
@@ -50,13 +53,11 @@ export function DateTimePicker({
   const listRef = useRef<HTMLDivElement>(null)
   const times = timeOptions(minuteStep)
 
-  // Bring the selected (or a mid-day) time into view when the popover opens
+  // Bring the selected time into view when the popover opens; otherwise the list starts at 00:00
   useEffect(() => {
     if (!open) return
     const frame = requestAnimationFrame(() => {
-      const target =
-        listRef.current?.querySelector<HTMLElement>('[data-selected=true]') ??
-        listRef.current?.querySelector<HTMLElement>('[data-time="09:00"]')
+      const target = listRef.current?.querySelector<HTMLElement>('[data-selected=true]')
       target?.scrollIntoView({ block: 'center' })
     })
     return () => cancelAnimationFrame(frame)
@@ -97,35 +98,40 @@ export function DateTimePicker({
             defaultMonth={value ?? undefined}
             disabled={disabled}
           />
-          <ScrollArea className="h-40 border-t border-border sm:h-72 sm:border-t-0 sm:border-l">
-            <div ref={listRef} className="flex flex-col gap-0.5 p-2">
-              {times.map(t => {
-                const selected = t.label === selectedTime
-                return (
-                  <button
-                    key={t.label}
-                    type="button"
-                    data-time={t.label}
-                    data-selected={selected || undefined}
-                    onClick={() => pickTime(t.h, t.m)}
-                    className={cn(
-                      'flex items-center justify-between gap-4 rounded-md px-3 py-1.5 text-sm tabular-nums transition-colors outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring',
-                      selected ? 'bg-muted font-medium' : 'text-muted-foreground hover:text-foreground'
-                    )}
-                  >
-                    {t.label}
-                    <Check className={cn('size-4', selected ? 'opacity-100' : 'opacity-0')} />
-                  </button>
-                )
-              })}
-            </div>
-          </ScrollArea>
+          <div className="flex flex-col border-t border-border sm:border-t-0 sm:border-l">
+            <div className="px-5 pt-3 pb-1 text-sm font-medium">Time</div>
+            <ScrollArea className="h-40 sm:h-64">
+              <div ref={listRef} className="flex flex-col gap-0.5 p-2">
+                {times.map(t => {
+                  const selected = t.label === selectedTime
+                  return (
+                    <button
+                      key={t.label}
+                      type="button"
+                      data-time={t.label}
+                      data-selected={selected || undefined}
+                      onClick={() => pickTime(t.h, t.m)}
+                      className={cn(
+                        'flex items-center justify-between gap-4 rounded-md px-3 py-1.5 text-sm tabular-nums transition-colors outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring',
+                        selected ? 'bg-muted font-medium' : 'text-muted-foreground hover:text-foreground'
+                      )}
+                    >
+                      {t.label}
+                      <Check className={cn('size-4', selected ? 'opacity-100' : 'opacity-0')} />
+                    </button>
+                  )
+                })}
+              </div>
+            </ScrollArea>
+          </div>
         </div>
-        <div className="flex items-center justify-between gap-2 border-t border-border p-2">
-          <Button variant="ghost" size="sm" onClick={() => onChange(null)} disabled={!value}>
-            <X data-icon="inline-start" />
-            Clear
-          </Button>
+        <div className={cn('flex items-center gap-2 border-t border-border p-2', clearable ? 'justify-between' : 'justify-end')}>
+          {clearable && (
+            <Button variant="ghost" size="sm" onClick={() => onChange(null)} disabled={!value}>
+              <X data-icon="inline-start" />
+              Clear
+            </Button>
+          )}
           <Button size="sm" onClick={() => setOpen(false)}>Done</Button>
         </div>
       </PopoverContent>

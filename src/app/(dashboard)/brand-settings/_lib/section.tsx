@@ -21,10 +21,10 @@ export const SectionContext = createContext<{
 
 /**
  * Draft/baseline bookkeeping shared by every section: `dirty` compares the
- * current values against the last saved ones, `save` commits them (mock),
+ * current values against the last saved ones, `save` commits them (mock, optionally via `commit`),
  * `reset` restores them, and the page is told about unsaved changes.
  */
-export function useSaveable<T extends object>(values: T, apply: (v: T) => void) {
+export function useSaveable<T extends object>(values: T, apply: (v: T) => void, commit?: (v: T) => void) {
   const [baseline, setBaseline] = useState(values)
   const [saving, setSaving] = useState(false)
   const dirty = JSON.stringify(values) !== JSON.stringify(baseline)
@@ -51,6 +51,7 @@ export function useSaveable<T extends object>(values: T, apply: (v: T) => void) 
     setSaving(true)
     setTimeout(() => {
       setBaseline(values)
+      commit?.(values)
       setSaving(false)
       toast.success('Changes saved')
     }, 400)

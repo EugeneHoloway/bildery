@@ -1,6 +1,7 @@
 'use client'
 import { useLayoutEffect, useRef, useState } from 'react'
 import { Images } from 'lucide-react'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { cn } from '@/lib/utils'
 import { BANNER_BREAKPOINTS, resolveSlot, type BannerBreakpoint, type BannerItem } from '../../../_lib/banners'
@@ -24,14 +25,23 @@ function slotNote(label: string, used: { key: BannerBreakpoint } | null, bp: Ban
   return used.key === bp ? `${label}: ${name} slot` : `${label}: ${name} slot (fallback)`
 }
 
-/** Live render of one slide the way the storefront composes it: background, artwork on the right, texts on the left. */
-export function SlidePreview({ banner, className }: { banner: BannerItem; className?: string }) {
-  const [bp, setBp] = useState<BannerBreakpoint>('desktop')
+/**
+ * Live render of one slide the way the storefront composes it: background, artwork on the right, texts on the left.
+ * The breakpoint is controlled by the page so the image slots can point the preview at themselves.
+ */
+export function SlidePreview({ banner, bp, onBpChange, className }: {
+  banner: BannerItem
+  bp: BannerBreakpoint
+  onBpChange: (bp: BannerBreakpoint) => void
+  className?: string
+}) {
   const frameRef = useRef<HTMLDivElement>(null)
   const [scale, setScale] = useState(1)
 
   const spec = BANNER_BREAKPOINTS.find(b => b.key === bp)!
-  const { w, h } = spec.size
+  // Same 2:1 frame as the image slots on the left; the width stays real so the typography scales as on the storefront
+  const w = spec.size.w
+  const h = Math.round(w / 2)
   const typo = TYPO[bp]
 
   // Fit the real-size slide into the available width
@@ -54,81 +64,89 @@ export function SlidePreview({ banner, className }: { banner: BannerItem; classN
   const textColor = readableOn(BRAND_COLORS.background)
 
   return (
-    <div className={cn('flex flex-col gap-3', className)}>
-      <div>
-        <h3 className="text-base font-medium">Preview</h3>
-        <p className="mt-1 text-sm text-muted-foreground">How the image looks on the storefront at each breakpoint, with your unsaved changes.</p>
-      </div>
-      <Tabs value={bp} onValueChange={v => setBp(v as BannerBreakpoint)} className="mt-2 max-w-full">
-        <TabsList aria-label="Preview breakpoint" className="max-w-full justify-start overflow-x-auto">
-          {BANNER_BREAKPOINTS.map(b => (
-            <TabsTrigger key={b.key} value={b.key} className="tabular-nums" aria-label={b.label}>
-              {b.viewport}px
-            </TabsTrigger>
-          ))}
-        </TabsList>
-      </Tabs>
+    <Card className={className}>
+      <CardHeader>
+        <CardTitle>Preview</CardTitle>
+        <CardDescription>How the image looks on the storefront, with your unsaved changes.</CardDescription>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-3">
+        <Tabs value={bp} onValueChange={v => onBpChange(v as BannerBreakpoint)}>
+          {/* Six triggers share the card width evenly -- no horizontal scroll even on a phone */}
+          <TabsList aria-label="Preview breakpoint" className="w-full">
+            {BANNER_BREAKPOINTS.map(b => (
+              <TabsTrigger
+                key={b.key}
+                value={b.key}
+                className="min-w-0 px-1 text-xs tabular-nums"
+                aria-label={`${b.label}, ${b.viewport}px`}
+              >
+                {b.viewport}px
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
 
-      {/* Outer frame takes the scaled height; the slide inside keeps its real px size */}
-      <div ref={frameRef} className="w-full overflow-hidden rounded-xl" style={{ height: h * scale }}>
-        <div
-          className={cn('relative overflow-hidden rounded-xl', empty && HATCHED)}
-          // Real storefront size + brand background: these values come from the data, not the CMS theme
-          style={{
-            width: w,
-            height: h,
-            transform: `scale(${scale})`,
-            transformOrigin: 'top left',
-            backgroundColor: empty ? undefined : BRAND_COLORS.background,
-          }}
-        >
-          {empty ? (
-            <div className="flex size-full flex-col items-center justify-center gap-2 text-muted-foreground">
-              <Images className="size-6" />
-              <span className={cn('text-center', typo.subtitle)}>Add a title or an image to see the preview</span>
-            </div>
-          ) : (
-            <>
-              {background && (
-                <img src={background.src} alt="" className="absolute inset-0 size-full object-cover" />
-              )}
-              {artwork && (
-                <img
-                  src={artwork.src}
-                  alt=""
-                  className="absolute inset-y-0 right-0 h-full w-1/2 object-contain object-right-bottom"
-                />
-              )}
-              <div className={cn('relative flex h-full flex-col justify-center gap-3', typo.pad)}>
-                <div className={cn('flex flex-col gap-1', typo.text)} style={{ color: textColor }}>
-                  {subtitle && <p className={cn('font-medium opacity-80', typo.subtitle)}>{subtitle}</p>}
-                  {title && <p className={cn('font-bold', typo.title)}>{title}</p>}
-                </div>
-                {cta && (
-                  <span
-                    className={cn('inline-flex w-fit items-center rounded-full font-medium', typo.button)}
-                    style={{ backgroundColor: BRAND_COLORS.primary, color: BRAND_COLORS.primaryForeground }}
-                  >
-                    {cta}
-                  </span>
-                )}
+        {/* Outer frame takes the scaled height; the slide inside keeps its real px size */}
+        <div ref={frameRef} className="w-full overflow-hidden rounded-xl" style={{ height: h * scale }}>
+          <div
+            className={cn('relative overflow-hidden rounded-xl', empty && HATCHED)}
+            // Real storefront size + brand background: these values come from the data, not the CMS theme
+            style={{
+              width: w,
+              height: h,
+              transform: `scale(${scale})`,
+              transformOrigin: 'top left',
+              backgroundColor: empty ? undefined : BRAND_COLORS.background,
+            }}
+          >
+            {empty ? (
+              <div className="flex size-full flex-col items-center justify-center gap-2 text-muted-foreground">
+                <Images className="size-6" />
+                <span className={cn('text-center', typo.subtitle)}>Add a title or an image to see the preview</span>
               </div>
+            ) : (
+              <>
+                {background && (
+                  <img src={background.src} alt="" className="absolute inset-0 size-full object-cover" />
+                )}
+                {artwork && (
+                  <img
+                    src={artwork.src}
+                    alt=""
+                    className="absolute inset-y-0 right-0 h-full w-1/2 object-contain object-right-bottom"
+                  />
+                )}
+                <div className={cn('relative flex h-full flex-col justify-center gap-3', typo.pad)}>
+                  <div className={cn('flex flex-col gap-1', typo.text)} style={{ color: textColor }}>
+                    {subtitle && <p className={cn('font-medium opacity-80', typo.subtitle)}>{subtitle}</p>}
+                    {title && <p className={cn('font-bold', typo.title)}>{title}</p>}
+                  </div>
+                  {cta && (
+                    <span
+                      className={cn('inline-flex w-fit items-center rounded-full font-medium', typo.button)}
+                      style={{ backgroundColor: BRAND_COLORS.primary, color: BRAND_COLORS.primaryForeground }}
+                    >
+                      {cta}
+                    </span>
+                  )}
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+
+        <p className="text-xs text-muted-foreground">
+          {spec.label}, {spec.size.w} × {spec.size.h} px
+          {' · '}
+          {slotNote(banner.composition === 'layered' ? 'Background' : 'Image', background, bp, 'none, brand colour')}
+          {banner.composition === 'layered' && (
+            <>
+              {' · '}
+              {slotNote('Artwork', artwork, bp, 'none')}
             </>
           )}
-        </div>
-      </div>
-
-      <p className="text-xs text-muted-foreground">
-        {spec.label}, {w} × {h} px
-        {' · '}
-        {slotNote(banner.composition === 'layered' ? 'Background' : 'Image', background, bp, 'none, brand colour')}
-        {banner.composition === 'layered' && (
-          <>
-            {' · '}
-            {slotNote('Artwork', artwork, bp, 'none')}
-          </>
-        )}
-      </p>
-    </div>
+        </p>
+      </CardContent>
+    </Card>
   )
 }
