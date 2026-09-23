@@ -114,7 +114,7 @@ function OptionRow({ kind, option, index, incomplete, onToggle, onEdit, onRemove
       <Button
         variant="ghost"
         size="icon-sm"
-        className="relative shrink-0 cursor-grab touch-none text-muted-foreground active:cursor-grabbing"
+        className="relative z-10 shrink-0 cursor-grab touch-none text-muted-foreground active:cursor-grabbing"
         aria-label={`Reorder ${label}`}
         {...attributes}
         {...listeners}

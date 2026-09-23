@@ -1363,7 +1363,7 @@ function ImageRow({ item, index, onArchive }: { item: BannerItem; index: number;
       <Button
         variant="ghost"
         size="icon-sm"
-        className="relative shrink-0 cursor-grab touch-none text-muted-foreground active:cursor-grabbing"
+        className="relative z-10 shrink-0 cursor-grab touch-none text-muted-foreground active:cursor-grabbing"
         aria-label={`Reorder ${name}`}
         {...attributes}
         {...listeners}
