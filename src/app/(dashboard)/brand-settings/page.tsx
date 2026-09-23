@@ -1004,8 +1004,8 @@ function DepositMethodRow({ method, onToggle, onRemove }: {
   const switchId = `deposit-${method.id}-enabled`
 
   return (
-    <li className="flex items-center gap-1 px-2 py-1.5">
-      {/* The whole icon + text area opens the method page, like banner rows; toggle and delete stay outside it */}
+    <li className="relative flex items-center gap-1 px-2 py-1.5 transition-colors has-[[data-row-link]:hover]:bg-foreground/5">
+      {/* Like shadcn Item: the link stretches over the whole row (after:), the toggle and delete sit above it */}
       <Link
         href={href}
         onClick={e => {
@@ -1014,7 +1014,8 @@ function DepositMethodRow({ method, onToggle, onRemove }: {
           e.preventDefault()
           navigate(href)
         }}
-        className="flex min-w-0 flex-1 items-center gap-3 rounded-lg px-1.5 py-1 outline-none transition-colors hover:bg-muted/50 focus-visible:ring-3 focus-visible:ring-ring/50"
+        data-row-link
+        className="flex min-w-0 flex-1 items-center gap-3 rounded-lg px-1.5 py-1 outline-none focus-visible:ring-3 focus-visible:ring-ring/50 after:absolute after:inset-0 after:content-['']"
       >
         <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-muted">
           <Icon className={cn('size-5', method.enabled ? 'text-foreground' : 'text-muted-foreground')} />
@@ -1033,7 +1034,7 @@ function DepositMethodRow({ method, onToggle, onRemove }: {
       <Tooltip>
         <TooltipTrigger asChild>
           {/* Wrapper takes the trigger's data-state/data-slot, which would otherwise override the Switch's own */}
-          <span className="mx-2 flex">
+          <span className="relative mx-2 flex">
             <Switch
               id={switchId}
               checked={method.enabled}
@@ -1046,7 +1047,7 @@ function DepositMethodRow({ method, onToggle, onRemove }: {
       </Tooltip>
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button variant="ghost" size="icon-sm" aria-label={`Remove ${name}`} onClick={onRemove}>
+          <Button variant="ghost" size="icon-sm" className="relative" aria-label={`Remove ${name}`} onClick={onRemove}>
             <Trash2 className="text-muted-foreground" />
           </Button>
         </TooltipTrigger>
@@ -1131,7 +1132,7 @@ function DepositMethodsSection() {
         </div>
       ) : (
         <>
-          <ul className="mt-4 divide-y divide-border rounded-2xl border border-border">
+          <ul className="mt-4 divide-y divide-border overflow-hidden rounded-2xl border border-border">
             {methods.map(method => (
               <DepositMethodRow
                 key={method.id}
@@ -1305,6 +1306,44 @@ function ImageThumb({ item, className }: { item: BannerItem; className?: string 
   )
 }
 
+/**
+ * Image rows scroll sideways right of the thumbnail. Keeps every row at the same offset and reports which edges
+ * still hide content, so the list can fade them -- the scrollbar itself is hidden to avoid one bar per row.
+ */
+function useSyncedRowScroll(rowCount: number) {
+  const listRef = useRef<HTMLUListElement>(null)
+  const [fade, setFade] = useState({ start: false, end: false })
+
+  const measure = (el: HTMLElement | null | undefined) => {
+    if (!el) return
+    const start = el.scrollLeft > 1
+    const end = el.scrollLeft + el.clientWidth < el.scrollWidth - 1
+    setFade(prev => (prev.start === start && prev.end === end ? prev : { start, end }))
+  }
+
+  useEffect(() => {
+    const list = listRef.current
+    if (!list) return
+    const update = () => measure(list.querySelector<HTMLElement>('[data-row-scroll]'))
+    update()
+    const ro = new ResizeObserver(update)
+    ro.observe(list)
+    return () => ro.disconnect()
+  }, [rowCount])
+
+  // Scroll events don't bubble, so catch them on the way down and mirror one row's offset to the rest
+  const onScrollCapture = (e: React.UIEvent<HTMLUListElement>) => {
+    const source = e.target as HTMLElement
+    if (!source.hasAttribute('data-row-scroll')) return
+    e.currentTarget.querySelectorAll<HTMLElement>('[data-row-scroll]').forEach(el => {
+      if (el !== source && el.scrollLeft !== source.scrollLeft) el.scrollLeft = source.scrollLeft
+    })
+    measure(source)
+  }
+
+  return { listRef, fade, onScrollCapture }
+}
+
 function ImageRow({ item, index, onArchive }: { item: BannerItem; index: number; onArchive: () => void }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id })
   const { navigate } = useContext(SectionContext)
@@ -1319,12 +1358,12 @@ function ImageRow({ item, index, onArchive }: { item: BannerItem; index: number;
       ref={setNodeRef}
       // Позиция элемента во время перетаскивания -- единственный оправданный inline-style
       style={{ transform: CSS.Transform.toString(transform), transition }}
-      className={cn('flex items-center gap-1 bg-background px-2 py-1.5', isDragging && 'relative z-10 opacity-80 shadow-md')}
+      className={cn('relative flex items-center gap-1 bg-background px-2 py-1.5 transition-colors has-[[data-row-link]:hover]:bg-foreground/5', isDragging && 'z-10 opacity-80 shadow-md')}
     >
       <Button
         variant="ghost"
         size="icon-sm"
-        className="shrink-0 cursor-grab touch-none text-muted-foreground active:cursor-grabbing"
+        className="relative shrink-0 cursor-grab touch-none text-muted-foreground active:cursor-grabbing"
         aria-label={`Reorder ${name}`}
         {...attributes}
         {...listeners}
@@ -1340,58 +1379,65 @@ function ImageRow({ item, index, onArchive }: { item: BannerItem; index: number;
           e.preventDefault()
           navigate(href)
         }}
-        className="flex min-w-0 flex-1 items-center gap-3 rounded-lg px-1.5 py-1 outline-none transition-colors hover:bg-muted/50 focus-visible:ring-2 focus-visible:ring-ring"
+        data-row-link
+        className="flex min-w-0 flex-1 items-center gap-3 rounded-lg px-1.5 py-1 outline-none focus-visible:ring-2 focus-visible:ring-ring after:absolute after:inset-0 after:content-['']"
       >
         <ImageThumb item={item} />
-        <span className="min-w-0 flex-1">
-          <span className="block truncate text-sm font-medium">{name}</span>
-          <span className="block truncate text-xs text-muted-foreground">
-            {item.cta.href.trim() ? stripProtocol(item.cta.href) : 'Not clickable'}
+        {/* Everything right of the thumbnail scrolls sideways when the row is narrow; the list keeps all rows in sync.
+            relative lifts it above the stretched link so wheel/touch scrolling reaches it (clicks still open the image). */}
+        <span
+          data-row-scroll
+          className="relative flex min-w-0 flex-1 items-center gap-3 overflow-x-auto scrollbar-none group-data-fade-start/rows:mask-l-from-85% group-data-fade-end/rows:mask-r-from-85%"
+        >
+          <span className="min-w-32 flex-1">
+            <span className="block truncate text-sm font-medium">{name}</span>
+            <span className="block truncate text-xs text-muted-foreground">
+              {item.cta.href.trim() ? stripProtocol(item.cta.href) : 'Not clickable'}
+            </span>
           </span>
-        </span>
-        {/* Status + schedule columns; hidden below desktop where the row gets tight */}
-        <span className="hidden w-24 shrink-0 desktop:block">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Badge variant={STATE_BADGE[status.state]}>{STATE_LABEL[status.state]}</Badge>
-            </TooltipTrigger>
-            <TooltipContent>{status.label}</TooltipContent>
-          </Tooltip>
-        </span>
-        <span className="hidden w-44 shrink-0 flex-col text-xs tabular-nums text-muted-foreground desktop:flex">
-          <span className="truncate">{formatDateTime(new Date(item.schedule.startsAt))}</span>
-          <span className="truncate">{item.schedule.endsAt ? formatDateTime(new Date(item.schedule.endsAt)) : 'No end date'}</span>
-        </span>
-        <span className="hidden w-28 shrink-0 items-center gap-3 text-xs tabular-nums text-muted-foreground sm:flex">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <span className="flex items-center gap-1"><Images className="size-3.5" />{backgrounds}/{BANNER_BREAKPOINTS.length}</span>
-            </TooltipTrigger>
-            <TooltipContent>{item.composition === 'layered' ? 'Background' : 'Banner'} images per breakpoint</TooltipContent>
-          </Tooltip>
-          {item.composition === 'layered' && (
+          <span className="w-24 shrink-0">
             <Tooltip>
               <TooltipTrigger asChild>
-                <span className="flex items-center gap-1"><Layers className="size-3.5" />{artworks}/{BANNER_BREAKPOINTS.length}</span>
+                <Badge variant={STATE_BADGE[status.state]} className="relative">{STATE_LABEL[status.state]}</Badge>
               </TooltipTrigger>
-              <TooltipContent>Artwork cut-outs per breakpoint</TooltipContent>
+              <TooltipContent>{status.label}</TooltipContent>
+            </Tooltip>
+          </span>
+          <span className="flex w-44 shrink-0 flex-col text-xs tabular-nums text-muted-foreground">
+            <span className="truncate">{formatDateTime(new Date(item.schedule.startsAt))}</span>
+            <span className="truncate">{item.schedule.endsAt ? formatDateTime(new Date(item.schedule.endsAt)) : 'No end date'}</span>
+          </span>
+          <span className="flex w-28 shrink-0 items-center gap-3 text-xs tabular-nums text-muted-foreground">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="relative flex items-center gap-1"><Images className="size-3.5" />{backgrounds}/{BANNER_BREAKPOINTS.length}</span>
+              </TooltipTrigger>
+              <TooltipContent>{item.composition === 'layered' ? 'Background' : 'Banner'} images per breakpoint</TooltipContent>
+            </Tooltip>
+            {item.composition === 'layered' && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="relative flex items-center gap-1"><Layers className="size-3.5" />{artworks}/{BANNER_BREAKPOINTS.length}</span>
+                </TooltipTrigger>
+                <TooltipContent>Artwork cut-outs per breakpoint</TooltipContent>
+              </Tooltip>
+            )}
+          </span>
+          {backgrounds === 0 && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <CircleAlert className="relative size-4 shrink-0 text-muted-foreground" aria-label="No background" />
+              </TooltipTrigger>
+              <TooltipContent>No background -- shows the default banner colour</TooltipContent>
             </Tooltip>
           )}
         </span>
-        {backgrounds === 0 && (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <CircleAlert className="size-4 shrink-0 text-muted-foreground" aria-label="No background" />
-            </TooltipTrigger>
-            <TooltipContent>No background -- shows the default banner colour</TooltipContent>
-          </Tooltip>
-        )}
         <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
       </Link>
       <Tooltip>
         <TooltipTrigger asChild>
           {/* Live images must be stopped first; the span keeps the tooltip on the disabled button */}
-          <span>
+          <span className="relative">
             <Button
               variant="ghost"
               size="icon-sm"
@@ -1443,6 +1489,7 @@ function BannersSection() {
 
   const active = items.filter(i => !i.archivedAt)
   const archived = items.filter(i => i.archivedAt)
+  const rowScroll = useSyncedRowScroll(active.length)
   const autoplayError = validateAutoplay(autoplayDelay)
   const thumbs = active.slice(0, 3).map(bannerThumb)
 
@@ -1555,7 +1602,13 @@ function BannersSection() {
       ) : (
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
           <SortableContext items={active.map(i => i.id)} strategy={verticalListSortingStrategy}>
-            <ul className="mt-4 divide-y divide-border overflow-hidden rounded-2xl border border-border">
+            <ul
+              ref={rowScroll.listRef}
+              data-fade-start={rowScroll.fade.start || undefined}
+              data-fade-end={rowScroll.fade.end || undefined}
+              onScrollCapture={rowScroll.onScrollCapture}
+              className="group/rows mt-4 divide-y divide-border overflow-hidden rounded-2xl border border-border"
+            >
               {active.map((item, index) => (
                 <ImageRow key={item.id} item={item} index={index} onArchive={() => setToArchive(item)} />
               ))}

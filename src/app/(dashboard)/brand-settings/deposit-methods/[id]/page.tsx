@@ -109,25 +109,26 @@ function OptionRow({ kind, option, index, incomplete, onToggle, onEdit, onRemove
       ref={setNodeRef}
       // Позиция элемента во время перетаскивания -- единственный оправданный inline-style
       style={{ transform: CSS.Transform.toString(transform), transition }}
-      className={cn('flex items-center gap-1 bg-background px-2 py-1.5', isDragging && 'relative z-10 opacity-80 shadow-md')}
+      className={cn('relative flex items-center gap-1 bg-background px-2 py-1.5 transition-colors has-[[data-row-link]:hover]:bg-foreground/5', isDragging && 'z-10 opacity-80 shadow-md')}
     >
       <Button
         variant="ghost"
         size="icon-sm"
-        className="shrink-0 cursor-grab touch-none text-muted-foreground active:cursor-grabbing"
+        className="relative shrink-0 cursor-grab touch-none text-muted-foreground active:cursor-grabbing"
         aria-label={`Reorder ${label}`}
         {...attributes}
         {...listeners}
       >
         <GripVertical />
       </Button>
-      {/* The whole text area opens the drawer, like banner rows; toggle and delete stay outside it */}
+      {/* Like shadcn Item: the button stretches over the whole row (after:), the toggle and delete sit above it */}
       <button
         type="button"
         onClick={onEdit}
         aria-label={`Edit ${label}`}
         aria-invalid={incomplete || undefined}
-        className="flex min-w-0 flex-1 items-center gap-3 rounded-lg px-1.5 py-1 text-left outline-none transition-colors hover:bg-muted/50 focus-visible:ring-3 focus-visible:ring-ring/50"
+        data-row-link
+        className="flex min-w-0 flex-1 items-center gap-3 rounded-lg px-1.5 py-1 text-left outline-none focus-visible:ring-3 focus-visible:ring-ring/50 after:absolute after:inset-0 after:content-['']"
       >
         <span className="min-w-0 flex-1">
           <span className={cn('block text-sm font-medium', !option.enabled && 'text-muted-foreground')}>{label}</span>
@@ -140,11 +141,11 @@ function OptionRow({ kind, option, index, incomplete, onToggle, onEdit, onRemove
         checked={option.enabled}
         onCheckedChange={onToggle}
         aria-label={`${option.enabled ? 'Disable' : 'Enable'} ${label}`}
-        className="mx-2"
+        className="relative mx-2"
       />
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button variant="ghost" size="icon-sm" aria-label={`Remove ${label}`} onClick={onRemove}>
+          <Button variant="ghost" size="icon-sm" className="relative" aria-label={`Remove ${label}`} onClick={onRemove}>
             <Trash2 className="text-muted-foreground" />
           </Button>
         </TooltipTrigger>

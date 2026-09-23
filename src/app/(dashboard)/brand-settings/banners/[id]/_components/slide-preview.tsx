@@ -44,7 +44,15 @@ export function SlidePreview({ banner, bp, onBpChange, className }: {
   const h = Math.round(w / 2)
   const typo = TYPO[bp]
 
-  // Fit the real-size slide into the available width
+  const background = resolveSlot(banner.background, bp)
+  const artwork = banner.composition === 'layered' ? resolveSlot(banner.artwork, bp) : null
+  const title = banner.title.fallback.trim()
+  const subtitle = banner.subtitle.fallback.trim()
+  const cta = banner.cta.label.fallback.trim()
+  const empty = !background && !artwork && !title && !subtitle && !cta
+  const textColor = readableOn(BRAND_COLORS.background)
+
+  // Fit the real-size slide into the available width; the frame element swaps with the empty placeholder
   useLayoutEffect(() => {
     const el = frameRef.current
     if (!el) return
@@ -53,15 +61,7 @@ export function SlidePreview({ banner, bp, onBpChange, className }: {
     const ro = new ResizeObserver(update)
     ro.observe(el)
     return () => ro.disconnect()
-  }, [w])
-
-  const background = resolveSlot(banner.background, bp)
-  const artwork = banner.composition === 'layered' ? resolveSlot(banner.artwork, bp) : null
-  const title = banner.title.fallback.trim()
-  const subtitle = banner.subtitle.fallback.trim()
-  const cta = banner.cta.label.fallback.trim()
-  const empty = !background && !artwork && !title && !subtitle && !cta
-  const textColor = readableOn(BRAND_COLORS.background)
+  }, [w, empty])
 
   return (
     <Card className={className}>
@@ -87,53 +87,52 @@ export function SlidePreview({ banner, bp, onBpChange, className }: {
         </Tabs>
 
         {/* Outer frame takes the scaled height; the slide inside keeps its real px size */}
-        <div ref={frameRef} className="w-full overflow-hidden rounded-xl" style={{ height: h * scale }}>
-          <div
-            className={cn('relative overflow-hidden rounded-xl', empty && HATCHED)}
-            // Real storefront size + brand background: these values come from the data, not the CMS theme
-            style={{
-              width: w,
-              height: h,
-              transform: `scale(${scale})`,
-              transformOrigin: 'top left',
-              backgroundColor: empty ? undefined : BRAND_COLORS.background,
-            }}
-          >
-            {empty ? (
-              <div className="flex size-full flex-col items-center justify-center gap-2 text-muted-foreground">
-                <Images className="size-6" />
-                <span className={cn('text-center', typo.subtitle)}>Add a title or an image to see the preview</span>
-              </div>
-            ) : (
-              <>
-                {background && (
-                  <img src={background.src} alt="" className="absolute inset-0 size-full object-cover" />
-                )}
-                {artwork && (
-                  <img
-                    src={artwork.src}
-                    alt=""
-                    className="absolute inset-y-0 right-0 h-full w-1/2 object-contain object-right-bottom"
-                  />
-                )}
-                <div className={cn('relative flex h-full flex-col justify-center gap-3', typo.pad)}>
-                  <div className={cn('flex flex-col gap-1', typo.text)} style={{ color: textColor }}>
-                    {subtitle && <p className={cn('font-medium opacity-80', typo.subtitle)}>{subtitle}</p>}
-                    {title && <p className={cn('font-bold', typo.title)}>{title}</p>}
-                  </div>
-                  {cta && (
-                    <span
-                      className={cn('inline-flex w-fit items-center rounded-full font-medium', typo.button)}
-                      style={{ backgroundColor: BRAND_COLORS.primary, color: BRAND_COLORS.primaryForeground }}
-                    >
-                      {cta}
-                    </span>
-                  )}
-                </div>
-              </>
-            )}
+        {empty ? (
+          // Placeholder lives outside the scaled slide so the text stays at the normal UI size
+          <div ref={frameRef} className={cn('flex aspect-[2/1] w-full flex-col items-center justify-center gap-2 rounded-xl text-muted-foreground', HATCHED)}>
+            <Images className="size-5" />
+            <span className="text-center text-sm">Add image to see the preview</span>
           </div>
-        </div>
+        ) : (
+          <div ref={frameRef} className="w-full overflow-hidden rounded-xl" style={{ height: h * scale }}>
+            <div
+              className="relative overflow-hidden rounded-xl"
+              // Real storefront size + brand background: these values come from the data, not the CMS theme
+              style={{
+                width: w,
+                height: h,
+                transform: `scale(${scale})`,
+                transformOrigin: 'top left',
+                backgroundColor: BRAND_COLORS.background,
+              }}
+            >
+              {background && (
+                <img src={background.src} alt="" className="absolute inset-0 size-full object-cover" />
+              )}
+              {artwork && (
+                <img
+                  src={artwork.src}
+                  alt=""
+                  className="absolute inset-y-0 right-0 h-full w-1/2 object-contain object-right-bottom"
+                />
+              )}
+              <div className={cn('relative flex h-full flex-col justify-center gap-3', typo.pad)}>
+                <div className={cn('flex flex-col gap-1', typo.text)} style={{ color: textColor }}>
+                  {subtitle && <p className={cn('font-medium opacity-80', typo.subtitle)}>{subtitle}</p>}
+                  {title && <p className={cn('font-bold', typo.title)}>{title}</p>}
+                </div>
+                {cta && (
+                  <span
+                    className={cn('inline-flex w-fit items-center rounded-full font-medium', typo.button)}
+                    style={{ backgroundColor: BRAND_COLORS.primary, color: BRAND_COLORS.primaryForeground }}
+                  >
+                    {cta}
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
 
         <p className="text-xs text-muted-foreground">
           {spec.label}, {spec.size.w} × {spec.size.h} px

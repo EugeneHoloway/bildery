@@ -202,7 +202,8 @@ function ImageSlot({ id, label, viewport, hint, value, inherited, transparent, a
           !value && 'border-dashed',
           // Checkerboard from the border token -- reads as "transparent" in both themes
           value && transparent && 'bg-[repeating-conic-gradient(var(--border)_0_25%,transparent_0_50%)] bg-[length:16px_16px]',
-          active && 'ring-2 ring-primary ring-offset-2 ring-offset-background',
+          // Same selected look as the Composition cards (FieldLabel has-data-checked)
+          active && 'border-solid border-primary/30 bg-primary/5 hover:border-primary/30 dark:border-primary/20 dark:bg-primary/10 dark:hover:border-primary/20',
           dragging && 'border-primary bg-primary/5 text-primary'
         )}
       >
