@@ -1222,14 +1222,26 @@ function SocialSection() {
           {addMenu}
         </div>
       ) : (
-        <FieldGroup className="mt-8 max-w-2xl">
-          {rows.map(n => {
-            const error = errors[n.id]
-            const inputId = `social-${n.id}`
-            return (
-              <div key={n.id} className="grid grid-cols-1 gap-2 tablet:grid-cols-[8rem_minmax(0,1fr)_auto] tablet:gap-3">
-                <FieldLabel htmlFor={inputId} className="tablet:h-8 tablet:items-center">{n.label}</FieldLabel>
-                <Field data-invalid={!!error || undefined} className="relative">
+        <FieldGroup className="mt-8">
+          {/* Two columns like Identity; one on mobile */}
+          <div className="grid grid-cols-1 gap-5 tablet:grid-cols-2">
+            {rows.map(n => {
+              const error = errors[n.id]
+              const inputId = `social-${n.id}`
+              return (
+                <Field key={n.id} data-invalid={!!error || undefined}>
+                  {/* Label and remove on one line above the input */}
+                  <div className="flex items-center justify-between gap-2">
+                    <FieldLabel htmlFor={inputId}>{n.label}</FieldLabel>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button variant="ghost" size="icon-sm" className="-my-1" aria-label={`Remove ${n.label}`} onClick={() => remove(n.id)}>
+                          <Trash2 className="text-muted-foreground" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Remove</TooltipContent>
+                    </Tooltip>
+                  </div>
                   <Input
                     id={inputId}
                     type="url"
@@ -1238,20 +1250,11 @@ function SocialSection() {
                     onChange={e => setLinks(l => ({ ...l, [n.id]: e.target.value }))}
                     aria-invalid={!!error || undefined}
                   />
-                  {/* Overlaid so rows keep their height whether or not there is an error */}
-                  <FieldError className="absolute top-full left-0 mt-0.5">{error}</FieldError>
+                  <FieldError>{error}</FieldError>
                 </Field>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon" aria-label={`Remove ${n.label}`} onClick={() => remove(n.id)}>
-                      <Trash2 className="text-muted-foreground" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Remove</TooltipContent>
-                </Tooltip>
-              </div>
-            )
-          })}
+              )
+            })}
+          </div>
           {addMenu && <div>{addMenu}</div>}
         </FieldGroup>
       )}
