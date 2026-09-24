@@ -40,7 +40,7 @@
   --spacing-bottom-nav: 60px;
 
   /* === Colors (light — defaults) === */
-  --color-background: hsl(0 0% 98%);
+  --color-background: hsl(0 0% 100%);
   --color-foreground: hsl(0 0% 7%);
 
   --color-card: hsl(0 0% 100%);

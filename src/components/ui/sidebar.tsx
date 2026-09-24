@@ -138,6 +138,7 @@ function SidebarProvider({
         }
         className={cn(
           "group/sidebar-wrapper flex min-h-svh w-full has-data-[variant=inset]:bg-sidebar",
+          "data-resizing:select-none",
           className
         )}
         {...props}
@@ -208,7 +209,7 @@ function Sidebar({
     <div
       className={cn(
         "group peer hidden text-sidebar-foreground md:block",
-        "w-(--sidebar-width) transition-[width] duration-200 ease-linear",
+        "w-(--sidebar-width) transition-[width] duration-200 ease-linear group-data-resizing/sidebar-wrapper:transition-none",
         collapsible === "offcanvas" && "data-[state=collapsed]:w-0",
         collapsible === "icon" && "data-[state=collapsed]:w-(--sidebar-width-icon)",
       )}
@@ -223,6 +224,8 @@ function Sidebar({
         data-slot="sidebar-gap"
         className={cn(
           "relative w-(--sidebar-width) bg-transparent transition-[width] duration-200 ease-linear",
+          // While the rail is dragged the width follows the pointer 1:1; the transition comes back for the snap
+          "group-data-resizing/sidebar-wrapper:transition-none",
           "group-data-[collapsible=offcanvas]:w-0",
           "group-data-[side=right]:rotate-180",
           variant === "floating" || variant === "inset"
@@ -234,7 +237,7 @@ function Sidebar({
         data-slot="sidebar-container"
         data-side={side}
         className={cn(
-          "fixed inset-y-0 z-10 hidden h-svh w-(--sidebar-width) transition-[left,right,width] duration-200 ease-linear data-[side=left]:left-0 data-[side=left]:group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)] data-[side=right]:right-0 data-[side=right]:group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)] md:flex",
+          "fixed inset-y-0 z-10 hidden h-svh w-(--sidebar-width) transition-[left,right,width] duration-200 ease-linear group-data-resizing/sidebar-wrapper:transition-none data-[side=left]:left-0 data-[side=left]:group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)] data-[side=right]:right-0 data-[side=right]:group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)] md:flex",
           // Adjust the padding for floating and inset variants.
           variant === "floating" || variant === "inset"
             ? "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px)]"
@@ -281,8 +284,92 @@ function SidebarTrigger({
   )
 }
 
+/** Fraction of the way from icon width to full width past which a released drag snaps open */
+const SIDEBAR_SNAP_POINT = 0.5
+
+function remToPx(value: string) {
+  return parseFloat(value) * parseFloat(getComputedStyle(document.documentElement).fontSize)
+}
+
+/**
+ * Click toggles the sidebar; dragging resizes it live and on release it snaps to collapsed (icons) or expanded,
+ * whichever is closer.
+ */
 function SidebarRail({ className, ...props }: React.ComponentProps<"button">) {
-  const { toggleSidebar } = useSidebar()
+  const { open, setOpen, toggleSidebar } = useSidebar()
+  const drag = React.useRef<{
+    startX: number
+    startWidth: number
+    wrapper: HTMLElement
+    side: "left" | "right"
+    moved: boolean
+    /** Provider's own inline values, put back after the drag */
+    initial: { width: string; icon: string }
+  } | null>(null)
+  // A finished drag is followed by a click on the rail; it must not toggle the sidebar back
+  const suppressClick = React.useRef(false)
+
+  const onPointerDown = (e: React.PointerEvent<HTMLButtonElement>) => {
+    if (e.button !== 0) return
+    const wrapper = e.currentTarget.closest<HTMLElement>('[data-slot="sidebar-wrapper"]')
+    const container = e.currentTarget.closest<HTMLElement>('[data-slot="sidebar-container"]')
+    if (!wrapper || !container) return
+    // Stops the browser from starting a text selection (and focusing the rail) before the drag threshold is reached;
+    // a leftover selection shows up as grey slivers along the collapsed sidebar. The click still fires.
+    e.preventDefault()
+    window.getSelection()?.removeAllRanges()
+    e.currentTarget.setPointerCapture(e.pointerId)
+    drag.current = {
+      startX: e.clientX,
+      startWidth: container.getBoundingClientRect().width,
+      wrapper,
+      side: container.dataset.side === "right" ? "right" : "left",
+      moved: false,
+      initial: {
+        width: wrapper.style.getPropertyValue("--sidebar-width"),
+        icon: wrapper.style.getPropertyValue("--sidebar-width-icon"),
+      },
+    }
+  }
+
+  const onPointerMove = (e: React.PointerEvent<HTMLButtonElement>) => {
+    const d = drag.current
+    if (!d) return
+    const dx = (e.clientX - d.startX) * (d.side === "left" ? 1 : -1)
+    if (!d.moved && Math.abs(dx) < 4) return
+    d.moved = true
+    const min = remToPx(d.initial.icon)
+    const max = remToPx(d.initial.width)
+    const width = Math.min(max, Math.max(min, d.startWidth + dx))
+    d.wrapper.dataset.resizing = ""
+    // Collapsed mode renders at the icon width, expanded at the full width -- stretch whichever is in effect
+    d.wrapper.style.setProperty(open ? "--sidebar-width" : "--sidebar-width-icon", `${width}px`)
+  }
+
+  const endDrag = (e: React.PointerEvent<HTMLButtonElement>) => {
+    const d = drag.current
+    if (!d) return
+    drag.current = null
+    if (e.currentTarget.hasPointerCapture(e.pointerId)) e.currentTarget.releasePointerCapture(e.pointerId)
+    if (!d.moved) return
+    const min = remToPx(d.initial.icon)
+    const max = remToPx(d.initial.width)
+    const width = parseFloat(d.wrapper.style.getPropertyValue(open ? "--sidebar-width" : "--sidebar-width-icon"))
+    const expand = (width - min) / (max - min) > SIDEBAR_SNAP_POINT
+    // Drop the live width first so the restored transitions animate the snap to the target state
+    delete d.wrapper.dataset.resizing
+    d.wrapper.style.setProperty("--sidebar-width", d.initial.width)
+    d.wrapper.style.setProperty("--sidebar-width-icon", d.initial.icon)
+    if (expand !== open) setOpen(expand)
+    // The click arrives in the same input task as pointerup; after a pointercancel there is none, so clear on a timer
+    suppressClick.current = true
+    setTimeout(() => { suppressClick.current = false })
+  }
+
+  const onClick = () => {
+    if (suppressClick.current) return
+    toggleSidebar()
+  }
 
   return (
     <button
@@ -290,10 +377,16 @@ function SidebarRail({ className, ...props }: React.ComponentProps<"button">) {
       data-slot="sidebar-rail"
       aria-label="Toggle Sidebar"
       tabIndex={-1}
-      onClick={toggleSidebar}
+      onClick={onClick}
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={endDrag}
+      onPointerCancel={endDrag}
       title="Toggle Sidebar"
       className={cn(
-        "absolute inset-y-0 z-20 hidden w-4 transition-all ease-linear group-data-[side=left]:-right-4 group-data-[side=right]:left-0 after:absolute after:inset-y-0 after:start-1/2 after:w-[2px] hover:after:bg-sidebar-border sm:flex ltr:-translate-x-1/2 rtl:-translate-x-1/2",
+        // Stays inside the sidebar, flush with its edge: anything overhanging the fixed container can leave stale
+        // pixels on the page when the width animates. The hover line sits right over the border.
+        "absolute inset-y-0 z-20 hidden w-4 touch-none outline-none group-data-[side=left]:-right-px group-data-[side=right]:-left-px after:absolute after:inset-y-0 after:w-[2px] group-data-[side=left]:after:right-0 group-data-[side=right]:after:left-0 hover:after:bg-sidebar-border sm:flex",
         "in-data-[side=left]:cursor-w-resize in-data-[side=right]:cursor-e-resize",
         "[[data-side=left][data-state=collapsed]_&]:cursor-e-resize [[data-side=right][data-state=collapsed]_&]:cursor-w-resize",
         "group-data-[collapsible=offcanvas]:translate-x-0 group-data-[collapsible=offcanvas]:after:left-full hover:group-data-[collapsible=offcanvas]:bg-sidebar",

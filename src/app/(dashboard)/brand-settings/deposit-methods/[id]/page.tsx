@@ -109,7 +109,7 @@ function OptionRow({ kind, option, index, incomplete, onToggle, onEdit, onRemove
       ref={setNodeRef}
       // Позиция элемента во время перетаскивания -- единственный оправданный inline-style
       style={{ transform: CSS.Transform.toString(transform), transition }}
-      className={cn('relative flex items-center gap-1 bg-background px-2 py-1.5 transition-colors has-[[data-row-link]:hover]:bg-foreground/5', isDragging && 'z-10 opacity-80 shadow-md')}
+      className={cn('relative flex items-center gap-1 bg-background px-2 py-1.5 transition-colors has-[[data-row-link]:hover]:bg-muted', isDragging && 'z-10 opacity-80 shadow-md')}
     >
       <Button
         variant="ghost"
