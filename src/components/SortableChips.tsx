@@ -24,6 +24,9 @@ interface SortableChipsProps {
   /** Ordered, unique values. */
   items: string[]
   onChange: (items: string[]) => void
+  /** Fixed content in the same row, before and after the sortable chips (e.g. a locked chip, an add button). */
+  before?: React.ReactNode
+  after?: React.ReactNode
 }
 
 function Chip({ item, onRemove }: { item: string; onRemove: () => void }) {
@@ -60,7 +63,7 @@ function Chip({ item, onRemove }: { item: string; onRemove: () => void }) {
 }
 
 /** Removable chips that can be reordered by dragging the grip (or with the keyboard: space, arrows, space). */
-export function SortableChips({ items, onChange }: SortableChipsProps) {
+export function SortableChips({ items, onChange, before, after }: SortableChipsProps) {
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
@@ -71,15 +74,17 @@ export function SortableChips({ items, onChange }: SortableChipsProps) {
     onChange(arrayMove(items, items.indexOf(String(active.id)), items.indexOf(String(over.id))))
   }
 
-  if (items.length === 0) return null
+  if (items.length === 0 && !before && !after) return null
 
   return (
     <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
       <SortableContext items={items} strategy={horizontalListSortingStrategy}>
         <div className="flex flex-wrap items-center gap-2">
+          {before}
           {items.map(item => (
             <Chip key={item} item={item} onRemove={() => onChange(items.filter(i => i !== item))} />
           ))}
+          {after}
         </div>
       </SortableContext>
     </DndContext>

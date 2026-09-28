@@ -6,6 +6,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Field, FieldContent, FieldError, FieldLabel } from '@/components/ui/field'
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { cn } from '@/lib/utils'
 import { SectionContext } from '../_lib/section'
 
 // Shared building blocks of the Sidebar and Mobile Bottom Bar sections
@@ -35,10 +36,10 @@ export function SubTitle({ title, hint, description }: { title: string; hint?: s
 }
 
 /** Inline link to another brand-settings section, through the unsaved-changes guard. */
-export function SectionLink({ section, children }: { section: string; children: React.ReactNode }) {
+export function SectionLink({ section, children, className }: { section: string; children: React.ReactNode; className?: string }) {
   const { go } = useContext(SectionContext)
   return (
-    <Button variant="link" size="xs" className="h-auto p-0 align-baseline text-sm font-medium text-foreground" onClick={() => go(section)}>
+    <Button variant="link" size="xs" className={cn('h-auto p-0 align-baseline text-sm font-medium text-foreground', className)} onClick={() => go(section)}>
       {children}
     </Button>
   )

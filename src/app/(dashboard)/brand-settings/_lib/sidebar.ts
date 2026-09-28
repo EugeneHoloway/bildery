@@ -27,7 +27,7 @@ export interface CustomLinkRow {
 export type SidebarRow = CategoryRow | CustomLinkRow
 
 // Brand game categories (mock, same slugs as the homepage configurator); real ones come from Games -> Categories
-export const GAME_CATEGORIES = ['top', 'new', 'hot', 'slots', 'live', 'crash', 'table']
+export const GAME_CATEGORIES = ['top', 'new', 'hot', 'slots', 'live', 'crash-games', 'fruits', 'table-games']
 
 export function categoryLabelKey(slug: string) {
   return `category.${slug}`

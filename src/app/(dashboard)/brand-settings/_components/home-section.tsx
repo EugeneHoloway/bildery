@@ -1,6 +1,7 @@
 'use client'
-import { useState } from 'react'
-import { GripVertical, LayoutTemplate, Plus } from 'lucide-react'
+import { useContext, useState } from 'react'
+import Link from 'next/link'
+import { ChevronRight, GripVertical, LayoutTemplate, Plus } from 'lucide-react'
 import {
   closestCenter,
   DndContext,
@@ -23,35 +24,75 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Switch } from '@/components/ui/switch'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
-import { SectionActions, SectionHeader, useSaveable } from '../_lib/section'
-import { commitHome, HOME, HOME_SECTION_TYPE_IDS, HOME_SECTION_TYPES, newHomeSection, type HomeSection as HomeBlock, type HomeSectionType } from '../_lib/home'
+import { SectionActions, SectionContext, SectionHeader, useSaveable } from '../_lib/section'
+import {
+  commitHome,
+  HOME,
+  HOME_SECTION_TYPE_IDS,
+  HOME_SECTION_TYPES,
+  homeSectionHref,
+  isEditable,
+  newHomeSection,
+  type HomeSection as HomeBlock,
+  type HomeSectionType,
+} from '../_lib/home'
 import { BlockTitle, RemoveButton, SectionLink } from './nav-shared'
 import { insertAt, toastRemoved } from './list-actions'
 
-// Sortable row like the sidebar rows: grip, position, muted icon tile, name + hint, enabled switch, remove
-function HomeSectionRow({ section, index, onToggle, onRemove }: {
+// Sortable row like the sidebar rows: grip, position, muted icon tile, name + hint, enabled switch, remove.
+// Sections with settings are clickable like the banner rows: the link to their page stretches over the row (after:), with hover and a chevron
+function HomeSectionRow({ section, index, saved, onToggle, onRemove }: {
   section: HomeBlock
   index: number
+  /** A section added in this draft has no settings page yet */
+  saved: boolean
   onToggle: (enabled: boolean) => void
   onRemove: () => void
 }) {
+  const { navigate } = useContext(SectionContext)
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: section.id })
   const meta = HOME_SECTION_TYPES[section.type]
   const Icon = meta.icon
+  const editable = isEditable(section) && saved
+  const href = homeSectionHref(section.id)
   // The same type can repeat (several Game Lists), so labels carry the position
   const name = `${meta.label} (${index + 1})`
+
+  const content = (
+    <>
+      {/* On row hover the row itself turns bg-muted, so the tile switches to the page background to stay visible */}
+      <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted transition-colors group-has-[[data-row-link]:hover]/row:bg-background">
+        <Icon className="size-4 text-muted-foreground" />
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className={cn('block truncate text-sm font-medium', !section.enabled && 'text-muted-foreground')}>{meta.label}</span>
+        <span className="block text-xs text-muted-foreground">
+          {section.type === 'banner' ? (
+            <>Banner items are managed in <SectionLink section="banners" className="text-xs">Banners</SectionLink>.</>
+          ) : isEditable(section) && !saved ? (
+            'New section -- save the page to set it up.'
+          ) : (
+            meta.hint
+          )}
+        </span>
+      </span>
+    </>
+  )
 
   return (
     <li
       ref={setNodeRef}
       // Позиция элемента во время перетаскивания -- единственный оправданный inline-style
       style={{ transform: CSS.Transform.toString(transform), transition }}
-      className={cn('relative flex items-center gap-1 bg-background px-2 py-2', isDragging && 'z-10 opacity-80 shadow-md')}
+      className={cn(
+        'group/row relative flex items-center gap-1 bg-background px-2 py-2 transition-colors has-[[data-row-link]:hover]:bg-muted',
+        isDragging && 'z-10 opacity-80 shadow-md'
+      )}
     >
       <Button
         variant="ghost"
         size="icon-sm"
-        className="shrink-0 cursor-grab touch-none text-muted-foreground active:cursor-grabbing"
+        className="relative z-10 shrink-0 cursor-grab touch-none text-muted-foreground active:cursor-grabbing"
         aria-label={`Reorder ${name}`}
         {...attributes}
         {...listeners}
@@ -59,25 +100,29 @@ function HomeSectionRow({ section, index, onToggle, onRemove }: {
         <GripVertical />
       </Button>
       <span className="w-5 shrink-0 text-center text-xs tabular-nums text-muted-foreground">{index + 1}</span>
-      <span className="flex min-w-0 flex-1 items-center gap-3 px-1.5 py-0.5">
-        <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted">
-          <Icon className="size-4 text-muted-foreground" />
-        </span>
-        <span className="min-w-0 flex-1">
-          <span className={cn('block truncate text-sm font-medium', !section.enabled && 'text-muted-foreground')}>{meta.label}</span>
-          <span className="block text-xs text-muted-foreground">
-            {section.type === 'banner' ? (
-              <>Banner items are managed in <SectionLink section="banners">Banners</SectionLink>.</>
-            ) : (
-              meta.hint
-            )}
-          </span>
-        </span>
-      </span>
+      {editable ? (
+        <Link
+          href={href}
+          onClick={e => {
+            // Modifier clicks open a new tab and bypass the dirty guard on purpose
+            if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return
+            e.preventDefault()
+            navigate(href)
+          }}
+          aria-label={`Edit ${name}`}
+          data-row-link
+          className="flex min-w-0 flex-1 items-center gap-3 rounded-lg px-1.5 py-0.5 text-left outline-none focus-visible:ring-3 focus-visible:ring-ring/50 after:absolute after:inset-0 after:content-['']"
+        >
+          {content}
+          <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
+        </Link>
+      ) : (
+        <span className="flex min-w-0 flex-1 items-center gap-3 px-1.5 py-0.5">{content}</span>
+      )}
       <Tooltip>
         <TooltipTrigger asChild>
           {/* Wrapper takes the trigger's data-state/data-slot, which would otherwise override the Switch's own */}
-          <span className="mx-2 flex shrink-0">
+          <span className="relative mx-2 flex shrink-0">
             <Switch checked={section.enabled} onCheckedChange={onToggle} aria-label={`${section.enabled ? 'Disable' : 'Enable'} ${name}`} />
           </span>
         </TooltipTrigger>
@@ -114,12 +159,13 @@ function AddSectionMenu({ onAdd }: { onAdd: (type: HomeSectionType) => void }) {
 
 export function HomeSection() {
   const [sections, setSections] = useState<HomeBlock[]>(HOME.sections)
-  const { dirty, saving, save, reset } = useSaveable({ sections }, v => setSections(v.sections), commitHome)
+  const { dirty, saving, save, reset, baseline } = useSaveable({ sections }, v => setSections(v.sections), commitHome)
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   )
   const enabledCount = sections.filter(s => s.enabled).length
+  const savedIds = new Set(baseline.sections.map(s => s.id))
 
   function onDragEnd({ active, over }: DragEndEvent) {
     if (!over || active.id === over.id) return
@@ -177,6 +223,7 @@ export function HomeSection() {
                       section={section}
                       index={index}
                       onToggle={enabled => setSections(list => list.map(s => (s.id === section.id ? { ...s, enabled } : s)))}
+                      saved={savedIds.has(section.id)}
                       onRemove={() => remove(section, index)}
                     />
                   ))}
