@@ -25,7 +25,7 @@ import { Field, FieldContent, FieldDescription, FieldGroup, FieldLabel, FieldTit
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Sheet, SheetClose, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui/sheet'
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
 import { SectionActions, SectionHeader, useGuardedSave, useSaveable } from '../_lib/section'
@@ -55,6 +55,7 @@ import { LIST_ICON, LIST_ICON_FILE, PreviewIcon } from './storefront-preview'
 
 type Update = (update: (s: BottomBarSettings) => BottomBarSettings) => void
 type AuthState = 'in' | 'out'
+const AUTH_STATES: AuthState[] = ['in', 'out']
 
 const STRONG = 'font-medium text-foreground'
 const FIXED_ICON = { menu: Menu, search: Search } as const
@@ -169,7 +170,7 @@ function BarPreview({ settings, state, onEditFixed, onEditCta }: {
   )
 }
 
-// Auth toggle above the bar; the same panel sits in the side column and in the narrow-screen sheet
+// shadcn Tabs switch the auth state; the same panel sits in the side column and in the narrow-screen sheet
 function PreviewPanel({ settings, state, onStateChange, onEditFixed, onEditCta }: {
   settings: BottomBarSettings
   state: AuthState
@@ -179,20 +180,18 @@ function PreviewPanel({ settings, state, onStateChange, onEditFixed, onEditCta }
 }) {
   return (
     <div className="flex flex-col gap-3">
-      <ToggleGroup
-        type="single"
-        variant="outline"
-        size="sm"
-        spacing={0}
-        value={state}
-        onValueChange={v => v && onStateChange(v as AuthState)}
-        aria-label="Preview as"
-        className="w-full"
-      >
-        <ToggleGroupItem value="in" className="flex-1">Logged in</ToggleGroupItem>
-        <ToggleGroupItem value="out" className="flex-1">Logged out</ToggleGroupItem>
-      </ToggleGroup>
-      <BarPreview settings={settings} state={state} onEditFixed={onEditFixed} onEditCta={onEditCta} />
+      <Tabs value={state} onValueChange={v => onStateChange(v as AuthState)} className="gap-3">
+        <TabsList className="w-full" aria-label="Preview as">
+          <TabsTrigger value="in">Logged in</TabsTrigger>
+          <TabsTrigger value="out">Logged out</TabsTrigger>
+        </TabsList>
+        {/* One panel per tab, so each trigger controls a real tabpanel */}
+        {AUTH_STATES.map(s => (
+          <TabsContent key={s} value={s}>
+            <BarPreview settings={settings} state={s} onEditFixed={onEditFixed} onEditCta={onEditCta} />
+          </TabsContent>
+        ))}
+      </Tabs>
       <p className="text-xs text-muted-foreground">Updates as you edit. Click Menu, Search or the center button to edit them.</p>
     </div>
   )
