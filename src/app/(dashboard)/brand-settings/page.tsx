@@ -124,6 +124,7 @@ import {
 import { FOOTER, FOOTER_BLOCKS, footerBlockHref, footerSummary, type FooterBlock, type FooterSummary } from './_lib/footer'
 import { SectionActions, SectionContext, SectionHeader, useSaveable } from './_lib/section'
 import { BottomBarSection } from './_components/bottom-bar-section'
+import { HomeSection } from './_components/home-section'
 import { SidebarSection } from './_components/sidebar-section'
 import { ConfirmRemoveDialog, DisabledReason, LimitCount, pluralize, toastRemoved } from './_components/list-actions'
 import { BRAND_COLORS, readableOn } from './_lib/theme'
@@ -1850,6 +1851,7 @@ function BrandSettingsPage() {
                   {section === 'identity' && <IdentitySection />}
                   {section === 'locale' && <LocaleSection />}
                   {section === 'theme' && <ThemeSection />}
+                  {section === 'home' && <HomeSection />}
                   {section === 'banners' && <BannersSection />}
                   {section === 'sidebar' && <SidebarSection />}
                   {section === 'bottom-bar' && <BottomBarSection />}
@@ -1857,7 +1859,7 @@ function BrandSettingsPage() {
                   {section === 'social' && <SocialSection />}
                   {section === 'deposit-methods' && <DepositMethodsSection />}
                   {section === 'wallet-auto-provision' && <WalletAutoProvisionSection />}
-                  {!['general', 'identity', 'locale', 'theme', 'banners', 'sidebar', 'bottom-bar', 'footer', 'social', 'deposit-methods', 'wallet-auto-provision'].includes(section) && <PlaceholderSection item={current} />}
+                  {!['general', 'identity', 'locale', 'theme', 'home', 'banners', 'sidebar', 'bottom-bar', 'footer', 'social', 'deposit-methods', 'wallet-auto-provision'].includes(section) && <PlaceholderSection item={current} />}
                 </SectionContext.Provider>
               )}
             </div>
