@@ -54,7 +54,8 @@ import {
   type DepositOption,
 } from '../../_lib/deposit-methods'
 import { SectionActions, useSaveable } from '../../_lib/section'
-import { IconFields, TranslationKeyField } from './_components/fields'
+import { IconFields, TranslationKeyField } from '../../_components/fields'
+import { DisabledReason, insertAt, LimitCount, toastRemoved } from '../../_components/list-actions'
 
 function SectionTitle({ title, description, aside }: { title: string; description: string; aside?: React.ReactNode }) {
   return (
@@ -280,6 +281,11 @@ function DepositMethodForm({ initial }: { initial: DepositMethod }) {
     })
   }
 
+  function removeOption(option: DepositOption, at: number) {
+    setMethod(m => ({ ...m, options: m.options.filter(o => o.id !== option.id) }))
+    toastRemoved(`${optionLabel(at)} removed`, () => setMethod(m => ({ ...m, options: insertAt(m.options, at, option) })))
+  }
+
   function setOption(id: string, next: DepositOption) {
     setMethod(m => ({ ...m, options: m.options.map(o => (o.id === id ? next : o)) }))
   }
@@ -298,27 +304,21 @@ function DepositMethodForm({ initial }: { initial: DepositMethod }) {
   }
 
   const addOptionButton = (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        {/* span keeps the tooltip working while the button is disabled */}
-        <span className="w-fit">
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={!canAddOption}
-            onClick={() => {
-              const option = newDepositOption()
-              set('options', [...method.options, option])
-              setEditing({ id: option.id, open: true })
-            }}
-          >
-            <Plus data-icon="inline-start" />
-            Add option
-          </Button>
-        </span>
-      </TooltipTrigger>
-      {!canAddOption && <TooltipContent>Up to {MAX_DEPOSIT_OPTIONS} options per block</TooltipContent>}
-    </Tooltip>
+    <DisabledReason reason={canAddOption ? undefined : `Up to ${MAX_DEPOSIT_OPTIONS} options per block`}>
+      <Button
+        variant="outline"
+        size="sm"
+        disabled={!canAddOption}
+        onClick={() => {
+          const option = newDepositOption()
+          set('options', [...method.options, option])
+          setEditing({ id: option.id, open: true })
+        }}
+      >
+        <Plus data-icon="inline-start" />
+        Add option
+      </Button>
+    </DisabledReason>
   )
 
   return (
@@ -416,9 +416,7 @@ function DepositMethodForm({ initial }: { initial: DepositMethod }) {
             description="Ways to deposit inside this block, shown to players in this order. Drag to reorder."
             aside={
               <>
-                <span className="text-sm tabular-nums text-muted-foreground">
-                  {method.options.length}/{MAX_DEPOSIT_OPTIONS}
-                </span>
+                <LimitCount count={method.options.length} max={MAX_DEPOSIT_OPTIONS} noun="options" />
                 {method.options.length > 0 && addOptionButton}
               </>
             }
@@ -444,7 +442,7 @@ function DepositMethodForm({ initial }: { initial: DepositMethod }) {
                       incomplete={showErrors && (!option.flow || !option.title)}
                       onToggle={enabled => setOption(option.id, { ...option, enabled })}
                       onEdit={() => setEditing({ id: option.id, open: true })}
-                      onRemove={() => set('options', method.options.filter(o => o.id !== option.id))}
+                      onRemove={() => removeOption(option, index)}
                     />
                   ))}
                 </ul>

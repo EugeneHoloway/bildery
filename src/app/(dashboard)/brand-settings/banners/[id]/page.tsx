@@ -591,7 +591,7 @@ function BannerForm({ initial, isNew }: { initial: BannerItem; isNew: boolean })
           <div>
             <SectionTitle
               title="Visuals"
-              description="How the picture is built. Texts and the button are always laid over it on the left. An empty slot falls back to the next smaller one; with nothing uploaded the banner shows the brand colour."
+              description="How the picture is built. Texts and the button are always laid over it on the left. An empty slot falls back to the next smaller one; with nothing uploaded the banner shows the brand color."
             />
             <Field className="mt-5">
               <RadioGroup

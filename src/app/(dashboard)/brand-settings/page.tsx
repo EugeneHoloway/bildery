@@ -1,5 +1,5 @@
 'use client'
-import { Suspense, useContext, useEffect, useRef, useState } from 'react'
+import { Fragment, Suspense, useContext, useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import {
@@ -27,6 +27,7 @@ import {
   Languages,
   Layers,
   Share2,
+  Smartphone,
   Trash2,
   Upload,
   WalletCards,
@@ -69,6 +70,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Field, FieldContent, FieldDescription, FieldError, FieldGroup, FieldLabel, FieldTitle } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
+import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemMedia, ItemSeparator, ItemTitle } from '@/components/ui/item'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Switch } from '@/components/ui/switch'
@@ -119,13 +121,17 @@ import {
   type DepositKind,
   type DepositMethod,
 } from './_lib/deposit-methods'
+import { FOOTER, FOOTER_BLOCKS, footerBlockHref, footerSummary, type FooterBlock, type FooterSummary } from './_lib/footer'
 import { SectionActions, SectionContext, SectionHeader, useSaveable } from './_lib/section'
+import { BottomBarSection } from './_components/bottom-bar-section'
+import { SidebarSection } from './_components/sidebar-section'
+import { ConfirmRemoveDialog, DisabledReason, LimitCount, pluralize, toastRemoved } from './_components/list-actions'
 import { BRAND_COLORS, readableOn } from './_lib/theme'
 import { useBlobUrls } from './_lib/use-blob-urls'
 
 type SectionId =
   | 'general' | 'identity' | 'locale' | 'theme'
-  | 'home' | 'banners' | 'sidebar' | 'footer' | 'social'
+  | 'home' | 'banners' | 'sidebar' | 'bottom-bar' | 'footer' | 'social'
   | 'deposit-methods' | 'wallet-auto-provision'
 
 interface NavItem { id: SectionId; label: string; icon: LucideIcon }
@@ -147,7 +153,8 @@ const NAV: NavGroup[] = [
     items: [
       { id: 'home',    label: 'Home',                 icon: House },
       { id: 'banners', label: 'Banners',              icon: GalleryHorizontal },
-      { id: 'sidebar', label: 'Sidebar & mobile nav', icon: PanelLeft },
+      { id: 'sidebar', label: 'Sidebar', icon: PanelLeft },
+      { id: 'bottom-bar', label: 'Mobile Bottom Bar', icon: Smartphone },
       { id: 'footer',  label: 'Footer',               icon: PanelBottom },
       { id: 'social',  label: 'Social',               icon: Share2 },
     ],
@@ -893,6 +900,9 @@ function ThemeSection() {
     setColors(v.colors)
     setProjectFont(v.projectFont)
     setEmailFont(v.emailFont)
+  }, v => {
+    // Other sections (e.g. the bottom bar preview) read the saved palette from BRAND_COLORS
+    Object.assign(BRAND_COLORS, v.colors)
   })
   const themeValid =
     COLOR_FIELDS.every(f => !validateHex(colors[f.key])) &&
@@ -990,6 +1000,17 @@ function WalletAutoProvisionSection() {
   )
 }
 
+// Like shadcn Item with a stretched link: the title link covers the whole row (after:), the toggle and delete sit above it
+const ROW_LINK_ITEM = cn(
+  'relative rounded-none has-[[data-row-link]:hover]:bg-muted',
+  'has-[[data-row-link]:focus-visible]:ring-[3px] has-[[data-row-link]:focus-visible]:ring-inset has-[[data-row-link]:focus-visible]:ring-ring/50',
+)
+
+// Icon rows as in the shadcn/create preset preview: 40px muted tile with a 16px icon, centered against a tight title + description
+const ICON_ROW_ITEM = 'gap-4 py-2'
+const ICON_ROW_MEDIA = 'size-10 rounded-lg bg-muted group-has-data-[slot=item-description]/item:translate-y-0 group-has-data-[slot=item-description]/item:self-center'
+const ICON_ROW_CONTENT = 'min-w-0 gap-0'
+
 function DepositMethodRow({ method, onToggle, onRemove }: {
   method: DepositMethod
   onToggle: (enabled: boolean) => void
@@ -1004,56 +1025,57 @@ function DepositMethodRow({ method, onToggle, onRemove }: {
   const switchId = `deposit-${method.id}-enabled`
 
   return (
-    <li className="relative flex items-center gap-1 px-2 py-1.5 transition-colors has-[[data-row-link]:hover]:bg-muted">
-      {/* Like shadcn Item: the link stretches over the whole row (after:), the toggle and delete sit above it */}
-      <Link
-        href={href}
-        onClick={e => {
-          // Modifier clicks open a new tab and bypass the dirty guard on purpose
-          if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return
-          e.preventDefault()
-          navigate(href)
-        }}
-        data-row-link
-        className="flex min-w-0 flex-1 items-center gap-3 rounded-lg px-1.5 py-1 outline-none focus-visible:ring-3 focus-visible:ring-ring/50 after:absolute after:inset-0 after:content-['']"
-      >
-        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-muted">
-          <Icon className={cn('size-5', method.enabled ? 'text-foreground' : 'text-muted-foreground')} />
-        </span>
-        <span className="min-w-0 flex-1">
-          <span className="flex items-center gap-2">
-            <span className={cn('truncate text-sm font-medium', !method.enabled && 'text-muted-foreground')}>{name}</span>
-            <Badge variant="secondary">{DEPOSIT_KIND_LABEL[method.kind]}</Badge>
-          </span>
-          <span className="block truncate text-xs text-muted-foreground">
-            Main: {main ?? 'not set'} · {enabledCount}/{method.options.length} options on
-          </span>
-        </span>
-        <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
-      </Link>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          {/* Wrapper takes the trigger's data-state/data-slot, which would otherwise override the Switch's own */}
-          <span className="relative mx-2 flex">
-            <Switch
-              id={switchId}
-              checked={method.enabled}
-              onCheckedChange={onToggle}
-              aria-label={`${method.enabled ? 'Disable' : 'Enable'} ${name}`}
-            />
-          </span>
-        </TooltipTrigger>
-        <TooltipContent>{method.enabled ? 'Shown in the deposit modal' : 'Hidden from the deposit modal'}</TooltipContent>
-      </Tooltip>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button variant="ghost" size="icon-sm" className="relative" aria-label={`Remove ${name}`} onClick={onRemove}>
-            <Trash2 className="text-muted-foreground" />
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent>Remove method</TooltipContent>
-      </Tooltip>
-    </li>
+    <Item role="listitem" className={cn(ROW_LINK_ITEM, ICON_ROW_ITEM)}>
+      <ItemMedia variant="icon" className={ICON_ROW_MEDIA}>
+        <Icon className={cn(!method.enabled && 'text-muted-foreground')} />
+      </ItemMedia>
+      <ItemContent className={ICON_ROW_CONTENT}>
+        <ItemTitle>
+          <Link
+            href={href}
+            onClick={e => {
+              // Modifier clicks open a new tab and bypass the dirty guard on purpose
+              if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return
+              e.preventDefault()
+              navigate(href)
+            }}
+            data-row-link
+            className={cn('truncate outline-none after:absolute after:inset-0 after:content-[\'\']', !method.enabled && 'text-muted-foreground')}
+          >
+            {name}
+          </Link>
+          <Badge variant="secondary">{DEPOSIT_KIND_LABEL[method.kind]}</Badge>
+        </ItemTitle>
+        <ItemDescription className="truncate">
+          Main: {main ?? 'not set'} · {enabledCount}/{method.options.length} options on
+        </ItemDescription>
+      </ItemContent>
+      <ItemActions>
+        <ChevronRight className="size-4 text-muted-foreground" />
+        <Tooltip>
+          <TooltipTrigger asChild>
+            {/* Wrapper takes the trigger's data-state/data-slot, which would otherwise override the Switch's own */}
+            <span className="relative mx-2 flex">
+              <Switch
+                id={switchId}
+                checked={method.enabled}
+                onCheckedChange={onToggle}
+                aria-label={`${method.enabled ? 'Disable' : 'Enable'} ${name}`}
+              />
+            </span>
+          </TooltipTrigger>
+          <TooltipContent>{method.enabled ? 'Shown in the deposit modal' : 'Hidden from the deposit modal'}</TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button variant="ghost" size="icon-sm" className="relative" aria-label={`Remove ${name}`} onClick={onRemove}>
+              <Trash2 className="text-muted-foreground" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Remove method</TooltipContent>
+        </Tooltip>
+      </ItemActions>
+    </Item>
   )
 }
 
@@ -1066,7 +1088,7 @@ function DepositMethodsSection() {
 
   function add(kind: DepositKind) {
     // Keep Crypto above Fiat regardless of the order they were added in
-    setMethods(list => [...list, newDepositMethod(kind)].sort((a, b) => DEPOSIT_KINDS.indexOf(a.kind) - DEPOSIT_KINDS.indexOf(b.kind)))
+    setMethods(list => byKind([...list, newDepositMethod(kind)]))
   }
 
   function restoreDefaults() {
@@ -1074,22 +1096,29 @@ function DepositMethodsSection() {
     toast('Defaults restored. Save to apply them.')
   }
 
+  // Keep Crypto above Fiat, also when Undo puts a removed block back
+  const byKind = (list: DepositMethod[]) => [...list].sort((a, b) => DEPOSIT_KINDS.indexOf(a.kind) - DEPOSIT_KINDS.indexOf(b.kind))
+  // Method waiting for confirmation: removing one with options takes the options along
+  const [confirming, setConfirming] = useState<{ id: string; open: boolean } | null>(null)
+  const confirmingMethod = methods.find(m => m.id === confirming?.id)
+
+  function remove(id: string) {
+    const method = methods.find(m => m.id === id)
+    if (!method) return
+    setMethods(list => list.filter(m => m.id !== id))
+    toastRemoved(`${depositMethodName(method)} removed`, () => setMethods(list => byKind([...list, method])))
+  }
+
   const addButton = (
     <DropdownMenu>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          {/* The span keeps the tooltip on the disabled button */}
-          <span>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" disabled={missing.length === 0}>
-                <Plus data-icon="inline-start" />
-                Add method
-              </Button>
-            </DropdownMenuTrigger>
-          </span>
-        </TooltipTrigger>
-        {missing.length === 0 && <TooltipContent>Both Crypto and Fiat blocks are already added</TooltipContent>}
-      </Tooltip>
+      <DisabledReason reason={missing.length === 0 ? 'Both Crypto and Fiat blocks are already added' : undefined}>
+        <DropdownMenuTrigger asChild>
+          <Button variant="outline" size="sm" disabled={missing.length === 0}>
+            <Plus data-icon="inline-start" />
+            Add method
+          </Button>
+        </DropdownMenuTrigger>
+      </DisabledReason>
       <DropdownMenuContent align="start">
         {missing.map(kind => (
           <DropdownMenuItem key={kind} onSelect={() => add(kind)}>{DEPOSIT_KIND_LABEL[kind]}</DropdownMenuItem>
@@ -1115,7 +1144,7 @@ function DepositMethodsSection() {
       <div className="mt-8">
         <h3 className="text-base font-medium">Methods</h3>
         <p className="text-sm text-muted-foreground">
-          One Crypto and one Fiat block ({methods.length}/{DEPOSIT_KINDS.length}). Each block opens the deposit with its Main provider.
+          One Crypto and one Fiat block. Each block opens the deposit with its Main provider.
         </p>
       </div>
 
@@ -1132,24 +1161,86 @@ function DepositMethodsSection() {
         </div>
       ) : (
         <>
-          <ul className="mt-4 divide-y divide-border overflow-hidden rounded-2xl border border-border">
-            {methods.map(method => (
-              <DepositMethodRow
-                key={method.id}
-                method={method}
-                onToggle={enabled => setMethods(list => list.map(m => (m.id === method.id ? { ...m, enabled } : m)))}
-                onRemove={() => setMethods(list => list.filter(m => m.id !== method.id))}
-              />
+          <ItemGroup className="mt-4 gap-0 overflow-hidden rounded-2xl border border-border">
+            {methods.map((method, i) => (
+              <Fragment key={method.id}>
+                {i > 0 && <ItemSeparator className="my-0" />}
+                <DepositMethodRow
+                  method={method}
+                  onToggle={enabled => setMethods(list => list.map(m => (m.id === method.id ? { ...m, enabled } : m)))}
+                  onRemove={() => (method.options.length > 0 ? setConfirming({ id: method.id, open: true }) : remove(method.id))}
+                />
+              </Fragment>
             ))}
-          </ul>
-          <div className="mt-4 flex items-center gap-2">
+          </ItemGroup>
+          <div className="mt-4 flex items-center gap-3">
             {addButton}
+            <LimitCount count={methods.length} max={DEPOSIT_KINDS.length} noun="methods" />
             {restoreButton}
           </div>
         </>
       )}
 
+      <ConfirmRemoveDialog
+        open={!!confirming?.open}
+        onOpenChange={open => setConfirming(c => (c ? { ...c, open } : c))}
+        title={`Remove ${confirmingMethod ? depositMethodName(confirmingMethod) : 'method'}?`}
+        description={`This also removes its ${pluralize(confirmingMethod?.options.length ?? 0, 'option')}. Players won't see this block in the deposit modal.`}
+        onConfirm={() => confirming && remove(confirming.id)}
+      />
+
       <SectionActions dirty={dirty} saving={saving} onSave={save} onReset={reset} />
+    </>
+  )
+}
+
+function FooterBlockRow({ block, summary }: { block: FooterBlock; summary: FooterSummary }) {
+  const { navigate } = useContext(SectionContext)
+  const Icon = block.icon
+  const href = footerBlockHref(block.id)
+
+  return (
+    <Item asChild className={cn('rounded-none focus-visible:ring-inset', ICON_ROW_ITEM)}>
+      <Link
+        href={href}
+        onClick={e => {
+          // Modifier clicks open a new tab and bypass the dirty guard on purpose
+          if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return
+          e.preventDefault()
+          navigate(href)
+        }}
+      >
+        <ItemMedia variant="icon" className={ICON_ROW_MEDIA}>
+          <Icon />
+        </ItemMedia>
+        <ItemContent className={ICON_ROW_CONTENT}>
+          <ItemTitle>{block.label}</ItemTitle>
+          <ItemDescription className={cn('truncate', summary.tone === 'warning' && 'text-destructive')}>
+            {summary.text}
+          </ItemDescription>
+        </ItemContent>
+        <ItemActions>
+          <ChevronRight className="size-4 text-muted-foreground" />
+        </ItemActions>
+      </Link>
+    </Item>
+  )
+}
+
+function FooterSection() {
+  return (
+    <>
+      <SectionHeader title="Footer" description="Manage footer settings for this brand." />
+
+      {/* Rows are plain links, so the group drops its list role */}
+      <ItemGroup role={undefined} className="mt-8 gap-0 overflow-hidden rounded-2xl border border-border">
+        {FOOTER_BLOCKS.map((block, i) => (
+          <Fragment key={block.id}>
+            {i > 0 && <ItemSeparator className="my-0" />}
+            <FooterBlockRow block={block} summary={footerSummary(block.id, FOOTER)} />
+          </Fragment>
+        ))}
+      </ItemGroup>
     </>
   )
 }
@@ -1186,11 +1277,14 @@ function SocialSection() {
   }
 
   function remove(id: string) {
+    const value = links[id]
     setLinks(l => {
       const next = { ...l }
       delete next[id]
       return next
     })
+    // Rows follow the catalog order, so putting the value back restores the position too
+    toastRemoved(`${SOCIAL_CATALOG.find(n => n.id === id)?.label ?? 'Link'} removed`, () => setLinks(l => ({ ...l, [id]: value })))
   }
 
   const addMenu = available.length > 0 && (
@@ -1431,7 +1525,7 @@ function ImageRow({ item, index, onArchive }: { item: BannerItem; index: number;
               <TooltipTrigger asChild>
                 <CircleAlert className="relative size-4 shrink-0 text-muted-foreground" aria-label="No background" />
               </TooltipTrigger>
-              <TooltipContent>No background -- shows the default banner colour</TooltipContent>
+              <TooltipContent>No background -- shows the default banner color</TooltipContent>
             </Tooltip>
           )}
         </span>
@@ -1757,10 +1851,13 @@ function BrandSettingsPage() {
                   {section === 'locale' && <LocaleSection />}
                   {section === 'theme' && <ThemeSection />}
                   {section === 'banners' && <BannersSection />}
+                  {section === 'sidebar' && <SidebarSection />}
+                  {section === 'bottom-bar' && <BottomBarSection />}
+                  {section === 'footer' && <FooterSection />}
                   {section === 'social' && <SocialSection />}
                   {section === 'deposit-methods' && <DepositMethodsSection />}
                   {section === 'wallet-auto-provision' && <WalletAutoProvisionSection />}
-                  {!['general', 'identity', 'locale', 'theme', 'banners', 'social', 'deposit-methods', 'wallet-auto-provision'].includes(section) && <PlaceholderSection item={current} />}
+                  {!['general', 'identity', 'locale', 'theme', 'banners', 'sidebar', 'bottom-bar', 'footer', 'social', 'deposit-methods', 'wallet-auto-provision'].includes(section) && <PlaceholderSection item={current} />}
                 </SectionContext.Provider>
               )}
             </div>

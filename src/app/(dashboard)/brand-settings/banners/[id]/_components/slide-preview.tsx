@@ -137,7 +137,7 @@ export function SlidePreview({ banner, bp, onBpChange, className }: {
         <p className="text-xs text-muted-foreground">
           {spec.label}, {spec.size.w} × {spec.size.h} px
           {' · '}
-          {slotNote(banner.composition === 'layered' ? 'Background' : 'Image', background, bp, 'none, brand colour')}
+          {slotNote(banner.composition === 'layered' ? 'Background' : 'Image', background, bp, 'none, brand color')}
           {banner.composition === 'layered' && (
             <>
               {' · '}

@@ -60,6 +60,30 @@ export function useSaveable<T extends object>(values: T, apply: (v: T) => void, 
   return { dirty, saving, save, reset, baseline }
 }
 
+/**
+ * Save with a required-field check, the rule every brand-settings form follows: errors stay hidden
+ * until the first failed attempt, then the first invalid field is scrolled into view.
+ */
+export function useGuardedSave(valid: boolean, save: () => void) {
+  const [showErrors, setShowErrors] = useState(false)
+  const formRef = useRef<HTMLDivElement>(null)
+
+  function trySave() {
+    if (valid) {
+      save()
+      return
+    }
+    setShowErrors(true)
+    toast.error('Fill in the required fields to save')
+    // After the errors render, bring the first one into view
+    requestAnimationFrame(() => {
+      formRef.current?.querySelector('[aria-invalid="true"]')?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    })
+  }
+
+  return { showErrors, formRef, trySave }
+}
+
 export function SectionHeader({ title, description }: { title: string; description: string }) {
   return (
     <div>

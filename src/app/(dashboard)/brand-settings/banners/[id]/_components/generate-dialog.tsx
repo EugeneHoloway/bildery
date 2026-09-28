@@ -314,7 +314,7 @@ export function GenerateDialog({ kind, current, open, onOpenChange }: {
           <Field orientation="horizontal">
             <Checkbox id="gen-brand" checked={brandColours} onCheckedChange={v => setBrandColours(v === true)} />
             <FieldContent>
-              <FieldLabel htmlFor="gen-brand">Use brand colours</FieldLabel>
+              <FieldLabel htmlFor="gen-brand">Use brand colors</FieldLabel>
               <FieldDescription>
                 Accent <span className="font-mono">{BRAND_COLORS.primary}</span>, background{' '}
                 <span className="font-mono">{BRAND_COLORS.background}</span> -- woven in as accent light and details.
@@ -332,7 +332,7 @@ export function GenerateDialog({ kind, current, open, onOpenChange }: {
               className="min-h-20"
             />
             <FieldDescription>
-              Optional. Describe the subject, mood and anything to avoid -- layout, style and brand colours are added for you.
+              Optional. Describe the subject, mood and anything to avoid -- layout, style and brand colors are added for you.
             </FieldDescription>
           </Field>
         </div>

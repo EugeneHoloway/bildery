@@ -105,6 +105,24 @@ export const TRANSLATIONS: Record<string, string> = {
   'deposit.cryptoOptions.manual.subtitle': 'Copy an address or scan a QR code.',
   'deposit.cryptoOptions.buy.title': 'Buy crypto',
   'deposit.cryptoOptions.buy.subtitle': 'Pay by card, receive crypto to your balance.',
+  'footer.legal.text': 'Gambling can be addictive. Please play responsibly. Only players 18+ are allowed.',
+  'footer.copyright': '© 2026 BetUp. All rights reserved.',
+  'footer.about.title': 'About Us',
+  'sidebar.nav.liveSupport': 'Live Support',
+  // sidebar.nav.cashback is intentionally missing: the mock shows the raw-key warning
+  'sidebar.nav.promotions': 'Promotions',
+  'sidebar.appInstall.title': 'Casino App',
+  'sidebar.appInstall.subtitle': 'Install our app',
+  // Game category names, as in Games -> Categories (same labels as the homepage configurator)
+  'category.top': 'TOP',
+  'category.new': 'NEW',
+  'category.hot': 'HOT',
+  'category.slots': 'Slots',
+  'category.live': 'Live Casino',
+  'category.crash': 'Crash Games',
+  'category.table': 'Table Games',
+  'mobileNav.cta.deposit': 'Deposit',
+  'mobileNav.cta.joinNav': 'Join Now',
 }
 
 export const TRANSLATION_KEYS = Object.keys(TRANSLATIONS).sort()

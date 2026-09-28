@@ -81,6 +81,9 @@
   --color-subtle: hsl(220 14% 96%);
   --color-subtle-border: hsl(220 9% 84%);
 
+  /* Dark storefront surface (the sidebar drawer) behind icon previews; dark in both themes */
+  --color-storefront-surface: hsl(0 0% 9%);
+
   /* === Chart colors === */
   --color-chart-1: hsl(217 91% 60%);   /* blue */
   --color-chart-2: hsl(142 71% 45%);   /* green */
@@ -183,6 +186,8 @@
 
   --color-subtle: hsl(0 0% 15%);
   --color-subtle-border: hsl(0 0% 26%);
+
+  --color-storefront-surface: hsl(0 0% 9%);
 
   /* === Chart colors (dark) === */
   --color-chart-1: hsl(217 85% 68%);   /* blue lighter */
