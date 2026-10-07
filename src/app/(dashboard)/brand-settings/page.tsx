@@ -1005,7 +1005,7 @@ function ColorField({ label, hint, value, onChange, optional }: {
   )
 }
 
-function FontField({ id, label, hint, value, onChange, cssVariable, fallback }: {
+function FontField({ id, label, hint, value, onChange, cssVariable, fallback, detailsSide }: {
   id: string
   label: string
   hint: string
@@ -1014,15 +1014,20 @@ function FontField({ id, label, hint, value, onChange, cssVariable, fallback }: 
   /** Fixed name, so storefront CSS keeps working when the family changes. Emails are inlined and get none. */
   cssVariable?: string
   fallback: string
+  detailsSide?: 'left' | 'right'
 }) {
   return (
     <Field>
       <FieldLabel htmlFor={id}>{label}</FieldLabel>
-      {/* Same columns as the color grid, so the picker lines up with the first color */}
-      <div className="grid grid-cols-1 gap-5 tablet:grid-cols-2 desktop:grid-cols-3">
-        <FontPicker id={id} value={value} onChange={onChange} cssVariable={cssVariable} fallback={fallback} />
-      </div>
-      <FieldDescription className="max-w-2xl">{hint}</FieldDescription>
+      <FontPicker
+        id={id}
+        value={value}
+        onChange={onChange}
+        cssVariable={cssVariable}
+        fallback={fallback}
+        detailsSide={detailsSide}
+      />
+      <FieldDescription>{hint}</FieldDescription>
     </Field>
   )
 }
@@ -1113,26 +1118,37 @@ function ThemeSection() {
 
         <FieldSeparator className="my-0.5" />
 
-        <FontField
-          id="project-font"
-          label="Project font"
-          hint="Used across the storefront UI."
-          cssVariable="--font-sans"
-          fallback="ui-sans-serif, system-ui, sans-serif"
-          value={projectFont}
-          onChange={setProjectFont}
-        />
-
-        <FieldSeparator className="my-0.5" />
-
-        <FontField
-          id="email-font"
-          label="Email font"
-          hint="Used in transactional emails. Email clients that block web fonts fall back to Arial."
-          fallback="Arial, Helvetica, sans-serif"
-          value={emailFont}
-          onChange={setEmailFont}
-        />
+        <div role="group" aria-labelledby="theme-fonts-title" className="flex min-w-0 flex-col gap-5">
+          <div className="flex flex-col gap-0.5">
+            <FieldTitle id="theme-fonts-title">Fonts</FieldTitle>
+            <FieldDescription className="max-w-2xl">
+              Families load from Google Fonts with every weight and subset they offer. Open the list to see what
+              each one includes.
+            </FieldDescription>
+          </div>
+          {/* Two halves, like Site name and Default locale in Identity */}
+          <div className="grid grid-cols-1 gap-5 tablet:grid-cols-2">
+            <FontField
+              id="project-font"
+              label="Project font"
+              hint="Used across the storefront UI."
+              cssVariable="--font-sans"
+              fallback="ui-sans-serif, system-ui, sans-serif"
+              value={projectFont}
+              onChange={setProjectFont}
+            />
+            <FontField
+              id="email-font"
+              label="Email font"
+              hint="Used in transactional emails. Falls back to Arial where web fonts are blocked."
+              fallback="Arial, Helvetica, sans-serif"
+              // Right column: the details card opens to the left, toward the page, not off the edge
+              detailsSide="left"
+              value={emailFont}
+              onChange={setEmailFont}
+            />
+          </div>
+        </div>
       </FieldGroup>
 
       <SectionActions dirty={dirty} saving={saving} onSave={save} onReset={reset} canSave={themeValid} />

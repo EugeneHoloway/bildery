@@ -108,12 +108,14 @@ function FontDetails({ font, cssVariable, fallback }: { font: FontInfo; cssVaria
  * Combobox for a Google Fonts family: searchable list on the left, details of the highlighted
  * family on the right (tablet and up), so weights and subsets are visible before picking.
  */
-export function FontPicker({ id, value, onChange, cssVariable, fallback }: {
+export function FontPicker({ id, value, onChange, cssVariable, fallback, detailsSide = 'right' }: {
   id?: string
   value: string
   onChange: (family: string) => void
   cssVariable?: string
   fallback: string
+  /** Pickers near the right edge mirror: list aligned to the trigger's right edge, details to its left */
+  detailsSide?: 'left' | 'right'
 }) {
   const [open, setOpen] = useState(false)
   // The highlighted row drives the details card; it starts on the saved family
@@ -137,9 +139,12 @@ export function FontPicker({ id, value, onChange, cssVariable, fallback }: {
       {/* Two separate surfaces side by side: the wrapper itself has no background. Both panels share
           one height, so their tops line up and the list hugs the trigger whichever way the popover opens */}
       <PopoverContent
-        align="start"
+        align={detailsSide === 'left' ? 'end' : 'start'}
         sideOffset={6}
-        className="w-auto flex-row items-stretch gap-2 bg-transparent p-0 shadow-none ring-0"
+        className={cn(
+          'w-auto items-stretch gap-2 bg-transparent p-0 shadow-none ring-0',
+          detailsSide === 'left' ? 'flex-row-reverse' : 'flex-row'
+        )}
       >
         <div className="w-(--radix-popover-trigger-width) min-w-64 overflow-hidden rounded-lg bg-popover shadow-md ring-1 ring-foreground/10">
           <Command value={active} onValueChange={setActive}>
