@@ -128,7 +128,7 @@ function reveal(id: string) {
 // Compact sortable row like the footer links. The type goes in the second line; badges are for status only
 function RowItem({ row, pinned, incomplete, onEdit, onRemove }: {
   row: SidebarRow
-  /** Pinned to the saved Mobile Bottom Bar */
+  /** Pinned to the saved mobile bottom bar */
   pinned: boolean
   /** Only true after a save attempt, like the other required-field errors */
   incomplete: boolean
@@ -175,7 +175,7 @@ function RowItem({ row, pinned, incomplete, onEdit, onRemove }: {
               Pinned
             </Badge>
           </TooltipTrigger>
-          <TooltipContent>Also shown in the Mobile Bottom Bar</TooltipContent>
+          <TooltipContent>Also shown in the mobile bottom bar</TooltipContent>
         </Tooltip>
       )}
       {incomplete && <Badge variant="destructive">Incomplete</Badge>}
@@ -371,7 +371,7 @@ function GroupCard({ group, index, groups, pinned, showErrors, onChange, onEditR
     onChange(r => r.filter(x => x.id !== row.id))
     const name = rowView(row).label
     // A pinned row leaves the bottom bar too once the sidebar is saved
-    toastRemoved(pinned.has(row.id) ? `${name} removed -- saving also unpins it from the Mobile Bottom Bar` : `${name} removed`, () =>
+    toastRemoved(pinned.has(row.id) ? `${name} removed -- saving also unpins it from the mobile bottom bar` : `${name} removed`, () =>
       onChange(r => insertAt(r, at, row))
     )
   }
@@ -467,11 +467,11 @@ function NavGroups({ settings, onChange, showErrors, onEditRow }: {
   return (
     <section className="flex flex-col gap-4">
       <BlockTitle
-        title="Nav Menu Groups"
+        title="Nav menu groups"
         description={
           <p>
             A group is one rounded block in the drawer, with up to {MAX_GROUP_ROWS} rows. Drag to reorder. Rows can
-            be pinned to the <SectionLink section="bottom-bar">Mobile Bottom Bar</SectionLink>.
+            be pinned to the <SectionLink section="bottom-bar">mobile bottom bar</SectionLink>.
           </p>
         }
       />
@@ -520,7 +520,7 @@ function NavGroups({ settings, onChange, showErrors, onEditRow }: {
         title={`Remove ${groupLabel(Math.max(confirmingIndex, 0))}?`}
         description={
           `This also removes its ${pluralize(confirmingRows.length, 'row')}.` +
-          (confirmingPinned > 0 ? ` Saving also unpins ${pluralize(confirmingPinned, 'row')} from the Mobile Bottom Bar.` : '')
+          (confirmingPinned > 0 ? ` Saving also unpins ${pluralize(confirmingPinned, 'row')} from the mobile bottom bar.` : '')
         }
         onConfirm={() => confirming && removeGroup(confirming.id)}
       />
@@ -536,7 +536,7 @@ function SupportBlock({ settings, onChange, showErrors }: { settings: SidebarSet
   return (
     <section id="sidebar-support" className="flex scroll-mt-24 flex-col gap-6">
       <BlockTitle
-        title="Support Row"
+        title="Support row"
         description={
           <p>
             The Live Support entry next to the locale picker. Only its icon, label and link can be changed; the locale
@@ -556,7 +556,7 @@ function SupportBlock({ settings, onChange, showErrors }: { settings: SidebarSet
         }
       />
       <FieldGroup>
-        <IconFields id="support-icon" variant="compact" surface="dark" label="Support Icon" value={support.icon} onChange={icon => set({ icon })} />
+        <IconFields id="support-icon" variant="compact" surface="dark" label="Support icon" value={support.icon} onChange={icon => set({ icon })} />
         <TranslationKeyField id="support-label" label="Label" value={support.label} onChange={label => set({ label })} error={errors.label} />
         <HrefFields id="support" href={support.href} external={support.external} onChange={set} error={errors.link} />
       </FieldGroup>
@@ -572,14 +572,14 @@ function AppInstallBlock({ settings, onChange, showErrors }: { settings: Sidebar
   return (
     <section id="sidebar-app-install" className="flex scroll-mt-24 flex-col gap-6">
       <BlockTitle
-        title="App Install Card"
+        title="App install card"
         description={<p>Optional promotional card linking to the app store.</p>}
       />
-      {/* Switch as a choice card, like the center button options in the Mobile Bottom Bar */}
+      {/* Switch as a choice card, like the center button options in the mobile bottom bar */}
       <FieldLabel htmlFor="app-install-enabled">
         <Field orientation="horizontal">
           <FieldContent>
-            <FieldTitle>Show the Card</FieldTitle>
+            <FieldTitle>Show the card</FieldTitle>
             <FieldDescription>When off, the card isn&apos;t rendered in the drawer. Its settings are kept.</FieldDescription>
           </FieldContent>
           <Switch id="app-install-enabled" checked={appInstall.enabled} onCheckedChange={enabled => set({ enabled })} />
@@ -662,7 +662,7 @@ export function SidebarSection() {
         </div>
         <aside className="hidden wide:block">
           <div className="sticky top-20 flex flex-col gap-3">
-            <h3 className="text-sm font-medium">Sidebar Preview</h3>
+            <h3 className="text-sm font-medium">Sidebar preview</h3>
             <DrawerPreview settings={settings} {...previewActions} />
             <p className="text-xs text-muted-foreground">Updates as you edit. Click a row, the support row or the app card to edit it.</p>
           </div>
@@ -672,7 +672,7 @@ export function SidebarSection() {
       <Sheet open={previewOpen} onOpenChange={setPreviewOpen}>
         <SheetContent className="w-full gap-0 data-[side=right]:sm:max-w-sm">
           <SheetHeader className="border-b border-border">
-            <SheetTitle>Sidebar Preview</SheetTitle>
+            <SheetTitle>Sidebar preview</SheetTitle>
             <SheetDescription>Updates as you edit. Click a row, the support row or the app card to edit it.</SheetDescription>
           </SheetHeader>
           <div className="flex-1 overflow-y-auto p-4">

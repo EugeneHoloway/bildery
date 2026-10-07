@@ -63,14 +63,14 @@ function TitleBlock({ value, onChange }: { value: SectionTitleConfig; onChange: 
         <FieldLabel htmlFor="show-title">
           <Field orientation="horizontal">
             <FieldContent>
-              <FieldTitle>Show Section Title</FieldTitle>
+              <FieldTitle>Show section title</FieldTitle>
               <FieldDescription>When off, the title isn&apos;t rendered on the page. It&apos;s kept.</FieldDescription>
             </FieldContent>
             <Switch id="show-title" checked={value.showTitle} onCheckedChange={showTitle => onChange({ showTitle })} />
           </Field>
         </FieldLabel>
         {value.showTitle && (
-          <TranslationKeyField id="section-title" label="Section Title" value={value.title} onChange={title => onChange({ title })} />
+          <TranslationKeyField id="section-title" label="Section title" value={value.title} onChange={title => onChange({ title })} />
         )}
       </FieldGroup>
     </section>
@@ -128,7 +128,7 @@ function GameListForm({ section }: { section: Extract<HomeSection, { type: 'game
           </Field>
 
           <Field>
-            <FieldLabel id="card-type-label">Card Type</FieldLabel>
+            <FieldLabel id="card-type-label">Card type</FieldLabel>
             <RadioGroup
               value={config.cardType}
               onValueChange={v => set({ cardType: v as GameCardType })}
@@ -156,7 +156,7 @@ function GameListForm({ section }: { section: Extract<HomeSection, { type: 'game
 
         <section className="flex flex-col gap-6">
           <BlockTitle
-            title='"View All" CTA'
+            title='"View all" CTA'
             description={
               <p>
                 Always shown next to the title; links to the category page
@@ -238,7 +238,7 @@ function GameCategoryFiltersForm({ section }: { section: Extract<HomeSection, { 
 
         <section className="flex flex-col gap-6">
           <BlockTitle
-            title="Lobby Chip"
+            title="Lobby chip"
             description={
               <p>
                 Always the first chip, everywhere this row is shown, and links to{' '}
@@ -277,7 +277,7 @@ export default function HomeSectionPage() {
         breadcrumbs={[
           { label: 'Bildery', href: '/dashboard' },
           { label: 'CMS', href: '/brand-settings' },
-          { label: 'Brand Settings', href: '/brand-settings' },
+          { label: 'Brand settings', href: '/brand-settings' },
           { label: 'Home', href: HOME_HREF },
           { label: title },
         ]}

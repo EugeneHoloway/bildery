@@ -9,7 +9,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { cn } from '@/lib/utils'
 import { SectionContext } from '../_lib/section'
 
-// Shared building blocks of the Sidebar and Mobile Bottom Bar sections
+// Shared building blocks of the Sidebar and Mobile bottom bar sections
 
 export function BlockTitle({ title, description, aside }: { title: string; description: React.ReactNode; aside?: React.ReactNode }) {
   return (

@@ -52,7 +52,7 @@ export const BANNER_BREAKPOINTS: {
   artwork: string
 }[] = [
   { key: 'mobile',      label: 'Mobile',       viewport: 360,  size: { w: 328,  h: 200 }, background: '328 × 200 px -- upload 984 × 600 @3×',   artwork: '640 × 372 px' },
-  { key: 'mobileLarge', label: 'Mobile Large', viewport: 540,  size: { w: 500,  h: 188 }, background: '500 × 188 px -- upload 1500 × 564 @3×',  artwork: '640 × 372 px' },
+  { key: 'mobileLarge', label: 'Mobile large', viewport: 540,  size: { w: 500,  h: 188 }, background: '500 × 188 px -- upload 1500 × 564 @3×',  artwork: '640 × 372 px' },
   { key: 'tablet',      label: 'Tablet',       viewport: 768,  size: { w: 720,  h: 324 }, background: '720 × 324 px -- upload 1440 × 648 @2×',  artwork: '1120 × 650 px' },
   { key: 'laptop',      label: 'Laptop',       viewport: 1024, size: { w: 960,  h: 372 }, background: '960 × 372 px -- upload 1920 × 744 @2×',  artwork: '1280 × 744 px' },
   { key: 'desktop',     label: 'Desktop',      viewport: 1440, size: { w: 1360, h: 372 }, background: '1360 × 372 px -- upload 2720 × 744 @2×', artwork: '1280 × 744 px' },

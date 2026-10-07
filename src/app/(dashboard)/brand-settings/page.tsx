@@ -12,8 +12,10 @@ import {
   CircleOff,
   Copy,
   CreditCard,
+  ExternalLink,
   Fingerprint,
   GalleryHorizontal,
+  Globe,
   GripVertical,
   House,
   Images,
@@ -21,13 +23,16 @@ import {
   Palette,
   Plus,
   Power,
+  RefreshCw,
   RotateCcw,
   PanelBottom,
   PanelLeft,
   Languages,
   Layers,
+  MoreHorizontal,
   Share2,
   Smartphone,
+  Star,
   Trash2,
   Upload,
   WalletCards,
@@ -68,7 +73,8 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Field, FieldContent, FieldDescription, FieldError, FieldGroup, FieldLabel, FieldTitle } from '@/components/ui/field'
+import { ButtonGroup } from '@/components/ui/button-group'
+import { Field, FieldContent, FieldDescription, FieldError, FieldGroup, FieldLabel, FieldSeparator, FieldTitle } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemMedia, ItemSeparator, ItemTitle } from '@/components/ui/item'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
@@ -76,6 +82,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Switch } from '@/components/ui/switch'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from '@/components/ui/input-group'
 import {
@@ -126,7 +133,7 @@ import { SectionActions, SectionContext, SectionHeader, useSaveable } from './_l
 import { BottomBarSection } from './_components/bottom-bar-section'
 import { HomeSection } from './_components/home-section'
 import { SidebarSection } from './_components/sidebar-section'
-import { ConfirmRemoveDialog, DisabledReason, LimitCount, pluralize, toastRemoved } from './_components/list-actions'
+import { ConfirmRemoveDialog, DisabledReason, insertAt, LimitCount, pluralize, toastRemoved } from './_components/list-actions'
 import { BRAND_COLORS, readableOn } from './_lib/theme'
 import { useBlobUrls } from './_lib/use-blob-urls'
 
@@ -155,7 +162,7 @@ const NAV: NavGroup[] = [
       { id: 'home',    label: 'Home',                 icon: House },
       { id: 'banners', label: 'Banners',              icon: GalleryHorizontal },
       { id: 'sidebar', label: 'Sidebar', icon: PanelLeft },
-      { id: 'bottom-bar', label: 'Mobile Bottom Bar', icon: Smartphone },
+      { id: 'bottom-bar', label: 'Mobile bottom bar', icon: Smartphone },
       { id: 'footer',  label: 'Footer',               icon: PanelBottom },
       { id: 'social',  label: 'Social',               icon: Share2 },
     ],
@@ -192,9 +199,31 @@ const DEFAULT_LOCALE = 'en'
 const LOCALE_CATALOG = ['en', 'en-CA', 'fr-CA', 'uk-UA', 'en-NZ', 'de-CH', 'en-AU', 'de-DE', 'fr-FR', 'es-ES']
 
 const IDENTITY = {
-  canonicalUrl: 'https://depo44.website.servermacminihome.com',
+  domains: [
+    { host: 'depo44.website2.servermacminihome.com', primary: false },
+    { host: 'depo44.website.servermacminihome.com', primary: true },
+  ] as Domain[],
+  siteStatus: { state: 'live', configVersion: 393 },
   logo: { light: '/logos/betup-logo-black.svg', dark: '/logos/betup-logo.svg' } as { light: string; dark: string } | null,
   favicon: '/favicon-192.png' as string | null,
+}
+
+interface Domain {
+  host: string
+  primary: boolean
+}
+
+const HOST_NAME = /^(?=.{1,253}$)([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/
+
+/** A pasted URL is trimmed to its host: "https://Acme.com/path" -> "acme.com". */
+function toHost(value: string) {
+  const v = value.trim().toLowerCase()
+  if (!v) return ''
+  try {
+    return new URL(v.includes('://') ? v : `https://${v}`).hostname
+  } catch {
+    return v
+  }
 }
 
 const LOCALE_SETTINGS = {
@@ -307,6 +336,11 @@ const THEME = {
   } as FontConfig,
 }
 
+/** Hosts and URLs get break opportunities after dots and slashes, so they wrap by their parts, not mid-word. */
+function breakable(text: string) {
+  return text.split(/(?<=[./])/).map((part, i) => <Fragment key={i}>{i > 0 && <wbr />}{part}</Fragment>)
+}
+
 function CopyableId({ value, label }: { value: string; label: string }) {
   const [copied, setCopied] = useState(false)
   function copy() {
@@ -316,11 +350,13 @@ function CopyableId({ value, label }: { value: string; label: string }) {
   }
 
   return (
-    <div className="flex h-8 items-center gap-1">
-      <span className="text-sm text-foreground">{value}</span>
+    // No input box around the value, so the row is as tall as the text: the button hangs into the gaps
+    <div className="flex items-center gap-1">
+      {/* Long values without spaces (URLs) wrap instead of running off narrow screens */}
+      <span className="min-w-0 text-sm break-words text-foreground">{breakable(value)}</span>
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button variant="ghost" size="icon-xs" onClick={copy} aria-label={`Copy ${label}`}>
+          <Button variant="ghost" size="icon-xs" className="-my-1" onClick={copy} aria-label={`Copy ${label}`}>
             {copied ? <Check className="text-success" /> : <Copy className="text-muted-foreground" />}
           </Button>
         </TooltipTrigger>
@@ -511,84 +547,319 @@ interface AssetFieldProps {
   onReplace: (file: File) => void
   onChooseFromLibrary: () => void
   onRemove: () => void
-  /** Ширина колонки превью+подсказка; превью растягивается на всю ширину */
-  columnClassName: string
-  previewClassName?: string
+  /** Size of the preview tile */
+  previewClassName: string
 }
 
-function AssetField({ label, hint, preview, emptyLabel, onReplace, onChooseFromLibrary, onRemove, columnClassName, previewClassName }: AssetFieldProps) {
+// Preview, one group of small actions under it, the format hint across the full width. Actions always sit
+// under the preview, so Logo and Favicon keep the same layout at any width
+function AssetField({ label, hint, preview, emptyLabel, onReplace, onChooseFromLibrary, onRemove, previewClassName }: AssetFieldProps) {
   const inputRef = useRef<HTMLInputElement>(null)
+  const noun = label.toLowerCase()
 
   return (
     <Field>
       <FieldLabel>{label}</FieldLabel>
-      <div className="flex items-start gap-4">
-        <div className={cn('flex flex-col gap-1.5 shrink-0', columnClassName)}>
-          <div
-            className={cn(
-              'flex w-full items-center justify-center rounded-xl border border-border bg-muted overflow-hidden',
-              previewClassName
-            )}
-          >
-            {preview ?? (
-              <div className="flex flex-col items-center gap-1.5 text-muted-foreground">
-                <Images className="size-5" />
-                <span className="text-xs">{emptyLabel}</span>
-              </div>
-            )}
-          </div>
-          <FieldDescription>{hint}</FieldDescription>
+      <div className="flex flex-col items-start gap-3">
+        <div
+          className={cn(
+            'flex shrink-0 items-center justify-center overflow-hidden rounded-xl border border-border bg-muted',
+            previewClassName
+          )}
+        >
+          {preview ?? (
+            <div className="flex flex-col items-center gap-1.5 text-muted-foreground">
+              <Images className="size-5" />
+              <span className="text-xs">{emptyLabel}</span>
+            </div>
+          )}
         </div>
-        <div className="flex flex-1 flex-col gap-3 min-w-0">
-          <div className="flex flex-col items-start gap-2">
-            <input
-              ref={inputRef}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={e => {
-                const file = e.target.files?.[0]
-                if (file) onReplace(file)
-                e.target.value = ''
-              }}
-            />
-            <Button variant="outline" onClick={() => inputRef.current?.click()}>
-              <Upload />
-              {preview ? 'Replace' : 'Upload'}
-            </Button>
-            <Button variant="outline" onClick={onChooseFromLibrary}>
-              <Images />
-              Choose from library
-            </Button>
-            {preview && (
-              <Button variant="ghost" className="text-destructive hover:text-destructive" onClick={onRemove}>
-                <Trash2 />
-                Remove
-              </Button>
-            )}
-          </div>
-        </div>
+        <input
+          ref={inputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={e => {
+            const file = e.target.files?.[0]
+            if (file) onReplace(file)
+            e.target.value = ''
+          }}
+        />
+        <ButtonGroup>
+          <Button variant="outline" size="sm" onClick={() => inputRef.current?.click()}>
+            <Upload data-icon="inline-start" />
+            {preview ? 'Replace' : 'Upload'}
+          </Button>
+          <Button variant="outline" size="sm" onClick={onChooseFromLibrary}>
+            <Images data-icon="inline-start" />
+            Library
+          </Button>
+          {preview && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="outline" size="icon-sm" aria-label={`Remove ${noun}`} onClick={onRemove}>
+                  <Trash2 className="text-muted-foreground" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Remove {noun}</TooltipContent>
+            </Tooltip>
+          )}
+        </ButtonGroup>
       </div>
+      <FieldDescription>{hint}</FieldDescription>
     </Field>
+  )
+}
+
+function AddDomainDialog({ open, onOpenChange, existing, onAdd }: {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  existing: string[]
+  onAdd: (host: string) => void
+}) {
+  const [draft, setDraft] = useState('')
+  const [error, setError] = useState<string>()
+
+  // Every opening starts clean
+  useEffect(() => {
+    if (open) { setDraft(''); setError(undefined) }
+  }, [open])
+
+  function submit(e: React.FormEvent) {
+    e.preventDefault()
+    const host = toHost(draft)
+    if (!host) return setError('Enter a domain')
+    if (!HOST_NAME.test(host)) return setError('Enter a bare host name, e.g. acme-casino.com')
+    if (existing.includes(host)) return setError(`${host} is already added`)
+    onAdd(host)
+    onOpenChange(false)
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md">
+        <form onSubmit={submit} className="flex flex-col gap-6">
+          <DialogHeader>
+            <DialogTitle>Add domain</DialogTitle>
+            <DialogDescription>
+              {existing.length === 0
+                ? 'The first domain becomes the primary one.'
+                : 'New domains are added as mirrors. Saved immediately.'}
+            </DialogDescription>
+          </DialogHeader>
+          <Field data-invalid={!!error || undefined}>
+            <FieldLabel htmlFor="new-domain">Domain</FieldLabel>
+            <Input
+              id="new-domain"
+              placeholder="example.com"
+              autoFocus
+              value={draft}
+              onChange={e => { setDraft(e.target.value); setError(undefined) }}
+              aria-invalid={!!error || undefined}
+            />
+            <FieldDescription>
+              Bare host name, Latin letters/digits/hyphens (e.g. acme-casino.com). A pasted URL is trimmed to its host.
+            </FieldDescription>
+            <FieldError>{error}</FieldError>
+          </Field>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button type="button" variant="outline">Cancel</Button>
+            </DialogClose>
+            <Button type="submit" disabled={!draft.trim()}>Add domain</Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+function DomainsFields() {
+  // Domains are saved immediately, outside the section's Save
+  const [domains, setDomains] = useState<Domain[]>(IDENTITY.domains)
+  const [adding, setAdding] = useState(false)
+  const [refreshing, setRefreshing] = useState(false)
+  const primary = domains.find(d => d.primary)
+  const origin = primary ? `https://${primary.host}` : ''
+  // The primary domain always leads the list
+  const sorted = [...domains].sort((a, b) => Number(b.primary) - Number(a.primary))
+
+  function add(host: string) {
+    // The first domain becomes primary; the rest are mirrors
+    setDomains(list => [...list, { host, primary: list.length === 0 }])
+    toast.success(`${host} added`)
+  }
+
+  function makePrimary(host: string) {
+    setDomains(list => list.map(d => ({ ...d, primary: d.host === host })))
+    toast.success(`${host} is now the primary domain`)
+  }
+
+  function remove(host: string) {
+    const index = domains.findIndex(d => d.host === host)
+    const removed = domains[index]
+    setDomains(list => list.filter(d => d.host !== host))
+    toastRemoved(`${host} removed`, () => setDomains(list => insertAt(list, index, removed)))
+  }
+
+  function refresh() {
+    setRefreshing(true)
+    setTimeout(() => setRefreshing(false), 600)
+  }
+
+  const addButton = (
+    <Button variant="outline" size="sm" className="shrink-0" onClick={() => setAdding(true)}>
+      <Plus data-icon="inline-start" />
+      Add domain
+    </Button>
+  )
+
+  return (
+    <>
+      {/* A div with role=group rather than a fieldset: the add button shares the title row,
+          which a <legend> can't do */}
+      <div role="group" aria-labelledby="domains-title" className="flex min-w-0 flex-col gap-2">
+        {/* On phones the button goes under the description instead of squeezing it */}
+        <div className="flex flex-col items-start gap-3 tablet:flex-row tablet:justify-between">
+          <div className="flex flex-col gap-0.5">
+            <FieldTitle id="domains-title">Domains</FieldTitle>
+            {/* Long hints stay at a readable line length; the one section part saved without Save says so up front */}
+            <FieldDescription className="max-w-2xl">
+              The primary domain is the public address: canonical URL, sitemap, hreflang and CORS follow it.
+              Other domains are mirrors.{' '}
+              <span className="font-medium text-foreground">Changes here are saved immediately.</span>
+            </FieldDescription>
+          </div>
+          {domains.length > 0 && addButton}
+        </div>
+
+        {domains.length === 0 ? (
+          <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border px-4 py-8 text-center">
+            <div className="flex size-10 items-center justify-center rounded-xl bg-muted">
+              <Globe className="size-5 text-muted-foreground" />
+            </div>
+            <p className="text-sm text-muted-foreground">No domains yet. The storefront has no public address.</p>
+            {addButton}
+          </div>
+        ) : (
+          <ItemGroup className="gap-0 overflow-hidden rounded-2xl border border-border">
+            {sorted.map((d, i) => {
+              // The canonical origin can't go away while mirrors depend on it
+              const locked = d.primary && domains.length > 1
+              return (
+                <Fragment key={d.host}>
+                  {i > 0 && <ItemSeparator className="my-0" />}
+                  <Item className="flex-nowrap rounded-none">
+                    {/* The role sits right next to the host it describes. Hosts differ at the end, so on
+                        phones they wrap instead of losing the tail to an ellipsis */}
+                    <ItemContent className="min-w-0 flex-row items-center gap-2">
+                      <ItemTitle className="block min-w-0 font-normal break-words line-clamp-none tablet:truncate">{breakable(d.host)}</ItemTitle>
+                      {d.primary
+                        ? <Badge className="shrink-0 bg-brand-bg text-brand">Primary</Badge>
+                        : <Badge variant="secondary" className="shrink-0">Mirror</Badge>}
+                    </ItemContent>
+                    <ItemActions className="shrink-0">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon-sm" className="-my-1" aria-label={`More actions for ${d.host}`}>
+                            <MoreHorizontal />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-56">
+                          {!d.primary && (
+                            <DropdownMenuItem onSelect={() => makePrimary(d.host)}>
+                              <Star />
+                              Make primary
+                            </DropdownMenuItem>
+                          )}
+                          <DropdownMenuItem variant="destructive" disabled={locked} onSelect={() => remove(d.host)}>
+                            <Trash2 />
+                            Remove
+                          </DropdownMenuItem>
+                          {locked && (
+                            <p className="px-1.5 pt-1 pb-1.5 text-xs text-muted-foreground">
+                              Make another domain primary first.
+                            </p>
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </ItemActions>
+                  </Item>
+                </Fragment>
+              )
+            })}
+          </ItemGroup>
+        )}
+
+        <AddDomainDialog open={adding} onOpenChange={setAdding} existing={domains.map(d => d.host)} onAdd={add} />
+
+        {/* Derived from the primary domain, so it lives in this group; mt-3 + gap-2 = the 20px between fields */}
+        <Field className="mt-3">
+          <FieldTitle>Canonical URL</FieldTitle>
+          {origin ? (
+            <CopyableId value={origin} label="canonical URL" />
+          ) : (
+            <p className="text-sm text-muted-foreground">Add a domain first</p>
+          )}
+          <FieldDescription className="max-w-2xl">
+            Always https:// plus the primary domain. Updates automatically.
+          </FieldDescription>
+        </Field>
+      </div>
+
+      {/* A read-out, not form controls: a title rather than a fieldset */}
+      <Field>
+        <FieldTitle>Site status</FieldTitle>
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Same badge as the brand status in the page header */}
+          <Badge variant="success" className="capitalize">
+            <CircleCheck className="size-3.5" />
+            {IDENTITY.siteStatus.state}
+          </Badge>
+          <span className="text-sm text-muted-foreground">config v{IDENTITY.siteStatus.configVersion}</span>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="ghost" size="icon-xs" onClick={refresh} disabled={refreshing} aria-label="Refresh site status">
+                <RefreshCw className={cn('text-muted-foreground', refreshing && 'animate-spin')} />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Refresh</TooltipContent>
+          </Tooltip>
+        </div>
+        {origin && (
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+            {[
+              { label: 'Open site', href: origin },
+              { label: '/api/ready', href: `${origin}/api/ready` },
+              { label: '/api/health', href: `${origin}/api/health` },
+            ].map(l => (
+              <Button key={l.label} variant="link" size="sm" className="h-auto px-0" asChild>
+                <a href={l.href} target="_blank" rel="noreferrer">
+                  {l.label}
+                  <ExternalLink data-icon="inline-end" />
+                </a>
+              </Button>
+            ))}
+          </div>
+        )}
+      </Field>
+    </>
   )
 }
 
 function IdentitySection() {
   const { go } = useContext(SectionContext)
-  const [canonicalUrl, setCanonicalUrl] = useState(IDENTITY.canonicalUrl)
   const [logo, setLogo] = useState<{ light: string; dark: string } | null>(IDENTITY.logo)
   const [favicon, setFavicon] = useState<string | null>(IDENTITY.favicon)
   const { blobUrl, release } = useBlobUrls()
-  const { dirty, saving, save, reset } = useSaveable({ canonicalUrl, logo, favicon }, v => {
-    setCanonicalUrl(v.canonicalUrl)
+  const { dirty, saving, save, reset } = useSaveable({ logo, favicon }, v => {
     setLogo(v.logo)
     setFavicon(v.favicon)
   })
-  const urlError = validateUrl(canonicalUrl, 'Canonical URL')
 
   return (
     <>
-      <SectionHeader title="Identity" description="Site name, canonical URL, logo and favicon." />
+      <SectionHeader title="Identity" description="Name, domains and brand marks of the storefront." />
       <FieldGroup className="mt-8">
         <div className="grid grid-cols-1 gap-5 tablet:grid-cols-2">
           <Field>
@@ -607,59 +878,52 @@ function IdentitySection() {
               .
             </FieldDescription>
           </Field>
-          <Field data-invalid={!!urlError || undefined}>
-            <FieldLabel htmlFor="canonical-url">
-              Canonical URL <span className="text-destructive">*</span>
-            </FieldLabel>
-            <Input
-              id="canonical-url"
-              type="url"
-              placeholder="https://example.com"
-              value={canonicalUrl}
-              onChange={e => setCanonicalUrl(e.target.value)}
-              aria-invalid={!!urlError || undefined}
-            />
+          <Field>
+            <FieldLabel htmlFor="default-locale">Default locale</FieldLabel>
+            <Input id="default-locale" value={DEFAULT_LOCALE} disabled />
             <FieldDescription>
-              Used for SEO canonical tags, sitemaps and absolute links in emails.
+              Fixed for all brands. Served without a prefix (<code className="font-mono whitespace-nowrap">/auth/login</code>);
+              other locales get one (<code className="font-mono whitespace-nowrap">/fr-ca/auth/login</code>).
             </FieldDescription>
-            <FieldError>{urlError}</FieldError>
           </Field>
         </div>
+        {/* Groups sit 32px apart (20px gap + separator), fields inside a group 20px */}
+        <FieldSeparator className="my-0.5" />
+        <DomainsFields />
+        <FieldSeparator className="my-0.5" />
+        <div className="grid grid-cols-1 gap-5 tablet:grid-cols-2">
+          <AssetField
+            label="Logo"
+            hint="SVG or PNG with transparent background, min. 224 × 64 px."
+            emptyLabel="No logo"
+            previewClassName="h-24 w-48 p-2"
+            preview={logo && (
+              <img src={logo.light} alt="Logo" className="max-h-full max-w-full object-contain" />
+            )}
+            onReplace={file => {
+              release(logo?.light)
+              release(logo?.dark)
+              const url = blobUrl(file)
+              setLogo({ light: url, dark: url })
+            }}
+            onChooseFromLibrary={() => {}}
+            onRemove={() => { release(logo?.light); release(logo?.dark); setLogo(null) }}
+          />
+          <AssetField
+            label="Favicon"
+            hint="SVG or PNG, 512 × 512 px."
+            emptyLabel="No favicon"
+            previewClassName="size-24 p-4"
+            preview={favicon && (
+              <img src={favicon} alt="Favicon" className="size-12 rounded-lg object-contain" />
+            )}
+            onReplace={file => { release(favicon); setFavicon(blobUrl(file)) }}
+            onChooseFromLibrary={() => {}}
+            onRemove={() => { release(favicon); setFavicon(null) }}
+          />
+        </div>
       </FieldGroup>
-      <div className="mt-8 grid grid-cols-1 gap-8 desktop:grid-cols-2">
-        <AssetField
-          label="Logo"
-          hint="SVG or PNG with transparent background, min. 224 × 64 px."
-          emptyLabel="No logo"
-          columnClassName="w-48"
-          previewClassName="h-24 p-2"
-          preview={logo && (
-            <img src={logo.light} alt="Logo" className="max-h-full max-w-full object-contain" />
-          )}
-          onReplace={file => {
-            release(logo?.light)
-            release(logo?.dark)
-            const url = blobUrl(file)
-            setLogo({ light: url, dark: url })
-          }}
-          onChooseFromLibrary={() => {}}
-          onRemove={() => { release(logo?.light); release(logo?.dark); setLogo(null) }}
-        />
-        <AssetField
-          label="Favicon"
-          hint="PNG or SVG, 512 × 512 px."
-          emptyLabel="No favicon"
-          columnClassName="w-24"
-          previewClassName="h-24 p-4"
-          preview={favicon && (
-            <img src={favicon} alt="Favicon" className="size-12 rounded-lg object-contain" />
-          )}
-          onReplace={file => { release(favicon); setFavicon(blobUrl(file)) }}
-          onChooseFromLibrary={() => {}}
-          onRemove={() => { release(favicon); setFavicon(null) }}
-        />
-      </div>
-      <SectionActions dirty={dirty} saving={saving} onSave={save} onReset={reset} canSave={!urlError} />
+      <SectionActions dirty={dirty} saving={saving} onSave={save} onReset={reset} />
     </>
   )
 }
@@ -1818,12 +2082,12 @@ function BrandSettingsPage() {
         breadcrumbs={[
           { label: 'Bildery', href: '/dashboard' },
           { label: 'CMS', href: '/brand-settings' },
-          { label: 'Brand Settings' },
+          { label: 'Brand settings' },
         ]}
       />
       <div className="flex flex-1 flex-col px-6 pt-4 pb-8">
         <div>
-          <h1 className="text-2xl font-semibold">Brand Settings</h1>
+          <h1 className="text-2xl font-semibold">Brand settings</h1>
           <div className="mt-1 flex items-center gap-2">
             {loading ? (
               <Skeleton className="h-5 w-40" />

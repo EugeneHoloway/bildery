@@ -13,10 +13,10 @@ export interface FooterBlock {
 
 // Fixed set of footer blocks, in the order they appear on the storefront (top to bottom)
 export const FOOTER_BLOCKS: FooterBlock[] = [
-  { id: 'navigation',    label: 'Navigation Columns', description: 'Footer link columns (e.g. Casino, Sports, Help). Each column has a title and its own list of links', icon: Columns3 },
-  { id: 'payment-logos', label: 'Payment Logos',      description: 'Payment-method logos displayed in the footer. Display-only -- not clickable', icon: CreditCard },
-  { id: 'about',         label: 'About Us',           description: 'The About column: its title and the list of informational links shown beneath it', icon: Info },
-  { id: 'legal',         label: 'Legal & Licensing',  description: 'Legal disclaimer, the copyright line, and the licensing badge shown at the bottom of the footer', icon: Scale },
+  { id: 'navigation',    label: 'Navigation columns', description: 'Footer link columns (e.g. Casino, Sports, Help). Each column has a title and its own list of links', icon: Columns3 },
+  { id: 'payment-logos', label: 'Payment logos',      description: 'Payment-method logos displayed in the footer. Display-only -- not clickable', icon: CreditCard },
+  { id: 'about',         label: 'About us',           description: 'The About column: its title and the list of informational links shown beneath it', icon: Info },
+  { id: 'legal',         label: 'Legal & licensing',  description: 'Legal disclaimer, the copyright line, and the licensing badge shown at the bottom of the footer', icon: Scale },
 ]
 
 export interface FooterLegal {

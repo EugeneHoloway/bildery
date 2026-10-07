@@ -425,7 +425,7 @@ function BarItemsBlock({ settings, onChange, onEditFixed }: { settings: BottomBa
   return (
     <section className="flex flex-col gap-4">
       <BlockTitle
-        title="Bar Items"
+        title="Bar items"
         description={
           <p>
             Drag to reorder. <span className={STRONG}>Menu</span> and <span className={STRONG}>Search</span> are always in
@@ -482,7 +482,7 @@ function CenterCtaBlock({ settings, onChange, sectionRef, showErrors }: { settin
   return (
     <section ref={sectionRef} className="flex scroll-mt-24 flex-col gap-6">
       <BlockTitle
-        title="Center CTA (Main Button)"
+        title="Center CTA (main button)"
         description={
           <p>
             The raised circle in the middle of the bar, set separately for players and guests.
@@ -492,7 +492,7 @@ function CenterCtaBlock({ settings, onChange, sectionRef, showErrors }: { settin
 
       <div className="flex flex-col gap-4">
         <SubTitle
-          title="When Logged In"
+          title="When logged in"
           description="Deposit opens the deposit modal. Pick a pinned row to send players there instead."
         />
         <RadioGroup
@@ -523,8 +523,8 @@ function CenterCtaBlock({ settings, onChange, sectionRef, showErrors }: { settin
 
       <div className="flex flex-col gap-4">
         <SubTitle
-          title="When Logged Out"
-          hint="Join Now (Default)"
+          title="When logged out"
+          hint="Join Now (default)"
           description="Shown to guests, e.g. Join Now, Sign Up or Get Bonus."
         />
         <FieldGroup>
@@ -573,7 +573,7 @@ export function BottomBarSection() {
     <>
       <div className="flex items-start justify-between gap-4">
         <SectionHeader
-          title="Mobile Bottom Bar"
+          title="Mobile bottom bar"
           description="The fixed bar at the bottom of the screen on mobile: up to 5 slots -- Menu, Search, up to 2 pinned sidebar rows and the center button."
         />
         {/* Below the wide breakpoint the preview column doesn't fit, so it opens in a sheet */}
@@ -591,7 +591,7 @@ export function BottomBarSection() {
         {/* About a phone's width, so labels truncate where they would on the website */}
         <aside className="hidden wide:block">
           <div className="sticky top-20 flex flex-col gap-3">
-            <h3 className="text-sm font-medium">Bottom Bar Preview</h3>
+            <h3 className="text-sm font-medium">Bottom bar preview</h3>
             {panel}
           </div>
         </aside>
@@ -600,7 +600,7 @@ export function BottomBarSection() {
       <Sheet open={previewOpen} onOpenChange={setPreviewOpen}>
         <SheetContent className="w-full gap-0 data-[side=right]:sm:max-w-sm">
           <SheetHeader className="border-b border-border">
-            <SheetTitle>Bottom Bar Preview</SheetTitle>
+            <SheetTitle>Bottom bar preview</SheetTitle>
             <SheetDescription>How the bar looks on a phone.</SheetDescription>
           </SheetHeader>
           <div className="flex-1 overflow-y-auto p-4">{panel}</div>

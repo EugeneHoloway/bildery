@@ -188,7 +188,7 @@ export function HomeSection() {
 
       <section className="mt-8 flex flex-col gap-4">
         <BlockTitle
-          title="Page Sections"
+          title="Page sections"
           description={
             <p>
               Shown top to bottom in this order -- drag to reorder. Disabled sections keep their settings but

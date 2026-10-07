@@ -81,7 +81,7 @@ const data = {
       icon: Settings2,
       isActive: true,
       items: [
-        { title: "Brand Settings", url: "/brand-settings" },
+        { title: "Brand settings", url: "/brand-settings" },
       ],
     },
     {

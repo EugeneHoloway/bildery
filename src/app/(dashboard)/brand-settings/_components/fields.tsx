@@ -165,7 +165,7 @@ export function IconFields({ id, value, onChange, label = 'Icon', formats = 'svg
   const showAlt = !!(value.src || value.alt)
   const altField = (
     <Field>
-      <FieldLabel htmlFor={`${id}-alt`}>Alt Text</FieldLabel>
+      <FieldLabel htmlFor={`${id}-alt`}>Alt text</FieldLabel>
       <InputGroup>
         <InputGroupAddon>
           <TextCursorInput />

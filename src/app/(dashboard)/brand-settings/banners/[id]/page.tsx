@@ -334,7 +334,7 @@ const COMPOSITIONS: { value: Composition; title: string; description: string }[]
   },
   {
     value: 'layered',
-    title: 'Background + Artwork',
+    title: 'Background + artwork',
     description: 'Scenery behind, a transparent cut-out on the right. Swap the character or reuse the scene without redrawing everything.',
   },
 ]
@@ -690,7 +690,7 @@ export default function BannerPage() {
         breadcrumbs={[
           { label: 'Bildery', href: '/dashboard' },
           { label: 'CMS', href: '/brand-settings' },
-          { label: 'Brand Settings', href: '/brand-settings' },
+          { label: 'Brand settings', href: '/brand-settings' },
           { label: 'Banners', href: BANNERS_HREF },
           { label: title },
         ]}

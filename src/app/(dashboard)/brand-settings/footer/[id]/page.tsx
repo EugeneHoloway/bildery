@@ -79,7 +79,7 @@ function LegalForm({ block, initial }: { block: FooterBlock; initial: FooterLega
       <FieldGroup className="mt-8">
         <TranslationKeyField
           id="legal-text"
-          label="Legal Text"
+          label="Legal text"
           value={legal.legalText}
           onChange={v => set('legalText', v)}
           suggested="footer.legal.text"
@@ -93,7 +93,7 @@ function LegalForm({ block, initial }: { block: FooterBlock; initial: FooterLega
         />
         <IconFields
           id="legal-license-image"
-          label="License Image"
+          label="License image"
           formats="image"
           value={legal.licenseImage}
           onChange={v => set('licenseImage', v)}
@@ -360,7 +360,7 @@ function AboutForm({ block, initial }: { block: FooterBlock; initial: FooterAbou
         <FieldGroup>
           <TranslationKeyField
             id="about-title"
-            label="Column Title"
+            label="Column title"
             value={about.title}
             onChange={title => setAbout(a => ({ ...a, title }))}
             error={titleError}
@@ -433,7 +433,7 @@ function ColumnCard({ column, index, showErrors, onChange, onRemove }: {
       <FieldGroup>
         <TranslationKeyField
           id={`${column.id}-title`}
-          label="Column Title"
+          label="Column title"
           value={column.title}
           onChange={title => onChange({ ...column, title })}
           error={titleError}
@@ -812,7 +812,7 @@ export default function FooterBlockPage() {
         breadcrumbs={[
           { label: 'Bildery', href: '/dashboard' },
           { label: 'CMS', href: '/brand-settings' },
-          { label: 'Brand Settings', href: '/brand-settings' },
+          { label: 'Brand settings', href: '/brand-settings' },
           { label: 'Footer', href: FOOTER_HREF },
           { label: title },
         ]}

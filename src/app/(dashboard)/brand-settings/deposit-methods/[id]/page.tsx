@@ -426,7 +426,7 @@ function DepositMethodForm({ initial }: { initial: DepositMethod }) {
               <div className="flex size-10 items-center justify-center rounded-xl bg-muted">
                 <ListPlus className="size-5 text-muted-foreground" />
               </div>
-              <p className="text-sm text-muted-foreground">No options yet. The block opens the Main provider directly.</p>
+              <p className="text-sm text-muted-foreground">No options yet. The block opens the main provider directly.</p>
               {addOptionButton}
             </div>
           ) : (
@@ -516,7 +516,7 @@ export default function DepositMethodPage() {
         breadcrumbs={[
           { label: 'Bildery', href: '/dashboard' },
           { label: 'CMS', href: '/brand-settings' },
-          { label: 'Brand Settings', href: '/brand-settings' },
+          { label: 'Brand settings', href: '/brand-settings' },
           { label: 'Deposit methods', href: DEPOSIT_METHODS_HREF },
           { label: title },
         ]}
