@@ -807,6 +807,9 @@ function DomainsFields() {
         </Field>
       </div>
 
+      {/* Site status is a read-out of the live site, not a setting: its own group, same 32px divider as the rest */}
+      <FieldSeparator className="my-0.5" />
+
       {/* A read-out, not form controls: a title rather than a fieldset */}
       <Field>
         <FieldTitle>Site status</FieldTitle>
