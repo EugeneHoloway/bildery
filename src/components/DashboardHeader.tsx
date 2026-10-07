@@ -76,7 +76,7 @@ export function DashboardHeader({ breadcrumbs, right }: DashboardHeaderProps) {
       >
         <div className="flex flex-1 items-center gap-2 px-4 group-has-data-[collapsible=icon]/sidebar-wrapper:px-2">
           <SidebarTrigger className="-ml-1 group-has-data-[collapsible=icon]/sidebar-wrapper:ml-0" />
-          <Separator orientation="vertical" className="mr-2 data-[orientation=vertical]:h-4" />
+          <Separator orientation="vertical" className="mr-2 data-vertical:h-4 data-vertical:self-auto" />
           <Breadcrumb>
             <BreadcrumbList>
               {breadcrumbs.map((crumb, i) => {

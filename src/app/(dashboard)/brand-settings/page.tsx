@@ -2096,8 +2096,10 @@ function BrandSettingsPage() {
               <Skeleton className="h-5 w-40" />
             ) : (
               <>
-                <p className="text-sm text-muted-foreground">
-                  {BRAND.name} · {BRAND.operatorName}
+                <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                  {BRAND.name}
+                  <ChevronRight className="size-3.5" aria-hidden />
+                  {BRAND.operatorName}
                 </p>
                 <Badge variant={brandActive ? 'success' : 'secondary'}>
                   {brandActive ? <CircleCheck className="size-3.5" /> : <CircleOff className="size-3.5" />}
