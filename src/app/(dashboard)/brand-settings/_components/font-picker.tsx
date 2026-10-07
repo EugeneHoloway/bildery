@@ -141,6 +141,8 @@ export function FontPicker({ id, value, onChange, cssVariable, fallback, details
       <PopoverContent
         align={detailsSide === 'left' ? 'end' : 'start'}
         sideOffset={6}
+        // On touch screens focusing the search would pop the keyboard and shove the list away
+        onOpenAutoFocus={e => { if (window.matchMedia('(pointer: coarse)').matches) e.preventDefault() }}
         className={cn(
           'w-auto items-stretch gap-2 bg-transparent p-0 shadow-none ring-0',
           detailsSide === 'left' ? 'flex-row-reverse' : 'flex-row'

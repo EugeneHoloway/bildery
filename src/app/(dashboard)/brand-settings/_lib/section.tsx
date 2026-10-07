@@ -3,8 +3,10 @@ import { createContext, useContext, useEffect, useRef, useState } from 'react'
 import { Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
+import { FieldDescription, FieldLegend, FieldSet } from '@/components/ui/field'
 import { Kbd } from '@/components/ui/kbd'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { cn } from '@/lib/utils'
 
 // Sections report their dirty state up to the page so navigation can be guarded,
 // and navigate (between sections or to other routes) through the same guard.
@@ -91,6 +93,30 @@ export function SectionHeader({ title, description }: { title: string; descripti
       <h2 tabIndex={-1} className="text-xl font-semibold outline-none">{title}</h2>
       <p className="mt-1 text-sm text-muted-foreground">{description}</p>
     </div>
+  )
+}
+
+/**
+ * One titled group inside a section: legend, optional description, then the controls 20px below.
+ * Every group of every section goes through here, so they all share one shape.
+ */
+export function SettingsGroup({ title, description, className, children }: {
+  title: React.ReactNode
+  description?: React.ReactNode
+  className?: string
+  children: React.ReactNode
+}) {
+  return (
+    // min-w-0: a fieldset defaults to min-width: min-content, which lets long hosts overflow on phones
+    <FieldSet className={cn('min-w-0 gap-5', className)}>
+      {/* The rendered legend sits outside the fieldset's flex flow, so gap-5 starts below the description.
+          Without one, the legend reads as a label for what follows: 8px, like a field label */}
+      <FieldLegend className={description ? 'mb-0.5' : 'mb-2'}>{title}</FieldLegend>
+      {description && (
+        <FieldDescription className="max-w-2xl [[data-variant=legend]+&]:mt-0">{description}</FieldDescription>
+      )}
+      {children}
+    </FieldSet>
   )
 }
 

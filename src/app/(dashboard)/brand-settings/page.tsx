@@ -128,7 +128,7 @@ import {
   type DepositMethod,
 } from './_lib/deposit-methods'
 import { FOOTER, FOOTER_BLOCKS, footerBlockHref, footerSummary, type FooterBlock, type FooterSummary } from './_lib/footer'
-import { SectionActions, SectionContext, SectionHeader, useSaveable } from './_lib/section'
+import { SectionActions, SectionContext, SectionHeader, SettingsGroup, useSaveable } from './_lib/section'
 import { BottomBarSection } from './_components/bottom-bar-section'
 import { HomeSection } from './_components/home-section'
 import { SidebarSection } from './_components/sidebar-section'
@@ -435,13 +435,10 @@ function GeneralSection({ active, onActiveChange }: { active: boolean; onActiveC
     <>
       <SectionHeader title="General" description="Brand identity and status." />
       <FieldGroup className="mt-8">
-        <div role="group" aria-labelledby="brand-title" className="flex min-w-0 flex-col gap-5">
-          <div className="flex flex-col gap-0.5">
-            <FieldTitle id="brand-title" className="text-base">Brand</FieldTitle>
-            <FieldDescription className="max-w-2xl">
-              IDs are assigned by the platform. The name is shown across the admin and on the storefront.
-            </FieldDescription>
-          </div>
+        <SettingsGroup
+          title="Brand"
+          description="IDs are assigned by the platform. The name is shown across the admin and on the storefront."
+        >
           <div className="grid grid-cols-1 gap-5 tablet:grid-cols-2">
             <Field>
               <FieldLabel>Brand ID</FieldLabel>
@@ -468,18 +465,15 @@ function GeneralSection({ active, onActiveChange }: { active: boolean; onActiveC
               <FieldError>{nameError}</FieldError>
             </Field>
           </div>
-        </div>
+        </SettingsGroup>
 
         <FieldSeparator className="my-0.5" />
 
         {/* A plain group like the rest, no card outline: the destructive button carries the warning */}
-        <div role="group" aria-labelledby="danger-zone-title" className="flex min-w-0 flex-col gap-5">
-          <div className="flex flex-col gap-0.5">
-            <FieldTitle id="danger-zone-title" className="text-base">Danger zone</FieldTitle>
-            <FieldDescription className="max-w-2xl">
-              Actions here take effect immediately and affect every player of this brand.
-            </FieldDescription>
-          </div>
+        <SettingsGroup
+          title="Danger zone"
+          description="Actions here take effect immediately and affect every player of this brand."
+        >
           <div className="flex flex-col gap-3 tablet:flex-row tablet:items-center tablet:justify-between">
             <div>
               <p className="text-sm font-medium">{active ? 'Deactivate brand' : 'Activate brand'}</p>
@@ -505,7 +499,7 @@ function GeneralSection({ active, onActiveChange }: { active: boolean; onActiveC
               </Button>
             )}
           </div>
-        </div>
+        </SettingsGroup>
       </FieldGroup>
 
       <AlertDialog open={confirmDeactivate} onOpenChange={setConfirmDeactivate}>
@@ -711,17 +705,19 @@ function DomainsFields() {
 
   return (
     <>
-      <div role="group" aria-labelledby="domains-title" className="flex min-w-0 flex-col gap-2">
-        <div className="flex flex-col gap-0.5">
-          <FieldTitle id="domains-title" className="text-base">Domains</FieldTitle>
-          {/* Long hints stay at a readable line length; the one section part saved without Save says so up front */}
-          <FieldDescription className="max-w-2xl">
+      {/* Long hints stay at a readable line length; the one section part saved without Save says so up front */}
+      <SettingsGroup
+        title="Domains"
+        description={
+          <>
             The primary domain is the public address: canonical URL, sitemap, hreflang and CORS follow it.
             Other domains are mirrors.{' '}
             <span className="font-medium text-foreground">Changes here are saved immediately.</span>
-          </FieldDescription>
-        </div>
-
+          </>
+        }
+      >
+        {/* The list and the button that extends it stay one block, 16px apart, like Deposit methods */}
+        <div className="flex flex-col gap-4">
         {domains.length === 0 ? (
           <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border px-4 py-8 text-center">
             <div className="flex size-10 items-center justify-center rounded-xl bg-muted">
@@ -780,13 +776,13 @@ function DomainsFields() {
           </ItemGroup>
         )}
 
-        {/* Right under the list it extends, like Add method in Deposit methods; mt-2 + gap-2 = 16px */}
-        {domains.length > 0 && <div className="mt-2">{addButton}</div>}
+        {domains.length > 0 && <div>{addButton}</div>}
+        </div>
 
         <AddDomainDialog open={adding} onOpenChange={setAdding} existing={domains.map(d => d.host)} onAdd={add} />
 
-        {/* Derived from the primary domain, so it lives in this group; mt-3 + gap-2 = the 20px between fields */}
-        <Field className="mt-3">
+        {/* Derived from the primary domain, so it lives in this group */}
+        <Field>
           <FieldTitle>Canonical URL</FieldTitle>
           {origin ? (
             <CopyableId value={origin} label="canonical URL" />
@@ -797,14 +793,13 @@ function DomainsFields() {
             Always https:// plus the primary domain. Updates automatically.
           </FieldDescription>
         </Field>
-      </div>
+      </SettingsGroup>
 
       {/* Site status is a read-out of the live site, not a setting: its own group, same 32px divider as the rest */}
       <FieldSeparator className="my-0.5" />
 
-      {/* A read-out, not form controls: a title rather than a fieldset */}
-      <Field>
-        <FieldTitle className="text-base">Site status</FieldTitle>
+      <SettingsGroup title="Site status">
+        <div className="flex flex-col gap-2">
         <div className="flex flex-wrap items-center gap-2">
           {/* Same badge as the brand status in the page header */}
           <Badge variant="success" className="capitalize">
@@ -837,13 +832,13 @@ function DomainsFields() {
             ))}
           </div>
         )}
-      </Field>
+        </div>
+      </SettingsGroup>
     </>
   )
 }
 
 function IdentitySection() {
-  const { go } = useContext(SectionContext)
   const [logo, setLogo] = useState<{ light: string; dark: string } | null>(IDENTITY.logo)
   const [favicon, setFavicon] = useState<string | null>(IDENTITY.favicon)
   const { blobUrl, release } = useBlobUrls()
@@ -854,49 +849,15 @@ function IdentitySection() {
 
   return (
     <>
-      <SectionHeader title="Identity" description="Name, domains and brand marks of the storefront." />
+      <SectionHeader title="Identity" description="Domains and brand marks of the storefront." />
       <FieldGroup className="mt-8">
-        <div role="group" aria-labelledby="site-title" className="flex min-w-0 flex-col gap-5">
-          <div className="flex flex-col gap-0.5">
-            <FieldTitle id="site-title" className="text-base">Site</FieldTitle>
-            <FieldDescription className="max-w-2xl">Name and default locale of the storefront. Not editable here.</FieldDescription>
-          </div>
-          <div className="grid grid-cols-1 gap-5 tablet:grid-cols-2">
-            <Field>
-              <FieldLabel htmlFor="site-name">Site name</FieldLabel>
-              <Input id="site-name" value={BRAND.name} disabled />
-              <FieldDescription>
-                Synced from Name in{' '}
-                <Link
-                  href={sectionHref('general')}
-                  replace
-                  scroll={false}
-                  onClick={e => { e.preventDefault(); go('general') }}
-                >
-                  General
-                </Link>
-                .
-              </FieldDescription>
-            </Field>
-            <Field>
-              <FieldLabel htmlFor="default-locale">Default locale</FieldLabel>
-              <Input id="default-locale" value={DEFAULT_LOCALE} disabled />
-              <FieldDescription>
-                Fixed for all brands. Served without a prefix (<code className="font-mono whitespace-nowrap">/auth/login</code>);
-                other locales get one (<code className="font-mono whitespace-nowrap">/fr-ca/auth/login</code>).
-              </FieldDescription>
-            </Field>
-          </div>
-        </div>
         {/* Groups sit 32px apart (20px gap + separator), fields inside a group 20px */}
-        <FieldSeparator className="my-0.5" />
         <DomainsFields />
         <FieldSeparator className="my-0.5" />
-        <div role="group" aria-labelledby="brand-marks-title" className="flex min-w-0 flex-col gap-5">
-          <div className="flex flex-col gap-0.5">
-            <FieldTitle id="brand-marks-title" className="text-base">Brand marks</FieldTitle>
-            <FieldDescription className="max-w-2xl">Logo in the storefront header, favicon in browser tabs and bookmarks.</FieldDescription>
-          </div>
+        <SettingsGroup
+          title="Brand marks"
+          description="Logo in the storefront header, favicon in browser tabs and bookmarks."
+        >
           <div className="grid grid-cols-1 gap-5 tablet:grid-cols-2">
             <AssetField
               label="Logo"
@@ -928,7 +889,7 @@ function IdentitySection() {
               onRemove={() => { release(favicon); setFavicon(null) }}
             />
           </div>
-        </div>
+        </SettingsGroup>
       </FieldGroup>
       <SectionActions dirty={dirty} saving={saving} onSave={save} onReset={reset} />
     </>
@@ -945,15 +906,16 @@ function LocaleSection() {
 
       <FieldGroup className="mt-8">
         {/* Same shape as the Theme groups: title and description, then the control */}
-        <div role="group" aria-labelledby="locales-title" className="flex min-w-0 flex-col gap-5">
-          <div className="flex flex-col gap-0.5">
-            <FieldTitle id="locales-title" className="text-base">Locales</FieldTitle>
-            <FieldDescription className="max-w-2xl">
+        <SettingsGroup
+          title="Locales"
+          description={
+            <>
               <span className="font-medium text-foreground">{DEFAULT_LOCALE}</span> is the default and can't be
               removed. It has no URL prefix, other locales do (<code className="font-mono whitespace-nowrap">/fr-ca/auth/login</code>).
               Only locales from the Translation Service can be added -- manage them on the Localization page.
-            </FieldDescription>
-          </div>
+            </>
+          }
+        >
           <CatalogPicker
             catalog={LOCALE_CATALOG}
             value={locales}
@@ -963,7 +925,7 @@ function LocaleSection() {
             addLabel="Add locale"
             searchPlaceholder="Search locales…"
           />
-        </div>
+        </SettingsGroup>
       </FieldGroup>
 
       <SectionActions dirty={dirty} saving={saving} onSave={save} onReset={reset} />
@@ -1079,20 +1041,16 @@ function ThemeSection() {
 
       <FieldGroup className="mt-8">
         {/* Same shape as Colors and Fonts: group title and description, then the control */}
-        <div role="group" aria-labelledby="theme-mode-title" className="flex min-w-0 flex-col gap-5">
-          <div className="flex flex-col gap-0.5">
-            <FieldTitle id="theme-mode-title" className="text-base">Mode</FieldTitle>
-            <FieldDescription id="theme-mode-description" className="max-w-2xl">
-              Website palette for cards, text and borders. Pick a Background and Primary that suit it -- they apply on top.
-            </FieldDescription>
-          </div>
+        <SettingsGroup
+          title="Mode"
+          description="Website palette for cards, text and borders. Pick a Background and Primary that suit it -- they apply on top."
+        >
           {/* Same columns as the color grid, so the select lines up with the first color */}
           <div className="grid grid-cols-1 gap-5 tablet:grid-cols-2 desktop:grid-cols-3">
             <Select value={mode} onValueChange={v => setMode(v as ThemeMode)}>
               <SelectTrigger
                 className="w-full"
-                aria-labelledby="theme-mode-title"
-                aria-describedby="theme-mode-description"
+                aria-label="Mode"
               >
                 <SelectValue />
               </SelectTrigger>
@@ -1103,18 +1061,19 @@ function ThemeSection() {
               </SelectContent>
             </Select>
           </div>
-        </div>
+        </SettingsGroup>
 
         <FieldSeparator className="my-0.5" />
 
-        <div role="group" aria-labelledby="theme-colors-title" className="flex min-w-0 flex-col gap-5">
-          <div className="flex flex-col gap-0.5">
-            <FieldTitle id="theme-colors-title" className="text-base">Colors</FieldTitle>
-            <FieldDescription className="max-w-2xl">
+        <SettingsGroup
+          title="Colors"
+          description={
+            <>
               Text, surfaces and borders are blended from Background automatically. Set an optional color only
               where the blend gets it wrong.
-            </FieldDescription>
-          </div>
+            </>
+          }
+        >
           <div className="grid grid-cols-1 gap-5 tablet:grid-cols-2 desktop:grid-cols-3">
             {COLOR_GRID.map(item => {
               if (item.kind === 'color') {
@@ -1142,18 +1101,15 @@ function ThemeSection() {
               )
             })}
           </div>
-        </div>
+        </SettingsGroup>
 
         <FieldSeparator className="my-0.5" />
 
-        <div role="group" aria-labelledby="theme-fonts-title" className="flex min-w-0 flex-col gap-5">
-          <div className="flex flex-col gap-0.5">
-            <FieldTitle id="theme-fonts-title" className="text-base">Fonts</FieldTitle>
-            <FieldDescription className="max-w-2xl">
-              Families load from Google Fonts with every weight and subset they offer. Open the list to see what
-              each one includes.
-            </FieldDescription>
-          </div>
+        <SettingsGroup
+          title="Fonts"
+          // Device-neutral: the details card follows hover and arrow keys, which touch screens don't have
+          description="Families load from Google Fonts with every weight and subset they offer."
+        >
           {/* Two halves, like Site name and Default locale in Identity */}
           <div className="grid grid-cols-1 gap-5 tablet:grid-cols-2">
             <FontField
@@ -1176,7 +1132,7 @@ function ThemeSection() {
               onChange={setEmailFont}
             />
           </div>
-        </div>
+        </SettingsGroup>
       </FieldGroup>
 
       <SectionActions dirty={dirty} saving={saving} onSave={save} onReset={reset} canSave={themeValid} />
