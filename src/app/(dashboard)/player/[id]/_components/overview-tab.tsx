@@ -60,10 +60,10 @@ function WalletsCard() {
                         <div className="flex items-center gap-1.5">
                           <span className={`text-sm font-medium ${empty ? 'text-muted-foreground' : ''}`}>{w.currency}</span>
                           {w.isBase && (
-                            <span className="inline-flex items-center rounded-md border border-border bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">Base</span>
+                            <span className="inline-flex items-center rounded-md border border-border bg-muted px-1.5 py-0.5 text-2xs font-medium text-muted-foreground">Base</span>
                           )}
                           {w.inPlay && (
-                            <span className="inline-flex items-center rounded-full bg-success-bg px-2 py-0.5 text-[10px] font-medium text-success whitespace-nowrap">In play</span>
+                            <span className="inline-flex items-center rounded-full bg-success-bg px-2 py-0.5 text-2xs font-medium text-success whitespace-nowrap">In play</span>
                           )}
                         </div>
                         <span className="text-xs text-muted-foreground">{w.kind}{w.network ? ` · ${w.network}` : ''}</span>

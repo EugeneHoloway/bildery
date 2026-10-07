@@ -110,7 +110,7 @@ function BonusFiltersPopover() {
           <SlidersHorizontal className="size-3.5" />
           <span className="hidden sm:inline">Filters</span>
           {dirtyCount > 0 && (
-            <span className="ml-0.5 flex size-4 items-center justify-center rounded-full bg-foreground text-[10px] font-semibold text-background">
+            <span className="ml-0.5 flex size-4 items-center justify-center rounded-full bg-foreground text-2xs font-semibold text-background">
               {dirtyCount}
             </span>
           )}

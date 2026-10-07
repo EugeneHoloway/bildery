@@ -696,7 +696,7 @@ function ConversationItem({
                 <span
                   key={tag}
                   className={cn(
-                    'text-[11px] px-1.5 py-0.5 rounded border font-medium',
+                    'text-xs px-1.5 py-0.5 rounded border font-medium',
                     TAG_COLORS[tag] ?? 'bg-muted text-muted-foreground border-border'
                   )}
                 >
@@ -1753,7 +1753,7 @@ function AllConversationsContent() {
                               <div className="rounded-xl border border-border p-3 flex flex-col gap-2">
                                 <div className="flex items-center justify-between">
                                   <span className="text-xs font-medium text-foreground">Escalate to Payments</span>
-                                  <Button size="sm" variant="outline" className="h-6 text-[11px] px-2">Run</Button>
+                                  <Button size="sm" variant="outline" className="h-6 text-xs px-2">Run</Button>
                                 </div>
                                 <div className="flex flex-col gap-1">
                                   {[
