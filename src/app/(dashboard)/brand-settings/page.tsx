@@ -81,7 +81,6 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Switch } from '@/components/ui/switch'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from '@/components/ui/input-group'
@@ -436,40 +435,51 @@ function GeneralSection({ active, onActiveChange }: { active: boolean; onActiveC
     <>
       <SectionHeader title="General" description="Brand identity and status." />
       <FieldGroup className="mt-8">
-        <div className="grid grid-cols-1 gap-5 tablet:grid-cols-2">
-          <Field>
-            <FieldLabel>Brand ID</FieldLabel>
-            <CopyableId value={BRAND.id} label="brand ID" />
-            <FieldDescription>Brand ID cannot be changed.</FieldDescription>
-          </Field>
-          <Field>
-            <FieldLabel>Operator ID</FieldLabel>
-            <CopyableId value={BRAND.operatorId} label="operator ID" />
-          </Field>
+        <div role="group" aria-labelledby="brand-title" className="flex min-w-0 flex-col gap-5">
+          <div className="flex flex-col gap-0.5">
+            <FieldTitle id="brand-title" className="text-base">Brand</FieldTitle>
+            <FieldDescription className="max-w-2xl">
+              IDs are assigned by the platform. The name is shown across the admin and on the storefront.
+            </FieldDescription>
+          </div>
+          <div className="grid grid-cols-1 gap-5 tablet:grid-cols-2">
+            <Field>
+              <FieldLabel>Brand ID</FieldLabel>
+              <CopyableId value={BRAND.id} label="brand ID" />
+              <FieldDescription>Brand ID cannot be changed.</FieldDescription>
+            </Field>
+            <Field>
+              <FieldLabel>Operator ID</FieldLabel>
+              <CopyableId value={BRAND.operatorId} label="operator ID" />
+            </Field>
+          </div>
+          <div className="grid grid-cols-1 gap-5 tablet:grid-cols-2">
+            <Field data-invalid={!!nameError || undefined}>
+              <FieldLabel htmlFor="brand-name">
+                Name <span className="text-destructive">*</span>
+              </FieldLabel>
+              <Input
+                id="brand-name"
+                placeholder="Brand name"
+                value={name}
+                onChange={e => setName(e.target.value)}
+                aria-invalid={!!nameError || undefined}
+              />
+              <FieldError>{nameError}</FieldError>
+            </Field>
+          </div>
         </div>
-        <div className="grid grid-cols-1 gap-5 tablet:grid-cols-2">
-          <Field data-invalid={!!nameError || undefined}>
-            <FieldLabel htmlFor="brand-name">
-              Name <span className="text-destructive">*</span>
-            </FieldLabel>
-            <Input
-              id="brand-name"
-              placeholder="Brand name"
-              value={name}
-              onChange={e => setName(e.target.value)}
-              aria-invalid={!!nameError || undefined}
-            />
-            <FieldError>{nameError}</FieldError>
-          </Field>
-        </div>
-      </FieldGroup>
 
-      <Card className="mt-10 border-destructive/50">
-        <CardHeader>
-          <CardTitle>Danger zone</CardTitle>
-          <CardDescription>Actions here take effect immediately and affect every player of this brand.</CardDescription>
-        </CardHeader>
-        <CardContent>
+        <FieldSeparator className="my-0.5" />
+
+        {/* A plain group like the rest, no card outline: the destructive button carries the warning */}
+        <div role="group" aria-labelledby="danger-zone-title" className="flex min-w-0 flex-col gap-5">
+          <div className="flex flex-col gap-0.5">
+            <FieldTitle id="danger-zone-title" className="text-base">Danger zone</FieldTitle>
+            <FieldDescription className="max-w-2xl">
+              Actions here take effect immediately and affect every player of this brand.
+            </FieldDescription>
+          </div>
           <div className="flex flex-col gap-3 tablet:flex-row tablet:items-center tablet:justify-between">
             <div>
               <p className="text-sm font-medium">{active ? 'Deactivate brand' : 'Activate brand'}</p>
@@ -495,8 +505,8 @@ function GeneralSection({ active, onActiveChange }: { active: boolean; onActiveC
               </Button>
             )}
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </FieldGroup>
 
       <AlertDialog open={confirmDeactivate} onOpenChange={setConfirmDeactivate}>
         <AlertDialogContent>
@@ -693,7 +703,7 @@ function DomainsFields() {
   }
 
   const addButton = (
-    <Button variant="outline" size="sm" className="shrink-0" onClick={() => setAdding(true)}>
+    <Button variant="outline" size="sm" onClick={() => setAdding(true)}>
       <Plus data-icon="inline-start" />
       Add domain
     </Button>
@@ -701,21 +711,15 @@ function DomainsFields() {
 
   return (
     <>
-      {/* A div with role=group rather than a fieldset: the add button shares the title row,
-          which a <legend> can't do */}
       <div role="group" aria-labelledby="domains-title" className="flex min-w-0 flex-col gap-2">
-        {/* On phones the button goes under the description instead of squeezing it */}
-        <div className="flex flex-col items-start gap-3 tablet:flex-row tablet:justify-between">
-          <div className="flex flex-col gap-0.5">
-            <FieldTitle id="domains-title">Domains</FieldTitle>
-            {/* Long hints stay at a readable line length; the one section part saved without Save says so up front */}
-            <FieldDescription className="max-w-2xl">
-              The primary domain is the public address: canonical URL, sitemap, hreflang and CORS follow it.
-              Other domains are mirrors.{' '}
-              <span className="font-medium text-foreground">Changes here are saved immediately.</span>
-            </FieldDescription>
-          </div>
-          {domains.length > 0 && addButton}
+        <div className="flex flex-col gap-0.5">
+          <FieldTitle id="domains-title" className="text-base">Domains</FieldTitle>
+          {/* Long hints stay at a readable line length; the one section part saved without Save says so up front */}
+          <FieldDescription className="max-w-2xl">
+            The primary domain is the public address: canonical URL, sitemap, hreflang and CORS follow it.
+            Other domains are mirrors.{' '}
+            <span className="font-medium text-foreground">Changes here are saved immediately.</span>
+          </FieldDescription>
         </div>
 
         {domains.length === 0 ? (
@@ -776,6 +780,9 @@ function DomainsFields() {
           </ItemGroup>
         )}
 
+        {/* Right under the list it extends, like Add method in Deposit methods; mt-2 + gap-2 = 16px */}
+        {domains.length > 0 && <div className="mt-2">{addButton}</div>}
+
         <AddDomainDialog open={adding} onOpenChange={setAdding} existing={domains.map(d => d.host)} onAdd={add} />
 
         {/* Derived from the primary domain, so it lives in this group; mt-3 + gap-2 = the 20px between fields */}
@@ -797,7 +804,7 @@ function DomainsFields() {
 
       {/* A read-out, not form controls: a title rather than a fieldset */}
       <Field>
-        <FieldTitle>Site status</FieldTitle>
+        <FieldTitle className="text-base">Site status</FieldTitle>
         <div className="flex flex-wrap items-center gap-2">
           {/* Same badge as the brand status in the page header */}
           <Badge variant="success" className="capitalize">
@@ -849,66 +856,78 @@ function IdentitySection() {
     <>
       <SectionHeader title="Identity" description="Name, domains and brand marks of the storefront." />
       <FieldGroup className="mt-8">
-        <div className="grid grid-cols-1 gap-5 tablet:grid-cols-2">
-          <Field>
-            <FieldLabel htmlFor="site-name">Site name</FieldLabel>
-            <Input id="site-name" value={BRAND.name} disabled />
-            <FieldDescription>
-              Synced from Name in{' '}
-              <Link
-                href={sectionHref('general')}
-                replace
-                scroll={false}
-                onClick={e => { e.preventDefault(); go('general') }}
-              >
-                General
-              </Link>
-              .
-            </FieldDescription>
-          </Field>
-          <Field>
-            <FieldLabel htmlFor="default-locale">Default locale</FieldLabel>
-            <Input id="default-locale" value={DEFAULT_LOCALE} disabled />
-            <FieldDescription>
-              Fixed for all brands. Served without a prefix (<code className="font-mono whitespace-nowrap">/auth/login</code>);
-              other locales get one (<code className="font-mono whitespace-nowrap">/fr-ca/auth/login</code>).
-            </FieldDescription>
-          </Field>
+        <div role="group" aria-labelledby="site-title" className="flex min-w-0 flex-col gap-5">
+          <div className="flex flex-col gap-0.5">
+            <FieldTitle id="site-title" className="text-base">Site</FieldTitle>
+            <FieldDescription className="max-w-2xl">Name and default locale of the storefront. Not editable here.</FieldDescription>
+          </div>
+          <div className="grid grid-cols-1 gap-5 tablet:grid-cols-2">
+            <Field>
+              <FieldLabel htmlFor="site-name">Site name</FieldLabel>
+              <Input id="site-name" value={BRAND.name} disabled />
+              <FieldDescription>
+                Synced from Name in{' '}
+                <Link
+                  href={sectionHref('general')}
+                  replace
+                  scroll={false}
+                  onClick={e => { e.preventDefault(); go('general') }}
+                >
+                  General
+                </Link>
+                .
+              </FieldDescription>
+            </Field>
+            <Field>
+              <FieldLabel htmlFor="default-locale">Default locale</FieldLabel>
+              <Input id="default-locale" value={DEFAULT_LOCALE} disabled />
+              <FieldDescription>
+                Fixed for all brands. Served without a prefix (<code className="font-mono whitespace-nowrap">/auth/login</code>);
+                other locales get one (<code className="font-mono whitespace-nowrap">/fr-ca/auth/login</code>).
+              </FieldDescription>
+            </Field>
+          </div>
         </div>
         {/* Groups sit 32px apart (20px gap + separator), fields inside a group 20px */}
         <FieldSeparator className="my-0.5" />
         <DomainsFields />
         <FieldSeparator className="my-0.5" />
-        <div className="grid grid-cols-1 gap-5 tablet:grid-cols-2">
-          <AssetField
-            label="Logo"
-            hint="SVG or PNG with transparent background, min. 224 × 64 px."
-            emptyLabel="No logo"
-            previewClassName="h-24 w-48 p-2"
-            preview={logo && (
-              <img src={logo.light} alt="Logo" className="max-h-full max-w-full object-contain" />
-            )}
-            onReplace={file => {
-              release(logo?.light)
-              release(logo?.dark)
-              const url = blobUrl(file)
-              setLogo({ light: url, dark: url })
-            }}
-            onChooseFromLibrary={() => {}}
-            onRemove={() => { release(logo?.light); release(logo?.dark); setLogo(null) }}
-          />
-          <AssetField
-            label="Favicon"
-            hint="SVG or PNG, 512 × 512 px."
-            emptyLabel="No favicon"
-            previewClassName="size-24 p-4"
-            preview={favicon && (
-              <img src={favicon} alt="Favicon" className="size-12 rounded-lg object-contain" />
-            )}
-            onReplace={file => { release(favicon); setFavicon(blobUrl(file)) }}
-            onChooseFromLibrary={() => {}}
-            onRemove={() => { release(favicon); setFavicon(null) }}
-          />
+        <div role="group" aria-labelledby="brand-marks-title" className="flex min-w-0 flex-col gap-5">
+          <div className="flex flex-col gap-0.5">
+            <FieldTitle id="brand-marks-title" className="text-base">Brand marks</FieldTitle>
+            <FieldDescription className="max-w-2xl">Logo in the storefront header, favicon in browser tabs and bookmarks.</FieldDescription>
+          </div>
+          <div className="grid grid-cols-1 gap-5 tablet:grid-cols-2">
+            <AssetField
+              label="Logo"
+              hint="SVG or PNG with transparent background, min. 224 × 64 px."
+              emptyLabel="No logo"
+              previewClassName="h-24 w-48 p-2"
+              preview={logo && (
+                <img src={logo.light} alt="Logo" className="max-h-full max-w-full object-contain" />
+              )}
+              onReplace={file => {
+                release(logo?.light)
+                release(logo?.dark)
+                const url = blobUrl(file)
+                setLogo({ light: url, dark: url })
+              }}
+              onChooseFromLibrary={() => {}}
+              onRemove={() => { release(logo?.light); release(logo?.dark); setLogo(null) }}
+            />
+            <AssetField
+              label="Favicon"
+              hint="SVG or PNG, 512 × 512 px."
+              emptyLabel="No favicon"
+              previewClassName="size-24 p-4"
+              preview={favicon && (
+                <img src={favicon} alt="Favicon" className="size-12 rounded-lg object-contain" />
+              )}
+              onReplace={file => { release(favicon); setFavicon(blobUrl(file)) }}
+              onChooseFromLibrary={() => {}}
+              onRemove={() => { release(favicon); setFavicon(null) }}
+            />
+          </div>
         </div>
       </FieldGroup>
       <SectionActions dirty={dirty} saving={saving} onSave={save} onReset={reset} />
@@ -925,8 +944,16 @@ function LocaleSection() {
       <SectionHeader title="Locale" description="Locales available on this brand's storefront." />
 
       <FieldGroup className="mt-8">
-        <Field>
-          <FieldLabel>Locales</FieldLabel>
+        {/* Same shape as the Theme groups: title and description, then the control */}
+        <div role="group" aria-labelledby="locales-title" className="flex min-w-0 flex-col gap-5">
+          <div className="flex flex-col gap-0.5">
+            <FieldTitle id="locales-title" className="text-base">Locales</FieldTitle>
+            <FieldDescription className="max-w-2xl">
+              <span className="font-medium text-foreground">{DEFAULT_LOCALE}</span> is the default and can't be
+              removed. It has no URL prefix, other locales do (<code className="font-mono whitespace-nowrap">/fr-ca/auth/login</code>).
+              Only locales from the Translation Service can be added -- manage them on the Localization page.
+            </FieldDescription>
+          </div>
           <CatalogPicker
             catalog={LOCALE_CATALOG}
             value={locales}
@@ -936,13 +963,7 @@ function LocaleSection() {
             addLabel="Add locale"
             searchPlaceholder="Search locales…"
           />
-          <FieldDescription>
-            <span className="font-medium text-foreground">{DEFAULT_LOCALE}</span> is the platform-wide
-            default and cannot be removed: it lives unprefixed on the website (/auth/login), other
-            locales are prefixed (/fr-ca/auth/login). Only locales registered in the Translation
-            Service can be attached -- manage the catalog on the Localization page.
-          </FieldDescription>
-        </Field>
+        </div>
       </FieldGroup>
 
       <SectionActions dirty={dirty} saving={saving} onSave={save} onReset={reset} />
@@ -1057,12 +1078,22 @@ function ThemeSection() {
       <SectionHeader title="Theme" description="Light or dark mode, colors and fonts." />
 
       <FieldGroup className="mt-8">
-        {/* Same columns as the color grid, so the select lines up with the first color */}
-        <Field>
-          <FieldLabel htmlFor="theme-mode">Mode</FieldLabel>
+        {/* Same shape as Colors and Fonts: group title and description, then the control */}
+        <div role="group" aria-labelledby="theme-mode-title" className="flex min-w-0 flex-col gap-5">
+          <div className="flex flex-col gap-0.5">
+            <FieldTitle id="theme-mode-title" className="text-base">Mode</FieldTitle>
+            <FieldDescription id="theme-mode-description" className="max-w-2xl">
+              Website palette for cards, text and borders. Pick a Background and Primary that suit it -- they apply on top.
+            </FieldDescription>
+          </div>
+          {/* Same columns as the color grid, so the select lines up with the first color */}
           <div className="grid grid-cols-1 gap-5 tablet:grid-cols-2 desktop:grid-cols-3">
             <Select value={mode} onValueChange={v => setMode(v as ThemeMode)}>
-              <SelectTrigger id="theme-mode" className="w-full">
+              <SelectTrigger
+                className="w-full"
+                aria-labelledby="theme-mode-title"
+                aria-describedby="theme-mode-description"
+              >
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -1072,16 +1103,13 @@ function ThemeSection() {
               </SelectContent>
             </Select>
           </div>
-          <FieldDescription className="max-w-2xl">
-            Website palette for cards, text and borders. Pick a Background and Primary that suit it -- they apply on top.
-          </FieldDescription>
-        </Field>
+        </div>
 
         <FieldSeparator className="my-0.5" />
 
         <div role="group" aria-labelledby="theme-colors-title" className="flex min-w-0 flex-col gap-5">
           <div className="flex flex-col gap-0.5">
-            <FieldTitle id="theme-colors-title">Colors</FieldTitle>
+            <FieldTitle id="theme-colors-title" className="text-base">Colors</FieldTitle>
             <FieldDescription className="max-w-2xl">
               Text, surfaces and borders are blended from Background automatically. Set an optional color only
               where the blend gets it wrong.
@@ -1120,7 +1148,7 @@ function ThemeSection() {
 
         <div role="group" aria-labelledby="theme-fonts-title" className="flex min-w-0 flex-col gap-5">
           <div className="flex flex-col gap-0.5">
-            <FieldTitle id="theme-fonts-title">Fonts</FieldTitle>
+            <FieldTitle id="theme-fonts-title" className="text-base">Fonts</FieldTitle>
             <FieldDescription className="max-w-2xl">
               Families load from Google Fonts with every weight and subset they offer. Open the list to see what
               each one includes.
