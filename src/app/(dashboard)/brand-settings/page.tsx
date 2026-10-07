@@ -36,6 +36,7 @@ import {
   Trash2,
   Upload,
   WalletCards,
+  X,
   type LucideIcon,
 } from 'lucide-react'
 import {
@@ -59,7 +60,6 @@ import { useAuth } from '@/components/AuthProvider'
 import { formatDateTime } from '@/components/DateTimePicker'
 import { DashboardHeader } from '@/components/DashboardHeader'
 import { CatalogPicker } from '@/components/CatalogPicker'
-import { SortableChips } from '@/components/SortableChips'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import {
   AlertDialog,
@@ -134,7 +134,8 @@ import { BottomBarSection } from './_components/bottom-bar-section'
 import { HomeSection } from './_components/home-section'
 import { SidebarSection } from './_components/sidebar-section'
 import { ConfirmRemoveDialog, DisabledReason, insertAt, LimitCount, pluralize, toastRemoved } from './_components/list-actions'
-import { BRAND_COLORS, readableOn } from './_lib/theme'
+import { BRAND_COLORS } from './_lib/theme'
+import { FontPicker } from './_components/font-picker'
 import { useBlobUrls } from './_lib/use-blob-urls'
 
 type SectionId =
@@ -271,69 +272,53 @@ function validateUrl(value: string, label = 'URL') {
   return undefined
 }
 
-const CSS_VAR = /^--[a-z0-9_-]+$/i
-
-function validateCssVar(value: string) {
-  if (!value.trim()) return undefined
-  return CSS_VAR.test(value.trim()) ? undefined : 'Must start with -- and contain only letters, digits, - and _'
-}
-
 function validateHex(value: string) {
   return HEX_COLOR.test(value) ? undefined : 'Use a 6-digit hex color, e.g. #1a1a1a'
 }
 
 type ColorKey = 'primary' | 'primaryHover' | 'primaryActive' | 'primaryForeground' | 'background'
-type FontProvider = 'google' | 'system' | 'custom'
-
-interface FontConfig {
-  family: string
-  provider: FontProvider
-  cssVariable: string
-  weights: number[]
-  subsets: string[]
-  fallback: string[]
-}
-
+/** Optional overrides: empty means the storefront blends the color from Background and the text color. */
+type OverrideKey = 'text' | 'surface' | 'surfaceElevated' | 'border'
+type ThemeMode = 'dark' | 'light'
 const COLOR_FIELDS: { key: ColorKey; label: string; hint: string }[] = [
   { key: 'primary',           label: 'Primary',            hint: 'Buttons, links, highlights.' },
   { key: 'primaryHover',      label: 'Primary hover',      hint: 'Primary on hover.' },
   { key: 'primaryActive',     label: 'Primary active',     hint: 'Primary on press.' },
-  { key: 'primaryForeground', label: 'Primary foreground', hint: 'Text on primary surfaces.' },
+  { key: 'primaryForeground', label: 'Primary foreground', hint: 'Text and icons on Primary.' },
   { key: 'background',        label: 'Background',         hint: 'Page background.' },
 ]
 
-const FONT_PROVIDERS: { value: FontProvider; label: string }[] = [
-  { value: 'google', label: 'Google Fonts' },
-  { value: 'system', label: 'System' },
-  { value: 'custom', label: 'Custom (self-hosted)' },
+const OVERRIDE_FIELDS: { key: OverrideKey; label: string; hint: string }[] = [
+  { key: 'text',            label: 'Text on background', hint: 'White or near-black by mode.' },
+  { key: 'surface',         label: 'Surface',            hint: 'Sidebar and cards.' },
+  { key: 'surfaceElevated', label: 'Surface elevated',   hint: 'Rows and chips.' },
+  { key: 'border',          label: 'Border',             hint: 'Dividers and outlines.' },
 ]
 
-const FONT_FAMILIES = ['Inter', 'Roboto', 'Open Sans', 'Montserrat', 'Poppins']
-const FONT_WEIGHTS = [100, 200, 300, 400, 500, 600, 700, 800, 900]
-const FONT_WEIGHT_NAMES: Record<number, string> = {
-  100: 'Thin', 200: 'ExtraLight', 300: 'Light', 400: 'Regular', 500: 'Medium',
-  600: 'SemiBold', 700: 'Bold', 800: 'ExtraBold', 900: 'Black',
-}
-const FONT_SUBSETS = ['latin', 'latin-ext', 'cyrillic', 'cyrillic-ext', 'greek', 'greek-ext', 'vietnamese']
+/** Grid order, three per row: primary states, the background ladder, then what sits on top of them. */
+const COLOR_GRID: ({ kind: 'color'; key: ColorKey } | { kind: 'override'; key: OverrideKey })[] = [
+  { kind: 'color', key: 'primary' },
+  { kind: 'color', key: 'primaryHover' },
+  { kind: 'color', key: 'primaryActive' },
+  { kind: 'color', key: 'background' },
+  { kind: 'override', key: 'surface' },
+  { kind: 'override', key: 'surfaceElevated' },
+  { kind: 'color', key: 'primaryForeground' },
+  { kind: 'override', key: 'text' },
+  { kind: 'override', key: 'border' },
+]
+
+const THEME_MODES: { value: ThemeMode; label: string }[] = [
+  { value: 'dark', label: 'Dark' },
+  { value: 'light', label: 'Light' },
+]
 
 const THEME = {
+  mode: 'dark' as ThemeMode,
   colors: BRAND_COLORS as Record<ColorKey, string>,
-  projectFont: {
-    family: 'Inter',
-    provider: 'google',
-    cssVariable: '--font-inter',
-    weights: [200, 400, 500, 600, 700, 800],
-    subsets: ['latin'],
-    fallback: ['ui-sans-serif', 'system-ui', 'sans-serif'],
-  } as FontConfig,
-  emailFont: {
-    family: 'Inter Tight',
-    provider: 'google',
-    cssVariable: '',
-    weights: [400, 500, 600, 700, 800],
-    subsets: ['latin'],
-    fallback: ['Arial', 'Helvetica', 'sans-serif'],
-  } as FontConfig,
+  overrides: { text: '', surface: '', surfaceElevated: '', border: '' } as Record<OverrideKey, string>,
+  projectFont: 'Inter',
+  emailFont: 'Inter Tight',
 }
 
 /** Hosts and URLs get break opportunities after dots and slashes, so they wrap by their parts, not mid-word. */
@@ -965,8 +950,17 @@ function LocaleSection() {
   )
 }
 
-function ColorField({ label, hint, value, onChange }: { label: string; hint: string; value: string; onChange: (v: string) => void }) {
-  const error = validateHex(value)
+function ColorField({ label, hint, value, onChange, optional }: {
+  label: string
+  hint: string
+  value: string
+  onChange: (v: string) => void
+  /** Empty is valid and means "blend automatically" */
+  optional?: boolean
+}) {
+  const empty = optional && !value
+  const error = empty ? undefined : validateHex(value)
+  const swatch = !error && !empty
   return (
     <Field data-invalid={!!error || undefined}>
       <FieldLabel>{label}</FieldLabel>
@@ -976,14 +970,15 @@ function ColorField({ label, hint, value, onChange }: { label: string; hint: str
           <label
             className={cn(
               'relative block size-5 shrink-0 cursor-pointer rounded-md border border-border',
+              empty && 'border-dashed',
               error && 'bg-[repeating-linear-gradient(45deg,transparent,transparent_3px,var(--border)_3px,var(--border)_4px)]'
             )}
-            style={error ? undefined : { backgroundColor: value }}
+            style={swatch ? { backgroundColor: value } : undefined}
             aria-label={`Pick ${label}`}
           >
             <input
               type="color"
-              value={error ? '#000000' : value}
+              value={swatch ? value : '#000000'}
               onChange={e => onChange(e.target.value)}
               className="absolute inset-0 size-full cursor-pointer opacity-0"
             />
@@ -992,180 +987,56 @@ function ColorField({ label, hint, value, onChange }: { label: string; hint: str
         <InputGroupInput
           value={value}
           onChange={e => onChange(e.target.value)}
-          placeholder="#000000"
+          placeholder={optional ? 'Auto' : '#000000'}
           spellCheck={false}
           aria-invalid={!!error || undefined}
         />
+        {optional && value && (
+          <InputGroupAddon align="inline-end">
+            <InputGroupButton size="icon-xs" onClick={() => onChange('')} aria-label={`Reset ${label} to auto`}>
+              <X />
+            </InputGroupButton>
+          </InputGroupAddon>
+        )}
       </InputGroup>
-      <FieldDescription>{hint}</FieldDescription>
+      <FieldDescription>{optional ? `Optional. ${hint}` : hint}</FieldDescription>
       <FieldError>{error}</FieldError>
     </Field>
   )
 }
 
-function ThemePreview({ colors, font }: { colors: Record<ColorKey, string>; font: FontConfig }) {
-  // Fall back to the saved theme for any color that is mid-edit, so the preview never breaks
-  const c = Object.fromEntries(
-    COLOR_FIELDS.map(f => [f.key, validateHex(colors[f.key]) ? THEME.colors[f.key] : colors[f.key]])
-  ) as Record<ColorKey, string>
-  const text = readableOn(c.background)
-  const states: { label: string; color: string }[] = [
-    { label: 'Default', color: c.primary },
-    { label: 'Hover', color: c.primaryHover },
-    { label: 'Active', color: c.primaryActive },
-  ]
-
+function FontField({ id, label, hint, value, onChange, cssVariable, fallback }: {
+  id: string
+  label: string
+  hint: string
+  value: string
+  onChange: (v: string) => void
+  /** Fixed name, so storefront CSS keeps working when the family changes. Emails are inlined and get none. */
+  cssVariable?: string
+  fallback: string
+}) {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Preview</CardTitle>
-        <CardDescription>How the colors and project font combine on the storefront.</CardDescription>
-      </CardHeader>
-      <CardContent>
-        {/* Цвета и шрифт из формы -- inline-style оправдан */}
-        <div
-          className="flex flex-col gap-5 rounded-xl border border-border p-5"
-          style={{ backgroundColor: c.background, fontFamily: [font.family, ...font.fallback].join(', ') }}
-        >
-          <div className="flex flex-col gap-1">
-            <p className="text-base font-semibold" style={{ color: text }}>Welcome back</p>
-            <p className="text-sm" style={{ color: text, opacity: 0.7 }}>
-              Your balance is ready.{' '}
-              <span className="font-medium underline underline-offset-4" style={{ color: c.primary }}>View wallet</span>
-            </p>
-          </div>
-          <div className="grid grid-cols-3 gap-2">
-            {states.map(st => (
-              <div key={st.label} className="flex flex-col items-center gap-1.5">
-                <span
-                  className="inline-flex h-8 w-full items-center justify-center rounded-lg text-sm font-medium"
-                  style={{ backgroundColor: st.color, color: c.primaryForeground }}
-                >
-                  Deposit
-                </span>
-                <span className="text-xs" style={{ color: text, opacity: 0.6 }}>{st.label}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  )
-}
-
-function FontFields({ value, onChange }: { value: FontConfig; onChange: (v: FontConfig) => void }) {
-  const [fallbackDraft, setFallbackDraft] = useState('')
-  const cssVarError = validateCssVar(value.cssVariable)
-
-  function set<K extends keyof FontConfig>(key: K, v: FontConfig[K]) {
-    onChange({ ...value, [key]: v })
-  }
-
-  function addFallback() {
-    const name = fallbackDraft.trim()
-    if (!name || value.fallback.includes(name)) return
-    set('fallback', [...value.fallback, name])
-    setFallbackDraft('')
-  }
-
-  return (
-    <FieldGroup>
-      <div className="grid grid-cols-1 gap-5 tablet:grid-cols-2">
-        <Field>
-          <FieldLabel>Family</FieldLabel>
-          <Select value={value.family} onValueChange={v => set('family', v)}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select a font" />
-            </SelectTrigger>
-            <SelectContent>
-              {/* Keep a saved family that is not in the catalog selectable */}
-              {(FONT_FAMILIES.includes(value.family) ? FONT_FAMILIES : [value.family, ...FONT_FAMILIES]).map(f => (
-                <SelectItem key={f} value={f}>{f}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </Field>
-        <Field>
-          <FieldLabel>Provider</FieldLabel>
-          <Select value={value.provider} onValueChange={v => set('provider', v as FontProvider)}>
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {FONT_PROVIDERS.map(p => (
-                <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </Field>
+    <Field>
+      <FieldLabel htmlFor={id}>{label}</FieldLabel>
+      {/* Same columns as the color grid, so the picker lines up with the first color */}
+      <div className="grid grid-cols-1 gap-5 tablet:grid-cols-2 desktop:grid-cols-3">
+        <FontPicker id={id} value={value} onChange={onChange} cssVariable={cssVariable} fallback={fallback} />
       </div>
-
-      <Field data-invalid={!!cssVarError || undefined}>
-        <FieldLabel>CSS variable</FieldLabel>
-        <Input
-          placeholder="--font-name"
-          value={value.cssVariable}
-          onChange={e => set('cssVariable', e.target.value)}
-          spellCheck={false}
-          aria-invalid={!!cssVarError || undefined}
-        />
-        <FieldDescription>
-          Exposed on the storefront as a CSS custom property. Leave empty to skip.
-        </FieldDescription>
-        <FieldError>{cssVarError}</FieldError>
-      </Field>
-
-      <Field>
-        <FieldLabel>Weights</FieldLabel>
-        <CatalogPicker
-          catalog={FONT_WEIGHTS.map(String)}
-          value={value.weights.map(String)}
-          onChange={ws => set('weights', ws.map(Number).sort((a, b) => a - b))}
-          labelFor={w => `${w} ${FONT_WEIGHT_NAMES[Number(w)] ?? ''}`.trim()}
-          addLabel="Add weight"
-          searchPlaceholder="Search weights…"
-        />
-      </Field>
-
-      <Field>
-        <FieldLabel>Subsets</FieldLabel>
-        <CatalogPicker
-          catalog={FONT_SUBSETS}
-          value={value.subsets}
-          onChange={subs => set('subsets', subs)}
-          addLabel="Add subset"
-          searchPlaceholder="Search subsets…"
-        />
-      </Field>
-
-      <Field>
-        <FieldLabel>Fallback stack</FieldLabel>
-        <InputGroup>
-          <InputGroupInput
-            placeholder="Add a fallback, e.g. sans-serif"
-            value={fallbackDraft}
-            onChange={e => setFallbackDraft(e.target.value)}
-            onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addFallback() } }}
-          />
-          <InputGroupAddon align="inline-end">
-            <InputGroupButton onClick={addFallback} disabled={!fallbackDraft.trim()}>
-              Add
-            </InputGroupButton>
-          </InputGroupAddon>
-        </InputGroup>
-        <SortableChips items={value.fallback} onChange={v => set('fallback', v)} />
-        <FieldDescription>Applied in order when the primary family fails to load -- drag to reorder.</FieldDescription>
-      </Field>
-    </FieldGroup>
+      <FieldDescription className="max-w-2xl">{hint}</FieldDescription>
+    </Field>
   )
 }
 
 function ThemeSection() {
+  const [mode, setMode] = useState<ThemeMode>(THEME.mode)
   const [colors, setColors] = useState<Record<ColorKey, string>>(THEME.colors)
-  const [projectFont, setProjectFont] = useState<FontConfig>(THEME.projectFont)
-  const [emailFont, setEmailFont] = useState<FontConfig>(THEME.emailFont)
-  const { dirty, saving, save, reset } = useSaveable({ colors, projectFont, emailFont }, v => {
+  const [overrides, setOverrides] = useState<Record<OverrideKey, string>>(THEME.overrides)
+  const [projectFont, setProjectFont] = useState(THEME.projectFont)
+  const [emailFont, setEmailFont] = useState(THEME.emailFont)
+  const { dirty, saving, save, reset } = useSaveable({ mode, colors, overrides, projectFont, emailFont }, v => {
+    setMode(v.mode)
     setColors(v.colors)
+    setOverrides(v.overrides)
     setProjectFont(v.projectFont)
     setEmailFont(v.emailFont)
   }, v => {
@@ -1174,50 +1045,95 @@ function ThemeSection() {
   })
   const themeValid =
     COLOR_FIELDS.every(f => !validateHex(colors[f.key])) &&
-    !validateCssVar(projectFont.cssVariable) &&
-    !validateCssVar(emailFont.cssVariable)
+    OVERRIDE_FIELDS.every(f => !overrides[f.key] || !validateHex(overrides[f.key]))
 
   return (
     <>
-      <SectionHeader title="Theme" description="Colors and font configuration." />
+      <SectionHeader title="Theme" description="Light or dark mode, colors and fonts." />
 
-      <div className="mt-8 grid grid-cols-1 gap-5 desktop:grid-cols-[minmax(0,1fr)_20rem] desktop:items-start">
-        <div className="grid grid-cols-1 gap-5 tablet:grid-cols-2">
-          {COLOR_FIELDS.map(f => (
-            <ColorField
-              key={f.key}
-              label={f.label}
-              hint={f.hint}
-              value={colors[f.key]}
-              onChange={v => setColors(c => ({ ...c, [f.key]: v }))}
-            />
-          ))}
-        </div>
-        <ThemePreview colors={colors} font={projectFont} />
-      </div>
+      <FieldGroup className="mt-8">
+        {/* Same columns as the color grid, so the select lines up with the first color */}
+        <Field>
+          <FieldLabel htmlFor="theme-mode">Mode</FieldLabel>
+          <div className="grid grid-cols-1 gap-5 tablet:grid-cols-2 desktop:grid-cols-3">
+            <Select value={mode} onValueChange={v => setMode(v as ThemeMode)}>
+              <SelectTrigger id="theme-mode" className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {THEME_MODES.map(m => (
+                  <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <FieldDescription className="max-w-2xl">
+            Website palette for cards, text and borders. Pick a Background and Primary that suit it -- they apply on top.
+          </FieldDescription>
+        </Field>
 
-      <div className="mt-8">
-        <div className="grid grid-cols-1 gap-5 desktop:grid-cols-2">
-          <Card>
-            <CardHeader>
-              <CardTitle>Project font</CardTitle>
-              <CardDescription>Used across the storefront UI.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <FontFields value={projectFont} onChange={setProjectFont} />
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle>Email font</CardTitle>
-              <CardDescription>Used in transactional emails. Prefer web-safe fallbacks.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <FontFields value={emailFont} onChange={setEmailFont} />
-            </CardContent>
-          </Card>
+        <FieldSeparator className="my-0.5" />
+
+        <div role="group" aria-labelledby="theme-colors-title" className="flex min-w-0 flex-col gap-5">
+          <div className="flex flex-col gap-0.5">
+            <FieldTitle id="theme-colors-title">Colors</FieldTitle>
+            <FieldDescription className="max-w-2xl">
+              Text, surfaces and borders are blended from Background automatically. Set an optional color only
+              where the blend gets it wrong.
+            </FieldDescription>
+          </div>
+          <div className="grid grid-cols-1 gap-5 tablet:grid-cols-2 desktop:grid-cols-3">
+            {COLOR_GRID.map(item => {
+              if (item.kind === 'color') {
+                const f = COLOR_FIELDS.find(c => c.key === item.key)!
+                return (
+                  <ColorField
+                    key={f.key}
+                    label={f.label}
+                    hint={f.hint}
+                    value={colors[f.key]}
+                    onChange={v => setColors(c => ({ ...c, [f.key]: v }))}
+                  />
+                )
+              }
+              const f = OVERRIDE_FIELDS.find(o => o.key === item.key)!
+              return (
+                <ColorField
+                  key={f.key}
+                  optional
+                  label={f.label}
+                  hint={f.hint}
+                  value={overrides[f.key]}
+                  onChange={v => setOverrides(o => ({ ...o, [f.key]: v }))}
+                />
+              )
+            })}
+          </div>
         </div>
-      </div>
+
+        <FieldSeparator className="my-0.5" />
+
+        <FontField
+          id="project-font"
+          label="Project font"
+          hint="Used across the storefront UI."
+          cssVariable="--font-sans"
+          fallback="ui-sans-serif, system-ui, sans-serif"
+          value={projectFont}
+          onChange={setProjectFont}
+        />
+
+        <FieldSeparator className="my-0.5" />
+
+        <FontField
+          id="email-font"
+          label="Email font"
+          hint="Used in transactional emails. Email clients that block web fonts fall back to Arial."
+          fallback="Arial, Helvetica, sans-serif"
+          value={emailFont}
+          onChange={setEmailFont}
+        />
+      </FieldGroup>
 
       <SectionActions dirty={dirty} saving={saving} onSave={save} onReset={reset} canSave={themeValid} />
     </>
