@@ -1,9 +1,9 @@
 'use client'
 import { useState } from 'react'
-import { Check, Lock, Plus, X, type LucideIcon } from 'lucide-react'
+import { Lock, Plus, X, type LucideIcon } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
-import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
+import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia } from '@/components/ui/empty'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import {
   Command,
@@ -70,15 +70,15 @@ export function CatalogPicker({
                 const isLocked = locked.includes(code)
                 const checked = value.includes(code)
                 return (
+                  // The check comes from CommandItem itself (data-checked), on the right like in the font picker
                   <CommandItem
                     key={code}
                     value={labelFor(code)}
                     disabled={isLocked}
+                    data-checked={checked}
                     onSelect={() => toggle(code)}
                   >
-                    {isLocked
-                      ? <Lock className="size-3.5 text-muted-foreground" />
-                      : <Check className={cn('size-3.5', checked ? 'opacity-100' : 'opacity-0')} />}
+                    {isLocked && <Lock className="size-3.5 text-muted-foreground" />}
                     {labelFor(code)}
                   </CommandItem>
                 )
@@ -92,13 +92,16 @@ export function CatalogPicker({
 
   if (value.length === 0 && EmptyIcon) {
     return (
-      <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border px-4 py-8 text-center">
-        <div className="flex size-10 items-center justify-center rounded-xl bg-muted">
-          <EmptyIcon className="size-5 text-muted-foreground" />
-        </div>
-        {emptyText && <p className="text-sm text-muted-foreground">{emptyText}</p>}
-        {trigger}
-      </div>
+      <Empty className="rounded-2xl border border-border">
+        <EmptyHeader>
+          {/* Project empty-state media: rounded-xl tile, 20px icon */}
+          <EmptyMedia variant="icon" className="size-10 rounded-xl">
+            <EmptyIcon className="size-5 text-muted-foreground" />
+          </EmptyMedia>
+          {emptyText && <EmptyDescription>{emptyText}</EmptyDescription>}
+        </EmptyHeader>
+        <EmptyContent>{trigger}</EmptyContent>
+      </Empty>
     )
   }
 
@@ -115,14 +118,16 @@ export function CatalogPicker({
         ) : (
           <Badge key={code} variant="secondary">
             {labelFor(code)}
-            <button
-              type="button"
+            <Button
+              variant="ghost"
+              size="icon-xs"
               aria-label={`Remove ${code}`}
               onClick={() => toggle(code)}
-              className="rounded-full p-0.5 text-muted-foreground transition-colors outline-none hover:bg-foreground/10 hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
+              // Fits inside the 20px badge: smaller hit box, round like the chip
+              className="-mr-1 size-4 rounded-full text-muted-foreground hover:text-foreground"
             >
               <X className="size-3" />
-            </button>
+            </Button>
           </Badge>
         )
       })}

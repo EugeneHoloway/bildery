@@ -76,7 +76,7 @@ function FontDetails({ font, cssVariable, fallback }: { font: FontInfo; cssVaria
           <p className="text-muted-foreground">{font.category}</p>
         </div>
         {font.variable
-          ? <Badge className="bg-brand-bg text-brand">Variable</Badge>
+          ? <Badge variant="brand">Variable</Badge>
           : <Badge variant="secondary">Static</Badge>}
       </div>
       <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-6 gap-y-2">

@@ -1,5 +1,5 @@
 'use client'
-import { Fragment, Suspense, useContext, useEffect, useRef, useState } from 'react'
+import { Fragment, Suspense, useContext, useEffect, useId, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import {
@@ -75,6 +75,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { ButtonGroup } from '@/components/ui/button-group'
 import { Field, FieldContent, FieldDescription, FieldError, FieldGroup, FieldLabel, FieldSeparator, FieldTitle } from '@/components/ui/field'
+import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia } from '@/components/ui/empty'
 import { Input } from '@/components/ui/input'
 import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemMedia, ItemSeparator, ItemTitle } from '@/components/ui/item'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
@@ -441,12 +442,12 @@ function GeneralSection({ active, onActiveChange }: { active: boolean; onActiveC
         >
           <div className="grid grid-cols-1 gap-5 tablet:grid-cols-2">
             <Field>
-              <FieldLabel>Brand ID</FieldLabel>
+              <FieldTitle>Brand ID</FieldTitle>
               <CopyableId value={BRAND.id} label="brand ID" />
               <FieldDescription>Brand ID cannot be changed.</FieldDescription>
             </Field>
             <Field>
-              <FieldLabel>Operator ID</FieldLabel>
+              <FieldTitle>Operator ID</FieldTitle>
               <CopyableId value={BRAND.operatorId} label="operator ID" />
             </Field>
           </div>
@@ -474,19 +475,20 @@ function GeneralSection({ active, onActiveChange }: { active: boolean; onActiveC
           title="Danger zone"
           description="Actions here take effect immediately and affect every player of this brand."
         >
-          <div className="flex flex-col gap-3 tablet:flex-row tablet:items-center tablet:justify-between">
-            <div>
-              <p className="text-sm font-medium">{active ? 'Deactivate brand' : 'Activate brand'}</p>
-              <p className="text-xs text-muted-foreground">
+          {/* Responsive field: stacked in a narrow column, title and button side by side once there is room */}
+          <Field orientation="responsive" className="gap-3">
+            <FieldContent>
+              <FieldTitle>{active ? 'Deactivate brand' : 'Activate brand'}</FieldTitle>
+              <FieldDescription>
                 {active
                   ? 'The storefront goes offline and players can no longer log in.'
                   : 'This brand is currently hidden from players.'}
-              </p>
-            </div>
+              </FieldDescription>
+            </FieldContent>
             {active ? (
               <Button
-                variant="outline"
-                className="shrink-0 border-destructive/50 text-destructive hover:bg-destructive-bg hover:text-destructive"
+                variant="destructive"
+                className="shrink-0"
                 onClick={() => setConfirmDeactivate(true)}
               >
                 <Power />
@@ -498,7 +500,7 @@ function GeneralSection({ active, onActiveChange }: { active: boolean; onActiveC
                 Activate brand
               </Button>
             )}
-          </div>
+          </Field>
         </SettingsGroup>
       </FieldGroup>
 
@@ -513,10 +515,7 @@ function GeneralSection({ active, onActiveChange }: { active: boolean; onActiveC
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={deactivate}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
+            <AlertDialogAction variant="destructive" onClick={deactivate}>
               Deactivate
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -548,7 +547,7 @@ function AssetField({ label, hint, preview, emptyLabel, onReplace, onChooseFromL
 
   return (
     <Field>
-      <FieldLabel>{label}</FieldLabel>
+      <FieldTitle>{label}</FieldTitle>
       <div className="flex flex-col items-start gap-3">
         <div
           className={cn(
@@ -719,13 +718,16 @@ function DomainsFields() {
         {/* The list and the button that extends it stay one block, 16px apart, like Deposit methods */}
         <div className="flex flex-col gap-4">
         {domains.length === 0 ? (
-          <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border px-4 py-8 text-center">
-            <div className="flex size-10 items-center justify-center rounded-xl bg-muted">
-              <Globe className="size-5 text-muted-foreground" />
-            </div>
-            <p className="text-sm text-muted-foreground">No domains yet. The storefront has no public address.</p>
-            {addButton}
-          </div>
+          <Empty className="rounded-2xl border border-border">
+            <EmptyHeader>
+              {/* Project empty-state media: rounded-xl tile, 20px icon */}
+              <EmptyMedia variant="icon" className="size-10 rounded-xl">
+                <Globe className="size-5 text-muted-foreground" />
+              </EmptyMedia>
+              <EmptyDescription>No domains yet. The storefront has no public address.</EmptyDescription>
+            </EmptyHeader>
+            <EmptyContent>{addButton}</EmptyContent>
+          </Empty>
         ) : (
           <ItemGroup className="gap-0 overflow-hidden rounded-2xl border border-border">
             {sorted.map((d, i) => {
@@ -740,7 +742,7 @@ function DomainsFields() {
                     <ItemContent className="min-w-0 flex-row items-center gap-2">
                       <ItemTitle className="block min-w-0 font-normal break-words line-clamp-none tablet:truncate">{breakable(d.host)}</ItemTitle>
                       {d.primary
-                        ? <Badge className="shrink-0 bg-brand-bg text-brand">Primary</Badge>
+                        ? <Badge variant="brand" className="shrink-0">Primary</Badge>
                         : <Badge variant="secondary" className="shrink-0">Mirror</Badge>}
                     </ItemContent>
                     <ItemActions className="shrink-0">
@@ -944,9 +946,10 @@ function ColorField({ label, hint, value, onChange, optional }: {
   const empty = optional && !value
   const error = empty ? undefined : validateHex(value)
   const swatch = !error && !empty
+  const id = useId()
   return (
     <Field data-invalid={!!error || undefined}>
-      <FieldLabel>{label}</FieldLabel>
+      <FieldLabel htmlFor={id}>{label}</FieldLabel>
       <InputGroup>
         <InputGroupAddon>
           {/* Цвет задаётся пользователем -- единственное место, где inline-style оправдан */}
@@ -968,6 +971,7 @@ function ColorField({ label, hint, value, onChange, optional }: {
           </label>
         </InputGroupAddon>
         <InputGroupInput
+          id={id}
           value={value}
           onChange={e => onChange(e.target.value)}
           placeholder={optional ? 'Auto' : '#000000'}
