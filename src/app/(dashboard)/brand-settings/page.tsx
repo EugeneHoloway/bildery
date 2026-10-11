@@ -1156,8 +1156,11 @@ function WalletAutoProvisionSection() {
       />
 
       <FieldGroup className="mt-8">
-        <Field>
-          <FieldLabel>Currencies</FieldLabel>
+        {/* Same shape as Locales: group title and description, then the picker */}
+        <SettingsGroup
+          title="Currencies"
+          description="Only currencies registered in the Currency Rate Service can be attached."
+        >
           <CatalogPicker
             catalog={CURRENCY_CATALOG}
             value={currencies}
@@ -1167,21 +1170,18 @@ function WalletAutoProvisionSection() {
             emptyIcon={WalletCards}
             emptyText="No extra wallets. New players get only the PRIMARY wallet."
           />
-          <FieldDescription>
-            Only currencies registered in the Currency Rate Service can be attached.
-          </FieldDescription>
-        </Field>
-      </FieldGroup>
+        </SettingsGroup>
 
-      <Alert className="mt-6">
-        <Info className="size-4" />
-        <AlertTitle>Applies to new players only</AlertTitle>
-        <AlertDescription>
-          Saving does not create wallets for existing players. The default (PRIMARY) wallet is
-          always created regardless of this list. Duplicates and unknown currency codes are
-          ignored by the Wallet service.
-        </AlertDescription>
-      </Alert>
+        <Alert>
+          <Info />
+          <AlertTitle>Applies to new players only</AlertTitle>
+          <AlertDescription>
+            Saving does not create wallets for existing players. The default (PRIMARY) wallet is
+            always created regardless of this list. Duplicates and unknown currency codes are
+            ignored by the Wallet service.
+          </AlertDescription>
+        </Alert>
+      </FieldGroup>
 
       <SectionActions dirty={dirty} saving={saving} onSave={save} onReset={reset} />
     </>
@@ -1495,51 +1495,62 @@ function SocialSection() {
     <>
       <SectionHeader title="Social" description="Links to the brand's social media accounts shown on the storefront." />
 
-      {rows.length === 0 ? (
-        <div className="mt-8 flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border px-4 py-8 text-center">
-          <div className="flex size-10 items-center justify-center rounded-xl bg-muted">
-            <Share2 className="size-5 text-muted-foreground" />
-          </div>
-          <p className="text-sm text-muted-foreground">No social links yet.</p>
-          {addMenu}
-        </div>
-      ) : (
-        <FieldGroup className="mt-8">
-          {/* Two columns like Identity; one on mobile */}
-          <div className="grid grid-cols-1 gap-5 tablet:grid-cols-2">
-            {rows.map(n => {
-              const error = errors[n.id]
-              const inputId = `social-${n.id}`
-              return (
-                <Field key={n.id} data-invalid={!!error || undefined}>
-                  {/* Label and remove on one line above the input */}
-                  <div className="flex items-center justify-between gap-2">
-                    <FieldLabel htmlFor={inputId}>{n.label}</FieldLabel>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button variant="ghost" size="icon-sm" className="-my-1" aria-label={`Remove ${n.label}`} onClick={() => remove(n.id)}>
-                          <Trash2 className="text-muted-foreground" />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>Remove</TooltipContent>
-                    </Tooltip>
-                  </div>
-                  <Input
-                    id={inputId}
-                    type="url"
-                    placeholder={n.placeholder}
-                    value={links[n.id]}
-                    onChange={e => setLinks(l => ({ ...l, [n.id]: e.target.value }))}
-                    aria-invalid={!!error || undefined}
-                  />
-                  <FieldError>{error}</FieldError>
-                </Field>
-              )
-            })}
-          </div>
-          {addMenu && <div>{addMenu}</div>}
-        </FieldGroup>
-      )}
+      <FieldGroup className="mt-8">
+        {/* Like Domains: the empty state sits inside the group, so the hint is visible before the first link */}
+        <SettingsGroup
+          title="Links"
+          description="Full profile URL starting with https://. One link per network."
+        >
+          {rows.length === 0 ? (
+            <Empty className="rounded-2xl border border-border">
+              <EmptyHeader>
+                {/* Project empty-state media: rounded-xl tile, 20px icon */}
+                <EmptyMedia variant="icon" className="size-10 rounded-xl">
+                  <Share2 className="size-5 text-muted-foreground" />
+                </EmptyMedia>
+                <EmptyDescription>No social links yet.</EmptyDescription>
+              </EmptyHeader>
+              <EmptyContent>{addMenu}</EmptyContent>
+            </Empty>
+          ) : (
+            <>
+              {/* Two columns like Identity; one on mobile */}
+              <div className="grid grid-cols-1 gap-5 tablet:grid-cols-2">
+                {rows.map(n => {
+                  const error = errors[n.id]
+                  const inputId = `social-${n.id}`
+                  return (
+                    <Field key={n.id} data-invalid={!!error || undefined}>
+                      {/* Label and remove on one line above the input */}
+                      <div className="flex items-center justify-between gap-2">
+                        <FieldLabel htmlFor={inputId}>{n.label}</FieldLabel>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button variant="ghost" size="icon-sm" className="-my-1" aria-label={`Remove ${n.label}`} onClick={() => remove(n.id)}>
+                              <Trash2 className="text-muted-foreground" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Remove</TooltipContent>
+                        </Tooltip>
+                      </div>
+                      <Input
+                        id={inputId}
+                        type="url"
+                        placeholder={n.placeholder}
+                        value={links[n.id]}
+                        onChange={e => setLinks(l => ({ ...l, [n.id]: e.target.value }))}
+                        aria-invalid={!!error || undefined}
+                      />
+                      <FieldError>{error}</FieldError>
+                    </Field>
+                  )
+                })}
+              </div>
+              {addMenu && <div>{addMenu}</div>}
+            </>
+          )}
+        </SettingsGroup>
+      </FieldGroup>
 
       <SectionActions dirty={dirty} saving={saving} onSave={save} onReset={reset} canSave={valid} />
     </>
