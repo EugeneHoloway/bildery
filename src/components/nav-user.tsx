@@ -7,7 +7,7 @@ import {
   CircleUser,
   CreditCard,
   LogOut,
-  Sparkles,
+  Settings,
 } from "lucide-react"
 import { useRouter } from "next/navigation"
 
@@ -86,9 +86,9 @@ export function NavUser() {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <Sparkles />
-                Upgrade to Pro
+              <DropdownMenuItem onClick={() => router.push('/settings/operators-brands')}>
+                <Settings />
+                Organization settings
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />

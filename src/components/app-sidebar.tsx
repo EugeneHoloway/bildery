@@ -14,9 +14,11 @@ import {
   Settings2,
   SquareTerminal,
 } from "lucide-react"
+import { usePathname } from "next/navigation"
 
 import { NavMain } from "@/components/nav-main"
 import { NavProjects } from "@/components/nav-projects"
+import { NavSettings, SETTINGS_ROOT } from "@/components/nav-settings"
 import { NavUser } from "@/components/nav-user"
 import { TeamSwitcher } from "@/components/team-switcher"
 import {
@@ -107,15 +109,35 @@ const data = {
   ],
 }
 
+const LAST_APP_PATH_KEY = "bildery:last-app-path"
+
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const pathname = usePathname()
+  const inSettings = pathname.startsWith(SETTINGS_ROOT)
+  const [backHref, setBackHref] = React.useState("/dashboard")
+
+  // "Back to app" returns to the last page visited outside of settings
+  React.useEffect(() => {
+    try {
+      if (!inSettings) sessionStorage.setItem(LAST_APP_PATH_KEY, pathname)
+      else setBackHref(sessionStorage.getItem(LAST_APP_PATH_KEY) ?? "/dashboard")
+    } catch {}
+  }, [pathname, inSettings])
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <TeamSwitcher teams={data.teams} />
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NavProjects projects={data.projects} />
+        {inSettings ? (
+          <NavSettings backHref={backHref} />
+        ) : (
+          <>
+            <NavMain items={data.navMain} />
+            <NavProjects projects={data.projects} />
+          </>
+        )}
       </SidebarContent>
       <SidebarFooter>
         <NavUser />
