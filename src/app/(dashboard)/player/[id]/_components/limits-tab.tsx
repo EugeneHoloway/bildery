@@ -372,7 +372,7 @@ export function LimitsTab({ playerName, playerCurrency, fxRate }: {
                   <span className={`text-sm font-medium ${limit.disabled ? 'line-through text-muted-foreground' : ''}`}>{limit.name}</span>
                   <span className="inline-flex items-center rounded-md border border-border px-1.5 py-0.5 text-xs text-muted-foreground">{limit.scope}</span>
                   {limit.tag && !limit.disabled && (
-                    <span className="inline-flex items-center rounded-md bg-destructive-bg px-1.5 py-0.5 text-xs text-destructive">{limit.tag}</span>
+                    <span className="inline-flex items-center rounded-md bg-destructive/10 dark:bg-destructive/20 px-1.5 py-0.5 text-xs text-destructive">{limit.tag}</span>
                   )}
                   {limit.disabled && <span className="inline-flex items-center rounded-md bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">Disabled</span>}
                 </div>
@@ -410,7 +410,7 @@ export function LimitsTab({ playerName, playerCurrency, fxRate }: {
               </p>
             </div>
           </div>
-          <span className="inline-flex items-center gap-1.5 rounded-md bg-subtle px-2 py-1 text-xs text-muted-foreground border border-subtle-border shrink-0">
+          <span className="inline-flex items-center gap-1.5 rounded-md bg-muted px-2 py-1 text-xs text-muted-foreground border border-border shrink-0">
             <Globe className="size-3" />
             ACMA
           </span>
@@ -695,7 +695,7 @@ export function LimitsTab({ playerName, playerCurrency, fxRate }: {
             </div>
 
             {/* Warning */}
-            <div className="rounded-xl border border-destructive/30 bg-destructive-bg px-4 py-3 flex flex-col gap-1">
+            <div className="rounded-xl border border-destructive/30 bg-destructive/10 dark:bg-destructive/20 px-4 py-3 flex flex-col gap-1">
               <p className="text-sm font-medium text-destructive">This action takes effect immediately</p>
               <p className="text-xs text-destructive/80">
                 {seType === 'temporary'

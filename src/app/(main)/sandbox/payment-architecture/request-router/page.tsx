@@ -301,7 +301,7 @@ export default function Page() {
                             <TableCell><code className="text-xs font-mono text-muted-foreground">{f.type}</code></TableCell>
                             <TableCell>
                               {f.required
-                                ? <Badge variant="outline" className="text-xs bg-destructive-bg text-destructive border-destructive/30 pointer-events-none">{ua ? 'Так' : 'Yes'}</Badge>
+                                ? <Badge variant="outline" className="text-xs bg-destructive/10 dark:bg-destructive/20 text-destructive border-destructive/30 pointer-events-none">{ua ? 'Так' : 'Yes'}</Badge>
                                 : <Badge variant="outline" className="text-xs bg-muted text-muted-foreground border-border pointer-events-none">{ua ? 'Ні' : 'No'}</Badge>
                               }
                             </TableCell>
@@ -366,7 +366,7 @@ export default function Page() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap mb-1">
                   <span className="text-sm font-semibold text-foreground">{step.name[lang]}</span>
-                  <Badge variant="outline" className="text-xs font-mono bg-destructive-bg text-destructive border-destructive/30 pointer-events-none">
+                  <Badge variant="outline" className="text-xs font-mono bg-destructive/10 dark:bg-destructive/20 text-destructive border-destructive/30 pointer-events-none">
                     {step.httpStatus}
                   </Badge>
                   <code className="text-xs text-muted-foreground">{step.errorCode}</code>
@@ -466,7 +466,7 @@ export default function Page() {
                   <Badge variant="outline" className={cn(
                     'text-xs font-mono pointer-events-none',
                     r.status >= 500 ? 'bg-muted text-muted-foreground border-border' :
-                    r.status >= 400 ? 'bg-destructive-bg text-destructive border-destructive/30' : '',
+                    r.status >= 400 ? 'bg-destructive/10 dark:bg-destructive/20 text-destructive border-destructive/30' : '',
                   )}>{r.status}</Badge>
                 </TableCell>
                 <TableCell><code className="text-xs font-mono text-foreground">{r.code}</code></TableCell>

@@ -157,7 +157,7 @@ const DISCREPANCIES: { our: string; psp: I18n; action: I18n; risk: 'high' | 'med
 ]
 
 const riskStyle = {
-  high:   { label: { en: 'High',   ua: 'Високий'   }, cls: 'bg-destructive-bg text-destructive border-destructive/30' },
+  high:   { label: { en: 'High',   ua: 'Високий'   }, cls: 'bg-destructive/10 dark:bg-destructive/20 text-destructive border-destructive/30' },
   medium: { label: { en: 'Medium', ua: 'Середній'  }, cls: 'bg-amber-500/10 text-amber-500 border-amber-500/30'       },
   low:    { label: { en: 'Low',    ua: 'Низький'   }, cls: 'bg-muted text-muted-foreground border-border'             },
 }
@@ -262,7 +262,7 @@ export default function Page() {
               <div className={cn(
                 'w-full border rounded-xl p-4 flex items-start gap-3',
                 step.type === 'action-credit' ? 'border-success/30 bg-success-bg/30'      : '',
-                step.type === 'action-fail'   ? 'border-destructive/20 bg-destructive-bg/20' : '',
+                step.type === 'action-fail'   ? 'border-destructive/20 bg-destructive/5' : '',
                 step.type === 'terminal'      ? 'border-sky-500/30 bg-sky-500/5'          : '',
                 !step.type || step.type === 'normal' ? 'border-border bg-card'            : '',
               )}>
@@ -287,7 +287,7 @@ export default function Page() {
                       {step.title[lang]}
                     </p>
                     {step.type === 'action-credit' && <Badge variant="outline" className="text-xs bg-success-bg text-success border-success/30 pointer-events-none">{ua ? 'Зарахування' : 'Credit'}</Badge>}
-                    {step.type === 'action-fail'   && <Badge variant="outline" className="text-xs bg-destructive-bg text-destructive border-destructive/30 pointer-events-none">{ua ? 'Відмова' : 'Failure'}</Badge>}
+                    {step.type === 'action-fail'   && <Badge variant="outline" className="text-xs bg-destructive/10 dark:bg-destructive/20 text-destructive border-destructive/30 pointer-events-none">{ua ? 'Відмова' : 'Failure'}</Badge>}
                   </div>
                   <p className="text-xs text-muted-foreground leading-snug">{step.desc[lang]}</p>
                   {step.code && (

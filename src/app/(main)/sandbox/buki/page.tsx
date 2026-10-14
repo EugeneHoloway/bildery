@@ -190,7 +190,7 @@ export default function Page() {
                 <TableCell>{ua ? 'Деградація часу до контакту' : 'Time-to-contact degraded'}</TableCell>
                 <TableCell>{ua ? 'Медіанний час контакту по місяцях' : 'Monthly median contact time'}</TableCell>
                 <TableCell>
-                  <Badge variant="outline" className="bg-destructive-bg text-destructive border-destructive/30 text-xs pointer-events-none">
+                  <Badge variant="outline" className="bg-destructive/10 dark:bg-destructive/20 text-destructive border-destructive/30 text-xs pointer-events-none">
                     High
                   </Badge>
                 </TableCell>
@@ -208,7 +208,7 @@ export default function Page() {
                 <TableCell>{ua ? 'Падіння acceptance rate репетиторів' : 'Tutor acceptance rate fell'}</TableCell>
                 <TableCell>{ua ? 'Метрики acceptance + час відповіді' : 'Acceptance metrics + response times'}</TableCell>
                 <TableCell>
-                  <Badge variant="outline" className="bg-destructive-bg text-destructive border-destructive/30 text-xs pointer-events-none">
+                  <Badge variant="outline" className="bg-destructive/10 dark:bg-destructive/20 text-destructive border-destructive/30 text-xs pointer-events-none">
                     High
                   </Badge>
                 </TableCell>
@@ -226,7 +226,7 @@ export default function Page() {
                 <TableCell>{ua ? 'Зростання відтоку після триалу' : 'Post-trial dropout increased'}</TableCell>
                 <TableCell>{ua ? 'Аналіз Trial→Payment rate' : 'Trial-to-payment rate analysis'}</TableCell>
                 <TableCell>
-                  <Badge variant="outline" className="bg-destructive-bg text-destructive border-destructive/30 text-xs pointer-events-none">
+                  <Badge variant="outline" className="bg-destructive/10 dark:bg-destructive/20 text-destructive border-destructive/30 text-xs pointer-events-none">
                     High
                   </Badge>
                 </TableCell>
@@ -326,7 +326,7 @@ export default function Page() {
                   </div>
                 </TableCell>
                 <TableCell>
-                  <Badge variant="outline" className="bg-subtle text-muted-foreground border-subtle-border text-xs pointer-events-none">Low</Badge>
+                  <Badge variant="outline" className="bg-muted text-muted-foreground border-border text-xs pointer-events-none">Low</Badge>
                 </TableCell>
                 <TableCell className="text-sm font-medium">+1–2%</TableCell>
                 <TableCell className="text-sm">{ua ? '1 тиждень' : '1 week'}</TableCell>

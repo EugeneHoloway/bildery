@@ -219,7 +219,7 @@ const STATUS_MAP: StatusRow[] = [
   {
     trigger:       { en: 'Invoice webhook: status = "error" (expired or partial fail)', ua: 'Invoice webhook: status = "error" (закінчився або часткова невдача)' },
     field: 'status', value: 'error',
-    unified: 'FAILED', unifiedColor: 'text-destructive', unifiedBg: 'bg-destructive-bg', unifiedBorder: 'border-destructive/30',
+    unified: 'FAILED', unifiedColor: 'text-destructive', unifiedBg: 'bg-destructive/10 dark:bg-destructive/20', unifiedBorder: 'border-destructive/30',
   },
   {
     trigger:       { en: 'Withdrawal webhook: approve = 0 (processing)', ua: 'Withdrawal webhook: approve = 0 (обробляється)' },
@@ -235,7 +235,7 @@ const STATUS_MAP: StatusRow[] = [
   {
     trigger:       { en: 'Withdrawal webhook: approve = 2 (error)', ua: 'Withdrawal webhook: approve = 2 (помилка)' },
     field: 'approve', value: '2',
-    unified: 'FAILED', unifiedColor: 'text-destructive', unifiedBg: 'bg-destructive-bg', unifiedBorder: 'border-destructive/30',
+    unified: 'FAILED', unifiedColor: 'text-destructive', unifiedBg: 'bg-destructive/10 dark:bg-destructive/20', unifiedBorder: 'border-destructive/30',
     note: { en: 'Mandatory balance rollback. Notify player.', ua: 'Обов\'язковий rollback балансу. Повідомити гравця.' },
   },
   {
@@ -457,7 +457,7 @@ const CHECKLIST: CheckItem[] = [
 function QuirkCard({ quirk, lang }: { quirk: Quirk; lang: Lang }) {
   const { Icon } = quirk
   const severityStyle = quirk.severity === 'high'
-    ? { badge: 'bg-destructive-bg text-destructive border-destructive/30', icon: 'text-destructive' }
+    ? { badge: 'bg-destructive/10 dark:bg-destructive/20 text-destructive border-destructive/30', icon: 'text-destructive' }
     : quirk.severity === 'medium'
     ? { badge: 'bg-warning-bg text-warning border-warning/30', icon: 'text-warning' }
     : null
@@ -536,7 +536,7 @@ export default function Page() {
                 <TableCell><code className="text-xs bg-muted rounded px-1.5 py-0.5 font-mono">{v.name}</code></TableCell>
                 <TableCell>
                   {v.required
-                    ? <Badge variant="outline" className="text-xs bg-destructive-bg text-destructive border-destructive/30 pointer-events-none">{ua ? 'Так' : 'Yes'}</Badge>
+                    ? <Badge variant="outline" className="text-xs bg-destructive/10 dark:bg-destructive/20 text-destructive border-destructive/30 pointer-events-none">{ua ? 'Так' : 'Yes'}</Badge>
                     : <Badge variant="outline" className="text-xs bg-muted text-muted-foreground border-border pointer-events-none">{ua ? 'Ні' : 'No'}</Badge>}
                 </TableCell>
                 <TableCell className="text-sm text-muted-foreground">{v.desc[lang]}</TableCell>
@@ -693,7 +693,7 @@ export default function Page() {
           <div className="flex flex-col gap-2">
             {CHECKLIST.map((item, i) => {
               const badgeStyle = item.severity === 'required'
-                ? 'bg-destructive-bg text-destructive border-destructive/30'
+                ? 'bg-destructive/10 dark:bg-destructive/20 text-destructive border-destructive/30'
                 : 'bg-warning-bg text-warning border-warning/30'
               return (
                 <div key={i} className="flex items-start gap-3 border border-border bg-card rounded-xl px-4 py-3">

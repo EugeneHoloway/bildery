@@ -14,8 +14,8 @@ const levelConfig: Record<
 > = {
   high: {
     label: 'Critical',
-    containerClass: 'border-destructive bg-destructive-bg',
-    badgeClass: 'bg-destructive-bg text-destructive border-destructive/30',
+    containerClass: 'border-destructive bg-destructive/10 dark:bg-destructive/20',
+    badgeClass: 'bg-destructive/10 dark:bg-destructive/20 text-destructive border-destructive/30',
   },
   watch: {
     label: 'Warning',

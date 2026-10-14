@@ -43,7 +43,7 @@
 | Акцент бренда | `text-brand`, `bg-brand-bg` (`Badge variant="brand"`) |
 | Успех | `text-success`, `bg-success-bg`, `border-success-border` (`Badge variant="success"`) |
 
-Устаревшие дубли -- в новом коде не использовать: `bg-destructive-bg` (вместо него `bg-destructive/10`), `bg-subtle` / `border-subtle-border` (вместо них `bg-muted` / `border-border`).
+Токенов `destructive-bg`, `subtle`, `subtle-border` больше нет. Вместо них: `bg-destructive/10 dark:bg-destructive/20`, `bg-muted`, `border-border`; граница на ховере у карточки -- `hover:border-foreground/15`.
 
 ## Иконки
 - Библиотека иконок: **Lucide** (`lucide-react`)

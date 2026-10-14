@@ -444,7 +444,7 @@ export default function Page() {
                 <TableCell className="text-sm text-muted-foreground">{r.action[lang]}</TableCell>
                 <TableCell>
                   {r.blocks
-                    ? <Badge variant="outline" className="text-xs bg-destructive-bg text-destructive border-destructive/30 whitespace-nowrap">{ua ? 'Так (миттєво)' : 'Yes (instant)'}</Badge>
+                    ? <Badge variant="outline" className="text-xs bg-destructive/10 dark:bg-destructive/20 text-destructive border-destructive/30 whitespace-nowrap">{ua ? 'Так (миттєво)' : 'Yes (instant)'}</Badge>
                     : <Badge variant="outline" className="text-xs bg-muted text-muted-foreground whitespace-nowrap">{ua ? 'Ні (моніторинг)' : 'No (monitor)'}</Badge>
                   }
                 </TableCell>
@@ -484,7 +484,7 @@ export default function Page() {
         <div className="border border-border rounded-xl overflow-hidden mb-4">
           <div className="flex items-center justify-between px-3 py-2 bg-muted border-b border-border">
             <span className="text-xs font-mono text-muted-foreground">HTTP 422 -- KYC_REQUIRED response</span>
-            <Badge variant="outline" className="text-xs bg-destructive-bg text-destructive border-destructive/30 pointer-events-none">Blocked</Badge>
+            <Badge variant="outline" className="text-xs bg-destructive/10 dark:bg-destructive/20 text-destructive border-destructive/30 pointer-events-none">Blocked</Badge>
           </div>
           <pre className="text-xs font-mono text-foreground p-4 leading-relaxed overflow-x-auto bg-card">{`{
   "error": "KYC_REQUIRED",

@@ -292,7 +292,7 @@ const LABEL_ROWS = [
   },
   {
     tag: 'device-setup',
-    tagCls: 'bg-destructive-bg text-destructive border-destructive/20',
+    tagCls: 'bg-destructive/10 dark:bg-destructive/20 text-destructive border-destructive/20',
     conversations: 57,
     avgFirstResponse: '6m 44s',
     avgResolution: '2h 15m',

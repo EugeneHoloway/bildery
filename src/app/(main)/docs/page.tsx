@@ -90,7 +90,7 @@ function DocCard({
         'bg-card border border-border',
         'shadow-card',
         'transition-[border-color,box-shadow] duration-200',
-        'hover:border-subtle-border hover:shadow-card-hover',
+        'hover:border-foreground/15 hover:shadow-card-hover',
       )}
     >
       {/* Top */}
@@ -131,7 +131,7 @@ function DocCard({
       </div>
 
       {/* Footer */}
-      <div className="-mx-4 -mb-4 flex items-center justify-between gap-3 rounded-b-xl border-t border-border bg-subtle px-4 py-4">
+      <div className="-mx-4 -mb-4 flex items-center justify-between gap-3 rounded-b-xl border-t border-border bg-muted px-4 py-4">
         <Badge variant="outline">{doc.badge_bottom || 'Note'}</Badge>
         <div className="flex items-center gap-2">
           {isUnlocked && (
@@ -148,7 +148,7 @@ function DocCard({
               <Button
                 variant="ghost"
                 size="icon-sm"
-                className="hover:bg-destructive-bg hover:text-destructive"
+                className="hover:bg-destructive/10 dark:hover:bg-destructive/20 hover:text-destructive"
                 onClick={(e) => onDelete(e, doc.id)}
                 aria-label="Delete document"
               >

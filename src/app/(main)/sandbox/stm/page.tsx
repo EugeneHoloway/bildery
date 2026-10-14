@@ -106,7 +106,7 @@ export default function STMPage() {
           <span className="text-xs font-bold tracking-widest uppercase text-muted-foreground">
             Live Price | Euronext Paris: STMPA
           </span>
-          <span className="text-xs text-muted-foreground bg-subtle px-2.5 py-1 rounded-full">
+          <span className="text-xs text-muted-foreground bg-muted px-2.5 py-1 rounded-full">
             Static data | Live prices coming soon
           </span>
         </div>

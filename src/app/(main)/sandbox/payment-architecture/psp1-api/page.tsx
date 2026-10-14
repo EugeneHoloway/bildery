@@ -285,7 +285,7 @@ export default function Page() {
                   <TableCell className="text-sm text-foreground tabular-nums">{c.minWithdraw}</TableCell>
                   <TableCell className="text-sm text-muted-foreground">{c.webhookCount[lang]}</TableCell>
                   <TableCell>
-                    {c.noteKey === 'tag'  && <Badge variant="outline" className="text-xs bg-destructive-bg text-destructive border-destructive/30 pointer-events-none">{ua ? 'Потрібен тег' : 'Tag required'}</Badge>}
+                    {c.noteKey === 'tag'  && <Badge variant="outline" className="text-xs bg-destructive/10 dark:bg-destructive/20 text-destructive border-destructive/30 pointer-events-none">{ua ? 'Потрібен тег' : 'Tag required'}</Badge>}
                     {c.noteKey === 'utxo' && <Badge variant="outline" className="text-xs bg-warning-bg text-warning border-warning/30 pointer-events-none">UTXO</Badge>}
                   </TableCell>
                 </TableRow>

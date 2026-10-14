@@ -517,7 +517,7 @@ const STATUS_UI: { status: string; colorCls: string; bgCls: string; borderCls: s
   { status: 'PENDING_CONFIRMATION',colorCls: 'text-sky-500',      bgCls: 'bg-sky-500/10',      borderCls: 'border-sky-500/30',       label: { en: 'Awaiting confirmation', ua: 'Очікування підтвердження' }, uiAction: { en: 'Show "waiting for blockchain confirmation"', ua: 'Показати "очікування підтвердження блокчейну"' }, terminal: false },
   { status: 'PENDING_PARTIAL',     colorCls: 'text-violet-500',   bgCls: 'bg-violet-500/10',   borderCls: 'border-violet-500/30',    label: { en: 'Partial payment',      ua: 'Часткова оплата'          }, uiAction: { en: 'Show received amount, explain shortfall', ua: 'Показати отриману суму, пояснити нестачу' }, terminal: false },
   { status: 'COMPLETED',           colorCls: 'text-success',      bgCls: 'bg-success-bg',      borderCls: 'border-success/30',       label: { en: 'Completed',            ua: 'Завершено'                }, uiAction: { en: 'Show success, stop polling',  ua: 'Показати успіх, зупинити polling' }, terminal: true  },
-  { status: 'FAILED',              colorCls: 'text-destructive',  bgCls: 'bg-destructive-bg',  borderCls: 'border-destructive/30',   label: { en: 'Failed',               ua: 'Помилка'                  }, uiAction: { en: 'Show error, offer retry',     ua: 'Показати помилку, запропонувати повторити' }, terminal: true  },
+  { status: 'FAILED',              colorCls: 'text-destructive',  bgCls: 'bg-destructive/10 dark:bg-destructive/20',  borderCls: 'border-destructive/30',   label: { en: 'Failed',               ua: 'Помилка'                  }, uiAction: { en: 'Show error, offer retry',     ua: 'Показати помилку, запропонувати повторити' }, terminal: true  },
   { status: 'TIMED_OUT',           colorCls: 'text-orange-500',   bgCls: 'bg-orange-500/10',   borderCls: 'border-orange-500/30',    label: { en: 'Timed out',            ua: 'Час вийшов'               }, uiAction: { en: 'Show "payment window expired", stop polling', ua: 'Показати "вікно оплати закрилось", зупинити polling' }, terminal: true  },
   { status: 'CANCELLED',           colorCls: 'text-muted-foreground', bgCls: 'bg-muted',       borderCls: 'border-border',           label: { en: 'Cancelled',            ua: 'Скасовано'                }, uiAction: { en: 'Show cancelled state, stop polling', ua: 'Показати скасований стан, зупинити polling' }, terminal: true  },
 ]
@@ -543,7 +543,7 @@ function FieldTable({ fields, lang }: { fields: MethodField[]; lang: Lang }) {
             <TableCell><code className="text-xs text-muted-foreground font-mono">{f.type}</code></TableCell>
             <TableCell>
               {f.required
-                ? <Badge variant="outline" className="text-xs bg-destructive-bg text-destructive border-destructive/30 pointer-events-none">{ua ? 'Так' : 'Yes'}</Badge>
+                ? <Badge variant="outline" className="text-xs bg-destructive/10 dark:bg-destructive/20 text-destructive border-destructive/30 pointer-events-none">{ua ? 'Так' : 'Yes'}</Badge>
                 : <Badge variant="outline" className="text-xs bg-muted text-muted-foreground border-border pointer-events-none">{ua ? 'Ні' : 'No'}</Badge>}
             </TableCell>
             <TableCell className="text-sm text-muted-foreground">{f.desc[lang]}</TableCell>
@@ -594,7 +594,7 @@ function MethodCard({ m, lang }: { m: MethodDef; lang: Lang }) {
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">{ua ? 'Можливі помилки' : 'Possible Errors'}</p>
           <div className="flex flex-wrap gap-1.5">
             {m.errors.map(e => (
-              <code key={e} className="text-xs bg-destructive-bg text-destructive rounded px-1.5 py-0.5">{e}</code>
+              <code key={e} className="text-xs bg-destructive/10 dark:bg-destructive/20 text-destructive rounded px-1.5 py-0.5">{e}</code>
             ))}
           </div>
         </div>
@@ -646,7 +646,7 @@ function EndpointCard({ ep, lang }: { ep: Endpoint; lang: Lang }) {
                     <TableCell><code className="text-xs text-muted-foreground font-mono">{f.type}</code></TableCell>
                     <TableCell>
                       {f.required
-                        ? <Badge variant="outline" className="text-xs bg-destructive-bg text-destructive border-destructive/30 pointer-events-none">{ua ? 'Так' : 'Yes'}</Badge>
+                        ? <Badge variant="outline" className="text-xs bg-destructive/10 dark:bg-destructive/20 text-destructive border-destructive/30 pointer-events-none">{ua ? 'Так' : 'Yes'}</Badge>
                         : <Badge variant="outline" className="text-xs bg-muted text-muted-foreground border-border pointer-events-none">{ua ? 'Ні' : 'No'}</Badge>}
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">{f.desc[lang]}</TableCell>
@@ -794,7 +794,7 @@ export default function Page() {
                   <TableCell className="text-sm text-muted-foreground">{s.uiAction[lang]}</TableCell>
                   <TableCell>
                     {s.terminal
-                      ? <Badge variant="outline" className="text-xs bg-destructive-bg text-destructive border-destructive/30 pointer-events-none">{ua ? 'Так' : 'Yes'}</Badge>
+                      ? <Badge variant="outline" className="text-xs bg-destructive/10 dark:bg-destructive/20 text-destructive border-destructive/30 pointer-events-none">{ua ? 'Так' : 'Yes'}</Badge>
                       : <Badge variant="outline" className="text-xs bg-muted text-muted-foreground border-border pointer-events-none">{ua ? 'Ні' : 'No'}</Badge>}
                   </TableCell>
                 </TableRow>

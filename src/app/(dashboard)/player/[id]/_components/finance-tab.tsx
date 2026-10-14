@@ -112,7 +112,7 @@ function TxStatusBadge({ status }: { status: TxStatus }) {
   const base = 'inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap'
   if (status === 'Completed') return <span className={`${base} bg-success-bg text-success`}><CircleCheck className="size-3 shrink-0" />Completed</span>
   if (status === 'Pending')   return <span className={`${base} bg-muted text-muted-foreground`}><CircleMinus className="size-3 shrink-0" />Pending</span>
-  if (status === 'Failed')    return <span className={`${base} bg-destructive-bg text-destructive`}><CircleX className="size-3 shrink-0" />Failed</span>
+  if (status === 'Failed')    return <span className={`${base} bg-destructive/10 dark:bg-destructive/20 text-destructive`}><CircleX className="size-3 shrink-0" />Failed</span>
   return <span className={`${base} bg-warning-bg text-warning`}><CircleMinus className="size-3 shrink-0" />Cancelled</span>
 }
 
@@ -584,7 +584,7 @@ export function FinanceTab({ playerCurrency, fxRate, dateRange, onDateRangeChang
                     { label: 'PS Status', value: <TxStatusBadge status={selectedTx.psStatus} /> },
                     { label: 'Success', value: selectedTx.successFlag
                       ? <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full font-medium bg-success-bg text-success"><CircleCheck className="size-3 shrink-0" />Yes</span>
-                      : <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full font-medium bg-destructive-bg text-destructive"><CircleX className="size-3 shrink-0" />No</span>
+                      : <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full font-medium bg-destructive/10 dark:bg-destructive/20 text-destructive"><CircleX className="size-3 shrink-0" />No</span>
                     },
                   ].map(({ label, value }) => (
                     <div key={label} className="flex items-center justify-between py-2.5">
@@ -630,7 +630,7 @@ export function FinanceTab({ playerCurrency, fxRate, dateRange, onDateRangeChang
                       <p className="text-base font-medium">Error</p>
                       <p className="text-sm text-muted-foreground">Failure reason returned by the payment processor.</p>
                     </div>
-                    <div className="rounded-xl border border-destructive/30 bg-destructive-bg divide-y divide-destructive/10">
+                    <div className="rounded-xl border border-destructive/30 bg-destructive/10 dark:bg-destructive/20 divide-y divide-destructive/10">
                       <div className="flex items-center justify-between px-3 py-2.5">
                         <span className="text-sm text-muted-foreground">Code</span>
                         <span className="text-sm font-mono font-medium text-destructive">{selectedTx.errorCode}</span>

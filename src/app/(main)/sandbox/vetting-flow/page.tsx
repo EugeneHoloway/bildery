@@ -145,7 +145,7 @@ export default function Page() {
                 <TableCell>{ua ? 'Ємність рекрутерів, throughput до цілі 150/міс' : 'Recruiter capacity, throughput vs 150/mo goal'}</TableCell>
                 <TableCell>{ua ? '15 з 30 перевірених відхилено (50%): Олена: 5 випадків Mark Pass з A2 English за тиждень; Юлія: Mark пропускає скриптові відповіді (3+ схожих зафіксовано)' : '15 of 30 reviewed downgraded to Reject (50%): Olena: 5 cases of Mark Pass with A2 English in a single week; Yulia: Mark passes scripted answers (3+ similar caught in standup notes)'}</TableCell>
                 <TableCell>{ua ? '±4 тижні' : '±4 weeks'}</TableCell>
-                <TableCell><Badge variant="outline" className="bg-destructive-bg text-destructive border-destructive/30 text-xs pointer-events-none whitespace-nowrap">P0 Top</Badge></TableCell>
+                <TableCell><Badge variant="outline" className="bg-destructive/10 dark:bg-destructive/20 text-destructive border-destructive/30 text-xs pointer-events-none whitespace-nowrap">P0 Top</Badge></TableCell>
               </TableRow>
               <TableRow>
                 <TableCell className="font-semibold">2</TableCell>
@@ -153,7 +153,7 @@ export default function Page() {
                 <TableCell>{ua ? 'Маржа на найм, ~5–6 втрачених офферів/міс' : 'Margin per hire, ~5–6 lost offers/mo'}</TableCell>
                 <TableCell>{ua ? "Марина: 17 з 23 кейсів (74%) за 30 днів. Почувши діапазон, кандидати тягнуться до його стелі. 5–6 втрачених офферів за оцінкою Марини." : 'Maryna: 17 of 23 cases (74%) in the past 30 days. After hearing the range, candidates push for the top of it instead of their original ask. 5–6 lost offers based on Maryna\'s estimate.'}</TableCell>
                 <TableCell>{ua ? '±0.5 дня (зміна промпту)' : '±0.5 day (prompt change)'}</TableCell>
-                <TableCell><Badge variant="outline" className="bg-destructive-bg text-destructive border-destructive/30 text-xs pointer-events-none whitespace-nowrap">P0 Quick-win</Badge></TableCell>
+                <TableCell><Badge variant="outline" className="bg-destructive/10 dark:bg-destructive/20 text-destructive border-destructive/30 text-xs pointer-events-none whitespace-nowrap">P0 Quick-win</Badge></TableCell>
               </TableRow>
               <TableRow>
                 <TableCell className="font-semibold">3</TableCell>
@@ -242,17 +242,17 @@ export default function Page() {
               <TableRow>
                 <TableCell>2</TableCell>
                 <TableCell>{ua ? 'Переваги проекту' : 'Project preferences'}</TableCell>
-                <TableCell><Badge variant="outline" className="bg-destructive-bg text-destructive border-destructive/30 text-xs pointer-events-none">UX issue (38% drop)</Badge></TableCell>
+                <TableCell><Badge variant="outline" className="bg-destructive/10 dark:bg-destructive/20 text-destructive border-destructive/30 text-xs pointer-events-none">UX issue (38% drop)</Badge></TableCell>
               </TableRow>
               <TableRow>
                 <TableCell>3</TableCell>
                 <TableCell>{ua ? 'Уточнення ролі' : 'Role clarification'}</TableCell>
-                <TableCell><Badge variant="outline" className="bg-destructive-bg text-destructive border-destructive/30 text-xs pointer-events-none">{ua ? 'Зламано -- немає перевірки заявок з CV' : 'Broken -- No Claims vs CV check'}</Badge></TableCell>
+                <TableCell><Badge variant="outline" className="bg-destructive/10 dark:bg-destructive/20 text-destructive border-destructive/30 text-xs pointer-events-none">{ua ? 'Зламано -- немає перевірки заявок з CV' : 'Broken -- No Claims vs CV check'}</Badge></TableCell>
               </TableRow>
               <TableRow>
                 <TableCell>4</TableCell>
                 <TableCell>{ua ? 'Перевірка навичок' : 'Skills verification'}</TableCell>
-                <TableCell><Badge variant="outline" className="bg-destructive-bg text-destructive border-destructive/30 text-xs pointer-events-none">{ua ? 'Зламано -- Mark приймає шаблонні відповіді' : 'Broken -- Mark accepts templated answers'}</Badge></TableCell>
+                <TableCell><Badge variant="outline" className="bg-destructive/10 dark:bg-destructive/20 text-destructive border-destructive/30 text-xs pointer-events-none">{ua ? 'Зламано -- Mark приймає шаблонні відповіді' : 'Broken -- Mark accepts templated answers'}</Badge></TableCell>
               </TableRow>
               <TableRow>
                 <TableCell>5</TableCell>

@@ -78,7 +78,7 @@ const STATUS: Record<StatusKey, { dot: string; selBorder: string; selBg: string;
   processing: { dot: 'bg-warning',     selBorder: 'border-warning/40',     selBg: 'bg-warning-bg',     badge: 'bg-warning-bg text-warning'       },
   success:    { dot: 'bg-success',     selBorder: 'border-success/40',     selBg: 'bg-success-bg',     badge: 'bg-success-bg text-success'       },
   partial:    { dot: 'bg-violet-500',  selBorder: 'border-violet-500/40',  selBg: 'bg-violet-500/10',  badge: 'bg-violet-500/10 text-violet-500' },
-  failed:     { dot: 'bg-destructive', selBorder: 'border-destructive/40', selBg: 'bg-destructive-bg', badge: 'bg-destructive-bg text-destructive'},
+  failed:     { dot: 'bg-destructive', selBorder: 'border-destructive/40', selBg: 'bg-destructive/10 dark:bg-destructive/20', badge: 'bg-destructive/10 dark:bg-destructive/20 text-destructive'},
   timeout:    { dot: 'bg-orange-500',  selBorder: 'border-orange-500/40',  selBg: 'bg-orange-500/10',  badge: 'bg-orange-500/10 text-orange-500' },
 }
 
@@ -354,7 +354,7 @@ const STATUS_BADGE_CLS: Record<StatusKey, string> = {
   processing: 'bg-warning-bg text-warning border-warning/30',
   success:    'bg-success-bg text-success border-success-border',
   partial:    'bg-violet-500/10 text-violet-500 border-violet-500/30',
-  failed:     'bg-destructive-bg text-destructive border-destructive/30',
+  failed:     'bg-destructive/10 dark:bg-destructive/20 text-destructive border-destructive/30',
   timeout:    'bg-orange-500/10 text-orange-500 border-orange-500/30',
 }
 
@@ -381,7 +381,7 @@ function StateNode({ state, selected, onClick }: {
         'border rounded-xl p-3 transition-all duration-200',
         selected
           ? 'bg-muted border-foreground/30 shadow-card'
-          : 'bg-card border-border shadow-card hover:border-subtle-border hover:shadow-card-hover',
+          : 'bg-card border-border shadow-card hover:border-foreground/15 hover:shadow-card-hover',
       )}
     >
       <div className="flex items-center gap-2 mb-1.5">

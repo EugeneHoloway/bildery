@@ -132,7 +132,7 @@ export default function Page() {
                     : 'Small samples (2/2 = 100%) | Ignores odds | Incentivizes favorites'}
                 </TableCell>
                 <TableCell>
-                  <Badge variant="outline" className="bg-destructive-bg text-destructive border-destructive/30 text-xs pointer-events-none">
+                  <Badge variant="outline" className="bg-destructive/10 dark:bg-destructive/20 text-destructive border-destructive/30 text-xs pointer-events-none">
                     {ua ? 'Відхилено' : 'Rejected'}
                   </Badge>
                 </TableCell>

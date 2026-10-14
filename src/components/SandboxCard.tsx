@@ -87,7 +87,7 @@ export function SandboxCard({ card }: { card: SandboxCardData }) {
         'shadow-card',
         // Interaction
         'transition-all duration-200',
-        'hover:border-subtle-border hover:shadow-card-hover',
+        'hover:border-foreground/15 hover:shadow-card-hover',
       )}
     >
       {/* Stretched hit area — makes the whole card clickable */}
@@ -165,7 +165,7 @@ export function SandboxCard({ card }: { card: SandboxCardData }) {
       </div>
 
       {/* Footer */}
-      <div className="-mx-4 -mb-4 flex items-center justify-between gap-3 rounded-b-xl border-t border-border bg-subtle px-4 py-4">
+      <div className="-mx-4 -mb-4 flex items-center justify-between gap-3 rounded-b-xl border-t border-border bg-muted px-4 py-4">
         <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
           <Activity className="size-3.5 shrink-0" />
           <span className="font-medium">{card.cardStatus}</span>

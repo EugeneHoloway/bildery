@@ -429,7 +429,7 @@ function BannerForm({ initial, isNew }: { initial: BannerItem; isNew: boolean })
         {published ? (
           <Button
             variant="outline"
-            className="border-destructive/50 text-destructive hover:bg-destructive-bg hover:text-destructive"
+            className="border-destructive/50 text-destructive hover:bg-destructive/10 dark:hover:bg-destructive/20 hover:text-destructive"
             onClick={() => setConfirmStop(true)}
           >
             <CircleStop />

@@ -224,7 +224,7 @@ const transactionStates = [
   { state: 'PROCESSING',                 colorCls: 'text-amber-500',           bgCls: 'bg-amber-500/10',    borderCls: 'border-amber-500/20'   },
   { state: 'PENDING_CONFIRMATION',       colorCls: 'text-sky-500',             bgCls: 'bg-sky-500/10',      borderCls: 'border-sky-500/20'     },
   { state: 'COMPLETED',                  colorCls: 'text-emerald-500',         bgCls: 'bg-emerald-500/10',  borderCls: 'border-emerald-500/20' },
-  { state: 'FAILED',                     colorCls: 'text-destructive',         bgCls: 'bg-destructive-bg',  borderCls: 'border-destructive/20' },
+  { state: 'FAILED',                     colorCls: 'text-destructive',         bgCls: 'bg-destructive/10 dark:bg-destructive/20',  borderCls: 'border-destructive/20' },
   { state: 'TIMED_OUT → reconciliation', colorCls: 'text-orange-500',          bgCls: 'bg-orange-500/10',   borderCls: 'border-orange-500/20'  },
   { state: 'CANCELLED',                  colorCls: 'text-muted-foreground',    bgCls: 'bg-muted',           borderCls: 'border-border'         },
 ]
@@ -288,7 +288,7 @@ function NodeCard({
   const cardCls = cn(
     'border rounded-xl p-3 flex items-start gap-2.5 transition-all',
     'bg-card border-border shadow-card',
-    node.href && 'cursor-pointer hover:border-subtle-border hover:shadow-card-hover',
+    node.href && 'cursor-pointer hover:border-foreground/15 hover:shadow-card-hover',
     dimmed && 'opacity-30',
   )
 
@@ -563,7 +563,7 @@ function SortableItem({
               <Button
                 variant="ghost"
                 size="icon-sm"
-                className="hover:bg-destructive-bg hover:text-destructive"
+                className="hover:bg-destructive/10 dark:hover:bg-destructive/20 hover:text-destructive"
                 onClick={() => onDelete(item)}
                 aria-label="Delete"
               >
@@ -861,7 +861,7 @@ export default function Page() {
             { label: { en: 'Personalization',     ua: 'Персоналізація'       }, sub: { en: 'BIN lookup, preferred method, GEO context, PSP success rate', ua: 'BIN lookup, кращий метод, GEO контекст, success rate PSP' }, href: '/sandbox/payment-architecture/personalization', phase: '5' },
             { label: { en: 'How to add a new PSP', ua: 'Як додати новий PSP' }, sub: { en: 'Checklist for integrating any new payment provider', ua: 'Чеклист для інтеграції нового платіжного провайдера' }, href: '/sandbox/payment-architecture/add-psp', phase: 'next' },
           ].map(doc => (
-            <Link key={doc.href} href={doc.href} className={cn("border border-border bg-card rounded-xl p-3.5 flex items-start gap-2.5 hover:border-subtle-border hover:shadow-card-hover transition-all", (() => { const p = isNaN(Number(doc.phase)) ? doc.phase : Number(doc.phase); return doc.phase === 'oos' ? phaseFilter !== 'oos' : doc.phase === 'next' ? (phaseFilter !== 'all' && phaseFilter !== 'next' as never) : phaseFilter !== 'all' && phaseFilter !== p })() && 'opacity-30')}>
+            <Link key={doc.href} href={doc.href} className={cn("border border-border bg-card rounded-xl p-3.5 flex items-start gap-2.5 hover:border-foreground/15 hover:shadow-card-hover transition-all", (() => { const p = isNaN(Number(doc.phase)) ? doc.phase : Number(doc.phase); return doc.phase === 'oos' ? phaseFilter !== 'oos' : doc.phase === 'next' ? (phaseFilter !== 'all' && phaseFilter !== 'next' as never) : phaseFilter !== 'all' && phaseFilter !== p })() && 'opacity-30')}>
               <div className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-muted text-muted-foreground">
                 <FileText className="size-3.5" />
               </div>

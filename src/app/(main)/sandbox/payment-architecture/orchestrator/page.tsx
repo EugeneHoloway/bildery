@@ -292,7 +292,7 @@ export default function Page() {
               <div className="flex items-start gap-3 mb-2">
                 <div className={cn(
                   'flex size-5 shrink-0 items-center justify-center rounded-md text-xs font-bold mt-0.5',
-                  i < CASCADE_RULES.length - 1 ? 'bg-amber-500/10 text-amber-500' : 'bg-destructive-bg text-destructive',
+                  i < CASCADE_RULES.length - 1 ? 'bg-amber-500/10 text-amber-500' : 'bg-destructive/10 dark:bg-destructive/20 text-destructive',
                 )}>
                   {i + 1}
                 </div>
@@ -386,7 +386,7 @@ throw new OrchestratorError('PSP_ALL_FAILED')`}</pre>
                 <TableCell>
                   <Badge variant="outline" className={cn(
                     'text-xs font-mono pointer-events-none',
-                    r.status >= 500 ? 'bg-destructive-bg text-destructive border-destructive/30' : 'bg-amber-500/10 text-amber-500 border-amber-500/30',
+                    r.status >= 500 ? 'bg-destructive/10 dark:bg-destructive/20 text-destructive border-destructive/30' : 'bg-amber-500/10 text-amber-500 border-amber-500/30',
                   )}>{r.status}</Badge>
                 </TableCell>
                 <TableCell className="text-sm text-muted-foreground">{r.when[lang]}</TableCell>

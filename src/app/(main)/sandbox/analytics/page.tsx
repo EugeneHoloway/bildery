@@ -48,7 +48,7 @@ const CHART_COLOR_KEYS = ['chart-1', 'chart-3', 'chart-2', 'chart-5', 'chart-4']
 function retentionBadgeClass(pct: number): string {
   if (pct >= 50) return 'bg-success-bg text-success border-success-border'
   if (pct > 0)   return 'bg-warning-bg text-warning border-warning-border'
-  return 'bg-subtle text-muted-foreground border-subtle-border'
+  return 'bg-muted text-muted-foreground border-border'
 }
 
 // ── RFM segment badge ──────────────────────────────────────────────────────────
@@ -59,7 +59,7 @@ const RFM_SEG_CLASS: Record<string, string> = {
   'Promising':   'bg-info-bg text-info border-info-border',
   'New Players': 'bg-success-bg text-success border-success-border',
   'At Risk':     'bg-warning-bg text-warning border-warning-border',
-  'Lost':        'bg-destructive-bg text-destructive border-destructive/20',
+  'Lost':        'bg-destructive/10 dark:bg-destructive/20 text-destructive border-destructive/20',
 }
 
 function scoreClass(s: number): string {
@@ -597,7 +597,7 @@ export default function AnalyticsPage() {
               {rfm.map((r, i) => (
                 <TableRow key={i}>
                   <TableCell>
-                    <Badge variant="outline" className={cn(RFM_SEG_CLASS[r.segment] ?? 'bg-subtle text-muted-foreground border-subtle-border')}>
+                    <Badge variant="outline" className={cn(RFM_SEG_CLASS[r.segment] ?? 'bg-muted text-muted-foreground border-border')}>
                       {r.segment}
                     </Badge>
                   </TableCell>
@@ -631,7 +631,7 @@ export default function AnalyticsPage() {
             </TableBody>
           </DocTable>
 
-          <div className="mt-4 rounded-xl border border-border bg-subtle px-4 py-3 text-xs text-muted-foreground space-y-2">
+          <div className="mt-4 rounded-xl border border-border bg-muted px-4 py-3 text-xs text-muted-foreground space-y-2">
             <p className="font-semibold text-foreground">RFM scoring thresholds</p>
             <div className="grid grid-cols-1 gap-1 sm:grid-cols-3">
               <div>

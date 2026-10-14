@@ -678,7 +678,7 @@ function StatusBadge({ status }: { status: Player['status'] }) {
     </span>
   )
   if (status === 'Suspended') return (
-    <span className={`${base} bg-destructive-bg text-destructive`}>
+    <span className={`${base} bg-destructive/10 dark:bg-destructive/20 text-destructive`}>
       <CircleX className="size-3 shrink-0" />
       Suspended
     </span>

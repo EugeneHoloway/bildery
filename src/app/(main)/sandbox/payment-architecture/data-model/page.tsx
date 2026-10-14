@@ -298,7 +298,7 @@ function TableCard({ table, lang }: { table: TableDef; lang: Lang }) {
                 <TableCell>
                   {col.nullable
                     ? <Badge variant="outline" className="text-xs bg-muted text-muted-foreground border-border pointer-events-none">{ua ? 'Так' : 'Yes'}</Badge>
-                    : <Badge variant="outline" className="text-xs bg-destructive-bg text-destructive border-destructive/30 pointer-events-none">{ua ? 'Ні' : 'No'}</Badge>}
+                    : <Badge variant="outline" className="text-xs bg-destructive/10 dark:bg-destructive/20 text-destructive border-destructive/30 pointer-events-none">{ua ? 'Ні' : 'No'}</Badge>}
                 </TableCell>
                 <TableCell className="text-sm text-muted-foreground">{col.desc[lang]}</TableCell>
               </TableRow>

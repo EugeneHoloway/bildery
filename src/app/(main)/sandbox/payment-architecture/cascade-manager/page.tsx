@@ -233,7 +233,7 @@ export default function Page() {
                 'w-full border rounded-xl p-4 flex items-center gap-3',
                 step.status === 'success'
                   ? 'border-success/30 bg-success-bg/30'
-                  : 'border-destructive/20 bg-destructive-bg/30',
+                  : 'border-destructive/20 bg-destructive/5',
               )}>
                 <div className={cn(
                   'flex size-7 shrink-0 items-center justify-center rounded-xl text-xs font-bold',
@@ -253,7 +253,7 @@ export default function Page() {
                   'text-xs pointer-events-none shrink-0',
                   step.status === 'success'
                     ? 'bg-success-bg text-success border-success/30'
-                    : 'bg-destructive-bg text-destructive border-destructive/30',
+                    : 'bg-destructive/10 dark:bg-destructive/20 text-destructive border-destructive/30',
                 )}>
                   {step.status === 'success' ? (ua ? 'Успіх' : 'Success') : (ua ? 'Невдача' : 'Failed')}
                 </Badge>
@@ -293,7 +293,7 @@ export default function Page() {
                   'w-full border rounded-xl p-4 flex items-start gap-3',
                   isBranchSuccess  || isTerminalSuccess ? 'border-success/30 bg-success-bg/30' : '',
                   isBranchFail                          ? 'border-amber-500/30 bg-amber-500/5' : '',
-                  isTerminalFail                        ? 'border-destructive/20 bg-destructive-bg/30' : '',
+                  isTerminalFail                        ? 'border-destructive/20 bg-destructive/5' : '',
                   !isBranchSuccess && !isBranchFail && !isTerminalSuccess && !isTerminalFail ? 'border-border bg-card' : '',
                 )}>
                   <div className={cn(
@@ -318,7 +318,7 @@ export default function Page() {
                       </p>
                       {isBranchSuccess  && <Badge variant="outline" className="text-xs bg-success-bg text-success border-success/30 pointer-events-none">{ua ? 'Успіх' : 'Success'}</Badge>}
                       {isBranchFail     && <Badge variant="outline" className="text-xs bg-amber-500/10 text-amber-500 border-amber-500/30 pointer-events-none">{ua ? 'Помилка' : 'Failure'}</Badge>}
-                      {isTerminalFail   && <Badge variant="outline" className="text-xs bg-destructive-bg text-destructive border-destructive/30 pointer-events-none">{ua ? 'Кінець' : 'Terminal'}</Badge>}
+                      {isTerminalFail   && <Badge variant="outline" className="text-xs bg-destructive/10 dark:bg-destructive/20 text-destructive border-destructive/30 pointer-events-none">{ua ? 'Кінець' : 'Terminal'}</Badge>}
                     </div>
                     <p className="text-xs text-muted-foreground leading-snug">{step.desc[lang]}</p>
                     {step.code && (
@@ -527,7 +527,7 @@ function mapPassimPayError(pspCode: string): CascadeDecision {
                 <TableCell>
                   {f.retryable
                     ? <Badge variant="outline" className="text-xs bg-success-bg text-success border-success/30 pointer-events-none">{ua ? 'Так' : 'Yes'}</Badge>
-                    : <Badge variant="outline" className="text-xs bg-destructive-bg text-destructive border-destructive/30 pointer-events-none">{ua ? 'Ні' : 'No'}</Badge>
+                    : <Badge variant="outline" className="text-xs bg-destructive/10 dark:bg-destructive/20 text-destructive border-destructive/30 pointer-events-none">{ua ? 'Ні' : 'No'}</Badge>
                   }
                 </TableCell>
                 <TableCell className="text-sm text-muted-foreground">{f.cascadeTo[lang]}</TableCell>

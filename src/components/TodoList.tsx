@@ -159,7 +159,7 @@ function SortableTodoItem({
           <Button
             variant="ghost"
             size="icon-sm"
-            className="hover:bg-destructive-bg hover:text-destructive"
+            className="hover:bg-destructive/10 dark:hover:bg-destructive/20 hover:text-destructive"
             onClick={() => onDelete(todo.id)}
             aria-label="Delete"
           >

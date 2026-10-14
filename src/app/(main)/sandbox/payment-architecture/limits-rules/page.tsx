@@ -198,12 +198,12 @@ const RULE_ORDER: { label: I18n; reason: I18n; colorCls: string; bgCls: string; 
   {
     label:  { en: '1. Self-exclusion / cooling-off check', ua: '1. Self-exclusion / cooling-off перевірка' },
     reason: { en: 'Regulatory. Must block first -- no exceptions.',  ua: 'Регуляторна вимога. Блокує все, без винятків.' },
-    colorCls: 'text-destructive', bgCls: 'bg-destructive-bg', borderCls: 'border-destructive/30',
+    colorCls: 'text-destructive', bgCls: 'bg-destructive/10 dark:bg-destructive/20', borderCls: 'border-destructive/30',
   },
   {
     label:  { en: '2. Account status check (suspended / locked)', ua: '2. Статус акаунту (заблоковано / призупинено)' },
     reason: { en: 'Operational. Account must be active.',           ua: 'Операційна. Акаунт має бути активним.' },
-    colorCls: 'text-destructive', bgCls: 'bg-destructive-bg', borderCls: 'border-destructive/30',
+    colorCls: 'text-destructive', bgCls: 'bg-destructive/10 dark:bg-destructive/20', borderCls: 'border-destructive/30',
   },
   {
     label:  { en: '3. KYC gate check',                             ua: '3. Перевірка KYC gate'                         },
@@ -574,7 +574,7 @@ export default function Page() {
                 <TableCell>
                   {r.configurable
                     ? <Badge variant="outline" className="text-xs bg-success-bg text-success border-success/30">{ua ? 'Так' : 'Yes'}</Badge>
-                    : <Badge variant="outline" className="text-xs bg-destructive-bg text-destructive border-destructive/30">{ua ? 'Ні (регулятор)' : 'No (regulator)'}</Badge>
+                    : <Badge variant="outline" className="text-xs bg-destructive/10 dark:bg-destructive/20 text-destructive border-destructive/30">{ua ? 'Ні (регулятор)' : 'No (regulator)'}</Badge>
                   }
                 </TableCell>
               </TableRow>
@@ -653,7 +653,7 @@ export default function Page() {
         <div className="mt-4 border border-border rounded-xl overflow-hidden">
           <div className="flex items-center justify-between px-3 py-2 bg-muted border-b border-border">
             <span className="text-xs font-mono text-muted-foreground">HTTP 422 -- BLOCK response</span>
-            <Badge variant="outline" className="text-xs bg-destructive-bg text-destructive border-destructive/30 pointer-events-none">Blocked</Badge>
+            <Badge variant="outline" className="text-xs bg-destructive/10 dark:bg-destructive/20 text-destructive border-destructive/30 pointer-events-none">Blocked</Badge>
           </div>
           <pre className="text-xs font-mono text-foreground p-4 leading-relaxed overflow-x-auto bg-card">{`{
   "error": "DAILY_LIMIT_REACHED",
@@ -738,7 +738,7 @@ export default function Page() {
           ] as { icon: React.ElementType; tool: I18n; type: I18n; desc: I18n; required: I18n; critical: boolean }[]).map((item, i) => (
             <div key={i} className={cn(
               'border rounded-xl p-4',
-              item.critical ? 'border-destructive/20 bg-destructive-bg' : 'border-border bg-card',
+              item.critical ? 'border-destructive/20 bg-destructive/10 dark:bg-destructive/20' : 'border-border bg-card',
             )}>
               <div className="flex items-start gap-3">
                 <div className={cn(
@@ -847,7 +847,7 @@ export default function Page() {
             <div key={i} className={cn(
               'border rounded-xl px-3 py-2.5',
               item.critical
-                ? 'border-destructive/20 bg-destructive-bg'
+                ? 'border-destructive/20 bg-destructive/10 dark:bg-destructive/20'
                 : 'border-border bg-card',
             )}>
               <p className={cn('text-sm font-medium mb-0.5', item.critical ? 'text-foreground' : 'text-foreground')}>

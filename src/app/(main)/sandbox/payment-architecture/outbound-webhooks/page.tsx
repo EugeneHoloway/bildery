@@ -54,7 +54,7 @@ function WarnCard({ children }: { children: React.ReactNode }) {
 
 function DangerCard({ children }: { children: React.ReactNode }) {
   return (
-    <div className="border border-destructive/30 bg-destructive-bg rounded-xl px-4 py-3 flex items-start gap-3 mb-4">
+    <div className="border border-destructive/30 bg-destructive/10 dark:bg-destructive/20 rounded-xl px-4 py-3 flex items-start gap-3 mb-4">
       <AlertCircle className="size-4 shrink-0 mt-0.5 text-destructive" />
       <div className="text-sm text-foreground leading-relaxed">{children}</div>
     </div>

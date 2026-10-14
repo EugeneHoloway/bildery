@@ -266,7 +266,7 @@ export default function Page() {
                   <span className={cn(
                     'text-xs px-2 py-0.5 rounded border',
                     r.action.en.includes('Block') || r.action.en.includes('429')
-                      ? 'bg-destructive-bg text-destructive border-destructive/30'
+                      ? 'bg-destructive/10 dark:bg-destructive/20 text-destructive border-destructive/30'
                       : 'bg-amber-500/10 text-amber-500 border-amber-500/30',
                   )}>
                     {r.action[lang]}
@@ -317,7 +317,7 @@ export default function Page() {
             <div className="border border-border rounded-xl overflow-hidden">
               <div className="flex items-center justify-between px-3 py-2 bg-muted border-b border-border">
                 <span className="text-xs font-mono text-muted-foreground">HTTP 429</span>
-                <Badge variant="outline" className="text-xs bg-destructive-bg text-destructive border-destructive/30 pointer-events-none">Too Many Requests</Badge>
+                <Badge variant="outline" className="text-xs bg-destructive/10 dark:bg-destructive/20 text-destructive border-destructive/30 pointer-events-none">Too Many Requests</Badge>
               </div>
               <pre className="text-xs font-mono text-foreground p-4 leading-relaxed overflow-x-auto bg-card">{`{
   "error": "RATE_LIMIT_EXCEEDED",

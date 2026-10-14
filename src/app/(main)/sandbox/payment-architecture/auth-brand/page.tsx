@@ -69,7 +69,7 @@ interface EdgeCase {
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
 const SEVERITY_STYLE: Record<Severity, { badge: string }> = {
-  required:    { badge: 'bg-destructive-bg text-destructive border-destructive/30' },
+  required:    { badge: 'bg-destructive/10 dark:bg-destructive/20 text-destructive border-destructive/30' },
   recommended: { badge: 'bg-warning-bg text-warning border-warning/30'             },
   optional:    { badge: 'bg-muted text-muted-foreground border-border'             },
 }
@@ -492,7 +492,7 @@ function CheckCard({ check, lang }: { check: Check; lang: Lang }) {
             <span className="font-mono text-xs bg-muted rounded px-1.5 py-0.5">{check.errorCode}</span>
           )}
           {check.errorMsg && (
-            <span className="font-mono text-xs bg-destructive-bg text-destructive rounded px-1.5 py-0.5">{check.errorMsg}</span>
+            <span className="font-mono text-xs bg-destructive/10 dark:bg-destructive/20 text-destructive rounded px-1.5 py-0.5">{check.errorMsg}</span>
           )}
         </div>
       )}
@@ -532,7 +532,7 @@ function GroupCard({ group, lang }: { group: Group; lang: Lang }) {
 
 function EdgeCaseCard({ ec, lang }: { ec: EdgeCase; lang: Lang }) {
   const severityStyle = {
-    high:   { badge: 'bg-destructive-bg text-destructive border-destructive/30', icon: 'text-destructive' },
+    high:   { badge: 'bg-destructive/10 dark:bg-destructive/20 text-destructive border-destructive/30', icon: 'text-destructive' },
     medium: { badge: 'bg-warning-bg text-warning border-warning/30',             icon: 'text-warning'     },
   }[ec.severity]
   const ua = lang === 'ua'

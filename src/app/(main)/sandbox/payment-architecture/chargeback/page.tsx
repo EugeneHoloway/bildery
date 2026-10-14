@@ -53,7 +53,7 @@ function WarnCard({ children }: { children: React.ReactNode }) {
 
 function DangerCard({ children }: { children: React.ReactNode }) {
   return (
-    <div className="border border-destructive/30 bg-destructive-bg rounded-xl px-4 py-3 flex items-start gap-3 mb-4">
+    <div className="border border-destructive/30 bg-destructive/10 dark:bg-destructive/20 rounded-xl px-4 py-3 flex items-start gap-3 mb-4">
       <AlertCircle className="size-4 shrink-0 mt-0.5 text-destructive" />
       <div className="text-sm text-foreground leading-relaxed">{children}</div>
     </div>
@@ -326,7 +326,7 @@ export default function ChargebackPage() {
                 <div key={step.step} className={cn(
                   'border rounded-xl p-4',
                   isWin   ? 'border-success/30 bg-success-bg'      :
-                  isLoss  ? 'border-destructive/30 bg-destructive-bg' :
+                  isLoss  ? 'border-destructive/30 bg-destructive/10 dark:bg-destructive/20' :
                   isAction ? 'border-brand/20 bg-brand-bg'          :
                   'border-border bg-card',
                 )}>
@@ -442,7 +442,7 @@ export default function ChargebackPage() {
             {THRESHOLDS.map((t, i) => (
               <div key={i} className={cn(
                 'border rounded-xl p-4',
-                t.color === 'destructive' ? 'border-destructive/30 bg-destructive-bg' : 'border-warning/30 bg-warning-bg',
+                t.color === 'destructive' ? 'border-destructive/30 bg-destructive/10 dark:bg-destructive/20' : 'border-warning/30 bg-warning-bg',
               )}>
                 <div className="flex items-start gap-3">
                   <div className={cn(

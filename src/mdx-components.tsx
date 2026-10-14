@@ -21,7 +21,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     ),
     strong: ({ children }) => <strong className="font-bold">{children}</strong>,
     code:   ({ children }) => (
-      <code className="font-mono text-[0.85em] bg-subtle px-1 py-px rounded">{children}</code>
+      <code className="font-mono text-[0.85em] bg-muted px-1 py-px rounded">{children}</code>
     ),
     ul:     ({ children }) => (
       <ul className="mb-4 list-disc pl-5 space-y-1.5 text-sm leading-relaxed text-foreground marker:text-muted-foreground">

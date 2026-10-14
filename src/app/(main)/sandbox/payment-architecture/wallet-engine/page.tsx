@@ -195,7 +195,7 @@ const RACE_EXAMPLE: { actor: I18n; action: I18n; result: 'ok' | 'queued' | 'reje
 
 const directionStyle: Record<OperationDef['direction'], { icon: React.ElementType; colorCls: string; bgCls: string; borderCls: string; label: I18n }> = {
   credit:  { icon: ArrowDownLeft,  colorCls: 'text-success',     bgCls: 'bg-success-bg',     borderCls: 'border-success/30',     label: { en: 'Credit',  ua: 'Кредит'  } },
-  debit:   { icon: ArrowUpRight,   colorCls: 'text-destructive', bgCls: 'bg-destructive-bg', borderCls: 'border-destructive/30', label: { en: 'Debit',   ua: 'Дебет'   } },
+  debit:   { icon: ArrowUpRight,   colorCls: 'text-destructive', bgCls: 'bg-destructive/10 dark:bg-destructive/20', borderCls: 'border-destructive/30', label: { en: 'Debit',   ua: 'Дебет'   } },
   lock:    { icon: Lock,           colorCls: 'text-amber-500',   bgCls: 'bg-amber-500/10',   borderCls: 'border-amber-500/30',   label: { en: 'Hold',    ua: 'Hold'    } },
   release: { icon: Unlock,         colorCls: 'text-sky-500',     bgCls: 'bg-sky-500/10',     borderCls: 'border-sky-500/30',     label: { en: 'Release', ua: 'Release' } },
   read:    { icon: RefreshCw,      colorCls: 'text-muted-foreground', bgCls: 'bg-muted',     borderCls: 'border-border',         label: { en: 'Read',    ua: 'Читання' } },
@@ -434,7 +434,7 @@ export default function Page() {
 
         {/* Without Orleans */}
         <div className="grid grid-cols-1 gap-4 tablet:grid-cols-2 mb-5">
-          <div className="border border-destructive/20 rounded-xl p-4 bg-destructive-bg/20">
+          <div className="border border-destructive/20 rounded-xl p-4 bg-destructive/5">
             <div className="flex items-center gap-2 mb-3">
               <XCircle className="size-3.5 text-destructive shrink-0" />
               <p className="text-xs font-bold text-destructive uppercase tracking-wide">
