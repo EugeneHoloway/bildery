@@ -220,7 +220,7 @@ export default function RevenueIntelligencePage() {
         {/* Analyze button */}
         <div className="mb-10 flex justify-center">
           <Button disabled={loading} onClick={runAnalysis}>
-            <Sparkles /> Analyze &amp; Generate Insights
+            <Sparkles data-icon="inline-start" /> Analyze &amp; Generate Insights
           </Button>
         </div>
 

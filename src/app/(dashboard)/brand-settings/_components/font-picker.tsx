@@ -133,7 +133,7 @@ export function FontPicker({ id, value, onChange, cssVariable, fallback, details
           className="w-full justify-between font-normal"
         >
           <span className="truncate">{value || 'Select a font'}</span>
-          <ChevronDown className="text-muted-foreground" />
+          <ChevronDown data-icon="inline-end" className="text-muted-foreground" />
         </Button>
       </PopoverTrigger>
       {/* Two separate surfaces side by side: the wrapper itself has no background. Both panels share

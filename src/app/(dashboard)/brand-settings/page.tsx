@@ -491,12 +491,12 @@ function GeneralSection({ active, onActiveChange }: { active: boolean; onActiveC
                 className="shrink-0"
                 onClick={() => setConfirmDeactivate(true)}
               >
-                <Power />
+                <Power data-icon="inline-start" />
                 Deactivate brand
               </Button>
             ) : (
               <Button variant="outline" className="shrink-0" onClick={activate}>
-                <Power />
+                <Power data-icon="inline-start" />
                 Activate brand
               </Button>
             )}
@@ -805,7 +805,7 @@ function DomainsFields() {
         <div className="flex flex-wrap items-center gap-2">
           {/* Same badge as the brand status in the page header */}
           <Badge variant="success" className="capitalize">
-            <CircleCheck />
+            <CircleCheck data-icon="inline-start" />
             {IDENTITY.siteStatus.state}
           </Badge>
           <span className="text-sm text-muted-foreground">config v{IDENTITY.siteStatus.configVersion}</span>

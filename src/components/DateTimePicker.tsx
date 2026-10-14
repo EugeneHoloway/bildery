@@ -85,7 +85,7 @@ export function DateTimePicker({
           aria-invalid={ariaInvalid || undefined}
           className={cn('w-56 justify-start font-normal', !value && 'text-muted-foreground', className)}
         >
-          <CalendarClock className="text-muted-foreground" />
+          <CalendarClock data-icon="inline-start" className="text-muted-foreground" />
           {value ? formatDateTime(value) : placeholder}
         </Button>
       </PopoverTrigger>

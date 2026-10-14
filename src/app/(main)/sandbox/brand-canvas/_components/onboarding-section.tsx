@@ -720,7 +720,7 @@ export function OnboardingSection() {
               size="xl"
               className="w-full bg-success text-success-foreground hover:bg-success/90"
             >
-              <Lock />
+              <Lock data-icon="inline-start" />
               Deposit {amount > 0 ? `$${amountStr}` : ''}
             </Button>
 

@@ -259,7 +259,7 @@ export function GameHistoryTab({ playerCurrency, fxRate, dateRange, onDateRangeC
           <Popover open={gameColOpen} onOpenChange={setGameColOpen}>
             <PopoverTrigger asChild>
               <Button variant="outline" size="sm" className="gap-2">
-                <Columns2 />
+                <Columns2 data-icon="inline-start" />
                 <span className="hidden sm:inline">Columns</span>
               </Button>
             </PopoverTrigger>
@@ -291,7 +291,7 @@ export function GameHistoryTab({ playerCurrency, fxRate, dateRange, onDateRangeC
           <DateRangeFilter value={dateRange} onChange={onDateRangeChange} mobileLabel="none" />
 
           <Button variant="outline" size="sm" className="gap-2">
-            <Download />
+            <Download data-icon="inline-start" />
             <span className="hidden sm:inline">Export</span>
           </Button>
         </div>

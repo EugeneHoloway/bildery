@@ -45,7 +45,7 @@ export function BannerPanel() {
                   <p className="truncate text-xs text-muted-foreground">{slide.meta}</p>
                 </div>
                 <div className="flex shrink-0 items-center gap-1.5">
-                  <Button variant="outline" size="sm"><Pencil />Edit</Button>
+                  <Button variant="outline" size="sm"><Pencil data-icon="inline-start" />Edit</Button>
                   <Button variant="ghost" size="icon-sm" className="text-muted-foreground hover:text-destructive"
                     onClick={() => setSlides((p) => p.filter((s) => s.id !== slide.id))}>
                     <Trash2 />
@@ -58,7 +58,7 @@ export function BannerPanel() {
               size="sm"
               className="w-full border-dashed text-muted-foreground hover:text-foreground"
             >
-              <Plus />
+              <Plus data-icon="inline-start" />
               Add slide
             </Button>
           </div>

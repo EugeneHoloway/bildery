@@ -918,7 +918,7 @@ function AllConversationsContent() {
                           className="size-9 relative"
                           onClick={() => { setCompactFilterOpen(o => !o); setCompactSearchOpen(false) }}
                         >
-                          <SlidersHorizontal />
+                          <SlidersHorizontal data-icon="inline-start" />
                           {activeTab !== 'all' && (
                             <span className="absolute top-1.5 right-1.5 size-1.5 rounded-full bg-brand" />
                           )}
@@ -948,7 +948,7 @@ function AllConversationsContent() {
                           className="size-9 relative"
                           onClick={() => { setCompactSearchOpen(o => !o); setCompactFilterOpen(false) }}
                         >
-                          <Search />
+                          <Search data-icon="inline-start" />
                           {search && <span className="absolute top-1.5 right-1.5 size-1.5 rounded-full bg-brand" />}
                         </Button>
                         {compactSearchOpen && (
@@ -1194,7 +1194,7 @@ function AllConversationsContent() {
                       onClick={() => setShowStatusMenu(!showStatusMenu)}
                     >
                       {status === 'open' ? 'Open' : status === 'pending' ? 'Pending' : status === 'spam' ? 'Junk' : 'Resolved'}
-                      <ChevronDown />
+                      <ChevronDown data-icon="inline-end" />
                     </Button>
                     {showStatusMenu && (
                       <div className="absolute right-0 top-full mt-1 z-50 bg-popover border border-border rounded-lg shadow-md overflow-hidden min-w-[120px]">

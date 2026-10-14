@@ -154,7 +154,7 @@ function FinanceFiltersPopover() {
     <Popover>
       <PopoverTrigger asChild>
         <Button variant="outline" size="sm" className="gap-2">
-          <SlidersHorizontal />
+          <SlidersHorizontal data-icon="inline-start" />
           <span className="hidden sm:inline">Filters</span>
           {dirtyCount > 0 && (
             <span className="ml-0.5 flex size-4 items-center justify-center rounded-full bg-foreground text-2xs font-semibold text-background">
@@ -351,7 +351,7 @@ export function FinanceTab({ playerCurrency, fxRate, dateRange, onDateRangeChang
           <Popover open={financeColOpen} onOpenChange={setFinanceColOpen}>
             <PopoverTrigger asChild>
               <Button variant="outline" size="sm" className="gap-2">
-                <Columns2 />
+                <Columns2 data-icon="inline-start" />
                 <span className="hidden sm:inline">Columns</span>
               </Button>
             </PopoverTrigger>
@@ -383,7 +383,7 @@ export function FinanceTab({ playerCurrency, fxRate, dateRange, onDateRangeChang
           <DateRangeFilter value={dateRange} onChange={onDateRangeChange} mobileLabel="none" />
 
           <Button variant="outline" size="sm" className="gap-2">
-            <Download />
+            <Download data-icon="inline-start" />
             <span className="hidden sm:inline">Export</span>
           </Button>
         </div>

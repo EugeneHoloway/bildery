@@ -238,7 +238,7 @@ function DupFiltersPopover() {
     <Popover>
       <PopoverTrigger asChild>
         <Button variant="outline" size="sm" className="gap-2">
-          <SlidersHorizontal />
+          <SlidersHorizontal data-icon="inline-start" />
           <span className="hidden sm:inline">Filters</span>
           {dirtyCount > 0 && (
             <span className="ml-0.5 flex size-4 items-center justify-center rounded-full bg-foreground text-2xs font-semibold text-background">
@@ -399,7 +399,7 @@ export function DuplicatesTab({ dateRange, onDateRangeChange }: {
           <Popover open={dupColOpen} onOpenChange={setDupColOpen}>
             <PopoverTrigger asChild>
               <Button variant="outline" size="sm" className="gap-2">
-                <Columns2 />
+                <Columns2 data-icon="inline-start" />
                 <span className="hidden sm:inline">Columns</span>
               </Button>
             </PopoverTrigger>
@@ -431,7 +431,7 @@ export function DuplicatesTab({ dateRange, onDateRangeChange }: {
           <DateRangeFilter value={dateRange} onChange={onDateRangeChange} mobileLabel="none" />
 
           <Button variant="outline" size="sm" className="gap-2">
-            <Download />
+            <Download data-icon="inline-start" />
             <span className="hidden sm:inline">Export</span>
           </Button>
         </div>
@@ -786,7 +786,7 @@ export function DuplicatesTab({ dateRange, onDateRangeChange }: {
             <div className="shrink-0 border-t border-border bg-muted p-4">
               <Link href={`/player/${selectedDuplicate.id}`}>
                 <Button variant="default" className="w-full gap-2">
-                  <ExternalLink />
+                  <ExternalLink data-icon="inline-start" />
                   Open full profile
                 </Button>
               </Link>

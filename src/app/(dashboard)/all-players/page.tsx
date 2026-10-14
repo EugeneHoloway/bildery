@@ -472,7 +472,7 @@ function FiltersPopover() {
     <Popover>
       <PopoverTrigger asChild>
         <Button variant="outline" size="sm" className="gap-2">
-          <SlidersHorizontal />
+          <SlidersHorizontal data-icon="inline-start" />
           <span className="hidden sm:inline">Filters</span>
           {isDirty && (
             <span className="ml-0.5 flex size-4 items-center justify-center rounded-full bg-foreground text-2xs font-semibold text-background">
@@ -830,7 +830,7 @@ export default function AllPlayersPage() {
             <Popover open={colOpen} onOpenChange={setColOpen}>
               <PopoverTrigger asChild>
                 <Button variant="outline" size="sm" className="gap-2">
-                  <Columns3 />
+                  <Columns3 data-icon="inline-start" />
                   <span className="hidden sm:inline">Columns</span>
                 </Button>
               </PopoverTrigger>
@@ -860,7 +860,7 @@ export default function AllPlayersPage() {
             </Popover>
             <DateRangeFilter value={dateRange} onChange={setDateRange} mobileLabel="none" />
             <Button variant="outline" size="sm" className="gap-2">
-              <Download />
+              <Download data-icon="inline-start" />
               <span className="hidden sm:inline">Export</span>
             </Button>
           </div>

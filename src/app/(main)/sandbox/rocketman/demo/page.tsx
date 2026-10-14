@@ -835,7 +835,7 @@ export default function RocketmanDemoPage() {
                   size="lg"
                   onClick={() => actions.current.launch()}
                 >
-                  <Rocket />
+                  <Rocket data-icon="inline-start" />
                   {sessionComplete ? 'Next session' : 'Launch'}
                 </Button>
               </>

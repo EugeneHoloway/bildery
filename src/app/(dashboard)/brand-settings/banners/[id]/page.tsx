@@ -432,7 +432,7 @@ function BannerForm({ initial, isNew }: { initial: BannerItem; isNew: boolean })
             className="border-destructive/50 text-destructive hover:bg-destructive/10 dark:hover:bg-destructive/20 hover:text-destructive"
             onClick={() => setConfirmStop(true)}
           >
-            <CircleStop />
+            <CircleStop data-icon="inline-start" />
             Stop
           </Button>
         ) : (
@@ -441,7 +441,7 @@ function BannerForm({ initial, isNew }: { initial: BannerItem; isNew: boolean })
               {/* span keeps the tooltip working while the button is disabled */}
               <span>
                 <Button onClick={publish} disabled={!!publishBlocked}>
-                  <Rocket />
+                  <Rocket data-icon="inline-start" />
                   Publish
                 </Button>
               </span>

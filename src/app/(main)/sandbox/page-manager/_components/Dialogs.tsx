@@ -54,7 +54,7 @@ export function AddProviderDialog({ onAdd }: { onAdd: (name: string) => void }) 
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button size="sm">
-          <Plus />
+          <Plus data-icon="inline-start" />
           Add provider
         </Button>
       </DialogTrigger>

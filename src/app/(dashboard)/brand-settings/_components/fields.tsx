@@ -47,7 +47,7 @@ export function TranslationKeyField({ id, label, value, onChange, error, suggest
             <span className={cn('min-w-0 flex-1 truncate text-left', value ? 'font-mono text-xs' : 'text-muted-foreground')}>
               {value ?? 'Select translation key…'}
             </span>
-            <ChevronDown className="text-muted-foreground" />
+            <ChevronDown data-icon="inline-end" className="text-muted-foreground" />
           </Button>
         </PopoverTrigger>
         <PopoverContent align="start" sideOffset={6} className="w-[var(--radix-popover-trigger-width)] p-0">

@@ -194,7 +194,7 @@ function GameCategoryFiltersForm({ section }: { section: Extract<HomeSection, { 
     <Tooltip>
       <TooltipTrigger asChild>
         <Badge variant="outline" tabIndex={0}>
-          <Lock className="text-muted-foreground" />
+          <Lock data-icon="inline-start" className="text-muted-foreground" />
           {LOBBY_HREF}
         </Badge>
       </TooltipTrigger>

@@ -111,7 +111,7 @@ export function CatalogPicker({
         const isLocked = locked.includes(code)
         return isLocked ? (
           <Badge key={code} variant="outline">
-            <Lock className="text-muted-foreground" />
+            <Lock data-icon="inline-start" className="text-muted-foreground" />
             {labelFor(code)}
             {lockedHint && <span className="font-normal text-muted-foreground">· {lockedHint}</span>}
           </Badge>

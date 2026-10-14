@@ -94,7 +94,7 @@ function AddSectionDialog({ onAdd }: { onAdd: (label: string) => void }) {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button size="sm" className="w-full">
-          <Plus />
+          <Plus data-icon="inline-start" />
           Add section
         </Button>
       </DialogTrigger>

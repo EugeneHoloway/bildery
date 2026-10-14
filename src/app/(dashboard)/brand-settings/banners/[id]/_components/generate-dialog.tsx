@@ -345,7 +345,7 @@ export function GenerateDialog({ kind, current, open, onOpenChange }: {
             <TooltipTrigger asChild>
               <span>
                 <Button onClick={generate} disabled={missingPhoto}>
-                  <Sparkles />
+                  <Sparkles data-icon="inline-start" />
                   Generate
                 </Button>
               </span>

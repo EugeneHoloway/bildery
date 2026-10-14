@@ -181,7 +181,7 @@ export function LimitsTab({ playerName, playerCurrency, fxRate }: {
             </div>
           </div>
           <Button variant="outline" size="sm" className="gap-1.5 shrink-0" onClick={openAddPl}>
-            <Pencil />
+            <Pencil data-icon="inline-start" />
             <span>Edit limits</span>
           </Button>
         </div>
@@ -275,7 +275,7 @@ export function LimitsTab({ playerName, playerCurrency, fxRate }: {
             <p className="text-xs text-muted-foreground mt-0.5">Player has not requested any exclusion period.</p>
           </div>
           <Button variant="outline" size="sm" className="mt-1 gap-1.5" onClick={() => setSeDrawerOpen(true)}>
-            <Plus />
+            <Plus data-icon="inline-start" />
             Apply self-exclusion
           </Button>
         </div>
@@ -292,7 +292,7 @@ export function LimitsTab({ playerName, playerCurrency, fxRate }: {
             </div>
           </div>
           <Button variant="outline" size="sm" className="gap-1.5 shrink-0" onClick={() => setCoDrawerOpen(true)}>
-            <Pencil />
+            <Pencil data-icon="inline-start" />
             <span>Edit</span>
           </Button>
         </div>
@@ -360,7 +360,7 @@ export function LimitsTab({ playerName, playerCurrency, fxRate }: {
             </div>
           </div>
           <Button variant="outline" size="sm" className="gap-1.5 shrink-0" onClick={openAddOl}>
-            <Pencil />
+            <Pencil data-icon="inline-start" />
             <span>Edit limits</span>
           </Button>
         </div>
@@ -716,7 +716,7 @@ export function LimitsTab({ playerName, playerCurrency, fxRate }: {
               disabled={!seReason}
               onClick={() => setSeDrawerOpen(false)}
             >
-              <Ban />
+              <Ban data-icon="inline-start" />
               Apply exclusion
             </Button>
           </div>
@@ -826,7 +826,7 @@ export function LimitsTab({ playerName, playerCurrency, fxRate }: {
               disabled={!coReason}
               onClick={() => setCoDrawerOpen(false)}
             >
-              <Timer />
+              <Timer data-icon="inline-start" />
               Apply cooling-off
             </Button>
           </div>

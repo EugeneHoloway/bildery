@@ -232,7 +232,7 @@ export default function AccountPage() {
                     className="text-destructive border-destructive/40 hover:bg-destructive/5 hover:text-destructive"
                     onClick={() => setDeactivateOpen(true)}
                   >
-                    <Ban />
+                    <Ban data-icon="inline-start" />
                     Deactivate account
                   </Button>
                 </div>
