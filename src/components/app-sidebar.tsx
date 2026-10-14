@@ -18,7 +18,7 @@ import { usePathname } from "next/navigation"
 
 import { NavMain } from "@/components/nav-main"
 import { NavProjects } from "@/components/nav-projects"
-import { NavSettings, SETTINGS_ROOT } from "@/components/nav-settings"
+import { ConsoleHeader, NavSettings, SETTINGS_ROOT } from "@/components/nav-settings"
 import { NavUser } from "@/components/nav-user"
 import { TeamSwitcher } from "@/components/team-switcher"
 import {
@@ -127,7 +127,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <TeamSwitcher teams={data.teams} />
+        {inSettings ? <ConsoleHeader /> : <TeamSwitcher teams={data.teams} />}
       </SidebarHeader>
       <SidebarContent>
         {inSettings ? (

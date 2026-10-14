@@ -88,7 +88,7 @@ export function NavUser() {
             <DropdownMenuGroup>
               <DropdownMenuItem onClick={() => router.push('/settings/operators-brands')}>
                 <Settings />
-                Organization settings
+                Platform settings
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />

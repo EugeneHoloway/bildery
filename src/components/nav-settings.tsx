@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { ArrowLeft, Settings } from "lucide-react"
+import { ArrowLeft, Settings, ShieldCheck } from "lucide-react"
 
 import {
   SidebarGroup,
@@ -21,6 +21,27 @@ const items = [
   { title: "Games Providers", url: "/settings/game-providers" },
 ]
 
+// Replaces the team switcher while inside /settings: a fixed console title, nothing to switch
+export function ConsoleHeader() {
+  return (
+    <SidebarMenu>
+      <SidebarMenuItem>
+        <SidebarMenuButton size="lg" asChild>
+          <Link href={items[0].url}>
+            <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+              <ShieldCheck />
+            </div>
+            <div className="grid flex-1 text-left text-sm leading-tight">
+              <span className="truncate font-medium">Console</span>
+              <span className="truncate text-xs">Superadmin settings</span>
+            </div>
+          </Link>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
+    </SidebarMenu>
+  )
+}
+
 export function NavSettings({ backHref }: { backHref: string }) {
   const pathname = usePathname()
 
@@ -36,10 +57,10 @@ export function NavSettings({ backHref }: { backHref: string }) {
           </SidebarMenuButton>
         </SidebarMenuItem>
         <SidebarMenuItem>
-          <SidebarMenuButton asChild tooltip="Organization settings">
+          <SidebarMenuButton asChild tooltip="Platform settings">
             <Link href={items[0].url}>
               <Settings />
-              <span>Organization settings</span>
+              <span>Platform settings</span>
             </Link>
           </SidebarMenuButton>
           <SidebarMenuSub>

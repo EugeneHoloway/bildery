@@ -535,7 +535,7 @@ function OperatorsBrandsPage() {
     <>
       <DashboardHeader
         breadcrumbs={[
-          { label: 'Organization settings', href: '/settings/operators-brands' },
+          { label: 'Platform settings', href: '/settings/operators-brands' },
           { label: 'Operators & Brands' },
         ]}
       />
