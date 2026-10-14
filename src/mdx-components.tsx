@@ -48,7 +48,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
       </pre>
     ),
     table:  ({ children }) => (
-      <div className="mb-5 overflow-x-auto rounded-lg border border-border bg-card">
+      <div className="mb-5 overflow-x-auto rounded-xl border border-border bg-card">
         <table className="w-full caption-bottom text-sm">{children}</table>
       </div>
     ),

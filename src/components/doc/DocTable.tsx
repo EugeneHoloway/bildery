@@ -31,7 +31,7 @@ function DocTable({
 }) {
   return (
     <div className={cn(
-      'mb-5 rounded-lg border border-border bg-card overflow-hidden',
+      'mb-5 rounded-xl border border-border bg-card overflow-hidden',
       className,
     )}>
       <Table>{children}</Table>
