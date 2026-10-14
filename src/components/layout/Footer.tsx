@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { X, ArrowUp, UserRound, Paperclip, Mic, ChevronDown, Angry, Frown, Meh, Smile, Laugh } from 'lucide-react'
 import pkg from '../../../package.json'
+import { Button } from '@/components/ui/button'
 const version = pkg.version
 
 const navItems = [
@@ -178,12 +179,15 @@ export function Footer() {
               <div className="flex items-center">
                 <span className="text-sm font-medium text-foreground">Ask Support</span>
               </div>
-              <button
+              <Button
+                variant="ghost"
+                size="icon"
                 onClick={handleClose}
-                className="rounded-md p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                aria-label="Close"
+                className="text-muted-foreground"
               >
-                <X className="size-5" />
-              </button>
+                <X />
+              </Button>
             </div>
 
             {/* Messages */}
@@ -320,20 +324,23 @@ export function Footer() {
                       className="w-full resize-none bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none leading-relaxed max-h-32 overflow-y-auto"
                     />
                     <div className="flex items-center gap-1">
-                      <button className="p-1 text-muted-foreground hover:text-foreground transition-colors">
-                        <Paperclip className="size-4" />
-                      </button>
+                      <Button variant="ghost" size="icon-sm" aria-label="Attach file" className="text-muted-foreground">
+                        <Paperclip />
+                      </Button>
                     </div>
                   </div>
                   {/* Right: send button */}
                   <div className="flex items-end shrink-0 pb-0.5">
-                    <button
+                    <Button
+                      variant="default"
+                      size="icon"
                       onClick={send}
                       disabled={!value.trim()}
-                      className="size-8 rounded-full bg-foreground text-background flex items-center justify-center disabled:opacity-30 transition-opacity"
+                      aria-label="Send message"
+                      className="rounded-full"
                     >
-                      <ArrowUp className="size-4" />
-                    </button>
+                      <ArrowUp />
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -346,9 +353,9 @@ export function Footer() {
               {/* Header */}
               <div className="flex items-center justify-between px-4 pt-3 pb-2 shrink-0">
                 <span className="text-sm font-medium text-foreground">Ask Support</span>
-                <button onClick={handleClose} className="rounded-md p-1 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
-                  <X className="size-4" />
-                </button>
+                <Button variant="ghost" size="icon-sm" onClick={handleClose} aria-label="Close" className="text-muted-foreground">
+                  <X />
+                </Button>
               </div>
 
               {/* Messages */}
@@ -482,16 +489,19 @@ export function Footer() {
                     placeholder="Write a message..."
                     className="flex-1 resize-none bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none leading-relaxed max-h-40 overflow-y-auto"
                   />
-                  <button className="p-1.5 text-muted-foreground hover:text-foreground transition-colors shrink-0">
-                    <Paperclip className="size-4" />
-                  </button>
-                  <button
+                  <Button variant="ghost" size="icon-sm" aria-label="Attach file" className="shrink-0 text-muted-foreground">
+                    <Paperclip />
+                  </Button>
+                  <Button
+                    variant="default"
+                    size="icon-sm"
                     onClick={send}
                     disabled={!value.trim()}
-                    className="size-7 rounded-full bg-foreground text-background flex items-center justify-center shrink-0 disabled:opacity-30 transition-opacity"
+                    aria-label="Send message"
+                    className="shrink-0 rounded-full"
                   >
-                    <ArrowUp className="size-4" />
-                  </button>
+                    <ArrowUp />
+                  </Button>
                 </div>
               )}
             </div>

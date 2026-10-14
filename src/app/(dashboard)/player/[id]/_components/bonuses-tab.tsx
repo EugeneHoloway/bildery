@@ -321,15 +321,17 @@ export function BonusesTab({ playerCurrency, fxRate, subtab, onSubtabChange, dat
                   <TableCell className={`pl-4 ${bonusIdFrozen ? "sticky left-0 z-10 bg-background after:absolute after:right-0 after:top-0 after:bottom-0 after:w-px after:bg-border after:content-['']" : ""}`}>
                     <div className="flex items-center gap-1.5">
                       <span className="text-sm font-medium tabular-nums underline underline-offset-2 whitespace-nowrap">{b.id}</span>
-                      <button
+                      <Button
+                        variant="ghost"
+                        size="icon-xs"
                         onClick={(e) => copyBonusId(e, b.id)}
-                        className="text-muted-foreground/50 hover:text-muted-foreground transition-colors"
+                        className="-my-1 text-muted-foreground"
                         aria-label="Copy ID"
                       >
                         {copiedBonusId === b.id
-                          ? <Check className="size-3.5 text-muted-foreground" />
-                          : <Copy className="size-3.5" />}
-                      </button>
+                          ? <Check className="text-muted-foreground" />
+                          : <Copy />}
+                      </Button>
                     </div>
                   </TableCell>
                   {bonusVisibleCols.has('name') && (
@@ -430,7 +432,9 @@ export function BonusesTab({ playerCurrency, fxRate, subtab, onSubtabChange, dat
                 <DrawerTitle className="truncate">{selectedBonus?.name}</DrawerTitle>
                 <div className="flex items-center gap-1">
                   <span className="text-xs text-muted-foreground font-mono">#{selectedBonus?.id}</span>
-                  <button
+                  <Button
+                    variant="ghost"
+                    size="icon-xs"
                     onClick={() => {
                       if (selectedBonus) {
                         navigator.clipboard.writeText(selectedBonus.id)
@@ -438,13 +442,13 @@ export function BonusesTab({ playerCurrency, fxRate, subtab, onSubtabChange, dat
                         setTimeout(() => setCopiedBonusDrawerId(false), 1500)
                       }
                     }}
-                    className="text-muted-foreground/50 hover:text-muted-foreground transition-colors"
+                    className="-my-1 text-muted-foreground"
                     aria-label="Copy ID"
                   >
                     {copiedBonusDrawerId
-                      ? <Check className="size-3 text-muted-foreground" />
-                      : <Copy className="size-3" />}
-                  </button>
+                      ? <Check className="text-muted-foreground" />
+                      : <Copy />}
+                  </Button>
                 </div>
               </div>
             </div>

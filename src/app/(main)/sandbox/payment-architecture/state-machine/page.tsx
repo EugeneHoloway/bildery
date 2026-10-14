@@ -12,6 +12,7 @@ import { DocLayout }  from '@/components/doc/DocLayout'
 import { DocSection } from '@/components/doc/DocSection'
 import { DocTable, DocTableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/doc/DocTable'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 
 // ─── Lang ─────────────────────────────────────────────────────────────────────
 
@@ -426,9 +427,9 @@ function DetailPanel({ state, lang, onClose }: { state: StateDef; lang: Lang; on
             Unified: <span className="text-foreground font-medium">{fmtUnified(state.unified)}</span>
           </p>
         </div>
-        <button onClick={onClose} className="shrink-0 text-muted-foreground hover:text-foreground transition-colors">
-          <X className="size-4" />
-        </button>
+        <Button variant="ghost" size="icon-xs" onClick={onClose} aria-label="Close" className="shrink-0 text-muted-foreground">
+          <X />
+        </Button>
       </div>
 
       <p className="text-sm text-muted-foreground leading-relaxed mb-4">{state.desc[lang]}</p>

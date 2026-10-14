@@ -510,14 +510,17 @@ function SortableItem({
     >
       {/* drag handle */}
       {isUnlocked && (
-        <button
+        <Button
+          variant="ghost"
+          size="icon-xs"
           {...attributes}
           {...listeners}
-          className="shrink-0 cursor-grab active:cursor-grabbing text-muted-foreground/30 hover:text-muted-foreground transition-colors touch-none"
+          aria-label="Reorder"
+          className="shrink-0 cursor-grab active:cursor-grabbing text-muted-foreground/30 hover:text-muted-foreground touch-none"
           tabIndex={-1}
         >
-          <GripVertical className="size-4" />
-        </button>
+          <GripVertical />
+        </Button>
       )}
 
       <Checkbox

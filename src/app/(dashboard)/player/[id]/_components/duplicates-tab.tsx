@@ -471,15 +471,17 @@ export function DuplicatesTab({ dateRange, onDateRangeChange }: {
                         <Flag className="size-3.5 fill-warning text-warning shrink-0" />
                       )}
                       <span className="text-sm font-medium underline underline-offset-2 whitespace-nowrap">{dup.id}</span>
-                      <button
+                      <Button
+                        variant="ghost"
+                        size="icon-xs"
                         onClick={(e) => copyDupId(e, dup.id)}
-                        className="text-muted-foreground/50 hover:text-muted-foreground transition-colors"
+                        className="-my-1 text-muted-foreground"
                         aria-label="Copy ID"
                       >
                         {copiedDupId === dup.id
-                          ? <Check className="size-3.5 text-muted-foreground" />
-                          : <Copy className="size-3.5" />}
-                      </button>
+                          ? <Check className="text-muted-foreground" />
+                          : <Copy />}
+                      </Button>
                     </div>
                   </TableCell>
                   {dupVisibleCols.has('name') && (
@@ -585,7 +587,9 @@ export function DuplicatesTab({ dateRange, onDateRangeChange }: {
                 </DrawerTitle>
                 <div className="flex items-center gap-1">
                   <span className="text-xs text-muted-foreground font-mono">#{selectedDuplicate?.id}</span>
-                  <button
+                  <Button
+                    variant="ghost"
+                    size="icon-xs"
                     onClick={() => {
                       if (selectedDuplicate) {
                         navigator.clipboard.writeText(selectedDuplicate.id)
@@ -593,13 +597,13 @@ export function DuplicatesTab({ dateRange, onDateRangeChange }: {
                         setTimeout(() => setCopiedDrawerId(false), 1500)
                       }
                     }}
-                    className="text-muted-foreground/50 hover:text-muted-foreground transition-colors"
+                    className="-my-1 text-muted-foreground"
                     aria-label="Copy ID"
                   >
                     {copiedDrawerId
-                      ? <Check className="size-3 text-muted-foreground" />
-                      : <Copy className="size-3" />}
-                  </button>
+                      ? <Check className="text-muted-foreground" />
+                      : <Copy />}
+                  </Button>
                 </div>
               </div>
             </div>

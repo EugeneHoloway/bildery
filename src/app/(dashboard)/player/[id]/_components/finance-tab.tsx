@@ -427,15 +427,17 @@ export function FinanceTab({ playerCurrency, fxRate, dateRange, onDateRangeChang
                     <TableCell className={financeTxIdFrozen ? "sticky left-0 z-10 bg-background after:absolute after:right-0 after:top-0 after:bottom-0 after:w-px after:bg-border after:content-['']" : undefined}>
                         <div className="flex items-center gap-1.5">
                           <span className="text-sm font-medium underline underline-offset-2 whitespace-nowrap">{row.txId}</span>
-                          <button
+                          <Button
+                            variant="ghost"
+                            size="icon-xs"
                             onClick={(e) => copyTxId(e, row.txId)}
-                            className="text-muted-foreground/50 hover:text-muted-foreground transition-colors"
+                            className="-my-1 text-muted-foreground"
                             aria-label="Copy transaction ID"
                           >
                             {copiedTxId === row.txId
-                              ? <Check className="size-3.5 text-muted-foreground" />
-                              : <Copy className="size-3.5" />}
-                          </button>
+                              ? <Check className="text-muted-foreground" />
+                              : <Copy />}
+                          </Button>
                         </div>
                       </TableCell>
                     {financeVisibleCols.has('debit') && (
@@ -508,7 +510,9 @@ export function FinanceTab({ playerCurrency, fxRate, dateRange, onDateRangeChang
               {selectedTx && (
                 <div className="flex items-center gap-1">
                   <span className="text-xs text-muted-foreground font-mono">{selectedTx.txId}</span>
-                  <button
+                  <Button
+                    variant="ghost"
+                    size="icon-xs"
                     onClick={() => {
                       if (selectedTx) {
                         navigator.clipboard.writeText(selectedTx.txId)
@@ -516,13 +520,13 @@ export function FinanceTab({ playerCurrency, fxRate, dateRange, onDateRangeChang
                         setTimeout(() => setCopiedTxId(null), 1500)
                       }
                     }}
-                    className="text-muted-foreground/50 hover:text-muted-foreground transition-colors"
+                    className="-my-1 text-muted-foreground"
                     aria-label="Copy ID"
                   >
                     {copiedTxId === selectedTx.txId
-                      ? <Check className="size-3 text-muted-foreground" />
-                      : <Copy className="size-3" />}
-                  </button>
+                      ? <Check className="text-muted-foreground" />
+                      : <Copy />}
+                  </Button>
                 </div>
               )}
             </div>

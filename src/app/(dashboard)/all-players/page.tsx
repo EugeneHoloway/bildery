@@ -918,15 +918,17 @@ export default function AllPlayersPage() {
                         >
                           {player.id}
                         </Link>
-                        <button
+                        <Button
+                          variant="ghost"
+                          size="icon-xs"
                           onClick={() => copyPlayerId(player.id)}
-                          className="text-muted-foreground/50 hover:text-muted-foreground transition-colors"
+                          className="-my-1 text-muted-foreground"
                           aria-label="Copy ID"
                         >
                           {copiedId === player.id
-                            ? <Check className="size-3.5 text-muted-foreground" />
-                            : <Copy className="size-3.5" />}
-                        </button>
+                            ? <Check className="text-muted-foreground" />
+                            : <Copy />}
+                        </Button>
                       </div>
                     </TableCell>
                     {visibleCols.has('fullName') && <TableCell className="text-sm"><TruncCell text={player.name} /></TableCell>}

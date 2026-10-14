@@ -17,6 +17,7 @@ import type { DateRange } from 'react-day-picker'
 import { CircleDot, Copy, Check, Crown, BadgeCheck, Trophy } from 'lucide-react'
 import { Checkbox } from '@/components/ui/checkbox'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog'
+import { Button } from '@/components/ui/button'
 import {
   Select,
   SelectContent,
@@ -240,15 +241,17 @@ export default function PlayerProfilePage() {
               <p className="mt-0.5 flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground">
                 <span className="hidden sm:inline">Player ID:</span>
                 <span>{id}</span>
-                <button
+                <Button
+                  variant="ghost"
+                  size="icon-xs"
                   onClick={copyId}
-                  className="inline-flex items-center text-muted-foreground/50 hover:text-muted-foreground transition-colors"
+                  className="-my-1 text-muted-foreground"
                   aria-label="Copy player ID"
                 >
                   {copied
-                    ? <Check className="size-3.5 text-muted-foreground" />
-                    : <Copy className="size-3.5" />}
-                </button>
+                    ? <Check className="text-muted-foreground" />
+                    : <Copy />}
+                </Button>
               </p>
             </div>
           </div>

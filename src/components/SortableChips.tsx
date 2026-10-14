@@ -19,6 +19,7 @@ import { CSS } from '@dnd-kit/utilities'
 import { GripVertical, X } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
 
 interface SortableChipsProps {
   /** Ordered, unique values. */
@@ -40,24 +41,28 @@ function Chip({ item, onRemove }: { item: string; onRemove: () => void }) {
       // Позиция элемента во время перетаскивания -- единственный оправданный inline-style
       style={{ transform: CSS.Transform.toString(transform), transition }}
     >
-      <button
+      <Button
+        variant="ghost"
+        size="icon-xs"
         type="button"
         aria-label={`Reorder ${item}`}
-        className="cursor-grab touch-none rounded-full p-0.5 text-muted-foreground outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring active:cursor-grabbing"
+        className="size-4 rounded-full cursor-grab touch-none text-muted-foreground active:cursor-grabbing"
         {...attributes}
         {...listeners}
       >
-        <GripVertical className="size-3" />
-      </button>
+        <GripVertical />
+      </Button>
       {item}
-      <button
+      <Button
+        variant="ghost"
+        size="icon-xs"
         type="button"
         aria-label={`Remove ${item}`}
         onClick={onRemove}
-        className="rounded-full p-0.5 text-muted-foreground transition-colors outline-none hover:bg-foreground/10 hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
+        className="size-4 rounded-full text-muted-foreground"
       >
-        <X className="size-3" />
-      </button>
+        <X />
+      </Button>
     </Badge>
   )
 }

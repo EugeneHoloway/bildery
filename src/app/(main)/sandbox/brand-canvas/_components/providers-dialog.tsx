@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/dialog'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { useTheme } from 'next-themes'
+import { Button } from '@/components/ui/button'
 
 const PROVIDERS: { name: string; logo: string | null; logoDark: string | null }[] = [
   { name: 'Depo44', logo: '/logos/depo44-logo.svg', logoDark: '/logos/depo44-logo-white.svg' },
@@ -26,12 +27,14 @@ export function ProvidersDialog() {
       <Tooltip>
         <TooltipTrigger asChild>
           <DialogTrigger asChild>
-            <button
-              className="flex items-center justify-center size-8 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-muted-foreground"
               aria-label="Game providers"
             >
-              <LayoutGrid className="size-4" />
-            </button>
+              <LayoutGrid />
+            </Button>
           </DialogTrigger>
         </TooltipTrigger>
         <TooltipContent side="bottom">Game providers</TooltipContent>

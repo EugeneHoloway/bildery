@@ -399,13 +399,15 @@ export function OnboardingSection() {
           <DialogDescription className="sr-only">Enter the amount you'd like to deposit.</DialogDescription>
 
           {/* Back button */}
-          <button
+          <Button
+            variant="ghost"
+            size="icon-sm"
             onClick={backFromAmount}
-            className="absolute left-4 top-4 flex size-7 cursor-pointer items-center justify-center rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:outline-none"
+            className="absolute top-2 left-2"
             aria-label="Go back"
           >
-            <ChevronLeft className="size-4" />
-          </button>
+            <ChevronLeft />
+          </Button>
 
           <div className="flex flex-col gap-6">
             <DepositPill />
@@ -529,13 +531,15 @@ export function OnboardingSection() {
           <DialogDescription className="sr-only">Review and confirm your deposit amount before completing the {activeMethod === 'applepay' ? 'Apple Pay' : 'Google Pay'} transaction.</DialogDescription>
 
           {/* Back button */}
-          <button
+          <Button
+            variant="ghost"
+            size="icon-sm"
             onClick={backToAmount}
-            className="absolute left-4 top-4 flex size-7 cursor-pointer items-center justify-center rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:outline-none"
+            className="absolute top-2 left-2"
             aria-label="Go back"
           >
-            <ChevronLeft className="size-4" />
-          </button>
+            <ChevronLeft />
+          </Button>
 
           <div className="flex flex-col gap-6">
             <DepositPill />
@@ -600,13 +604,15 @@ export function OnboardingSection() {
           <DialogDescription className="sr-only">Enter your card details to complete the deposit.</DialogDescription>
 
           {/* Back button */}
-          <button
+          <Button
+            variant="ghost"
+            size="icon-sm"
             onClick={backToAmount}
-            className="absolute left-4 top-4 flex size-7 cursor-pointer items-center justify-center rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:outline-none"
+            className="absolute top-2 left-2"
             aria-label="Go back"
           >
-            <ChevronLeft className="size-4" />
-          </button>
+            <ChevronLeft />
+          </Button>
 
           <div className="flex flex-col gap-5">
             <DepositPill />
@@ -752,13 +758,15 @@ export function OnboardingSection() {
           <DialogDescription className="sr-only">Bank wire transfer details.</DialogDescription>
 
           {/* Back button */}
-          <button
+          <Button
+            variant="ghost"
+            size="icon-sm"
             onClick={() => { setWireOpen(false); setDepositOpen(true); setShowMore(true) }}
-            className="absolute left-4 top-4 flex size-7 cursor-pointer items-center justify-center rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:outline-none"
+            className="absolute top-2 left-2"
             aria-label="Go back"
           >
-            <ChevronLeft className="size-4" />
-          </button>
+            <ChevronLeft />
+          </Button>
 
           {/* Scrollable body */}
           <div className="overflow-y-auto -mr-4 pr-4">
@@ -822,15 +830,18 @@ export function OnboardingSection() {
                       <p className="text-sm font-semibold text-foreground">{n}. {label}</p>
                       <p className="mt-0.5 text-sm text-muted-foreground">{value}</p>
                     </div>
-                    <button
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
                       onClick={() => copyField(String(n), value)}
-                      className="shrink-0 cursor-pointer rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                      aria-label="Copy"
+                      className="shrink-0 text-muted-foreground"
                     >
                       {copiedField === String(n)
-                        ? <Check className="size-4 text-success" />
-                        : <Copy className="size-4" />
+                        ? <Check className="text-success" />
+                        : <Copy />
                       }
-                    </button>
+                    </Button>
                   </div>
                 ))}
 
@@ -843,15 +854,18 @@ export function OnboardingSection() {
                       <span className="text-muted-foreground"> No maximum.</span>
                     </p>
                   </div>
-                  <button
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
                     onClick={() => copyField('9', 'Minimum $1,000. No maximum.')}
-                    className="shrink-0 cursor-pointer rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                    aria-label="Copy"
+                    className="shrink-0 text-muted-foreground"
                   >
                     {copiedField === '9'
-                      ? <Check className="size-4 text-success" />
-                      : <Copy className="size-4" />
+                      ? <Check className="text-success" />
+                      : <Copy />
                     }
-                  </button>
+                  </Button>
                 </div>
 
                 {/* 10. Memo */}
@@ -866,15 +880,18 @@ export function OnboardingSection() {
                       Wires must be sent in USD. Can't find "Message to recipient / Memo"? Depending on your bank, it may be labeled as: Note, Description, Special Instructions, or Further Credit To.
                     </p>
                   </div>
-                  <button
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
                     onClick={() => copyField('10', 'kalidq7so')}
-                    className="shrink-0 cursor-pointer rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                    aria-label="Copy"
+                    className="shrink-0 text-muted-foreground"
                   >
                     {copiedField === '10'
-                      ? <Check className="size-4 text-success" />
-                      : <Copy className="size-4" />
+                      ? <Check className="text-success" />
+                      : <Copy />
                     }
-                  </button>
+                  </Button>
                 </div>
 
               </div>

@@ -473,16 +473,19 @@ function CopilotPanel({ convo, compact = false }: { convo: Conversation; compact
                 className={cn(sp, 'w-full bg-transparent outline-none resize-none text-foreground placeholder:text-muted-foreground leading-relaxed max-h-40 overflow-y-auto')}
               />
               <div className="flex items-center justify-between">
-                <button className="p-0.5 text-muted-foreground hover:text-foreground transition-colors">
-                  <Paperclip className="size-3.5" />
-                </button>
-                <button
+                <Button variant="ghost" size="icon-xs" aria-label="Attach file" className="text-muted-foreground">
+                  <Paperclip />
+                </Button>
+                <Button
+                  variant="default"
+                  size="icon-xs"
                   onClick={sendMessage}
                   disabled={!prompt.trim()}
-                  className="size-6 rounded-lg bg-foreground text-background flex items-center justify-center shrink-0 disabled:opacity-30 transition-opacity"
+                  aria-label="Send message"
+                  className="shrink-0"
                 >
-                  <ArrowUp className="size-3" />
-                </button>
+                  <ArrowUp />
+                </Button>
               </div>
             </div>
           </div>
@@ -584,12 +587,15 @@ function CopilotPanel({ convo, compact = false }: { convo: Conversation; compact
                 placeholder="Enter transaction ID..."
                 className={cn(sp, 'flex-1 bg-transparent outline-none text-foreground placeholder:text-muted-foreground px-2.5 py-1.5')}
               />
-              <button
+              <Button
+                variant="ghost"
+                size="icon-sm"
                 onClick={() => setTxnResult(txnQuery.length > 3 ? 'found' : 'not-found')}
-                className="px-2.5 py-1.5 bg-muted text-muted-foreground hover:text-foreground transition-colors border-l border-border"
+                aria-label="Look up transaction"
+                className="h-auto self-stretch rounded-none border-l border-border bg-muted text-muted-foreground"
               >
-                <ArrowRight className="size-3.5" />
-              </button>
+                <ArrowRight />
+              </Button>
             </div>
             {txnResult === 'found' && (
               <div className={cn(sp, 'flex flex-col gap-1 text-muted-foreground')}>
@@ -1255,15 +1261,18 @@ function AllConversationsContent() {
               <div className="flex-1 flex flex-col min-w-0 border-r border-border relative">
 
                 {/* Sidebar toggle button — desktop only */}
-                <button
+                <Button
+                  variant="default"
+                  size="icon-xs"
                   onClick={() => toggleDetails()}
-                  className="hidden md:flex absolute right-0 top-24 -translate-y-1/2 translate-x-1/2 z-10 size-6 rounded-full bg-foreground border border-border items-center justify-center shadow-sm hover:bg-foreground/80 transition-colors"
+                  aria-label={showSidebar ? 'Hide details' : 'Show details'}
+                  className="hidden md:flex absolute right-0 top-24 -translate-y-1/2 translate-x-1/2 z-10 rounded-full shadow-sm"
                 >
                   {showSidebar
-                    ? <ChevronRight className="size-3 text-background" />
-                    : <ChevronRight className="size-3 text-background rotate-180" />
+                    ? <ChevronRight />
+                    : <ChevronRight className="rotate-180" />
                   }
-                </button>
+                </Button>
 
                 {/* Messages */}
                 <div className="relative flex-1 min-h-0">
@@ -1347,12 +1356,12 @@ function AllConversationsContent() {
                         >Private Note</button>
                       </div>
                       <div className="ml-auto flex items-center gap-1">
-                        <button className="p-1.5 rounded-lg hover:bg-muted text-brand">
-                          <Sparkles className="size-4" />
-                        </button>
-                        <button className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground">
-                          <Maximize2 className="size-4" />
-                        </button>
+                        <Button variant="ghost" size="icon-sm" aria-label="AI assist" className="text-brand">
+                          <Sparkles />
+                        </Button>
+                        <Button variant="ghost" size="icon-sm" aria-label="Expand editor" className="text-muted-foreground">
+                          <Maximize2 />
+                        </Button>
                       </div>
                     </div>
                     {/* Text area */}
@@ -1381,13 +1390,16 @@ function AllConversationsContent() {
                         ))}
                         {/* Inactivity message templates */}
                         <div className="relative">
-                          <button
+                          <Button
+                            variant="ghost"
+                            size="icon-sm"
                             onClick={() => setShowInactivityMenu(o => !o)}
-                            className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground"
+                            aria-label="Inactivity messages"
+                            className="text-muted-foreground"
                             title="Inactivity messages"
                           >
-                            <Clock className="size-4" />
-                          </button>
+                            <Clock />
+                          </Button>
                           {showInactivityMenu && (
                             <div className="absolute bottom-full left-0 mb-2 z-50 bg-popover border border-border rounded-xl shadow-lg w-80 overflow-y-auto max-h-80">
                               <div className="px-3 py-2 border-b border-border">
@@ -1978,7 +1990,7 @@ function AllConversationsContent() {
                                   {convoLabels.map(lbl => (
                                     <span key={lbl} className={cn('flex items-center gap-1 text-xs border rounded px-1.5 py-0.5', TAG_COLORS[lbl] ?? 'bg-muted text-muted-foreground border-border')}>
                                       {lbl}
-                                      <button onClick={() => setConvoLabels(prev => prev.filter(l => l !== lbl))} className="hover:opacity-70"><X className="size-3" /></button>
+                                      <Button variant="ghost" size="icon-xs" onClick={() => setConvoLabels(prev => prev.filter(l => l !== lbl))} aria-label={`Remove ${lbl}`} className="size-4"><X /></Button>
                                     </span>
                                   ))}
                                 </div>
@@ -2471,7 +2483,7 @@ function AllConversationsContent() {
                               {convoLabels.map(lbl => (
                                 <span key={lbl} className={cn('flex items-center gap-1 text-xs border rounded px-1.5 py-0.5', TAG_COLORS[lbl] ?? 'bg-muted text-muted-foreground border-border')}>
                                   {lbl}
-                                  <button onClick={() => setConvoLabels(prev => prev.filter(l => l !== lbl))} className="hover:opacity-70"><X className="size-3" /></button>
+                                  <Button variant="ghost" size="icon-xs" onClick={() => setConvoLabels(prev => prev.filter(l => l !== lbl))} aria-label={`Remove ${lbl}`} className="size-4"><X /></Button>
                                 </span>
                               ))}
                             </div>
