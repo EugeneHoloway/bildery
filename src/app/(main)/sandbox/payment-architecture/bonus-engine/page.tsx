@@ -35,7 +35,7 @@ function LangSwitcher({ lang, onChange }: { lang: Lang; onChange: (l: Lang) => v
 
 function InfoCard({ children }: { children: React.ReactNode }) {
   return (
-    <div className="border border-border bg-card rounded-2xl px-4 py-3 flex items-start gap-3 mb-6">
+    <div className="border border-border bg-card rounded-xl px-4 py-3 flex items-start gap-3 mb-6">
       <Info className="size-4 shrink-0 mt-0.5 text-muted-foreground" />
       <div className="text-sm text-foreground leading-relaxed">{children}</div>
     </div>
@@ -44,7 +44,7 @@ function InfoCard({ children }: { children: React.ReactNode }) {
 
 function WarnCard({ children }: { children: React.ReactNode }) {
   return (
-    <div className="border border-amber-500/30 bg-amber-500/5 rounded-2xl px-4 py-3 flex items-start gap-3 mb-4">
+    <div className="border border-amber-500/30 bg-amber-500/5 rounded-xl px-4 py-3 flex items-start gap-3 mb-4">
       <AlertTriangle className="size-4 shrink-0 mt-0.5 text-amber-500" />
       <div className="text-sm text-foreground leading-relaxed">{children}</div>
     </div>
@@ -219,7 +219,7 @@ export default function Page() {
             { Icon: Clock,     title: { en: 'Auto-expiry',               ua: 'Авто-закінчення'          }, desc: { en: 'Bonuses expire if wagering is not completed within the configured period. Expired bonuses are cancelled and locked balance is deducted.', ua: 'Бонуси закінчуються якщо вейджер не виконано у встановлений термін. Прострочені бонуси скасовуються та заблокований баланс списується.' } },
             { Icon: Repeat2,   title: { en: 'Lifecycle audit',           ua: 'Аудит lifecycle'          }, desc: { en: 'Every status transition is logged with timestamp, reason, and actor. Required for compliance and dispute resolution.', ua: 'Кожна зміна статусу логується з часом, причиною та ініціатором. Необхідно для комплаєнсу та вирішення спорів.' } },
           ].map((card) => (
-            <div key={card.title.en} className="border border-border rounded-2xl p-4 flex items-start gap-3">
+            <div key={card.title.en} className="border border-border rounded-xl p-4 flex items-start gap-3">
               <div className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-muted text-muted-foreground">
                 <card.Icon className="size-4" />
               </div>
@@ -240,7 +240,7 @@ export default function Page() {
         <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">
           {ua ? 'Позиція в стеку' : 'Position in the stack'}
         </p>
-        <div className="border border-border rounded-2xl p-4 mb-6">
+        <div className="border border-border rounded-xl p-4 mb-6">
           <div className="flex flex-col gap-4">
             {[
               { label: { en: 'Wallet Engine', ua: 'Wallet Engine' }, note: { en: 'notifies Bonus Engine on deposit confirmed; executes balance lock/unlock commands', ua: 'повідомляє Bonus Engine при підтвердженні депозиту; виконує команди lock/unlock балансу' }, active: false },
@@ -274,7 +274,7 @@ export default function Page() {
         </p>
         <div className="flex flex-col gap-4 mb-6">
           {REQUEST_FLOWS.map((flow) => (
-            <div key={flow.title.en} className="border border-border rounded-2xl p-4">
+            <div key={flow.title.en} className="border border-border rounded-xl p-4">
               <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-3">{flow.title[lang]}</p>
               <div className="flex flex-col gap-2">
                 {flow.steps.map((step, i) => (
@@ -305,7 +305,7 @@ export default function Page() {
         <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">
           {ua ? 'Вхідні дані та їх джерела' : 'Input data and sources'}
         </p>
-        <div className="flex flex-col divide-y divide-border border border-border rounded-2xl overflow-hidden">
+        <div className="flex flex-col divide-y divide-border border border-border rounded-xl overflow-hidden">
           {DATA_INPUTS.map((row) => (
             <div key={row.label.en} className="flex items-center gap-3 px-4 py-3">
               <div className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-muted text-muted-foreground">
@@ -438,7 +438,7 @@ export default function Page() {
         <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">
           {ua ? 'Мінімальна схема БД для Phase 3' : 'Minimum DB schema for Phase 3'}
         </p>
-        <div className="border border-border rounded-2xl overflow-hidden">
+        <div className="border border-border rounded-xl overflow-hidden">
           <pre className="text-xs font-mono text-muted-foreground p-4 leading-relaxed overflow-x-auto bg-card">{`-- Bonus offer templates (configured per brand by ops)
 bonus_templates (
   id, brand_id, name, type,        -- 'deposit_match'
@@ -481,7 +481,7 @@ wager_transactions (
       <DocSection num="4" title={ua ? 'Кращі практики' : 'Best practices'}>
         <div className="grid grid-cols-1 gap-4 tablet:grid-cols-2">
           {BEST_PRACTICES.map((bp) => (
-            <div key={bp.title.en} className="border border-border rounded-2xl p-4">
+            <div key={bp.title.en} className="border border-border rounded-xl p-4">
               <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-3">{bp.title[lang]}</p>
               <ul className="flex flex-col gap-2">
                 {bp.items.map((item, i) => (

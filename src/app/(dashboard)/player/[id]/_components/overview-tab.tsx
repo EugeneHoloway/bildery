@@ -31,7 +31,7 @@ function WalletsCard() {
   const [showEmpty, setShowEmpty] = useState(false)
   const wallets = showEmpty ? [...FUNDED_WALLETS, ...EMPTY_WALLETS] : FUNDED_WALLETS
   return (
-    <div className="rounded-2xl border border-border bg-card overflow-hidden">
+    <div className="rounded-xl border border-border bg-card overflow-hidden">
       <div className="overflow-x-auto">
         <Table className="min-w-max sm:min-w-full">
           <TableHeader className="bg-muted/60">
@@ -176,7 +176,7 @@ export function OverviewTab() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
 
               {/* Transactions */}
-              <div className="rounded-2xl border border-border bg-card overflow-hidden">
+              <div className="rounded-xl border border-border bg-card overflow-hidden">
                 <div className="px-4 py-3 border-b border-border">
                   <span className="text-sm font-medium">Transactions</span>
                 </div>
@@ -192,7 +192,7 @@ export function OverviewTab() {
               </div>
 
               {/* Sessions */}
-              <div className="rounded-2xl border border-border bg-card overflow-hidden">
+              <div className="rounded-xl border border-border bg-card overflow-hidden">
                 <div className="px-4 py-3 border-b border-border">
                   <span className="text-sm font-medium">Sessions</span>
                 </div>
@@ -205,7 +205,7 @@ export function OverviewTab() {
               </div>
 
               {/* Live state */}
-              <div className="rounded-2xl border border-border bg-card overflow-hidden">
+              <div className="rounded-xl border border-border bg-card overflow-hidden">
                 <div className="px-4 py-3 border-b border-border">
                   <span className="text-sm font-medium">Live state</span>
                 </div>
@@ -237,7 +237,7 @@ export function OverviewTab() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
               {/* Adjustments */}
-              <div className="rounded-2xl border border-border bg-card overflow-hidden">
+              <div className="rounded-xl border border-border bg-card overflow-hidden">
                 <div className="px-4 py-3 border-b border-border">
                   <span className="text-sm font-medium">Adjustments</span>
                 </div>
@@ -261,7 +261,7 @@ export function OverviewTab() {
               </div>
 
               {/* Gaming */}
-              <div className="rounded-2xl border border-border bg-card overflow-hidden">
+              <div className="rounded-xl border border-border bg-card overflow-hidden">
                 <div className="px-4 py-3 border-b border-border">
                   <span className="text-sm font-medium">Gaming</span>
                 </div>

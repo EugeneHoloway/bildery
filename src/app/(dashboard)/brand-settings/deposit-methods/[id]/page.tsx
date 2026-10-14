@@ -422,7 +422,7 @@ function DepositMethodForm({ initial }: { initial: DepositMethod }) {
             }
           />
           {method.options.length === 0 ? (
-            <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border px-4 py-8 text-center">
+            <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border px-4 py-8 text-center">
               <div className="flex size-10 items-center justify-center rounded-xl bg-muted">
                 <ListPlus className="size-5 text-muted-foreground" />
               </div>
@@ -432,7 +432,7 @@ function DepositMethodForm({ initial }: { initial: DepositMethod }) {
           ) : (
             <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
               <SortableContext items={method.options.map(o => o.id)} strategy={verticalListSortingStrategy}>
-                <ul className="divide-y divide-border overflow-hidden rounded-2xl border border-border">
+                <ul className="divide-y divide-border overflow-hidden rounded-xl border border-border">
                   {method.options.map((option, index) => (
                     <OptionRow
                       key={option.id}
@@ -543,7 +543,7 @@ export default function DepositMethodPage() {
               </div>
             </div>
           ) : !method ? (
-            <div className="mt-4 flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border px-4 py-8 text-center">
+            <div className="mt-4 flex flex-col items-center gap-3 rounded-xl border border-dashed border-border px-4 py-8 text-center">
               <div className="flex size-10 items-center justify-center rounded-xl bg-muted">
                 <CreditCard className="size-5 text-muted-foreground" />
               </div>

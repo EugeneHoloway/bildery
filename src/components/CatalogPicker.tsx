@@ -92,7 +92,7 @@ export function CatalogPicker({
 
   if (value.length === 0 && EmptyIcon) {
     return (
-      <Empty className="rounded-2xl border border-border">
+      <Empty className="rounded-xl border border-border">
         <EmptyHeader>
           {/* Project empty-state media: rounded-xl tile, 20px icon */}
           <EmptyMedia variant="icon" className="size-10 rounded-xl">

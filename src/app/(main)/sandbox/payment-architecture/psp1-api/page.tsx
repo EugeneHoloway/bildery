@@ -37,7 +37,7 @@ interface I18n { en: string; ua: string }
 
 function InfoCard({ children }: { children: React.ReactNode }) {
   return (
-    <div className="border border-border bg-card shadow-card rounded-2xl px-4 py-3 flex items-start gap-3 mb-6">
+    <div className="border border-border bg-card shadow-card rounded-xl px-4 py-3 flex items-start gap-3 mb-6">
       <Info className="size-4 shrink-0 mt-0.5 text-muted-foreground" />
       <div className="text-sm text-foreground leading-relaxed">{children}</div>
     </div>
@@ -46,7 +46,7 @@ function InfoCard({ children }: { children: React.ReactNode }) {
 
 function NoteCard({ children }: { children: React.ReactNode }) {
   return (
-    <div className="border border-warning/30 bg-warning-bg rounded-2xl px-4 py-3 flex items-start gap-3">
+    <div className="border border-warning/30 bg-warning-bg rounded-xl px-4 py-3 flex items-start gap-3">
       <AlertTriangle className="size-4 shrink-0 mt-0.5 text-warning" />
       <div className="text-sm text-foreground leading-relaxed">{children}</div>
     </div>
@@ -302,7 +302,7 @@ export default function Page() {
           <div className="grid grid-cols-1 gap-6 tablet:grid-cols-2 mb-6">
 
             {/* H2H */}
-            <div className="border border-border rounded-2xl overflow-hidden">
+            <div className="border border-border rounded-xl overflow-hidden">
               <div className="px-4 py-3 bg-muted border-b border-border flex items-center gap-2">
                 <Wallet className="size-4 text-muted-foreground" />
                 <p className="text-sm font-bold text-foreground">H2H (Host-to-Host)</p>
@@ -325,7 +325,7 @@ export default function Page() {
             </div>
 
             {/* Invoice */}
-            <div className="border border-border rounded-2xl overflow-hidden">
+            <div className="border border-border rounded-xl overflow-hidden">
               <div className="px-4 py-3 bg-muted border-b border-border flex items-center gap-2">
                 <Globe className="size-4 text-muted-foreground" />
                 <p className="text-sm font-bold text-foreground">Invoice (Redirect)</p>
@@ -349,7 +349,7 @@ export default function Page() {
           </div>
 
           {/* H2H user flow */}
-          <div className="border border-border rounded-2xl overflow-hidden mb-4">
+          <div className="border border-border rounded-xl overflow-hidden mb-4">
             <div className="px-4 py-3 border-b border-border bg-muted flex items-center gap-2">
               <Layers className="size-4 text-muted-foreground" />
               <p className="text-sm font-bold text-foreground">{ua ? 'H2H -- флоу гравця' : 'H2H -- Player flow'}</p>
@@ -362,7 +362,7 @@ export default function Page() {
           </div>
 
           {/* Invoice user flow */}
-          <div className="border border-border rounded-2xl overflow-hidden">
+          <div className="border border-border rounded-xl overflow-hidden">
             <div className="px-4 py-3 border-b border-border bg-muted flex items-center gap-2">
               <Layers className="size-4 text-muted-foreground" />
               <p className="text-sm font-bold text-foreground">{ua ? 'Invoice -- флоу гравця' : 'Invoice -- Player flow'}</p>
@@ -387,7 +387,7 @@ export default function Page() {
           </InfoCard>
           <div className="flex flex-col gap-3">
             {LIMITATIONS.map((l, i) => (
-              <div key={i} className="border border-border bg-card rounded-2xl p-4 flex flex-col gap-2">
+              <div key={i} className="border border-border bg-card rounded-xl p-4 flex flex-col gap-2">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-start gap-3">
                     <div className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-muted text-muted-foreground">

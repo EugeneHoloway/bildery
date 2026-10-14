@@ -720,7 +720,7 @@ export default function BannerPage() {
               </div>
             </div>
           ) : !banner ? (
-            <div className="mt-4 flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border px-4 py-8 text-center">
+            <div className="mt-4 flex flex-col items-center gap-3 rounded-xl border border-dashed border-border px-4 py-8 text-center">
               <div className="flex size-10 items-center justify-center rounded-xl bg-muted">
                 <GalleryHorizontal className="size-5 text-muted-foreground" />
               </div>

@@ -473,7 +473,7 @@ function SeverityBadge({ severity }: { severity: Severity }) {
 
 function CheckCard({ check, lang }: { check: Check; lang: Lang }) {
   return (
-    <div className="flex flex-col gap-2 border border-border bg-card rounded-2xl px-4 py-3">
+    <div className="flex flex-col gap-2 border border-border bg-card rounded-xl px-4 py-3">
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-start gap-2.5 min-w-0">
           <CheckCircle2 className="size-4 shrink-0 mt-0.5 text-muted-foreground/40" />
@@ -538,7 +538,7 @@ function EdgeCaseCard({ ec, lang }: { ec: EdgeCase; lang: Lang }) {
   const ua = lang === 'ua'
 
   return (
-    <div className="border border-border bg-card rounded-2xl p-4 flex flex-col gap-3">
+    <div className="border border-border bg-card rounded-xl p-4 flex flex-col gap-3">
       <div className="flex items-start gap-3">
         <div className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-muted">
           <AlertTriangle className={cn('size-3.5', severityStyle.icon)} />
@@ -598,7 +598,7 @@ export default function Page() {
     >
 
       {/* ── Scope note ────────────────────────────────────────────────────── */}
-      <div className="border border-border bg-card shadow-card rounded-2xl px-4 py-3 mb-8 flex items-start gap-3">
+      <div className="border border-border bg-card shadow-card rounded-xl px-4 py-3 mb-8 flex items-start gap-3">
         <Info className="size-4 shrink-0 mt-0.5 text-muted-foreground" />
         <div>
           <p className="text-sm text-foreground leading-relaxed">

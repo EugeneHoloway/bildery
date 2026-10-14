@@ -151,7 +151,7 @@ export function SectionActions({ dirty, saving, onSave, onReset, canSave = true 
     <div
       role="status"
       aria-live="polite"
-      className="sticky bottom-[calc(--spacing(4)+env(safe-area-inset-bottom))] mt-8 flex items-center justify-between gap-3 rounded-2xl border border-border bg-background/95 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-background/80 animate-in fade-in slide-in-from-bottom-2 duration-200 motion-reduce:animate-none"
+      className="sticky bottom-[calc(--spacing(4)+env(safe-area-inset-bottom))] mt-8 flex items-center justify-between gap-3 rounded-xl border border-border bg-background/95 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-background/80 animate-in fade-in slide-in-from-bottom-2 duration-200 motion-reduce:animate-none"
     >
       <p className="hidden text-sm text-muted-foreground sm:block">You have unsaved changes.</p>
       <div className="flex flex-1 items-center gap-2 sm:flex-none">

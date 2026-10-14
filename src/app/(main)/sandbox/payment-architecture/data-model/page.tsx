@@ -54,7 +54,7 @@ interface TableDef {
 
 function InfoCard({ children }: { children: React.ReactNode }) {
   return (
-    <div className="border border-border bg-card shadow-card rounded-2xl px-4 py-3 flex items-start gap-3 mb-6">
+    <div className="border border-border bg-card shadow-card rounded-xl px-4 py-3 flex items-start gap-3 mb-6">
       <Info className="size-4 shrink-0 mt-0.5 text-muted-foreground" />
       <div className="text-sm text-foreground leading-relaxed">{children}</div>
     </div>
@@ -63,7 +63,7 @@ function InfoCard({ children }: { children: React.ReactNode }) {
 
 function WarnCard({ children }: { children: React.ReactNode }) {
   return (
-    <div className="border border-warning/30 bg-warning-bg rounded-2xl px-4 py-3 flex items-start gap-3 mb-4">
+    <div className="border border-warning/30 bg-warning-bg rounded-xl px-4 py-3 flex items-start gap-3 mb-4">
       <AlertTriangle className="size-4 shrink-0 mt-0.5 text-warning" />
       <div className="text-sm text-foreground leading-relaxed">{children}</div>
     </div>
@@ -252,7 +252,7 @@ function TableCard({ table, lang }: { table: TableDef; lang: Lang }) {
   const idxCols = table.columns.filter(c => c.kind === 'idx').length
 
   return (
-    <div className="border border-border rounded-2xl overflow-hidden">
+    <div className="border border-border rounded-xl overflow-hidden">
       {/* Header */}
       <div className="px-4 py-3 bg-muted border-b border-border flex items-center gap-3">
         <div className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-background text-muted-foreground">

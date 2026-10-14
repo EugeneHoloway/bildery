@@ -306,7 +306,7 @@ function LinksEditor({ links, onChange, showErrors, emptyText, header }: {
     <>
       {header(links.length > 0 && addButton)}
       {links.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border px-4 py-8 text-center">
+        <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border px-4 py-8 text-center">
           <div className="flex size-10 items-center justify-center rounded-xl bg-muted">
             <ListPlus className="size-5 text-muted-foreground" />
           </div>
@@ -316,7 +316,7 @@ function LinksEditor({ links, onChange, showErrors, emptyText, header }: {
       ) : (
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
           <SortableContext items={links.map(l => l.id)} strategy={verticalListSortingStrategy}>
-            <ul className="divide-y divide-border overflow-hidden rounded-2xl border border-border">
+            <ul className="divide-y divide-border overflow-hidden rounded-xl border border-border">
               {links.map((link, index) => (
                 <LinkRow
                   key={link.id}
@@ -407,7 +407,7 @@ function ColumnCard({ column, index, showErrors, onChange, onRemove }: {
       ref={setNodeRef}
       // Позиция элемента во время перетаскивания -- единственный оправданный inline-style
       style={{ transform: CSS.Transform.toString(transform), transition }}
-      className={cn('flex flex-col gap-5 rounded-2xl border border-border bg-background p-4', isDragging && 'relative z-10 opacity-80 shadow-md')}
+      className={cn('flex flex-col gap-5 rounded-xl border border-border bg-background p-4', isDragging && 'relative z-10 opacity-80 shadow-md')}
     >
       <div className="-my-1 -ml-2 flex items-center gap-1">
         <Button
@@ -512,7 +512,7 @@ function NavigationForm({ block, initial }: { block: FooterBlock; initial: Foote
             description="Shown left to right in this order. Drag a column by its handle to reorder."
           />
           {columns.length === 0 ? (
-            <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border px-4 py-8 text-center">
+            <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border px-4 py-8 text-center">
               <div className="flex size-10 items-center justify-center rounded-xl bg-muted">
                 <Columns3 className="size-5 text-muted-foreground" />
               </div>
@@ -747,7 +747,7 @@ function PaymentLogosForm({ block, initial }: { block: FooterBlock; initial: Foo
             aside={logos.length > 0 && addButton}
           />
           {logos.length === 0 ? (
-            <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border px-4 py-8 text-center">
+            <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border px-4 py-8 text-center">
               <div className="flex size-10 items-center justify-center rounded-xl bg-muted">
                 <ImagePlus className="size-5 text-muted-foreground" />
               </div>
@@ -757,7 +757,7 @@ function PaymentLogosForm({ block, initial }: { block: FooterBlock; initial: Foo
           ) : (
             <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
               <SortableContext items={logos.map(l => l.id)} strategy={verticalListSortingStrategy}>
-                <ul className="divide-y divide-border overflow-hidden rounded-2xl border border-border">
+                <ul className="divide-y divide-border overflow-hidden rounded-xl border border-border">
                   {logos.map((logo, index) => (
                     <LogoRow
                       key={logo.id}
@@ -840,7 +840,7 @@ export default function FooterBlockPage() {
               </div>
             </div>
           ) : !block ? (
-            <div className="mt-4 flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border px-4 py-8 text-center">
+            <div className="mt-4 flex flex-col items-center gap-3 rounded-xl border border-dashed border-border px-4 py-8 text-center">
               <div className="flex size-10 items-center justify-center rounded-xl bg-muted">
                 <PanelBottom className="size-5 text-muted-foreground" />
               </div>

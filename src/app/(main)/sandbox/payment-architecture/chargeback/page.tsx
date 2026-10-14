@@ -35,7 +35,7 @@ function LangSwitcher({ lang, onChange }: { lang: Lang; onChange: (l: Lang) => v
 
 function InfoCard({ children }: { children: React.ReactNode }) {
   return (
-    <div className="border border-border bg-card rounded-2xl px-4 py-3 flex items-start gap-3 mb-6">
+    <div className="border border-border bg-card rounded-xl px-4 py-3 flex items-start gap-3 mb-6">
       <Info className="size-4 shrink-0 mt-0.5 text-muted-foreground" />
       <div className="text-sm text-foreground leading-relaxed">{children}</div>
     </div>
@@ -44,7 +44,7 @@ function InfoCard({ children }: { children: React.ReactNode }) {
 
 function WarnCard({ children }: { children: React.ReactNode }) {
   return (
-    <div className="border border-warning/30 bg-warning-bg rounded-2xl px-4 py-3 flex items-start gap-3 mb-4">
+    <div className="border border-warning/30 bg-warning-bg rounded-xl px-4 py-3 flex items-start gap-3 mb-4">
       <AlertTriangle className="size-4 shrink-0 mt-0.5 text-warning" />
       <div className="text-sm text-foreground leading-relaxed">{children}</div>
     </div>
@@ -53,7 +53,7 @@ function WarnCard({ children }: { children: React.ReactNode }) {
 
 function DangerCard({ children }: { children: React.ReactNode }) {
   return (
-    <div className="border border-destructive/30 bg-destructive-bg rounded-2xl px-4 py-3 flex items-start gap-3 mb-4">
+    <div className="border border-destructive/30 bg-destructive-bg rounded-xl px-4 py-3 flex items-start gap-3 mb-4">
       <AlertCircle className="size-4 shrink-0 mt-0.5 text-destructive" />
       <div className="text-sm text-foreground leading-relaxed">{children}</div>
     </div>
@@ -296,7 +296,7 @@ export default function ChargebackPage() {
         </InfoCard>
         <div className="grid grid-cols-1 gap-4 tablet:grid-cols-2">
           {WHY_MATTERS.map((item, i) => (
-            <div key={i} className="border border-border rounded-2xl p-4 flex flex-col gap-2.5">
+            <div key={i} className="border border-border rounded-xl p-4 flex flex-col gap-2.5">
               <div className="flex items-center gap-2.5">
                 <div className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-destructive/10 text-destructive">
                   <item.icon className="size-3.5" />
@@ -324,7 +324,7 @@ export default function ChargebackPage() {
               const isAction = step.type === 'action'
               return (
                 <div key={step.step} className={cn(
-                  'border rounded-2xl p-4',
+                  'border rounded-xl p-4',
                   isWin   ? 'border-success/30 bg-success-bg'      :
                   isLoss  ? 'border-destructive/30 bg-destructive-bg' :
                   isAction ? 'border-brand/20 bg-brand-bg'          :
@@ -405,7 +405,7 @@ export default function ChargebackPage() {
                 : group.weight === 'strong' ? 'bg-brand-bg text-brand'
                 : 'bg-muted text-muted-foreground'
               return (
-                <div key={i} className="border border-border rounded-2xl p-4">
+                <div key={i} className="border border-border rounded-xl p-4">
                   <div className="flex items-center justify-between gap-2 mb-3">
                     <div className="flex items-center gap-2.5">
                       <div className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-muted text-muted-foreground">
@@ -441,7 +441,7 @@ export default function ChargebackPage() {
           <div className="flex flex-col gap-3 mb-6">
             {THRESHOLDS.map((t, i) => (
               <div key={i} className={cn(
-                'border rounded-2xl p-4',
+                'border rounded-xl p-4',
                 t.color === 'destructive' ? 'border-destructive/30 bg-destructive-bg' : 'border-warning/30 bg-warning-bg',
               )}>
                 <div className="flex items-start gap-3">
@@ -500,7 +500,7 @@ export default function ChargebackPage() {
                 : alert.urgency === 'medium' ? 'bg-brand-bg text-brand'
                 : 'bg-muted text-muted-foreground'
               return (
-                <div key={i} className="border border-border rounded-2xl p-4">
+                <div key={i} className="border border-border rounded-xl p-4">
                   <div className="flex items-center gap-2.5 mb-2">
                     <div className={cn('flex size-7 shrink-0 items-center justify-center rounded-xl', urgencyCls)}>
                       <alert.icon className="size-3.5" />
@@ -586,7 +586,7 @@ export default function ChargebackPage() {
                 desc: { en: "If an operator's rolling 30-day chargeback rate exceeds 0.8%, the platform can automatically pause deposit processing for that operator's brand_id until the rate normalizes. This protects the platform's shared PSP account.", ua: 'Якщо ковзний 30-денний рівень chargebacks оператора перевищує 0.8%, платформа може автоматично призупинити обробку депозитів для brand_id цього оператора до нормалізації рівня. Це захищає спільний PSP акаунт платформи.' },
               },
             ].map((rule, i) => (
-              <div key={i} className="border border-border rounded-2xl p-4 flex items-start gap-3">
+              <div key={i} className="border border-border rounded-xl p-4 flex items-start gap-3">
                 <div className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-muted text-muted-foreground mt-0.5">
                   <rule.icon className="size-3.5" />
                 </div>

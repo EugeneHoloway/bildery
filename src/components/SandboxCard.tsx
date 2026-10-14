@@ -81,7 +81,7 @@ export function SandboxCard({ card }: { card: SandboxCardData }) {
       className={cn(
         // Layout
         'relative flex flex-col justify-between gap-4',
-        'min-h-72 p-4 rounded-2xl',
+        'min-h-72 p-4 rounded-xl',
         // Visual
         'bg-card border border-border',
         'shadow-card',
@@ -95,13 +95,13 @@ export function SandboxCard({ card }: { card: SandboxCardData }) {
         <button
           type="button"
           onClick={() => setAuthOpen(true)}
-          className="absolute inset-0 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          className="absolute inset-0 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           aria-label={`Login to view ${card.title}`}
         />
       ) : (
         <Link
           href={card.href}
-          className="absolute inset-0 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          className="absolute inset-0 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           aria-label={`View ${card.title}`}
         />
       )}
@@ -165,7 +165,7 @@ export function SandboxCard({ card }: { card: SandboxCardData }) {
       </div>
 
       {/* Footer */}
-      <div className="-mx-4 -mb-4 flex items-center justify-between gap-3 rounded-b-2xl border-t border-border bg-subtle px-4 py-4">
+      <div className="-mx-4 -mb-4 flex items-center justify-between gap-3 rounded-b-xl border-t border-border bg-subtle px-4 py-4">
         <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
           <Activity className="size-3.5 shrink-0" />
           <span className="font-medium">{card.cardStatus}</span>

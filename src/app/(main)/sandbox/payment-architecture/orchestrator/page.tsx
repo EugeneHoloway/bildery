@@ -35,7 +35,7 @@ function LangSwitcher({ lang, onChange }: { lang: Lang; onChange: (l: Lang) => v
 
 function InfoCard({ children }: { children: React.ReactNode }) {
   return (
-    <div className="border border-border bg-card rounded-2xl px-4 py-3 flex items-start gap-3 mb-6">
+    <div className="border border-border bg-card rounded-xl px-4 py-3 flex items-start gap-3 mb-6">
       <Info className="size-4 shrink-0 mt-0.5 text-muted-foreground" />
       <div className="text-sm text-foreground leading-relaxed">{children}</div>
     </div>
@@ -44,7 +44,7 @@ function InfoCard({ children }: { children: React.ReactNode }) {
 
 function WarnCard({ children }: { children: React.ReactNode }) {
   return (
-    <div className="border border-warning/30 bg-warning-bg rounded-2xl px-4 py-3 flex items-start gap-3 mb-4">
+    <div className="border border-warning/30 bg-warning-bg rounded-xl px-4 py-3 flex items-start gap-3 mb-4">
       <AlertTriangle className="size-4 shrink-0 mt-0.5 text-warning" />
       <div className="text-sm text-foreground leading-relaxed">{children}</div>
     </div>
@@ -213,7 +213,7 @@ export default function Page() {
           {FLOW_STEPS.map((step, i) => (
             <div key={i}>
               <div className={cn(
-                'border rounded-2xl p-4 flex items-start gap-3',
+                'border rounded-xl p-4 flex items-start gap-3',
                 step.terminal === 'success' ? 'border-success/30 bg-success-bg/30' : 'border-border bg-card',
               )}>
                 <div className="flex size-6 shrink-0 items-center justify-center rounded-lg bg-muted text-xs font-bold text-muted-foreground tabular-nums mt-0.5">
@@ -253,7 +253,7 @@ export default function Page() {
         </p>
         <div className="grid grid-cols-1 gap-2.5 tablet:grid-cols-2">
           {ROUTING_DIMENSIONS.map((d) => (
-            <div key={d.label.en} className="border border-border rounded-2xl p-3.5 flex items-start gap-3 bg-card">
+            <div key={d.label.en} className="border border-border rounded-xl p-3.5 flex items-start gap-3 bg-card">
               <div className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-muted text-muted-foreground">
                 <d.Icon className="size-3.5" />
               </div>
@@ -288,7 +288,7 @@ export default function Page() {
         </p>
         <div className="flex flex-col gap-3">
           {CASCADE_RULES.map((r, i) => (
-            <div key={i} className="border border-border rounded-2xl p-4 bg-card">
+            <div key={i} className="border border-border rounded-xl p-4 bg-card">
               <div className="flex items-start gap-3 mb-2">
                 <div className={cn(
                   'flex size-5 shrink-0 items-center justify-center rounded-md text-xs font-bold mt-0.5',
@@ -343,7 +343,7 @@ throw new OrchestratorError('PSP_ALL_FAILED')`}</pre>
         </p>
         <div className="flex flex-col gap-3">
           {METHODS.map((m, i) => (
-            <div key={i} className="border border-border rounded-2xl overflow-hidden">
+            <div key={i} className="border border-border rounded-xl overflow-hidden">
               <div className="px-4 py-3 bg-muted border-b border-border">
                 <code className="text-xs font-mono text-foreground break-all">{m.signature}</code>
               </div>

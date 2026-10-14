@@ -131,7 +131,7 @@ function StatCard({
   tooltip: string
 }) {
   return (
-    <div className="rounded-2xl border border-border bg-card p-4 sm:p-5 flex flex-col gap-2">
+    <div className="rounded-xl border border-border bg-card p-4 sm:p-5 flex flex-col gap-2">
       <div className="flex items-center gap-1.5">
         <span className="text-xs sm:text-sm text-muted-foreground">{label}</span>
         <TooltipProvider delayDuration={200}>
@@ -432,7 +432,7 @@ function LabelsOverview() {
         </div>
       </div>
 
-      <div className="rounded-2xl border border-border bg-card overflow-hidden">
+      <div className="rounded-xl border border-border bg-card overflow-hidden">
       <div className="p-2 px-3 pt-4 pb-4">
       <h3 className="text-lg font-semibold mb-1">Label performance</h3>
       <p className="text-sm text-muted-foreground">
@@ -563,7 +563,7 @@ function AgentPerformance() {
   })
 
   return (
-    <div className="rounded-2xl border border-border bg-card overflow-hidden">
+    <div className="rounded-xl border border-border bg-card overflow-hidden">
       <div className="p-2 px-3 pt-4 pb-4">
         <h2 className="text-lg font-semibold mb-1">Agent Performance</h2>
         <p className="text-sm text-muted-foreground">
@@ -654,7 +654,7 @@ function CsatSection() {
       </div>
 
       {/* Summary stats */}
-      <div className="rounded-2xl border border-border bg-card">
+      <div className="rounded-xl border border-border bg-card">
         <div className="grid grid-cols-1 sm:grid-cols-3 sm:divide-x divide-y sm:divide-y-0 divide-border">
           {stats.map(({ label, value, tooltip }) => (
             <div key={label} className="flex flex-col gap-1 px-4 sm:px-6 py-4 sm:py-5">
@@ -676,7 +676,7 @@ function CsatSection() {
       </div>
 
       {/* Rating distribution */}
-      <div className="rounded-2xl border border-border bg-card p-5 flex flex-col gap-4">
+      <div className="rounded-xl border border-border bg-card p-5 flex flex-col gap-4">
         <span className="text-sm font-medium">Rating distribution</span>
         {showData ? (
           <div className="flex h-2.5 rounded-full overflow-hidden w-full gap-px">
@@ -701,7 +701,7 @@ function CsatSection() {
 
       {/* Comments or empty state */}
       {showData ? (
-        <div className="rounded-2xl border border-border bg-card divide-y divide-border overflow-y-auto max-h-[400px]">
+        <div className="rounded-xl border border-border bg-card divide-y divide-border overflow-y-auto max-h-[400px]">
           {CSAT_COMMENTS.map(({ name, Icon, comment, agent }, i) => (
             <div key={i} className="flex items-start gap-3 px-5 py-4">
               <div className="size-8 rounded-full bg-muted flex items-center justify-center shrink-0 text-sm font-medium text-muted-foreground">
@@ -721,7 +721,7 @@ function CsatSection() {
           ))}
         </div>
       ) : (
-        <div className="rounded-2xl border border-border bg-card flex flex-col items-center justify-center py-16 gap-3">
+        <div className="rounded-xl border border-border bg-card flex flex-col items-center justify-center py-16 gap-3">
           <div className="size-14 rounded-xl bg-muted flex items-center justify-center">
             <MessageSquareOff className="size-6 text-muted-foreground" />
           </div>
@@ -831,7 +831,7 @@ export default function ReportsPage() {
         </div>
 
         {/* Incoming vs Resolved */}
-        <div className="rounded-2xl border border-border bg-card p-4 sm:p-6">
+        <div className="rounded-xl border border-border bg-card p-4 sm:p-6">
           <div className="mb-1">
             <span className="text-lg font-semibold">New conversations vs Resolved conversations</span>
             <p className="text-sm text-muted-foreground mt-0.5">Conversations per day -- last 28 days, excl. junk</p>
@@ -842,7 +842,7 @@ export default function ReportsPage() {
         </div>
 
         {/* Tickets Traffic heatmap */}
-        <div className="rounded-2xl border border-border bg-card p-4 sm:p-6">
+        <div className="rounded-xl border border-border bg-card p-4 sm:p-6">
           <div className="mb-4 sm:mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-lg font-semibold">Hourly Distribution of New Conversations</span>
@@ -880,7 +880,7 @@ export default function ReportsPage() {
               { label: 'Busy', value: 1, tooltip: 'Agents who are online but unavailable for new conversations — either set manually or because they reached their active conversation limit.' },
               { label: 'Offline', value: 1, tooltip: 'Agents who are not currently logged in or have set their status to offline.' },
             ].map(({ label, value, tooltip }) => (
-              <div key={label} className="rounded-2xl border border-border bg-card p-4 sm:p-5 flex flex-col gap-2">
+              <div key={label} className="rounded-xl border border-border bg-card p-4 sm:p-5 flex flex-col gap-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5">
                   <span className="text-xs sm:text-sm text-muted-foreground">{label}</span>

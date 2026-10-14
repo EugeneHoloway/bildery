@@ -35,7 +35,7 @@ function LangSwitcher({ lang, onChange }: { lang: Lang; onChange: (l: Lang) => v
 
 function InfoCard({ children }: { children: React.ReactNode }) {
   return (
-    <div className="border border-border bg-card rounded-2xl px-4 py-3 flex items-start gap-3 mb-6">
+    <div className="border border-border bg-card rounded-xl px-4 py-3 flex items-start gap-3 mb-6">
       <Info className="size-4 shrink-0 mt-0.5 text-muted-foreground" />
       <div className="text-sm text-foreground leading-relaxed">{children}</div>
     </div>
@@ -44,7 +44,7 @@ function InfoCard({ children }: { children: React.ReactNode }) {
 
 function WarnCard({ children }: { children: React.ReactNode }) {
   return (
-    <div className="border border-amber-500/30 bg-amber-500/5 rounded-2xl px-4 py-3 flex items-start gap-3 mb-4">
+    <div className="border border-amber-500/30 bg-amber-500/5 rounded-xl px-4 py-3 flex items-start gap-3 mb-4">
       <AlertTriangle className="size-4 shrink-0 mt-0.5 text-amber-500" />
       <div className="text-sm text-foreground leading-relaxed">{children}</div>
     </div>
@@ -249,7 +249,7 @@ export default function Page() {
         </WarnCard>
 
         {/* Interface quick-ref */}
-        <div className="border border-border rounded-2xl overflow-hidden">
+        <div className="border border-border rounded-xl overflow-hidden">
           <div className="flex items-center gap-2 px-4 py-3 border-b border-border bg-muted/30">
             <Plug className="size-3.5 text-muted-foreground" />
             <span className="text-xs font-semibold text-foreground">IPaymentProvider</span>
@@ -276,7 +276,7 @@ export default function Page() {
       <DocSection num="2" title={lang === 'ua' ? 'Чеклист інтеграції' : 'Integration Checklist'}>
         <div className="flex flex-col gap-5">
           {CHECKLIST.map((group) => (
-            <div key={group.id} className="border border-border rounded-2xl overflow-hidden">
+            <div key={group.id} className="border border-border rounded-xl overflow-hidden">
               {/* Header */}
               <div className="flex items-center gap-3 px-5 py-4 border-b border-border bg-muted/30">
                 <div className={cn('flex size-7 shrink-0 items-center justify-center rounded-xl', group.accent)}>

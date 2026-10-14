@@ -378,7 +378,7 @@ function StateNode({ state, selected, onClick }: {
     <div
       onClick={() => onClick(state)}
       className={cn(
-        'border rounded-2xl p-3 transition-all duration-200',
+        'border rounded-xl p-3 transition-all duration-200',
         selected
           ? 'bg-muted border-foreground/30 shadow-card'
           : 'bg-card border-border shadow-card hover:border-subtle-border hover:shadow-card-hover',
@@ -416,7 +416,7 @@ function FlowArrow({ label, hideArrow = false }: { label?: string; hideArrow?: b
 
 function DetailPanel({ state, lang, onClose }: { state: StateDef; lang: Lang; onClose: () => void }) {
   return (
-    <div className="border border-border bg-card shadow-card rounded-2xl p-4 flex-1">
+    <div className="border border-border bg-card shadow-card rounded-xl p-4 flex-1">
       <div className="flex items-start justify-between gap-2 mb-3">
         <div>
           <p className="text-sm font-bold leading-snug tracking-heading text-foreground">
@@ -463,7 +463,7 @@ function DetailPanel({ state, lang, onClose }: { state: StateDef; lang: Lang; on
 
 function EmptyPanel({ lang }: { lang: Lang }) {
   return (
-    <div className="border border-dashed border-border rounded-2xl p-6 flex flex-col items-center justify-center gap-2 text-center flex-1">
+    <div className="border border-dashed border-border rounded-xl p-6 flex flex-col items-center justify-center gap-2 text-center flex-1">
       <Info className="size-5 text-muted-foreground/40" />
       <p className="text-xs text-muted-foreground">
         {lang === 'ua'
@@ -535,7 +535,7 @@ function DepositTab({ selected, lang, onSelect }: {
       <div className="grid grid-cols-1 gap-3 tablet:grid-cols-2">
 
         {/* H2H */}
-        <div className="border border-border rounded-2xl overflow-hidden">
+        <div className="border border-border rounded-xl overflow-hidden">
           <div className="px-4 py-3 bg-muted border-b border-border flex items-center gap-2">
             <Wallet className="size-4 text-muted-foreground" />
             <p className="text-sm font-bold text-foreground">H2H (Host-to-Host)</p>
@@ -566,7 +566,7 @@ function DepositTab({ selected, lang, onSelect }: {
         </div>
 
         {/* Invoice */}
-        <div className="border border-border rounded-2xl overflow-hidden">
+        <div className="border border-border rounded-xl overflow-hidden">
           <div className="px-4 py-3 bg-muted border-b border-border flex items-center gap-2">
             <Globe className="size-4 text-muted-foreground" />
             <p className="text-sm font-bold text-foreground">Invoice (Redirect)</p>
@@ -681,7 +681,7 @@ function EdgeCasesTab({ lang }: { lang: Lang }) {
       {EDGE_CASES.map(ec => {
         const sty = severityStyle[ec.severity]
         return (
-          <div key={ec.id} className={cn('border rounded-2xl p-4', sty.border, sty.bg)}>
+          <div key={ec.id} className={cn('border rounded-xl p-4', sty.border, sty.bg)}>
             <div className="flex items-center gap-3 mb-3">
               <div className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-muted text-muted-foreground">
                 <ec.Icon className="size-4" />
@@ -714,7 +714,7 @@ function NormalizationTab({ lang }: { lang: Lang }) {
   return (
     <div className="flex flex-col gap-6">
       {/* Intro */}
-      <div className="border border-border bg-card shadow-card rounded-2xl px-4 py-3">
+      <div className="border border-border bg-card shadow-card rounded-xl px-4 py-3">
         <p className="text-sm text-foreground leading-relaxed">
           {ua
             ? <>Adapter Layer маппить PassimPay-специфічні поля (<code className="text-xs bg-muted rounded px-1.5 py-0.5 font-mono">approve</code>, <code className="text-xs bg-muted rounded px-1.5 py-0.5 font-mono">confirmations</code>, <code className="text-xs bg-muted rounded px-1.5 py-0.5 font-mono">status</code>) в єдиний <code className="text-xs bg-muted rounded px-1.5 py-0.5 font-mono">UnifiedStatus</code>. Оркестратор ніколи не бачить сирі дані PassimPay.</>
@@ -849,7 +849,7 @@ export default function Page() {
       <DocSection num="2" title={lang === 'ua' ? 'Що таке State Machine і кому потрібні стани' : 'What is State Machine and who needs states'}>
 
         {/* Intro */}
-        <div className="border border-border bg-card rounded-2xl px-4 py-3 flex items-start gap-3 mb-6">
+        <div className="border border-border bg-card rounded-xl px-4 py-3 flex items-start gap-3 mb-6">
           <Info className="size-4 shrink-0 mt-0.5 text-muted-foreground" />
           <p className="text-sm text-foreground leading-relaxed">
             {lang === 'ua'
@@ -877,7 +877,7 @@ export default function Page() {
           <p className="text-xs font-bold uppercase tracking-wide text-foreground mb-3">
             {lang === 'ua' ? 'Хто бачить стани і в якому вигляді' : 'Who sees states and in what form'}
           </p>
-          <div className="border border-border rounded-2xl overflow-hidden">
+          <div className="border border-border rounded-xl overflow-hidden">
             <DocTable>
               <DocTableHeader>
                 <TableRow>
@@ -965,7 +965,7 @@ export default function Page() {
                 phase: '2',
               },
             ] as { who: {en:string;ua:string}; what: {en:string;ua:string}; phase: string }[]).map((r, i) => (
-              <div key={i} className="border border-border rounded-2xl p-4 bg-card flex items-start gap-3">
+              <div key={i} className="border border-border rounded-xl p-4 bg-card flex items-start gap-3">
                 <div className="flex size-6 shrink-0 items-center justify-center rounded-lg bg-muted text-xs font-bold text-muted-foreground tabular-nums mt-0.5">
                   {i + 1}
                 </div>

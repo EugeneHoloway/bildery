@@ -86,7 +86,7 @@ function DocCard({
       href={`/docs/${doc.slug}`}
       className={cn(
         'flex flex-col justify-between gap-4',
-        'min-h-72 p-4 rounded-2xl',
+        'min-h-72 p-4 rounded-xl',
         'bg-card border border-border',
         'shadow-card',
         'transition-[border-color,box-shadow] duration-200',
@@ -131,7 +131,7 @@ function DocCard({
       </div>
 
       {/* Footer */}
-      <div className="-mx-4 -mb-4 flex items-center justify-between gap-3 rounded-b-2xl border-t border-border bg-subtle px-4 py-4">
+      <div className="-mx-4 -mb-4 flex items-center justify-between gap-3 rounded-b-xl border-t border-border bg-subtle px-4 py-4">
         <Badge variant="outline">{doc.badge_bottom || 'Note'}</Badge>
         <div className="flex items-center gap-2">
           {isUnlocked && (
@@ -474,7 +474,7 @@ export default function DocsPage() {
             <button
               className={cn(
                 'flex flex-col items-center justify-center gap-2',
-                'min-h-72 p-4 rounded-2xl',
+                'min-h-72 p-4 rounded-xl',
                 'border-[1.5px] border-dashed border-border bg-transparent',
                 'cursor-pointer transition-colors duration-200',
                 'hover:border-foreground/30 hover:bg-muted/40',

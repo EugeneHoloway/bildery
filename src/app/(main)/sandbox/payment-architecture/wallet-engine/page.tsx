@@ -36,7 +36,7 @@ function LangSwitcher({ lang, onChange }: { lang: Lang; onChange: (l: Lang) => v
 
 function InfoCard({ children }: { children: React.ReactNode }) {
   return (
-    <div className="border border-border bg-card rounded-2xl px-4 py-3 flex items-start gap-3 mb-6">
+    <div className="border border-border bg-card rounded-xl px-4 py-3 flex items-start gap-3 mb-6">
       <Info className="size-4 shrink-0 mt-0.5 text-muted-foreground" />
       <div className="text-sm text-foreground leading-relaxed">{children}</div>
     </div>
@@ -45,7 +45,7 @@ function InfoCard({ children }: { children: React.ReactNode }) {
 
 function WarnCard({ children }: { children: React.ReactNode }) {
   return (
-    <div className="border border-warning/30 bg-warning-bg rounded-2xl px-4 py-3 flex items-start gap-3 mb-4">
+    <div className="border border-warning/30 bg-warning-bg rounded-xl px-4 py-3 flex items-start gap-3 mb-4">
       <AlertTriangle className="size-4 shrink-0 mt-0.5 text-warning" />
       <div className="text-sm text-foreground leading-relaxed">{children}</div>
     </div>
@@ -270,7 +270,7 @@ export default function Page() {
               colorCls: 'text-amber-500',
             },
           ].map((c, i) => (
-            <div key={i} className="border border-border rounded-2xl p-4 bg-card">
+            <div key={i} className="border border-border rounded-xl p-4 bg-card">
               <c.icon className={cn('size-4 mb-2.5', c.colorCls)} />
               <p className="text-sm font-semibold text-foreground mb-1">{c.title[lang]}</p>
               <p className="text-xs text-muted-foreground leading-snug">{c.desc[lang]}</p>
@@ -300,7 +300,7 @@ export default function Page() {
         </p>
         <div className="flex flex-col gap-3 mb-5">
           {BALANCE_FIELDS.map((f) => (
-            <div key={f.field} className={cn('border rounded-2xl px-4 py-3.5 flex items-center gap-4', f.borderCls)}>
+            <div key={f.field} className={cn('border rounded-xl px-4 py-3.5 flex items-center gap-4', f.borderCls)}>
               <code className={cn('text-xs font-mono px-2.5 py-1 rounded-lg border shrink-0', f.colorCls, f.bgCls, f.borderCls)}>
                 {f.field}
               </code>
@@ -314,7 +314,7 @@ export default function Page() {
           ))}
         </div>
 
-        <div className="border border-border rounded-2xl p-4 bg-card">
+        <div className="border border-border rounded-xl p-4 bg-card">
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">
             {ua ? 'Приклад: гравець вносить $100, ставить $50, виводить $30' : 'Example: player deposits $100, bets $50, withdraws $30'}
           </p>
@@ -358,7 +358,7 @@ export default function Page() {
             const style = directionStyle[op.direction]
             const Icon  = style.icon
             return (
-              <div key={op.name} className="border border-border rounded-2xl overflow-hidden">
+              <div key={op.name} className="border border-border rounded-xl overflow-hidden">
                 <div className="flex items-center gap-3 px-4 py-3 bg-muted border-b border-border flex-wrap gap-y-2">
                   <Icon className={cn('size-3.5 shrink-0', style.colorCls)} />
                   <code className="text-sm font-mono font-semibold text-foreground">{op.name}</code>
@@ -434,7 +434,7 @@ export default function Page() {
 
         {/* Without Orleans */}
         <div className="grid grid-cols-1 gap-4 tablet:grid-cols-2 mb-5">
-          <div className="border border-destructive/20 rounded-2xl p-4 bg-destructive-bg/20">
+          <div className="border border-destructive/20 rounded-xl p-4 bg-destructive-bg/20">
             <div className="flex items-center gap-2 mb-3">
               <XCircle className="size-3.5 text-destructive shrink-0" />
               <p className="text-xs font-bold text-destructive uppercase tracking-wide">
@@ -451,7 +451,7 @@ export default function Page() {
             </div>
           </div>
 
-          <div className="border border-success/20 rounded-2xl p-4 bg-success-bg/20">
+          <div className="border border-success/20 rounded-xl p-4 bg-success-bg/20">
             <div className="flex items-center gap-2 mb-3">
               <CheckCircle2 className="size-3.5 text-success shrink-0" />
               <p className="text-xs font-bold text-success uppercase tracking-wide">
@@ -469,7 +469,7 @@ export default function Page() {
         </div>
 
         {/* Idempotency */}
-        <div className="border border-border rounded-2xl p-4 bg-card">
+        <div className="border border-border rounded-xl p-4 bg-card">
           <p className="text-sm font-semibold text-foreground mb-2">{ua ? 'Ідемпотентність через txId' : 'Idempotency via txId'}</p>
           <p className="text-xs text-muted-foreground leading-snug mb-3">
             {ua

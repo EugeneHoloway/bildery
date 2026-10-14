@@ -171,7 +171,7 @@ export function LimitsTab({ playerName, playerCurrency, fxRate }: {
       {/* Column 1: Player limits */}
       <div className="flex flex-col gap-6">
       {/* Player limits */}
-      <div className="rounded-2xl border border-border bg-card overflow-hidden">
+      <div className="rounded-xl border border-border bg-card overflow-hidden">
         <div className="px-4 py-3 border-b border-border flex items-center justify-between gap-3">
           <div className="flex items-center gap-2 min-w-0">
             <User className="size-4 text-muted-foreground shrink-0" />
@@ -258,7 +258,7 @@ export function LimitsTab({ playerName, playerCurrency, fxRate }: {
       <div className="flex flex-col gap-6">
 
       {/* Self-exclusion */}
-      <div className="rounded-2xl border border-border bg-card overflow-hidden">
+      <div className="rounded-xl border border-border bg-card overflow-hidden">
         <div className="px-4 py-3 border-b border-border flex items-center gap-2">
           <Ban className="size-4 text-muted-foreground shrink-0" />
           <div>
@@ -282,7 +282,7 @@ export function LimitsTab({ playerName, playerCurrency, fxRate }: {
       </div>
 
       {/* Cooling-off */}
-      <div className="rounded-2xl border border-border bg-card overflow-hidden">
+      <div className="rounded-xl border border-border bg-card overflow-hidden">
         <div className="px-4 py-3 border-b border-border flex items-center justify-between gap-3">
           <div className="flex items-center gap-2 min-w-0">
             <Timer className="size-4 text-muted-foreground shrink-0" />
@@ -350,7 +350,7 @@ export function LimitsTab({ playerName, playerCurrency, fxRate }: {
       {/* Column 3: Operator limits + Regulatory limits */}
       <div className="flex flex-col gap-6">
       {/* Operator limits */}
-      <div className="rounded-2xl border border-border bg-card overflow-hidden">
+      <div className="rounded-xl border border-border bg-card overflow-hidden">
         <div className="px-4 py-3 border-b border-border flex items-center justify-between gap-3">
           <div className="flex items-center gap-2 min-w-0">
             <UserCog className="size-4 text-muted-foreground shrink-0" />
@@ -399,7 +399,7 @@ export function LimitsTab({ playerName, playerCurrency, fxRate }: {
       </div>
 
       {/* Regulatory limits */}
-      <div className="rounded-2xl border border-border bg-card overflow-hidden">
+      <div className="rounded-xl border border-border bg-card overflow-hidden">
         <div className="px-4 py-3 border-b border-border flex items-center justify-between gap-3">
           <div className="flex items-center gap-2 min-w-0">
             <Shield className="size-4 text-muted-foreground shrink-0" />

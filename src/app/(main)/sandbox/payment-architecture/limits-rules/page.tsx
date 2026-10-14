@@ -36,7 +36,7 @@ function LangSwitcher({ lang, onChange }: { lang: Lang; onChange: (l: Lang) => v
 
 function InfoCard({ children }: { children: React.ReactNode }) {
   return (
-    <div className="border border-border bg-card rounded-2xl px-4 py-3 flex items-start gap-3 mb-6">
+    <div className="border border-border bg-card rounded-xl px-4 py-3 flex items-start gap-3 mb-6">
       <Info className="size-4 shrink-0 mt-0.5 text-muted-foreground" />
       <div className="text-sm text-foreground leading-relaxed">{children}</div>
     </div>
@@ -45,7 +45,7 @@ function InfoCard({ children }: { children: React.ReactNode }) {
 
 function WarnCard({ children }: { children: React.ReactNode }) {
   return (
-    <div className="border border-amber-500/30 bg-amber-500/5 rounded-2xl px-4 py-3 flex items-start gap-3 mb-4">
+    <div className="border border-amber-500/30 bg-amber-500/5 rounded-xl px-4 py-3 flex items-start gap-3 mb-4">
       <AlertTriangle className="size-4 shrink-0 mt-0.5 text-amber-500" />
       <div className="text-sm text-foreground leading-relaxed">{children}</div>
     </div>
@@ -54,7 +54,7 @@ function WarnCard({ children }: { children: React.ReactNode }) {
 
 function BestPracticeCard({ title, items, lang }: { title: I18n; items: I18n[]; lang: Lang }) {
   return (
-    <div className="border border-border rounded-2xl p-4">
+    <div className="border border-border rounded-xl p-4">
       <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-3">{title[lang]}</p>
       <ul className="flex flex-col gap-2">
         {items.map((item, i) => (
@@ -393,7 +393,7 @@ export default function Page() {
                        ua: 'Кожна перевірка логується (і allow, і block) для комплаєнс-звітності та вирішення спорів.' },
             },
           ].map((card) => (
-            <div key={card.title.en} className="border border-border rounded-2xl p-4 flex items-start gap-3">
+            <div key={card.title.en} className="border border-border rounded-xl p-4 flex items-start gap-3">
               <div className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-muted text-muted-foreground">
                 <card.Icon className="size-4" />
               </div>
@@ -414,7 +414,7 @@ export default function Page() {
         <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">
           {ua ? 'Позиція в стеку' : 'Position in the stack'}
         </p>
-        <div className="border border-border rounded-2xl p-4 mb-6">
+        <div className="border border-border rounded-xl p-4 mb-6">
           <div className="flex flex-col gap-4">
             {[
               { label: { en: 'Request Router', ua: 'Request Router' }, note: { en: 'validates schema, extracts JWT context', ua: 'валідує схему, витягує JWT контекст' }, active: false },
@@ -447,7 +447,7 @@ export default function Page() {
         <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">
           {ua ? 'Флоу виклику' : 'Invocation flow'}
         </p>
-        <div className="border border-border rounded-2xl p-4 mb-6">
+        <div className="border border-border rounded-xl p-4 mb-6">
           <div className="flex flex-col gap-2">
             {REQUEST_FLOW.map((step, i) => (
               <div key={i} className="flex items-start gap-3">
@@ -471,7 +471,7 @@ export default function Page() {
         <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">
           {ua ? 'Вхідні дані та їх джерела' : 'Input data and sources'}
         </p>
-        <div className="flex flex-col divide-y divide-border border border-border rounded-2xl overflow-hidden mb-2">
+        <div className="flex flex-col divide-y divide-border border border-border rounded-xl overflow-hidden mb-2">
           {DATA_INPUTS.map((row) => (
             <div key={row.label.en} className="flex items-center gap-3 px-4 py-3">
               <div className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-muted text-muted-foreground">
@@ -650,7 +650,7 @@ export default function Page() {
         </DocTable>
 
         {/* Response payload example */}
-        <div className="mt-4 border border-border rounded-2xl overflow-hidden">
+        <div className="mt-4 border border-border rounded-xl overflow-hidden">
           <div className="flex items-center justify-between px-3 py-2 bg-muted border-b border-border">
             <span className="text-xs font-mono text-muted-foreground">HTTP 422 -- BLOCK response</span>
             <Badge variant="outline" className="text-xs bg-destructive-bg text-destructive border-destructive/30 pointer-events-none">Blocked</Badge>
@@ -672,7 +672,7 @@ export default function Page() {
       <div className="mt-6">
       <DocSection num="4" title={ua ? 'Responsible Gambling (RG)' : 'Responsible Gambling (RG)'}>
 
-        <div className="border border-border rounded-2xl p-4 flex items-start gap-3 mb-6 bg-card">
+        <div className="border border-border rounded-xl p-4 flex items-start gap-3 mb-6 bg-card">
           <Heart className="size-4 shrink-0 mt-0.5 text-muted-foreground" />
           <div className="text-sm text-foreground leading-relaxed">
             {ua
@@ -737,7 +737,7 @@ export default function Page() {
             },
           ] as { icon: React.ElementType; tool: I18n; type: I18n; desc: I18n; required: I18n; critical: boolean }[]).map((item, i) => (
             <div key={i} className={cn(
-              'border rounded-2xl p-4',
+              'border rounded-xl p-4',
               item.critical ? 'border-destructive/20 bg-destructive-bg' : 'border-border bg-card',
             )}>
               <div className="flex items-start gap-3">
@@ -862,7 +862,7 @@ export default function Page() {
         <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">
           {ua ? 'Доповнення до схеми БД' : 'DB schema additions'}
         </p>
-        <div className="border border-border rounded-2xl overflow-hidden">
+        <div className="border border-border rounded-xl overflow-hidden">
           <div className="flex items-center gap-2 px-3 py-2 bg-muted border-b border-border">
             <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
               {ua ? 'Нова таблиця: player_rg_events (audit log)' : 'New table: player_rg_events (audit log)'}
@@ -910,7 +910,7 @@ ALTER TABLE player_limits ADD COLUMN
         </div>
 
         {/* DB schema hint */}
-        <div className="mt-4 border border-border rounded-2xl overflow-hidden">
+        <div className="mt-4 border border-border rounded-xl overflow-hidden">
           <div className="flex items-center gap-2 px-3 py-2 bg-muted border-b border-border">
             <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
               {ua ? 'Мінімальна схема БД для Phase 3' : 'Minimum DB schema for Phase 3'}

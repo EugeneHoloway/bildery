@@ -36,7 +36,7 @@ function LangSwitcher({ lang, onChange }: { lang: Lang; onChange: (l: Lang) => v
 
 function InfoCard({ children }: { children: React.ReactNode }) {
   return (
-    <div className="border border-border bg-card rounded-2xl px-4 py-3 flex items-start gap-3 mb-6">
+    <div className="border border-border bg-card rounded-xl px-4 py-3 flex items-start gap-3 mb-6">
       <Info className="size-4 shrink-0 mt-0.5 text-muted-foreground" />
       <div className="text-sm text-foreground leading-relaxed">{children}</div>
     </div>
@@ -45,7 +45,7 @@ function InfoCard({ children }: { children: React.ReactNode }) {
 
 function WarnCard({ children }: { children: React.ReactNode }) {
   return (
-    <div className="border border-warning/30 bg-warning-bg rounded-2xl px-4 py-3 flex items-start gap-3 mb-4">
+    <div className="border border-warning/30 bg-warning-bg rounded-xl px-4 py-3 flex items-start gap-3 mb-4">
       <AlertTriangle className="size-4 shrink-0 mt-0.5 text-warning" />
       <div className="text-sm text-foreground leading-relaxed">{children}</div>
     </div>
@@ -54,7 +54,7 @@ function WarnCard({ children }: { children: React.ReactNode }) {
 
 function DangerCard({ children }: { children: React.ReactNode }) {
   return (
-    <div className="border border-destructive/30 bg-destructive-bg rounded-2xl px-4 py-3 flex items-start gap-3 mb-4">
+    <div className="border border-destructive/30 bg-destructive-bg rounded-xl px-4 py-3 flex items-start gap-3 mb-4">
       <AlertCircle className="size-4 shrink-0 mt-0.5 text-destructive" />
       <div className="text-sm text-foreground leading-relaxed">{children}</div>
     </div>
@@ -330,7 +330,7 @@ export default function FxCurrencyPage() {
         </InfoCard>
         <div className="grid grid-cols-1 gap-4 tablet:grid-cols-2">
           {CORE_CONCEPTS.map((c, i) => (
-            <div key={i} className="border border-border rounded-2xl p-4">
+            <div key={i} className="border border-border rounded-xl p-4">
               <div className="flex items-center gap-2.5 mb-2">
                 <div className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-muted text-muted-foreground">
                   <c.icon className="size-3.5" />
@@ -396,7 +396,7 @@ export default function FxCurrencyPage() {
               const isUse   = step.type === 'use'
               return (
                 <div key={i} className={cn(
-                  'border rounded-2xl p-4',
+                  'border rounded-xl p-4',
                   isLock  ? 'border-brand/25 bg-brand-bg'    :
                   isStore ? 'border-success/25 bg-success-bg' :
                   isUse   ? 'border-border bg-subtle'        :
@@ -483,7 +483,7 @@ export default function FxCurrencyPage() {
         <DocSection num="5" title={ua ? 'Кейси налаштування' : 'Configuration Cases'}>
           <div className="flex flex-col gap-4">
             {CONFIG_CASES.map((c, i) => (
-              <div key={i} className="border border-border rounded-2xl p-4">
+              <div key={i} className="border border-border rounded-xl p-4">
                 <p className="text-sm font-semibold text-foreground mb-2">{c.title[lang]}</p>
                 <p className="text-sm text-muted-foreground leading-relaxed mb-3">{c.setup[lang]}</p>
                 <div className="flex items-start gap-2 rounded-xl bg-muted px-3 py-2 mb-2">
@@ -512,7 +512,7 @@ export default function FxCurrencyPage() {
           </InfoCard>
           <div className="flex flex-col gap-3">
             {AFFECTED_MODULES.map((m, i) => (
-              <div key={i} className="border border-border rounded-2xl p-4 flex items-start gap-3">
+              <div key={i} className="border border-border rounded-xl p-4 flex items-start gap-3">
                 <div className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-muted text-muted-foreground mt-0.5">
                   <m.icon className="size-3.5" />
                 </div>
@@ -536,7 +536,7 @@ export default function FxCurrencyPage() {
           </DangerCard>
           <div className="grid grid-cols-1 gap-4 tablet:grid-cols-2">
             {ADMIN_CONFIG.map((c, i) => (
-              <div key={i} className="border border-border rounded-2xl p-4">
+              <div key={i} className="border border-border rounded-xl p-4">
                 <div className="flex items-center gap-2.5 mb-2">
                   <div className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-muted text-muted-foreground">
                     <c.icon className="size-3.5" />

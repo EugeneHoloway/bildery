@@ -718,7 +718,7 @@ function DomainsFields() {
         {/* The list and the button that extends it stay one block, 16px apart, like Deposit methods */}
         <div className="flex flex-col gap-4">
         {domains.length === 0 ? (
-          <Empty className="rounded-2xl border border-border">
+          <Empty className="rounded-xl border border-border">
             <EmptyHeader>
               {/* Project empty-state media: rounded-xl tile, 20px icon */}
               <EmptyMedia variant="icon" className="size-10 rounded-xl">
@@ -729,7 +729,7 @@ function DomainsFields() {
             <EmptyContent>{addButton}</EmptyContent>
           </Empty>
         ) : (
-          <ItemGroup className="gap-0 overflow-hidden rounded-2xl border border-border">
+          <ItemGroup className="gap-0 overflow-hidden rounded-xl border border-border">
             {sorted.map((d, i) => {
               // The canonical origin can't go away while mirrors depend on it
               const locked = d.primary && domains.length > 1
@@ -1337,7 +1337,7 @@ function DepositMethodsSection() {
       </div>
 
       {methods.length === 0 ? (
-        <div className="mt-4 flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border px-4 py-8 text-center">
+        <div className="mt-4 flex flex-col items-center gap-3 rounded-xl border border-dashed border-border px-4 py-8 text-center">
           <div className="flex size-10 items-center justify-center rounded-xl bg-muted">
             <CreditCard className="size-5 text-muted-foreground" />
           </div>
@@ -1349,7 +1349,7 @@ function DepositMethodsSection() {
         </div>
       ) : (
         <>
-          <ItemGroup className="mt-4 gap-0 overflow-hidden rounded-2xl border border-border">
+          <ItemGroup className="mt-4 gap-0 overflow-hidden rounded-xl border border-border">
             {methods.map((method, i) => (
               <Fragment key={method.id}>
                 {i > 0 && <ItemSeparator className="my-0" />}
@@ -1421,7 +1421,7 @@ function FooterSection() {
       <SectionHeader title="Footer" description="Manage footer settings for this brand." />
 
       {/* Rows are plain links, so the group drops its list role */}
-      <ItemGroup role={undefined} className="mt-8 gap-0 overflow-hidden rounded-2xl border border-border">
+      <ItemGroup role={undefined} className="mt-8 gap-0 overflow-hidden rounded-xl border border-border">
         {FOOTER_BLOCKS.map((block, i) => (
           <Fragment key={block.id}>
             {i > 0 && <ItemSeparator className="my-0" />}
@@ -1502,7 +1502,7 @@ function SocialSection() {
           description="Full profile URL starting with https://. One link per network."
         >
           {rows.length === 0 ? (
-            <Empty className="rounded-2xl border border-border">
+            <Empty className="rounded-xl border border-border">
               <EmptyHeader>
                 {/* Project empty-state media: rounded-xl tile, 20px icon */}
                 <EmptyMedia variant="icon" className="size-10 rounded-xl">
@@ -1888,7 +1888,7 @@ function BannersSection() {
       </div>
 
       {active.length === 0 ? (
-        <div className="mt-4 flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border px-4 py-8 text-center">
+        <div className="mt-4 flex flex-col items-center gap-3 rounded-xl border border-dashed border-border px-4 py-8 text-center">
           <div className="flex size-10 items-center justify-center rounded-xl bg-muted">
             <GalleryHorizontal className="size-5 text-muted-foreground" />
           </div>
@@ -1903,7 +1903,7 @@ function BannersSection() {
               data-fade-start={rowScroll.fade.start || undefined}
               data-fade-end={rowScroll.fade.end || undefined}
               onScrollCapture={rowScroll.onScrollCapture}
-              className="group/rows mt-4 divide-y divide-border overflow-hidden rounded-2xl border border-border"
+              className="group/rows mt-4 divide-y divide-border overflow-hidden rounded-xl border border-border"
             >
               {active.map((item, index) => (
                 <ImageRow key={item.id} item={item} index={index} onArchive={() => setToArchive(item)} />
@@ -1919,7 +1919,7 @@ function BannersSection() {
           <p className="text-sm text-muted-foreground">
             Hidden from the storefront and permanently deleted {ARCHIVE_RETENTION_DAYS} days after archiving.
           </p>
-          <ul className="mt-4 divide-y divide-border rounded-2xl border border-border">
+          <ul className="mt-4 divide-y divide-border rounded-xl border border-border">
             {archived.map(item => (
               <ArchivedRow key={item.id} item={item} onRestore={() => restore(item.id)} />
             ))}

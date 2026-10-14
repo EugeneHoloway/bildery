@@ -37,7 +37,7 @@ interface I18n { en: string; ua: string }
 
 function CodeBlock({ code, label }: { code: string; label?: string }) {
   return (
-    <div className="rounded-2xl border border-border overflow-hidden">
+    <div className="rounded-xl border border-border overflow-hidden">
       {label && (
         <div className="flex items-center gap-2 px-4 py-2 border-b border-border bg-muted">
           <Code2 className="size-3.5 text-muted-foreground" />
@@ -53,7 +53,7 @@ function CodeBlock({ code, label }: { code: string; label?: string }) {
 
 function InfoCard({ children }: { children: React.ReactNode }) {
   return (
-    <div className="border border-border bg-card shadow-card rounded-2xl px-4 py-3 flex items-start gap-3 mb-6">
+    <div className="border border-border bg-card shadow-card rounded-xl px-4 py-3 flex items-start gap-3 mb-6">
       <Info className="size-4 shrink-0 mt-0.5 text-muted-foreground" />
       <div className="text-sm text-foreground leading-relaxed">{children}</div>
     </div>
@@ -62,7 +62,7 @@ function InfoCard({ children }: { children: React.ReactNode }) {
 
 function WarnCard({ children }: { children: React.ReactNode }) {
   return (
-    <div className="border border-warning/30 bg-warning-bg rounded-2xl px-4 py-3 flex items-start gap-3 mb-4">
+    <div className="border border-warning/30 bg-warning-bg rounded-xl px-4 py-3 flex items-start gap-3 mb-4">
       <AlertTriangle className="size-4 shrink-0 mt-0.5 text-warning" />
       <div className="text-sm text-foreground leading-relaxed">{children}</div>
     </div>
@@ -464,7 +464,7 @@ function QuirkCard({ quirk, lang }: { quirk: Quirk; lang: Lang }) {
   const ua = lang === 'ua'
 
   return (
-    <div className="border border-border bg-card rounded-2xl p-4 flex flex-col gap-3">
+    <div className="border border-border bg-card rounded-xl p-4 flex flex-col gap-3">
       <div className="flex items-start gap-3">
         <div className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-muted text-muted-foreground">
           <Icon className="size-3.5" />
@@ -696,7 +696,7 @@ export default function Page() {
                 ? 'bg-destructive-bg text-destructive border-destructive/30'
                 : 'bg-warning-bg text-warning border-warning/30'
               return (
-                <div key={i} className="flex items-start gap-3 border border-border bg-card rounded-2xl px-4 py-3">
+                <div key={i} className="flex items-start gap-3 border border-border bg-card rounded-xl px-4 py-3">
                   <CheckCircle2 className="size-4 shrink-0 mt-0.5 text-muted-foreground/40" />
                   <p className="text-sm text-foreground leading-snug flex-1">{item.text[lang]}</p>
                   <Badge variant="outline" className={cn('pointer-events-none shrink-0 text-xs', badgeStyle)}>

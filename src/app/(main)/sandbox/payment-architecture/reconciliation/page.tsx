@@ -36,7 +36,7 @@ function LangSwitcher({ lang, onChange }: { lang: Lang; onChange: (l: Lang) => v
 
 function InfoCard({ children }: { children: React.ReactNode }) {
   return (
-    <div className="border border-border bg-card rounded-2xl px-4 py-3 flex items-start gap-3 mb-6">
+    <div className="border border-border bg-card rounded-xl px-4 py-3 flex items-start gap-3 mb-6">
       <Info className="size-4 shrink-0 mt-0.5 text-muted-foreground" />
       <div className="text-sm text-foreground leading-relaxed">{children}</div>
     </div>
@@ -45,7 +45,7 @@ function InfoCard({ children }: { children: React.ReactNode }) {
 
 function WarnCard({ children }: { children: React.ReactNode }) {
   return (
-    <div className="border border-warning/30 bg-warning-bg rounded-2xl px-4 py-3 flex items-start gap-3 mb-4">
+    <div className="border border-warning/30 bg-warning-bg rounded-xl px-4 py-3 flex items-start gap-3 mb-4">
       <AlertTriangle className="size-4 shrink-0 mt-0.5 text-warning" />
       <div className="text-sm text-foreground leading-relaxed">{children}</div>
     </div>
@@ -204,7 +204,7 @@ export default function Page() {
       <DocSection num="1" title={ua ? 'Навіщо це потрібно' : 'Why It Is Needed'}>
         <div className="flex flex-col gap-3">
           {WHY_NEEDED.map((item, i) => (
-            <div key={i} className="border border-border rounded-2xl p-4 bg-card flex items-start gap-3">
+            <div key={i} className="border border-border rounded-xl p-4 bg-card flex items-start gap-3">
               <item.icon className="size-4 shrink-0 mt-0.5 text-muted-foreground" />
               <div>
                 <p className="text-sm font-semibold text-foreground mb-1">{item.title[lang]}</p>
@@ -242,7 +242,7 @@ export default function Page() {
               colorCls: 'text-violet-500',
             },
           ].map((t) => (
-            <div key={t.env} className="border border-border rounded-2xl p-4 bg-card">
+            <div key={t.env} className="border border-border rounded-xl p-4 bg-card">
               <div className={cn('text-3xl font-bold tabular-nums mb-1', t.colorCls)}>{t.value}</div>
               <p className="text-sm font-semibold text-foreground mb-0.5">{t.label[lang]}</p>
               <code className="text-xs text-muted-foreground">{t.env}</code>
@@ -260,7 +260,7 @@ export default function Page() {
           {FLOW_STEPS.map((step, i) => (
             <div key={i} className="flex flex-col items-start">
               <div className={cn(
-                'w-full border rounded-2xl p-4 flex items-start gap-3',
+                'w-full border rounded-xl p-4 flex items-start gap-3',
                 step.type === 'action-credit' ? 'border-success/30 bg-success-bg/30'      : '',
                 step.type === 'action-fail'   ? 'border-destructive/20 bg-destructive-bg/20' : '',
                 step.type === 'terminal'      ? 'border-sky-500/30 bg-sky-500/5'          : '',
@@ -376,7 +376,7 @@ export default function Page() {
           </TableBody>
         </DocTable>
 
-        <div className="mt-4 border border-border rounded-2xl p-4 bg-card">
+        <div className="mt-4 border border-border rounded-xl p-4 bg-card">
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">
             {ua ? 'Таблиця reconciliation_reports (окрема від transaction_events)' : 'reconciliation_reports table (separate from transaction_events)'}
           </p>
@@ -433,7 +433,7 @@ export default function Page() {
               desc: { en: 'PSPs charge per declined transaction ($0.05--$0.15) and per chargeback dispute ($15--$100). These appear as separate line items on the PSP invoice and must be tracked separately.', ua: 'PSP стягують за кожну відхилену транзакцію ($0.05--$0.15) та за кожен chargeback диспут ($15--$100). Вони фігурують як окремі рядки у рахунку PSP та мають відстежуватись окремо.' },
             },
           ] as { icon: React.ElementType; title: I18n; desc: I18n }[]).map((item, i) => (
-            <div key={i} className="border border-border rounded-2xl p-4">
+            <div key={i} className="border border-border rounded-xl p-4">
               <div className="flex items-center gap-2.5 mb-2">
                 <div className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-muted text-muted-foreground">
                   <item.icon className="size-3.5" />
@@ -480,7 +480,7 @@ export default function Page() {
               tagCls: '',
             },
           ] as { icon: React.ElementType; model: I18n; desc: I18n; tag: I18n | null; tagCls: string }[]).map((item, i) => (
-            <div key={i} className="border border-border rounded-2xl p-4 flex items-start gap-3">
+            <div key={i} className="border border-border rounded-xl p-4 flex items-start gap-3">
               <div className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-muted text-muted-foreground mt-0.5">
                 <item.icon className="size-3.5" />
               </div>
@@ -562,7 +562,7 @@ export default function Page() {
               desc: { en: 'Admin Panel revenue dashboard reads from transaction_fees -- aggregated by operator, PSP, method, and time period. Metrics: gross payment volume, PSP cost ratio, platform revenue, effective take rate (platform_revenue / settlement_amount). All in settlement currency.', ua: 'Дашборд доходів Admin Panel читає з transaction_fees -- агреговано по оператору, PSP, методу та часовому проміжку. Метрики: gross payment volume, коефіцієнт витрат PSP, дохід платформи, effective take rate (platform_revenue / settlement_amount). Все у розрахунковій валюті.' },
             },
           ] as { icon: React.ElementType; title: I18n; desc: I18n }[]).map((item, i) => (
-            <div key={i} className="border border-border rounded-2xl p-4 flex items-start gap-3">
+            <div key={i} className="border border-border rounded-xl p-4 flex items-start gap-3">
               <div className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-muted text-muted-foreground mt-0.5">
                 <item.icon className="size-3.5" />
               </div>

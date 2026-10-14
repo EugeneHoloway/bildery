@@ -11,7 +11,7 @@ interface FlowStep {
 
 export function DocFlow({ steps }: { steps: FlowStep[] }) {
   return (
-    <div className="flex flex-col rounded-2xl border border-border overflow-hidden mb-6">
+    <div className="flex flex-col rounded-xl border border-border overflow-hidden mb-6">
       {steps.map((step) => {
         const Icon = step.icon
         return (

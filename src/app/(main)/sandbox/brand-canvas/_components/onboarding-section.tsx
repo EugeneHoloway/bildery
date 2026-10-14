@@ -101,7 +101,7 @@ function PaymentRow({
   const resolvedLogo = isDark && logoDarkSrc ? logoDarkSrc : logoSrc
   return (
     <button
-      className="group flex w-full cursor-pointer items-center gap-3 rounded-2xl border border-border px-4 py-4 text-left transition-colors hover:bg-muted"
+      className="group flex w-full cursor-pointer items-center gap-3 rounded-xl border border-border px-4 py-4 text-left transition-colors hover:bg-muted"
       onClick={onClick}
     >
       {resolvedLogo
@@ -235,7 +235,7 @@ export function OnboardingSection() {
   return (
     <>
       {/* ── Banner ──────────────────────────────────────────────────────────── */}
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-3 rounded-2xl border border-border bg-card px-5 py-3.5">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-3 rounded-xl border border-border bg-card px-5 py-3.5">
         <div className="shrink-0">
           <p className="text-2xs font-semibold uppercase tracking-widest text-muted-foreground">
             Get ready to play
@@ -367,7 +367,7 @@ export function OnboardingSection() {
               {!showMore ? (
                 <button
                   onClick={() => setShowMore(true)}
-                  className="flex w-full cursor-pointer items-center justify-center rounded-2xl border border-border px-4 py-4 transition-colors hover:bg-muted"
+                  className="flex w-full cursor-pointer items-center justify-center rounded-xl border border-border px-4 py-4 transition-colors hover:bg-muted"
                 >
                   <span className="text-base font-medium text-muted-foreground">View more options</span>
                 </button>

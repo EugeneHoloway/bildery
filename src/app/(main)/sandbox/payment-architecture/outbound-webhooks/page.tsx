@@ -36,7 +36,7 @@ function LangSwitcher({ lang, onChange }: { lang: Lang; onChange: (l: Lang) => v
 
 function InfoCard({ children }: { children: React.ReactNode }) {
   return (
-    <div className="border border-border bg-card rounded-2xl px-4 py-3 flex items-start gap-3 mb-6">
+    <div className="border border-border bg-card rounded-xl px-4 py-3 flex items-start gap-3 mb-6">
       <Info className="size-4 shrink-0 mt-0.5 text-muted-foreground" />
       <div className="text-sm text-foreground leading-relaxed">{children}</div>
     </div>
@@ -45,7 +45,7 @@ function InfoCard({ children }: { children: React.ReactNode }) {
 
 function WarnCard({ children }: { children: React.ReactNode }) {
   return (
-    <div className="border border-warning/30 bg-warning-bg rounded-2xl px-4 py-3 flex items-start gap-3 mb-4">
+    <div className="border border-warning/30 bg-warning-bg rounded-xl px-4 py-3 flex items-start gap-3 mb-4">
       <AlertTriangle className="size-4 shrink-0 mt-0.5 text-warning" />
       <div className="text-sm text-foreground leading-relaxed">{children}</div>
     </div>
@@ -54,7 +54,7 @@ function WarnCard({ children }: { children: React.ReactNode }) {
 
 function DangerCard({ children }: { children: React.ReactNode }) {
   return (
-    <div className="border border-destructive/30 bg-destructive-bg rounded-2xl px-4 py-3 flex items-start gap-3 mb-4">
+    <div className="border border-destructive/30 bg-destructive-bg rounded-xl px-4 py-3 flex items-start gap-3 mb-4">
       <AlertCircle className="size-4 shrink-0 mt-0.5 text-destructive" />
       <div className="text-sm text-foreground leading-relaxed">{children}</div>
     </div>
@@ -362,7 +362,7 @@ export default function OutboundWebhooksPage() {
     >
 
       {/* ── When is this needed ──────────────────────────────────────────── */}
-      <div className="mb-8 border border-border rounded-2xl p-5 flex flex-col gap-4">
+      <div className="mb-8 border border-border rounded-xl p-5 flex flex-col gap-4">
         <p className="text-sm font-semibold text-foreground">
           {ua ? 'Коли це потрібно?' : 'When is this needed?'}
         </p>
@@ -402,7 +402,7 @@ export default function OutboundWebhooksPage() {
         </InfoCard>
         <div className="grid grid-cols-1 gap-4 tablet:grid-cols-2">
           {WHY_NEEDED.map((item, i) => (
-            <div key={i} className="border border-border rounded-2xl p-4">
+            <div key={i} className="border border-border rounded-xl p-4">
               <div className="flex items-center gap-2.5 mb-2">
                 <div className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-muted text-muted-foreground">
                   <item.icon className="size-3.5" />
@@ -444,7 +444,7 @@ export default function OutboundWebhooksPage() {
             {filteredEvents.map((ev) => {
               const meta = CATEGORY_META[ev.category]
               return (
-                <div key={ev.event} className="border border-border rounded-2xl p-4">
+                <div key={ev.event} className="border border-border rounded-xl p-4">
                   <div className="flex items-start justify-between gap-3 mb-2 flex-wrap">
                     <div className="flex items-center gap-2 flex-wrap">
                       <code className="text-sm font-mono font-semibold text-foreground">{ev.event}</code>
@@ -498,7 +498,7 @@ export default function OutboundWebhooksPage() {
           <p className="text-sm font-semibold text-foreground mt-6 mb-3">
             {ua ? 'Приклад -- deposit.completed' : 'Example -- deposit.completed'}
           </p>
-          <div className="rounded-2xl bg-muted px-4 py-3 overflow-x-auto">
+          <div className="rounded-xl bg-muted px-4 py-3 overflow-x-auto">
             <pre className="text-xs font-mono text-foreground leading-relaxed">{`{
   "id": "evt_01HZ9K3XMVQ7J8N4P2R6T5W0YB",
   "type": "deposit.completed",
@@ -556,7 +556,7 @@ export default function OutboundWebhooksPage() {
                 desc: { en: "Operator endpoints must be HTTPS. The platform validates the SSL certificate and rejects self-signed certificates. HTTP endpoints are rejected at registration time -- they cannot be saved in webhook_endpoints.", ua: 'Ендпоінти операторів мають бути HTTPS. Платформа валідує SSL сертифікат та відхиляє самопідписані сертифікати. HTTP ендпоінти відхиляються при реєстрації -- їх не можна зберегти у webhook_endpoints.' },
               },
             ].map((item, i) => (
-              <div key={i} className="border border-border rounded-2xl p-4 flex items-start gap-3">
+              <div key={i} className="border border-border rounded-xl p-4 flex items-start gap-3">
                 <div className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-muted text-muted-foreground mt-0.5">
                   <item.icon className="size-3.5" />
                 </div>
@@ -625,7 +625,7 @@ export default function OutboundWebhooksPage() {
                 desc: { en: 'If an endpoint fails 3 consecutive deliveries, the operator receives an email alert (to their registered admin email). If it fails all 6 attempts for any critical event, ops is also notified internally.', ua: 'Якщо ендпоінт отримує 3 невдалі доставки поспіль, оператор отримує email сповіщення (на зареєстрований admin email). Якщо всі 6 спроб для будь-якої critical події невдалі, ops також сповіщається внутрішньо.' },
               },
             ].map((item, i) => (
-              <div key={i} className="border border-border rounded-2xl p-4 flex items-start gap-3">
+              <div key={i} className="border border-border rounded-xl p-4 flex items-start gap-3">
                 <div className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-muted text-muted-foreground mt-0.5">
                   <item.icon className="size-3.5" />
                 </div>
@@ -734,7 +734,7 @@ export default function OutboundWebhooksPage() {
                 desc: { en: 'Operator can trigger a synthetic "webhook.test" event from Admin Panel at any time to verify the endpoint is responding correctly. Test events are clearly marked in delivery logs and are never confused with real payment events.', ua: 'Оператор може тригерувати синтетичну подію "webhook.test" з Admin Panel будь-коли щоб перевірити що ендпоінт відповідає коректно. Тестові події чітко позначені в журналах доставок та ніколи не плутаються з реальними платіжними подіями.' },
               },
             ].map((item, i) => (
-              <div key={i} className="border border-border rounded-2xl p-4">
+              <div key={i} className="border border-border rounded-xl p-4">
                 <div className="flex items-center gap-2.5 mb-2">
                   <div className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-muted text-muted-foreground">
                     <item.icon className="size-3.5" />

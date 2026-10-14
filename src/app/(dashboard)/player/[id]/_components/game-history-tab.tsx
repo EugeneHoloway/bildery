@@ -297,7 +297,7 @@ export function GameHistoryTab({ playerCurrency, fxRate, dateRange, onDateRangeC
         </div>
       </div>
 
-      <div className="relative rounded-2xl border border-border bg-card overflow-hidden">
+      <div className="relative rounded-xl border border-border bg-card overflow-hidden">
         {gameHasOverflow && <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-card to-transparent z-10" />}
         <div className="overflow-x-auto" ref={gameScrollRef}>
           <Table className="min-w-max">

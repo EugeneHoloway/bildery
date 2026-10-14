@@ -36,7 +36,7 @@ function LangSwitcher({ lang, onChange }: { lang: Lang; onChange: (l: Lang) => v
 
 function InfoCard({ children }: { children: React.ReactNode }) {
   return (
-    <div className="border border-border bg-card rounded-2xl px-4 py-3 flex items-start gap-3 mb-6">
+    <div className="border border-border bg-card rounded-xl px-4 py-3 flex items-start gap-3 mb-6">
       <Info className="size-4 shrink-0 mt-0.5 text-muted-foreground" />
       <div className="text-sm text-foreground leading-relaxed">{children}</div>
     </div>
@@ -45,7 +45,7 @@ function InfoCard({ children }: { children: React.ReactNode }) {
 
 function WarnCard({ children }: { children: React.ReactNode }) {
   return (
-    <div className="border border-amber-500/30 bg-amber-500/5 rounded-2xl px-4 py-3 flex items-start gap-3 mb-4">
+    <div className="border border-amber-500/30 bg-amber-500/5 rounded-xl px-4 py-3 flex items-start gap-3 mb-4">
       <AlertTriangle className="size-4 shrink-0 mt-0.5 text-amber-500" />
       <div className="text-sm text-foreground leading-relaxed">{children}</div>
     </div>
@@ -64,7 +64,7 @@ function SectionCard({
   children: React.ReactNode
 }) {
   return (
-    <div className="border border-border rounded-2xl p-5">
+    <div className="border border-border rounded-xl p-5">
       <div className="flex items-center gap-2.5 mb-4">
         <div className={cn(
           'flex size-7 shrink-0 items-center justify-center rounded-xl',
@@ -416,7 +416,7 @@ export default function Page() {
         </InfoCard>
         <div className="flex flex-col gap-3 mb-2">
           {PURPOSE_POINTS.map((p, i) => (
-            <div key={i} className="border border-border rounded-2xl p-4 flex items-start gap-3">
+            <div key={i} className="border border-border rounded-xl p-4 flex items-start gap-3">
               <div className="flex size-6 shrink-0 items-center justify-center rounded-lg bg-muted text-xs font-bold text-muted-foreground tabular-nums">
                 {i + 1}
               </div>
@@ -437,7 +437,7 @@ export default function Page() {
         <div className="flex flex-col gap-2">
           {SCOPE_HIERARCHY.map((row, i) => (
             <div key={i} className={cn(
-              'border rounded-2xl p-4 flex items-start gap-4',
+              'border rounded-xl p-4 flex items-start gap-4',
               i === 0 ? 'border-indigo-500/30 bg-indigo-500/5' : 'border-border',
             )}>
               <div className={cn(
@@ -479,7 +479,7 @@ export default function Page() {
       <DocSection num="3" title={lang === 'ua' ? 'Модулі адмін панелі' : 'Admin Panel Modules'}>
         <div className="flex flex-col gap-6">
           {modules.map((mod) => (
-            <div key={mod.id} className="border border-border rounded-2xl overflow-hidden">
+            <div key={mod.id} className="border border-border rounded-xl overflow-hidden">
               {/* Module header */}
               <div className="flex items-center gap-3 px-5 py-4 border-b border-border bg-muted/30">
                 <div className={cn('flex size-7 shrink-0 items-center justify-center rounded-xl', mod.accent)}>
@@ -569,7 +569,7 @@ export default function Page() {
               textColor: 'text-indigo-400',
             },
           ] as { role: I18n; access: I18n; color: string; textColor: string }[]).map((r, i) => (
-            <div key={i} className={cn('border rounded-2xl p-4', r.color)}>
+            <div key={i} className={cn('border rounded-xl p-4', r.color)}>
               <div className="flex items-center gap-2 mb-2">
                 <Users className="size-3.5 shrink-0 text-muted-foreground" />
                 <span className={cn('text-sm font-semibold', r.textColor)}>{t(r.role)}</span>
@@ -619,7 +619,7 @@ export default function Page() {
               },
             },
           ] as { icon: React.ElementType; title: I18n; body: I18n }[]).map((note, i) => (
-            <div key={i} className="border border-border rounded-2xl p-4 flex items-start gap-3">
+            <div key={i} className="border border-border rounded-xl p-4 flex items-start gap-3">
               <div className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-muted text-muted-foreground">
                 <note.icon className="size-3.5" />
               </div>

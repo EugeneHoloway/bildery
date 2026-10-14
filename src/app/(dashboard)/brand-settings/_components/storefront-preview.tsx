@@ -11,7 +11,7 @@ import { groupLabel, resolveLabel, rowView, type SidebarRow, type SidebarSetting
 export function StorefrontSurface({ className, children, ...props }: React.ComponentProps<'div'>) {
   return (
     // In the dark admin theme the page is nearly as dark, so the surface gets an outline
-    <div className={cn('dark rounded-2xl bg-storefront-surface text-foreground dark:ring-1 dark:ring-border dark:ring-inset', className)} {...props}>
+    <div className={cn('dark rounded-xl bg-storefront-surface text-foreground dark:ring-1 dark:ring-border dark:ring-inset', className)} {...props}>
       {children}
     </div>
   )

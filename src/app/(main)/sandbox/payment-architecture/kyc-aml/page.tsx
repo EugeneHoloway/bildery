@@ -35,7 +35,7 @@ function LangSwitcher({ lang, onChange }: { lang: Lang; onChange: (l: Lang) => v
 
 function InfoCard({ children }: { children: React.ReactNode }) {
   return (
-    <div className="border border-border bg-card rounded-2xl px-4 py-3 flex items-start gap-3 mb-6">
+    <div className="border border-border bg-card rounded-xl px-4 py-3 flex items-start gap-3 mb-6">
       <Info className="size-4 shrink-0 mt-0.5 text-muted-foreground" />
       <div className="text-sm text-foreground leading-relaxed">{children}</div>
     </div>
@@ -44,7 +44,7 @@ function InfoCard({ children }: { children: React.ReactNode }) {
 
 function WarnCard({ children }: { children: React.ReactNode }) {
   return (
-    <div className="border border-amber-500/30 bg-amber-500/5 rounded-2xl px-4 py-3 flex items-start gap-3 mb-4">
+    <div className="border border-amber-500/30 bg-amber-500/5 rounded-xl px-4 py-3 flex items-start gap-3 mb-4">
       <AlertTriangle className="size-4 shrink-0 mt-0.5 text-amber-500" />
       <div className="text-sm text-foreground leading-relaxed">{children}</div>
     </div>
@@ -276,7 +276,7 @@ export default function Page() {
             { Icon: FileText,      title: { en: 'Regulatory reporting',          ua: 'Регуляторна звітність' },      desc: { en: 'File mandatory Currency Transaction Reports (CTR) for large transactions and Suspicious Activity Reports (SAR) when warranted. Jurisdiction-specific.', ua: 'Подавати обовʼязкові звіти CTR для великих транзакцій та SAR при підозрілій активності. Залежить від юрисдикції.' } },
             { Icon: Eye,           title: { en: 'PEP screening',                 ua: 'Перевірка PEP' },              desc: { en: 'Identify Politically Exposed Persons for enhanced due diligence. PEP status alone does not block -- triggers Level 3 KYC requirement.', ua: 'Виявляти Politically Exposed Persons для посиленої перевірки. PEP статус сам по собі не блокує -- ініціює вимогу KYC рівня 3.' } },
           ].map((card) => (
-            <div key={card.title.en} className="border border-border rounded-2xl p-4 flex items-start gap-3">
+            <div key={card.title.en} className="border border-border rounded-xl p-4 flex items-start gap-3">
               <div className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-muted text-muted-foreground">
                 <card.Icon className="size-4" />
               </div>
@@ -297,7 +297,7 @@ export default function Page() {
         <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">
           {ua ? 'Позиція в стеку' : 'Position in the stack'}
         </p>
-        <div className="border border-border rounded-2xl p-4 mb-6">
+        <div className="border border-border rounded-xl p-4 mb-6">
           <div className="flex flex-col gap-4">
             {[
               { label: { en: 'Limits & Rules engine', ua: 'Limits & Rules engine' }, note: { en: 'calls KYC check as one of its rules', ua: 'викликає KYC check як одне зі своїх правил' }, active: false },
@@ -329,7 +329,7 @@ export default function Page() {
         <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">
           {ua ? 'Флоу виклику' : 'Invocation flow'}
         </p>
-        <div className="border border-border rounded-2xl p-4 mb-6">
+        <div className="border border-border rounded-xl p-4 mb-6">
           <div className="flex flex-col gap-2">
             {REQUEST_FLOW.map((step, i) => (
               <div key={i} className="flex items-start gap-3">
@@ -357,7 +357,7 @@ export default function Page() {
         <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">
           {ua ? 'Вхідні дані та їх джерела' : 'Input data and sources'}
         </p>
-        <div className="flex flex-col divide-y divide-border border border-border rounded-2xl overflow-hidden">
+        <div className="flex flex-col divide-y divide-border border border-border rounded-xl overflow-hidden">
           {DATA_INPUTS.map((row) => (
             <div key={row.label.en} className="flex items-center gap-3 px-4 py-3">
               <div className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-muted text-muted-foreground">
@@ -384,7 +384,7 @@ export default function Page() {
         </p>
         <div className="flex flex-col gap-3 mb-6">
           {KYC_LEVELS.map((lvl) => (
-            <div key={lvl.level} className={cn('border rounded-2xl p-4', lvl.borderCls, lvl.bgCls + '/30')}>
+            <div key={lvl.level} className={cn('border rounded-xl p-4', lvl.borderCls, lvl.bgCls + '/30')}>
               <div className="flex items-center gap-2 mb-3">
                 <span className={cn('text-xs font-bold px-2 py-0.5 rounded border', lvl.colorCls, lvl.bgCls, lvl.borderCls)}>
                   Level {lvl.level}
@@ -481,7 +481,7 @@ export default function Page() {
         </DocTable>
 
         {/* Response example */}
-        <div className="border border-border rounded-2xl overflow-hidden mb-4">
+        <div className="border border-border rounded-xl overflow-hidden mb-4">
           <div className="flex items-center justify-between px-3 py-2 bg-muted border-b border-border">
             <span className="text-xs font-mono text-muted-foreground">HTTP 422 -- KYC_REQUIRED response</span>
             <Badge variant="outline" className="text-xs bg-destructive-bg text-destructive border-destructive/30 pointer-events-none">Blocked</Badge>
@@ -499,7 +499,7 @@ export default function Page() {
         <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">
           {ua ? 'Мінімальна схема БД для Phase 3' : 'Minimum DB schema for Phase 3'}
         </p>
-        <div className="border border-border rounded-2xl overflow-hidden">
+        <div className="border border-border rounded-xl overflow-hidden">
           <div className="flex items-center gap-2 px-3 py-2 bg-muted border-b border-border">
             <AlertOctagon className="size-3.5 text-muted-foreground" />
             <span className="text-xs text-muted-foreground">{ua ? 'KYC документи -- encrypted at rest, retention per jurisdiction' : 'KYC documents -- encrypted at rest, retention per jurisdiction'}</span>
@@ -545,7 +545,7 @@ aml_flags (
       <DocSection num="4" title={ua ? 'Кращі практики' : 'Best practices'}>
         <div className="grid grid-cols-1 gap-4 tablet:grid-cols-2">
           {BEST_PRACTICES.map((bp) => (
-            <div key={bp.title.en} className="border border-border rounded-2xl p-4">
+            <div key={bp.title.en} className="border border-border rounded-xl p-4">
               <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-3">{bp.title[lang]}</p>
               <ul className="flex flex-col gap-2">
                 {bp.items.map((item, i) => (

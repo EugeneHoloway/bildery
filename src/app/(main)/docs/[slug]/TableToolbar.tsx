@@ -13,7 +13,7 @@ export function TableToolbar({ editor }: { editor: Editor }) {
   const c = () => (editor.chain().focus() as any)
 
   return (
-    <div className="mb-3 flex flex-wrap items-center gap-0.5 rounded-[10px] border border-border bg-card p-1.5">
+    <div className="mb-3 flex flex-wrap items-center gap-0.5 rounded-lg border border-border bg-card p-1.5">
 
       <span className="select-none px-1.5 text-xs font-semibold text-muted-foreground">Rows</span>
 

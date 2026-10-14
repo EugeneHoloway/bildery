@@ -50,7 +50,7 @@ interface ResponseField {
 
 function InfoCard({ children }: { children: React.ReactNode }) {
   return (
-    <div className="border border-border bg-card rounded-2xl px-4 py-3 flex items-start gap-3 mb-6">
+    <div className="border border-border bg-card rounded-xl px-4 py-3 flex items-start gap-3 mb-6">
       <Info className="size-4 shrink-0 mt-0.5 text-muted-foreground" />
       <div className="text-sm text-foreground leading-relaxed">{children}</div>
     </div>
@@ -59,7 +59,7 @@ function InfoCard({ children }: { children: React.ReactNode }) {
 
 function WarnCard({ children }: { children: React.ReactNode }) {
   return (
-    <div className="border border-warning/30 bg-warning-bg rounded-2xl px-4 py-3 flex items-start gap-3 mb-4">
+    <div className="border border-warning/30 bg-warning-bg rounded-xl px-4 py-3 flex items-start gap-3 mb-4">
       <AlertTriangle className="size-4 shrink-0 mt-0.5 text-warning" />
       <div className="text-sm text-foreground leading-relaxed">{children}</div>
     </div>
@@ -208,7 +208,7 @@ export default function Page() {
 
       {/* ── Section 1: Request flow ───────────────────────────────────────── */}
       <DocSection num="1" title={ua ? 'Флоу запиту' : 'Request Flow'}>
-        <div className="border border-border rounded-2xl p-4 mb-6">
+        <div className="border border-border rounded-xl p-4 mb-6">
           <div className="flex flex-col gap-2">
             {REQUEST_FLOW.map((step, i) => (
               <div key={i} className="flex items-start gap-3">
@@ -314,7 +314,7 @@ export default function Page() {
             <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">
               {ua ? 'Приклад відповіді' : 'Example Response'}
             </p>
-            <div className="border border-border rounded-2xl overflow-hidden">
+            <div className="border border-border rounded-xl overflow-hidden">
               <div className="flex items-center justify-between px-3 py-2 bg-muted border-b border-border">
                 <span className="text-xs font-mono text-muted-foreground">HTTP 429</span>
                 <Badge variant="outline" className="text-xs bg-destructive-bg text-destructive border-destructive/30 pointer-events-none">Too Many Requests</Badge>
@@ -346,7 +346,7 @@ export default function Page() {
         <div className="flex flex-col gap-4">
           {STORAGE_OPTIONS.map(opt => (
             <div key={opt.label.en} className={cn(
-              'border rounded-2xl p-4',
+              'border rounded-xl p-4',
               opt.recommended ? 'border-success/30 bg-success-bg/30' : 'border-border bg-card',
             )}>
               <div className="flex items-center gap-2 mb-3">

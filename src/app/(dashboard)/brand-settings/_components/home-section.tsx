@@ -205,7 +205,7 @@ export function HomeSection() {
         />
 
         {sections.length === 0 ? (
-          <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border px-4 py-8 text-center">
+          <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border px-4 py-8 text-center">
             <div className="flex size-10 items-center justify-center rounded-xl bg-muted">
               <LayoutTemplate className="size-5 text-muted-foreground" />
             </div>
@@ -216,7 +216,7 @@ export function HomeSection() {
           <>
             <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
               <SortableContext items={sections.map(s => s.id)} strategy={verticalListSortingStrategy}>
-                <ul className="divide-y divide-border overflow-hidden rounded-2xl border border-border">
+                <ul className="divide-y divide-border overflow-hidden rounded-xl border border-border">
                   {sections.map((section, index) => (
                     <HomeSectionRow
                       key={section.id}

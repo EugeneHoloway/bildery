@@ -286,7 +286,7 @@ function NodeCard({
 
 
   const cardCls = cn(
-    'border rounded-2xl p-3 flex items-start gap-2.5 transition-all',
+    'border rounded-xl p-3 flex items-start gap-2.5 transition-all',
     'bg-card border-border shadow-card',
     node.href && 'cursor-pointer hover:border-subtle-border hover:shadow-card-hover',
     dimmed && 'opacity-30',
@@ -766,7 +766,7 @@ export default function Page() {
         <div className="grid grid-cols-1 gap-4 tablet:grid-cols-3">
 
           {/* Deposit flow */}
-          <div className="border border-border rounded-2xl p-4">
+          <div className="border border-border rounded-xl p-4">
             <p className="text-xs font-bold tracking-widest uppercase text-muted-foreground mb-4">
               {lang === 'ua' ? 'ФЛОУ ДЕПОЗИТУ' : 'DEPOSIT FLOW'}
             </p>
@@ -788,7 +788,7 @@ export default function Page() {
           </div>
 
           {/* Transaction states */}
-          <div className="border border-border rounded-2xl p-4">
+          <div className="border border-border rounded-xl p-4">
             <p className="text-xs font-bold tracking-widest uppercase text-muted-foreground mb-4">
               {lang === 'ua' ? 'СТАНИ ТРАНЗАКЦІЇ' : 'TRANSACTION STATES'}
             </p>
@@ -810,7 +810,7 @@ export default function Page() {
           </div>
 
           {/* Routing dimensions */}
-          <div className="border border-border rounded-2xl p-4">
+          <div className="border border-border rounded-xl p-4">
             <p className="text-xs font-bold tracking-widest uppercase text-muted-foreground mb-4">
               {lang === 'ua' ? 'ВИМІРИ РОУТИНГУ' : 'ROUTING DIMENSIONS'}
             </p>
@@ -861,7 +861,7 @@ export default function Page() {
             { label: { en: 'Personalization',     ua: 'Персоналізація'       }, sub: { en: 'BIN lookup, preferred method, GEO context, PSP success rate', ua: 'BIN lookup, кращий метод, GEO контекст, success rate PSP' }, href: '/sandbox/payment-architecture/personalization', phase: '5' },
             { label: { en: 'How to add a new PSP', ua: 'Як додати новий PSP' }, sub: { en: 'Checklist for integrating any new payment provider', ua: 'Чеклист для інтеграції нового платіжного провайдера' }, href: '/sandbox/payment-architecture/add-psp', phase: 'next' },
           ].map(doc => (
-            <Link key={doc.href} href={doc.href} className={cn("border border-border bg-card rounded-2xl p-3.5 flex items-start gap-2.5 hover:border-subtle-border hover:shadow-card-hover transition-all", (() => { const p = isNaN(Number(doc.phase)) ? doc.phase : Number(doc.phase); return doc.phase === 'oos' ? phaseFilter !== 'oos' : doc.phase === 'next' ? (phaseFilter !== 'all' && phaseFilter !== 'next' as never) : phaseFilter !== 'all' && phaseFilter !== p })() && 'opacity-30')}>
+            <Link key={doc.href} href={doc.href} className={cn("border border-border bg-card rounded-xl p-3.5 flex items-start gap-2.5 hover:border-subtle-border hover:shadow-card-hover transition-all", (() => { const p = isNaN(Number(doc.phase)) ? doc.phase : Number(doc.phase); return doc.phase === 'oos' ? phaseFilter !== 'oos' : doc.phase === 'next' ? (phaseFilter !== 'all' && phaseFilter !== 'next' as never) : phaseFilter !== 'all' && phaseFilter !== p })() && 'opacity-30')}>
               <div className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-muted text-muted-foreground">
                 <FileText className="size-3.5" />
               </div>
@@ -926,7 +926,7 @@ export default function Page() {
             const totalCount = phaseItems.length
 
             return (
-              <div key={phase.id} className="border border-border rounded-2xl p-5">
+              <div key={phase.id} className="border border-border rounded-xl p-5">
                 <div className="flex items-start gap-3">
                   <div className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-muted text-xs font-bold text-muted-foreground tabular-nums">
                     {phase.id}

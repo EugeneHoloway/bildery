@@ -1287,7 +1287,7 @@ function AllConversationsContent() {
                       <div key={i} className="flex gap-3 max-w-[70%]">
                         <div className="size-7 rounded-full bg-muted-foreground/20 flex items-center justify-center text-xs font-medium text-muted-foreground shrink-0 mt-1">{selected.name.charAt(0)}</div>
                         <div>
-                          <div className="bg-muted rounded-2xl rounded-tl-sm px-4 py-2.5">
+                          <div className="bg-muted rounded-xl rounded-tl-sm px-4 py-2.5">
                             <p className="text-sm text-foreground whitespace-pre-wrap">{msg.text}</p>
                           </div>
                           <p className="text-xs text-muted-foreground mt-1 ml-1">{msg.time}</p>
@@ -1298,7 +1298,7 @@ function AllConversationsContent() {
                       <div key={i} className="flex gap-3 max-w-[70%] self-end flex-row-reverse">
                         <div className="size-7 rounded-full bg-brand/20 flex items-center justify-center text-xs font-medium text-brand shrink-0 mt-1">M</div>
                         <div>
-                          <div className="bg-brand text-white rounded-2xl rounded-tr-sm px-4 py-2.5">
+                          <div className="bg-brand text-white rounded-xl rounded-tr-sm px-4 py-2.5">
                             <p className="text-sm whitespace-pre-wrap">{msg.text}</p>
                           </div>
                           <p className="text-xs text-muted-foreground mt-1 mr-1 text-right">{msg.time}</p>
@@ -1321,7 +1321,7 @@ function AllConversationsContent() {
                   </div>
                   {/* Input box */}
                   <div className={cn(
-                    'rounded-2xl border border-border flex flex-col',
+                    'rounded-xl border border-border flex flex-col',
                     replyTab === 'note' && 'bg-warning-bg/30'
                   )}>
                     {/* Tabs + AI row — inside the box */}

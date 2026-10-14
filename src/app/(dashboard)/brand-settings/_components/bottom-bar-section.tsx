@@ -149,7 +149,7 @@ function BarPreview({ settings, state, onEditFixed, onEditCta }: {
       aria-label="Bottom bar preview"
       // Brand palette variables -- the only values here that aren't project tokens
       style={palette}
-      className="dark overflow-hidden rounded-2xl bg-(--brand-page) pt-8 text-foreground dark:ring-1 dark:ring-border dark:ring-inset"
+      className="dark overflow-hidden rounded-xl bg-(--brand-page) pt-8 text-foreground dark:ring-1 dark:ring-border dark:ring-inset"
     >
       <div className="flex items-end border-t border-border bg-storefront-surface px-2 pt-3 pb-3">
         {regular.slice(0, at).map(slot)}
@@ -437,7 +437,7 @@ function BarItemsBlock({ settings, onChange, onEditFixed }: { settings: BottomBa
 
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
         <SortableContext items={items.map(i => i.id)} strategy={verticalListSortingStrategy}>
-          <ul className="divide-y divide-border overflow-hidden rounded-2xl border border-border">
+          <ul className="divide-y divide-border overflow-hidden rounded-xl border border-border">
             {items.map(item => (
               <BarItemRow
                 key={item.id}

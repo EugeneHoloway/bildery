@@ -476,7 +476,7 @@ export default function RocketmanDemoPage() {
       <div>
 
         {/* ── Game panel ──────────────────────────────────────────────────────── */}
-        <div className={`mb-4 flex overflow-hidden rounded-2xl border bg-card transition-colors duration-500 ${
+        <div className={`mb-4 flex overflow-hidden rounded-xl border bg-card transition-colors duration-500 ${
           isCrashed ? 'border-destructive/40' : 'border-border'
         }`}>
 
@@ -780,7 +780,7 @@ export default function RocketmanDemoPage() {
         </div>
 
         {/* ── Bottom controls ──────────────────────────────────────────────────── */}
-        <div className={`mb-10 overflow-hidden rounded-2xl border bg-card transition-colors duration-300 ${
+        <div className={`mb-10 overflow-hidden rounded-xl border bg-card transition-colors duration-300 ${
           isCrashed ? 'border-destructive/40' : 'border-border'
         }`}>
 
@@ -1059,7 +1059,7 @@ export default function RocketmanDemoPage() {
               )}
             </div>
 
-            <div className="mb-10 overflow-hidden rounded-2xl border border-border bg-card">
+            <div className="mb-10 overflow-hidden rounded-xl border border-border bg-card">
               <Table>
                 <TableHeader className="bg-muted/50">
                   <TableRow>

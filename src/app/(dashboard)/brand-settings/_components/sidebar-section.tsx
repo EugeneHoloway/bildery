@@ -385,7 +385,7 @@ function GroupCard({ group, index, groups, pinned, showErrors, onChange, onEditR
       ref={setNodeRef}
       // Позиция элемента во время перетаскивания -- единственный оправданный inline-style
       style={{ transform: CSS.Transform.toString(transform), transition }}
-      className={cn('flex flex-col gap-4 rounded-2xl border border-border bg-background p-4', isDragging && 'relative z-10 opacity-80 shadow-md')}
+      className={cn('flex flex-col gap-4 rounded-xl border border-border bg-background p-4', isDragging && 'relative z-10 opacity-80 shadow-md')}
     >
       <div className="-my-1 -ml-2 flex items-center gap-1">
         <Button
@@ -405,7 +405,7 @@ function GroupCard({ group, index, groups, pinned, showErrors, onChange, onEditR
       </div>
 
       {rows.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border px-4 py-8 text-center">
+        <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border px-4 py-8 text-center">
           <div className="flex size-10 items-center justify-center rounded-xl bg-muted">
             <ListPlus className="size-5 text-muted-foreground" />
           </div>
@@ -415,7 +415,7 @@ function GroupCard({ group, index, groups, pinned, showErrors, onChange, onEditR
       ) : (
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
           <SortableContext items={rows.map(r => r.id)} strategy={verticalListSortingStrategy}>
-            <ul className="divide-y divide-border overflow-hidden rounded-2xl border border-border">
+            <ul className="divide-y divide-border overflow-hidden rounded-xl border border-border">
               {rows.map((row, at) => (
                 <RowItem
                   key={row.id}
@@ -476,7 +476,7 @@ function NavGroups({ settings, onChange, showErrors, onEditRow }: {
         }
       />
       {groups.length === 0 && (
-        <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border px-4 py-8 text-center">
+        <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border px-4 py-8 text-center">
           <div className="flex size-10 items-center justify-center rounded-xl bg-muted">
             <Rows3 className="size-5 text-muted-foreground" />
           </div>

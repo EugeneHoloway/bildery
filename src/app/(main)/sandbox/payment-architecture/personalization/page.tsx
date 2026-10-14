@@ -36,7 +36,7 @@ function LangSwitcher({ lang, onChange }: { lang: Lang; onChange: (l: Lang) => v
 
 function InfoCard({ children }: { children: React.ReactNode }) {
   return (
-    <div className="border border-border bg-card rounded-2xl px-4 py-3 flex items-start gap-3 mb-6">
+    <div className="border border-border bg-card rounded-xl px-4 py-3 flex items-start gap-3 mb-6">
       <Info className="size-4 shrink-0 mt-0.5 text-muted-foreground" />
       <div className="text-sm text-foreground leading-relaxed">{children}</div>
     </div>
@@ -45,7 +45,7 @@ function InfoCard({ children }: { children: React.ReactNode }) {
 
 function WarnCard({ children }: { children: React.ReactNode }) {
   return (
-    <div className="border border-amber-500/30 bg-amber-500/5 rounded-2xl px-4 py-3 flex items-start gap-3 mb-4">
+    <div className="border border-amber-500/30 bg-amber-500/5 rounded-xl px-4 py-3 flex items-start gap-3 mb-4">
       <AlertTriangle className="size-4 shrink-0 mt-0.5 text-amber-500" />
       <div className="text-sm text-foreground leading-relaxed">{children}</div>
     </div>
@@ -347,7 +347,7 @@ export default function Page() {
         </InfoCard>
         <div className="flex flex-col gap-3">
           {PURPOSE_POINTS.map((p, i) => (
-            <div key={i} className="border border-border rounded-2xl p-4 flex items-start gap-3">
+            <div key={i} className="border border-border rounded-xl p-4 flex items-start gap-3">
               <div className="flex size-6 shrink-0 items-center justify-center rounded-lg bg-muted text-xs font-bold text-muted-foreground tabular-nums">
                 {i + 1}
               </div>
@@ -367,7 +367,7 @@ export default function Page() {
         </InfoCard>
         <div className="flex flex-col gap-5">
           {SIGNALS.map((sig) => (
-            <div key={sig.id} className="border border-border rounded-2xl overflow-hidden">
+            <div key={sig.id} className="border border-border rounded-xl overflow-hidden">
               <div className="flex items-center gap-3 px-5 py-4 border-b border-border bg-muted/30">
                 <div className={cn('flex size-7 shrink-0 items-center justify-center rounded-xl', sig.accent)}>
                   <sig.icon className="size-3.5" />
@@ -427,7 +427,7 @@ export default function Page() {
         </InfoCard>
         <div className="flex flex-col gap-2">
           {RANKING_LOGIC.map((row) => (
-            <div key={row.priority} className="border border-border rounded-2xl p-4 flex items-start gap-4">
+            <div key={row.priority} className="border border-border rounded-xl p-4 flex items-start gap-4">
               <div className="flex size-6 shrink-0 items-center justify-center rounded-lg bg-muted text-xs font-bold text-muted-foreground tabular-nums">
                 {row.priority}
               </div>
@@ -456,7 +456,7 @@ export default function Page() {
       <DocSection num="4" title={lang === 'ua' ? 'Флоу чекауту з персоналізацією' : 'Personalized Checkout Flow'}>
         <div className="flex flex-col gap-3">
           {CHECKOUT_FLOW.map((step) => (
-            <div key={step.step} className="border border-border rounded-2xl p-4 flex items-start gap-4">
+            <div key={step.step} className="border border-border rounded-xl p-4 flex items-start gap-4">
               <div className="flex size-6 shrink-0 items-center justify-center rounded-lg bg-muted text-xs font-bold text-muted-foreground tabular-nums">
                 {step.step}
               </div>
@@ -486,7 +486,7 @@ export default function Page() {
         <div className="grid grid-cols-1 gap-4 tablet:grid-cols-2">
 
           {/* Request */}
-          <div className="border border-border rounded-2xl overflow-hidden">
+          <div className="border border-border rounded-xl overflow-hidden">
             <div className="flex items-center gap-2 px-4 py-3 border-b border-border bg-muted/30">
               <span className="text-xs font-mono text-sky-400">POST</span>
               <span className="text-xs font-mono text-foreground">/api/checkout/init</span>
@@ -506,7 +506,7 @@ export default function Page() {
           </div>
 
           {/* Response */}
-          <div className="border border-border rounded-2xl overflow-hidden">
+          <div className="border border-border rounded-xl overflow-hidden">
             <div className="flex items-center gap-2 px-4 py-3 border-b border-border bg-muted/30">
               <span className="text-xs font-mono text-emerald-400">200</span>
               <span className="text-xs font-mono text-foreground">CheckoutSession</span>
@@ -537,7 +537,7 @@ export default function Page() {
             ? 'Персоналізація обробляє платіжні дані гравця. Дотримання PCI DSS та GDPR -- не опціонально. Ці правила є жорсткими обмеженнями реалізації.'
             : 'Personalization processes player payment data. PCI DSS and GDPR compliance is not optional. These rules are hard implementation constraints.'}
         </WarnCard>
-        <div className="border border-border rounded-2xl p-4">
+        <div className="border border-border rounded-xl p-4">
           <FeatureList items={PRIVACY_RULES} lang={lang} />
         </div>
       </DocSection>
@@ -551,7 +551,7 @@ export default function Page() {
             ? 'Персоналізація без вимірювання -- це функція без визначення успіху. Усі чотири метрики мають відстежуватися з дня запуску.'
             : 'Personalization without measurement is a feature without a definition of success. All four metrics must be tracked from launch day.'}
         </InfoCard>
-        <div className="border border-border rounded-2xl overflow-hidden">
+        <div className="border border-border rounded-xl overflow-hidden">
           <div className="grid grid-cols-4 gap-0 border-b border-border bg-muted/30 px-4 py-2.5">
             {[
               lang === 'ua' ? 'МЕТРИКА' : 'METRIC',

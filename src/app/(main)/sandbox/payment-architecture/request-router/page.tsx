@@ -35,7 +35,7 @@ function LangSwitcher({ lang, onChange }: { lang: Lang; onChange: (l: Lang) => v
 
 function InfoCard({ children }: { children: React.ReactNode }) {
   return (
-    <div className="border border-border bg-card rounded-2xl px-4 py-3 flex items-start gap-3 mb-6">
+    <div className="border border-border bg-card rounded-xl px-4 py-3 flex items-start gap-3 mb-6">
       <Info className="size-4 shrink-0 mt-0.5 text-muted-foreground" />
       <div className="text-sm text-foreground leading-relaxed">{children}</div>
     </div>
@@ -44,7 +44,7 @@ function InfoCard({ children }: { children: React.ReactNode }) {
 
 function WarnCard({ children }: { children: React.ReactNode }) {
   return (
-    <div className="border border-warning/30 bg-warning-bg rounded-2xl px-4 py-3 flex items-start gap-3 mb-4">
+    <div className="border border-warning/30 bg-warning-bg rounded-xl px-4 py-3 flex items-start gap-3 mb-4">
       <AlertTriangle className="size-4 shrink-0 mt-0.5 text-warning" />
       <div className="text-sm text-foreground leading-relaxed">{children}</div>
     </div>
@@ -254,7 +254,7 @@ export default function Page() {
       <DocSection num="1" title={ua ? 'Ендпоінти' : 'Endpoints'}>
         <div className="flex flex-col gap-6">
           {ENDPOINTS.map(ep => (
-            <div key={ep.path} className="border border-border rounded-2xl overflow-hidden">
+            <div key={ep.path} className="border border-border rounded-xl overflow-hidden">
 
               {/* Header */}
               <div className="flex items-center gap-3 px-4 py-3 bg-muted border-b border-border flex-wrap gap-y-2">
@@ -357,7 +357,7 @@ export default function Page() {
         <div className="flex flex-col gap-2">
           {VALIDATION_STEPS.map((step, i) => (
             <div key={i} className={cn(
-              'border rounded-2xl p-4 flex items-start gap-3',
+              'border rounded-xl p-4 flex items-start gap-3',
               !step.phase2 ? 'opacity-50 border-dashed' : 'border-border bg-card',
             )}>
               <div className="flex size-6 shrink-0 items-center justify-center rounded-lg bg-muted text-xs font-bold text-muted-foreground tabular-nums mt-0.5">
@@ -386,7 +386,7 @@ export default function Page() {
           ))}
 
           {/* Terminal: forward to orchestrator */}
-          <div className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-success-bg border border-success/30">
+          <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-success-bg border border-success/30">
             <ArrowRight className="size-4 shrink-0 text-success" />
             <span className="text-sm font-semibold text-success">
               {ua ? 'Всі перевірки пройдено → передача до Orchestrator' : 'All checks passed → forward to Orchestrator'}

@@ -101,7 +101,7 @@ export default function STMPage() {
     >
 
       {/* Live Price Block */}
-      <div className="border border-border rounded-2xl bg-card p-5 mb-10">
+      <div className="border border-border rounded-xl bg-card p-5 mb-10">
         <div className="flex items-center justify-between flex-wrap gap-2 mb-4">
           <span className="text-xs font-bold tracking-widest uppercase text-muted-foreground">
             Live Price | Euronext Paris: STMPA
@@ -421,7 +421,7 @@ export default function STMPage() {
               { date: '2026–27',      title: 'NXP MEMS Integration' },
               { date: '2026+',        title: 'AI Datacenter Power' },
             ].map(c => (
-              <div key={c.title} className="flex items-start gap-4 px-4 py-3 bg-card border border-border rounded-2xl">
+              <div key={c.title} className="flex items-start gap-4 px-4 py-3 bg-card border border-border rounded-xl">
                 <span className="text-xs font-bold text-muted-foreground shrink-0 min-w-24 pt-0.5">
                   {c.date}
                 </span>

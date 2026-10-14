@@ -26,7 +26,7 @@ export function ToolBtn({
 
 export function EditorToolbar({ editor }: { editor: Editor }) {
   return (
-    <div className="mb-4 flex flex-wrap items-center gap-1 rounded-[10px] border border-border bg-card p-2">
+    <div className="mb-4 flex flex-wrap items-center gap-1 rounded-lg border border-border bg-card p-2">
       <ToolBtn active={editor.isActive('bold')} onClick={() => editor.chain().focus().toggleBold().run()} title="Bold">
         <strong>B</strong>
       </ToolBtn>

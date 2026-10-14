@@ -21,7 +21,7 @@ export function LockedNotice({
   const [open, setOpen] = useState(false)
 
   return (
-    <div className="flex flex-col items-center gap-3 rounded-2xl border border-border bg-card py-20 text-center">
+    <div className="flex flex-col items-center gap-3 rounded-xl border border-border bg-card py-20 text-center">
       <div className="flex size-14 items-center justify-center rounded-xl bg-muted">
         <Lock className="size-7 text-muted-foreground" />
       </div>

@@ -163,7 +163,7 @@ const NOTES: { Icon: typeof RefreshCw; text: I18n }[] = [
 function MethodCard({ method, lang }: { method: Method; lang: Lang }) {
   return (
     <div className={cn(
-      'border rounded-2xl p-4 flex flex-col gap-3',
+      'border rounded-xl p-4 flex flex-col gap-3',
       method.recommended
         ? 'border-brand bg-brand-bg'
         : 'border-border bg-card shadow-card',
@@ -225,7 +225,7 @@ export default function Page() {
 
       {/* ── Section 1: What is it ─────────────────────────────────────────── */}
       <DocSection num="1" title={ua ? 'Суть проблеми' : 'The Problem'}>
-        <div className="border border-border bg-card shadow-card rounded-2xl px-4 py-3 mb-6">
+        <div className="border border-border bg-card shadow-card rounded-xl px-4 py-3 mb-6">
           <p className="text-sm text-foreground leading-relaxed">
             {ua ? (
               <>
@@ -259,7 +259,7 @@ export default function Page() {
           {FLOW_STEPS.map((step, i) => (
             <div key={i}>
               <div className={cn(
-                'border rounded-2xl px-4 py-3',
+                'border rounded-xl px-4 py-3',
                 step.accent
                   ? 'border-success/30 bg-success-bg'
                   : 'border-border bg-card shadow-card',
@@ -295,7 +295,7 @@ export default function Page() {
       <DocSection num="4" title={ua ? 'Важливі деталі' : 'Implementation Notes'}>
         <div className="grid grid-cols-1 gap-3 tablet:grid-cols-2">
           {NOTES.map(({ Icon, text }, i) => (
-            <div key={i} className="flex items-start gap-3 border border-border bg-card shadow-card rounded-2xl px-4 py-3">
+            <div key={i} className="flex items-start gap-3 border border-border bg-card shadow-card rounded-xl px-4 py-3">
               <div className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-muted text-muted-foreground">
                 <Icon className="size-3.5" />
               </div>

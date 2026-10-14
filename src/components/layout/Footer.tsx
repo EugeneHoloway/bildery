@@ -202,7 +202,7 @@ export function Footer() {
               {welcomeState === 'typing' ? (
                 <div className="flex items-start gap-2">
                   <div className="size-7 rounded-full bg-muted-foreground/20 flex items-center justify-center shrink-0 text-foreground text-xs font-medium">S</div>
-                  <div className="bg-muted text-sm rounded-2xl rounded-tl-sm px-3 py-2 flex items-center gap-1">
+                  <div className="bg-muted text-sm rounded-xl rounded-tl-sm px-3 py-2 flex items-center gap-1">
                     <span className="size-1.5 rounded-full bg-muted-foreground/60 animate-bounce [animation-delay:0ms]" />
                     <span className="size-1.5 rounded-full bg-muted-foreground/60 animate-bounce [animation-delay:150ms]" />
                     <span className="size-1.5 rounded-full bg-muted-foreground/60 animate-bounce [animation-delay:300ms]" />
@@ -212,7 +212,7 @@ export function Footer() {
                 <div className="flex flex-col gap-1">
                   <div className="flex items-start gap-2">
                     <div className="size-7 rounded-full bg-muted-foreground/20 flex items-center justify-center shrink-0 text-foreground text-xs font-medium">S</div>
-                    <div className="bg-muted rounded-2xl rounded-tl-sm px-4 py-3 max-w-[85%]">
+                    <div className="bg-muted rounded-xl rounded-tl-sm px-4 py-3 max-w-[85%]">
                       <p className="text-sm text-foreground">How can we help you?</p>
                     </div>
                   </div>
@@ -224,7 +224,7 @@ export function Footer() {
                 if (msg.kind === 'user') return (
                   <div key={msg.id} className="flex flex-col items-end gap-1">
                     <div className="flex items-start justify-end gap-2">
-                      <div className="bg-brand text-white text-sm rounded-2xl rounded-tr-sm px-3 py-2 max-w-[80%] whitespace-pre-wrap">{msg.text}</div>
+                      <div className="bg-brand text-white text-sm rounded-xl rounded-tr-sm px-3 py-2 max-w-[80%] whitespace-pre-wrap">{msg.text}</div>
                       <div className="size-7 rounded-full bg-muted flex items-center justify-center shrink-0">
                         <UserRound className="size-4 text-muted-foreground" />
                       </div>
@@ -240,7 +240,7 @@ export function Footer() {
                 if (msg.kind === 'typing') return (
                   <div key={msg.id} className="flex items-start gap-2">
                     <div className="size-7 rounded-full bg-brand flex items-center justify-center shrink-0 text-white text-xs font-medium">D</div>
-                    <div className="bg-muted text-sm rounded-2xl rounded-tl-sm px-3 py-2 flex items-center gap-1">
+                    <div className="bg-muted text-sm rounded-xl rounded-tl-sm px-3 py-2 flex items-center gap-1">
                       <span className="size-1.5 rounded-full bg-muted-foreground/60 animate-bounce [animation-delay:0ms]" />
                       <span className="size-1.5 rounded-full bg-muted-foreground/60 animate-bounce [animation-delay:150ms]" />
                       <span className="size-1.5 rounded-full bg-muted-foreground/60 animate-bounce [animation-delay:300ms]" />
@@ -251,7 +251,7 @@ export function Footer() {
                   <div key={msg.id} className="flex flex-col gap-1">
                     <div className="flex items-start gap-2">
                       <div className="size-7 rounded-full bg-brand flex items-center justify-center shrink-0 text-white text-xs font-medium">D</div>
-                      <div className="bg-muted text-sm rounded-2xl rounded-tl-sm px-3 py-2 max-w-[80%]">{msg.text}</div>
+                      <div className="bg-muted text-sm rounded-xl rounded-tl-sm px-3 py-2 max-w-[80%]">{msg.text}</div>
                     </div>
                     <span className="text-xs text-muted-foreground pl-9">David · Just now</span>
                   </div>
@@ -303,7 +303,7 @@ export function Footer() {
             {/* Input */}
             {csatState === 'hidden' && (
               <div className="shrink-0 px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
-                <div className="flex gap-3 rounded-2xl border border-border bg-muted/40 px-4 pt-3 pb-2.5">
+                <div className="flex gap-3 rounded-xl border border-border bg-muted/40 px-4 pt-3 pb-2.5">
                   {/* Left: textarea + icons row */}
                   <div className="flex flex-1 flex-col gap-2 min-w-0">
                     <textarea
@@ -342,7 +342,7 @@ export function Footer() {
 
           {/* ── Desktop: floating popup (unchanged) ── */}
           <div className={`hidden tablet:block fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-full px-4 transition-all duration-300 ease-out ${expanded ? 'max-w-lg' : 'max-w-sm'}`}>
-            <div className="rounded-2xl border border-border bg-background shadow-xl flex flex-col overflow-hidden">
+            <div className="rounded-xl border border-border bg-background shadow-xl flex flex-col overflow-hidden">
               {/* Header */}
               <div className="flex items-center justify-between px-4 pt-3 pb-2 shrink-0">
                 <span className="text-sm font-medium text-foreground">Ask Support</span>
@@ -368,7 +368,7 @@ export function Footer() {
                   {welcomeState === 'typing' ? (
                     <div className="flex items-start gap-2">
                       <div className="size-6 rounded-full bg-muted-foreground/20 flex items-center justify-center shrink-0 text-foreground text-xs font-medium">S</div>
-                      <div className="bg-muted text-sm rounded-2xl rounded-tl-sm px-3 py-2 flex items-center gap-1">
+                      <div className="bg-muted text-sm rounded-xl rounded-tl-sm px-3 py-2 flex items-center gap-1">
                         <span className="size-1.5 rounded-full bg-muted-foreground/60 animate-bounce [animation-delay:0ms]" />
                         <span className="size-1.5 rounded-full bg-muted-foreground/60 animate-bounce [animation-delay:150ms]" />
                         <span className="size-1.5 rounded-full bg-muted-foreground/60 animate-bounce [animation-delay:300ms]" />
@@ -378,7 +378,7 @@ export function Footer() {
                     <div className="flex flex-col gap-1">
                       <div className="flex items-start gap-2">
                         <div className="size-6 rounded-full bg-muted-foreground/20 flex items-center justify-center shrink-0 text-foreground text-xs font-medium">S</div>
-                        <div className="bg-muted rounded-2xl rounded-tl-sm px-3 py-2 max-w-[85%]">
+                        <div className="bg-muted rounded-xl rounded-tl-sm px-3 py-2 max-w-[85%]">
                           <p className="text-sm text-foreground">How can we help you?</p>
                         </div>
                       </div>
@@ -389,7 +389,7 @@ export function Footer() {
                     if (msg.kind === 'user') return (
                       <div key={msg.id} className="flex flex-col items-end gap-1">
                         <div className="flex items-start justify-end gap-2">
-                          <div className="bg-brand text-white text-sm rounded-2xl rounded-tr-sm px-3 py-2 max-w-[80%] whitespace-pre-wrap">{msg.text}</div>
+                          <div className="bg-brand text-white text-sm rounded-xl rounded-tr-sm px-3 py-2 max-w-[80%] whitespace-pre-wrap">{msg.text}</div>
                           <div className="size-6 rounded-full bg-muted flex items-center justify-center shrink-0">
                             <UserRound className="size-3.5 text-muted-foreground" />
                           </div>
@@ -405,7 +405,7 @@ export function Footer() {
                     if (msg.kind === 'typing') return (
                       <div key={msg.id} className="flex items-start gap-2">
                         <div className="size-6 rounded-full bg-brand flex items-center justify-center shrink-0 text-white text-xs font-medium">D</div>
-                        <div className="bg-muted text-sm rounded-2xl rounded-tl-sm px-3 py-2 flex items-center gap-1">
+                        <div className="bg-muted text-sm rounded-xl rounded-tl-sm px-3 py-2 flex items-center gap-1">
                           <span className="size-1.5 rounded-full bg-muted-foreground/60 animate-bounce [animation-delay:0ms]" />
                           <span className="size-1.5 rounded-full bg-muted-foreground/60 animate-bounce [animation-delay:150ms]" />
                           <span className="size-1.5 rounded-full bg-muted-foreground/60 animate-bounce [animation-delay:300ms]" />
@@ -416,7 +416,7 @@ export function Footer() {
                       <div key={msg.id} className="flex flex-col gap-1">
                         <div className="flex items-start gap-2">
                           <div className="size-6 rounded-full bg-brand flex items-center justify-center shrink-0 text-white text-xs font-medium">D</div>
-                          <div className="bg-muted text-sm rounded-2xl rounded-tl-sm px-3 py-2 max-w-[80%]">{msg.text}</div>
+                          <div className="bg-muted text-sm rounded-xl rounded-tl-sm px-3 py-2 max-w-[80%]">{msg.text}</div>
                         </div>
                         <span className="text-xs text-muted-foreground pl-8">David · Just now</span>
                       </div>

@@ -42,7 +42,7 @@ interface I18n { en: string; ua: string }
 
 function CodeBlock({ code, label }: { code: string; label?: string }) {
   return (
-    <div className="rounded-2xl border border-border overflow-hidden">
+    <div className="rounded-xl border border-border overflow-hidden">
       {label && (
         <div className="flex items-center gap-2 px-4 py-2 border-b border-border bg-muted">
           <Code2 className="size-3.5 text-muted-foreground" />
@@ -60,7 +60,7 @@ function CodeBlock({ code, label }: { code: string; label?: string }) {
 
 function InfoCard({ text }: { text: string }) {
   return (
-    <div className="border border-border bg-card shadow-card rounded-2xl px-4 py-3 flex items-start gap-3 mb-6">
+    <div className="border border-border bg-card shadow-card rounded-xl px-4 py-3 flex items-start gap-3 mb-6">
       <Info className="size-4 shrink-0 mt-0.5 text-muted-foreground" />
       <p className="text-sm text-foreground leading-relaxed">{text}</p>
     </div>
@@ -557,7 +557,7 @@ function FieldTable({ fields, lang }: { fields: MethodField[]; lang: Lang }) {
 function MethodCard({ m, lang }: { m: MethodDef; lang: Lang }) {
   const ua = lang === 'ua'
   return (
-    <div className="border border-border rounded-2xl overflow-hidden">
+    <div className="border border-border rounded-xl overflow-hidden">
       {/* Header */}
       <div className="px-4 py-3 bg-muted border-b border-border flex items-start gap-3">
         <div className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-background text-muted-foreground">
@@ -619,7 +619,7 @@ function EndpointCard({ ep, lang }: { ep: Endpoint; lang: Lang }) {
   const ua = lang === 'ua'
   const methodColor = ep.method === 'GET' ? 'text-sky-500 bg-sky-500/10 border-sky-500/30' : 'text-success bg-success-bg border-success/30'
   return (
-    <div className="border border-border rounded-2xl overflow-hidden">
+    <div className="border border-border rounded-xl overflow-hidden">
       <div className="px-4 py-3 bg-muted border-b border-border flex items-center gap-3">
         <Badge variant="outline" className={cn('pointer-events-none font-mono text-xs font-bold shrink-0', methodColor)}>{ep.method}</Badge>
         <code className="text-sm font-mono font-semibold text-foreground">{ep.path}</code>
@@ -746,7 +746,7 @@ export default function Page() {
       {/* ── Section 3: Frontend API ───────────────────────────────────────── */}
       <div className="mt-8">
         <DocSection num="3" title={ua ? 'HTTP API для фронтенду' : 'Frontend HTTP API'}>
-          <div className="border border-border bg-card shadow-card rounded-2xl px-4 py-3 flex items-start gap-3 mb-6">
+          <div className="border border-border bg-card shadow-card rounded-xl px-4 py-3 flex items-start gap-3 mb-6">
             <Info className="size-4 shrink-0 mt-0.5 text-muted-foreground" />
             <p className="text-sm text-muted-foreground leading-relaxed">
               {ua
@@ -765,7 +765,7 @@ export default function Page() {
       {/* ── Section 4: Frontend status handling ──────────────────────────── */}
       <div className="mt-8">
         <DocSection num="4" title={ua ? 'Обробка статусів на фронтенді' : 'Frontend Status Handling'}>
-          <div className="border border-border bg-card shadow-card rounded-2xl px-4 py-3 flex items-start gap-3 mb-6">
+          <div className="border border-border bg-card shadow-card rounded-xl px-4 py-3 flex items-start gap-3 mb-6">
             <Info className="size-4 shrink-0 mt-0.5 text-muted-foreground" />
             <p className="text-sm text-muted-foreground leading-relaxed">
               {ua
@@ -809,7 +809,7 @@ export default function Page() {
         <DocSection num="5" title={ua ? 'Правила реалізації адаптера' : 'Adapter Implementation Rules'}>
           <div className="grid grid-cols-1 gap-4 tablet:grid-cols-2">
             {ADAPTER_RULES.map(({ Icon, title, desc }, i) => (
-              <div key={i} className="border border-border bg-card rounded-2xl p-4 flex flex-col gap-2">
+              <div key={i} className="border border-border bg-card rounded-xl p-4 flex flex-col gap-2">
                 <div className="flex items-start gap-3">
                   <div className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-muted text-muted-foreground">
                     <Icon className="size-3.5" />
