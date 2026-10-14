@@ -181,7 +181,7 @@ export function LimitsTab({ playerName, playerCurrency, fxRate }: {
             </div>
           </div>
           <Button variant="outline" size="sm" className="gap-1.5 shrink-0" onClick={openAddPl}>
-            <Pencil className="size-3.5" />
+            <Pencil />
             <span>Edit limits</span>
           </Button>
         </div>
@@ -275,7 +275,7 @@ export function LimitsTab({ playerName, playerCurrency, fxRate }: {
             <p className="text-xs text-muted-foreground mt-0.5">Player has not requested any exclusion period.</p>
           </div>
           <Button variant="outline" size="sm" className="mt-1 gap-1.5" onClick={() => setSeDrawerOpen(true)}>
-            <Plus className="size-3.5" />
+            <Plus />
             Apply self-exclusion
           </Button>
         </div>
@@ -292,7 +292,7 @@ export function LimitsTab({ playerName, playerCurrency, fxRate }: {
             </div>
           </div>
           <Button variant="outline" size="sm" className="gap-1.5 shrink-0" onClick={() => setCoDrawerOpen(true)}>
-            <Pencil className="size-3.5" />
+            <Pencil />
             <span>Edit</span>
           </Button>
         </div>
@@ -360,7 +360,7 @@ export function LimitsTab({ playerName, playerCurrency, fxRate }: {
             </div>
           </div>
           <Button variant="outline" size="sm" className="gap-1.5 shrink-0" onClick={openAddOl}>
-            <Pencil className="size-3.5" />
+            <Pencil />
             <span>Edit limits</span>
           </Button>
         </div>
@@ -451,7 +451,7 @@ export function LimitsTab({ playerName, playerCurrency, fxRate }: {
           <DrawerHeader className="border-b border-border flex flex-row items-center justify-between">
             <DrawerTitle>{plEditIndex !== null ? 'Edit player limit' : 'Add player limit'}</DrawerTitle>
             <DrawerClose asChild>
-              <Button variant="ghost" size="icon-sm"><X className="size-4" /></Button>
+              <Button variant="ghost" size="icon-sm"><X /></Button>
             </DrawerClose>
           </DrawerHeader>
           <div className="flex flex-col gap-5 flex-1 overflow-y-auto px-4 py-5 min-h-0">
@@ -524,7 +524,7 @@ export function LimitsTab({ playerName, playerCurrency, fxRate }: {
           <DrawerHeader className="border-b border-border flex flex-row items-center justify-between">
             <DrawerTitle>Edit operator limit</DrawerTitle>
             <DrawerClose asChild>
-              <Button variant="ghost" size="icon-sm"><X className="size-4" /></Button>
+              <Button variant="ghost" size="icon-sm"><X /></Button>
             </DrawerClose>
           </DrawerHeader>
           <div className="flex flex-col gap-5 flex-1 overflow-y-auto px-4 py-5 min-h-0">
@@ -609,7 +609,7 @@ export function LimitsTab({ playerName, playerCurrency, fxRate }: {
               <p className="text-xs text-muted-foreground mt-0.5">For player: {playerName}</p>
             </div>
             <DrawerClose asChild>
-              <Button variant="ghost" size="icon-sm"><X className="size-4" /></Button>
+              <Button variant="ghost" size="icon-sm"><X /></Button>
             </DrawerClose>
           </DrawerHeader>
 
@@ -716,7 +716,7 @@ export function LimitsTab({ playerName, playerCurrency, fxRate }: {
               disabled={!seReason}
               onClick={() => setSeDrawerOpen(false)}
             >
-              <Ban className="size-4" />
+              <Ban />
               Apply exclusion
             </Button>
           </div>
@@ -732,7 +732,7 @@ export function LimitsTab({ playerName, playerCurrency, fxRate }: {
               <p className="text-xs text-muted-foreground mt-0.5">For player: {playerName}</p>
             </div>
             <DrawerClose asChild>
-              <Button variant="ghost" size="icon-sm"><X className="size-4" /></Button>
+              <Button variant="ghost" size="icon-sm"><X /></Button>
             </DrawerClose>
           </DrawerHeader>
 
@@ -826,7 +826,7 @@ export function LimitsTab({ playerName, playerCurrency, fxRate }: {
               disabled={!coReason}
               onClick={() => setCoDrawerOpen(false)}
             >
-              <Timer className="size-4" />
+              <Timer />
               Apply cooling-off
             </Button>
           </div>

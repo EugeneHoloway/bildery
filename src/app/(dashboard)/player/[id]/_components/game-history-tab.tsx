@@ -259,7 +259,7 @@ export function GameHistoryTab({ playerCurrency, fxRate, dateRange, onDateRangeC
           <Popover open={gameColOpen} onOpenChange={setGameColOpen}>
             <PopoverTrigger asChild>
               <Button variant="outline" size="sm" className="gap-2">
-                <Columns2 className="size-3.5" />
+                <Columns2 />
                 <span className="hidden sm:inline">Columns</span>
               </Button>
             </PopoverTrigger>
@@ -291,7 +291,7 @@ export function GameHistoryTab({ playerCurrency, fxRate, dateRange, onDateRangeC
           <DateRangeFilter value={dateRange} onChange={onDateRangeChange} mobileLabel="none" />
 
           <Button variant="outline" size="sm" className="gap-2">
-            <Download className="size-3.5" />
+            <Download />
             <span className="hidden sm:inline">Export</span>
           </Button>
         </div>
@@ -400,7 +400,7 @@ export function GameHistoryTab({ playerCurrency, fxRate, dateRange, onDateRangeC
                 disabled={gamePage === 1}
                 aria-label="First page"
               >
-                <ChevronsLeft className="size-4" />
+                <ChevronsLeft />
               </Button>
               <Button
                 variant="outline"
@@ -409,7 +409,7 @@ export function GameHistoryTab({ playerCurrency, fxRate, dateRange, onDateRangeC
                 disabled={gamePage === 1}
                 aria-label="Previous page"
               >
-                <ChevronLeft className="size-4" />
+                <ChevronLeft />
               </Button>
               <Button
                 variant="outline"
@@ -418,7 +418,7 @@ export function GameHistoryTab({ playerCurrency, fxRate, dateRange, onDateRangeC
                 disabled={gamePage === gameTotalPages}
                 aria-label="Next page"
               >
-                <ChevronRight className="size-4" />
+                <ChevronRight />
               </Button>
               <Button
                 variant="outline"
@@ -427,7 +427,7 @@ export function GameHistoryTab({ playerCurrency, fxRate, dateRange, onDateRangeC
                 disabled={gamePage === gameTotalPages}
                 aria-label="Last page"
               >
-                <ChevronsRight className="size-4" />
+                <ChevronsRight />
               </Button>
             </div>
           </div>

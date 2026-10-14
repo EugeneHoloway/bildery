@@ -539,10 +539,10 @@ function SortableItem({
             className="h-7 text-sm flex-1"
           />
           <Button variant="ghost" size="icon-sm" onClick={commitEdit} aria-label="Save">
-            <Check className="size-3.5" />
+            <Check />
           </Button>
           <Button variant="ghost" size="icon-sm" onClick={cancelEdit} aria-label="Cancel">
-            <X className="size-3.5" />
+            <X />
           </Button>
         </div>
       ) : (
@@ -558,7 +558,7 @@ function SortableItem({
           {isUnlocked && (
             <div className="flex items-center gap-0.5 shrink-0">
               <Button variant="ghost" size="icon-sm" onClick={startEdit} aria-label="Edit">
-                <Pencil className="size-3.5" />
+                <Pencil />
               </Button>
               <Button
                 variant="ghost"
@@ -567,7 +567,7 @@ function SortableItem({
                 onClick={() => onDelete(item)}
                 aria-label="Delete"
               >
-                <Trash2 className="size-3.5" />
+                <Trash2 />
               </Button>
             </div>
           )}
@@ -908,7 +908,7 @@ export default function Page() {
             }}
             aria-label={isUnlocked ? 'Lock' : 'Unlock'}
           >
-            {isUnlocked ? <LockOpen className="size-4" /> : <LockIcon className="size-4" />}
+            {isUnlocked ? <LockOpen /> : <LockIcon />}
           </Button>
         </div>
 

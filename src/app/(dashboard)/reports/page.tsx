@@ -426,7 +426,7 @@ function LabelsOverview() {
         <div className="flex items-center gap-2">
           <DateRangeFilter size="default" mobileLabel="preset" defaultPreset="Last 28 Days" />
           <Button variant="default" size="default" className="gap-2 shrink-0">
-            <Download className="size-4" />
+            <Download />
             <span className="hidden sm:inline">Download</span>
           </Button>
         </div>
@@ -647,7 +647,7 @@ function CsatSection() {
           </label>
           <DateRangeFilter size="default" mobileLabel="preset" defaultPreset="Last 28 Days" />
           <Button variant="default" size="default" className="gap-2 shrink-0">
-            <Download className="size-4" />
+            <Download />
             <span className="hidden sm:inline">Download</span>
           </Button>
         </div>
@@ -764,7 +764,7 @@ export default function ReportsPage() {
           <div className="flex items-center gap-2">
             <DateRangeFilter size="default" mobileLabel="preset" defaultPreset="Last 28 Days" />
             <Button variant="default" size="default" className="gap-2 shrink-0">
-              <Download className="size-4" />
+              <Download />
               <span className="hidden sm:inline">Download</span>
             </Button>
           </div>
@@ -851,7 +851,7 @@ export default function ReportsPage() {
             <div className="flex items-center gap-2">
               <HeatmapPeriodSelect />
               <Button variant="outline" size="icon-sm">
-                <Download className="size-4" />
+                <Download />
               </Button>
             </div>
           </div>
@@ -868,7 +868,7 @@ export default function ReportsPage() {
             <div className="flex items-center gap-2">
               <DateRangeFilter size="default" mobileLabel="preset" defaultPreset="Last 28 Days" />
               <Button variant="default" size="default" className="gap-2 shrink-0">
-                <Download className="size-4" />
+                <Download />
                 <span className="hidden sm:inline">Download</span>
               </Button>
             </div>

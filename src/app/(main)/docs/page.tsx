@@ -143,7 +143,7 @@ function DocCard({
                 onClick={(e) => onEdit(e, doc)}
                 aria-label="Edit document"
               >
-                <Pencil className="size-3.5" />
+                <Pencil />
               </Button>
               <Button
                 variant="ghost"
@@ -152,7 +152,7 @@ function DocCard({
                 onClick={(e) => onDelete(e, doc.id)}
                 aria-label="Delete document"
               >
-                <Trash2 className="size-3.5" />
+                <Trash2 />
               </Button>
             </>
           )}
@@ -443,7 +443,7 @@ export default function DocsPage() {
             onClick={() => isUnlocked ? setIsUnlocked(false) : setShowPassword((v) => !v)}
             aria-label={isUnlocked ? 'Lock' : 'Unlock'}
           >
-            {isUnlocked ? <LockOpen className="size-4" /> : <Lock className="size-4" />}
+            {isUnlocked ? <LockOpen /> : <Lock />}
           </Button>
         </div>
 

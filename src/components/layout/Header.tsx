@@ -33,8 +33,8 @@ function ThemeToggle() {
       aria-label="Toggle theme"
     >
       {resolvedTheme === 'dark'
-        ? <Sun className="size-4" />
-        : <Moon className="size-4" />
+        ? <Sun />
+        : <Moon />
       }
     </Button>
   )
@@ -51,7 +51,7 @@ function AuthButtons() {
   if (user) {
     return (
       <Button variant="ghost" size="icon" aria-label="Dashboard" onClick={() => router.push('/dashboard')}>
-        <User className="size-4" />
+        <User />
       </Button>
     )
   }
@@ -161,8 +161,8 @@ export function Header() {
               onClick={() => setMenuOpen((v) => !v)}
             >
               {menuOpen
-                ? <X className="size-5" />
-                : <Menu className="size-5" />
+                ? <X />
+                : <Menu />
               }
             </Button>
           </div>

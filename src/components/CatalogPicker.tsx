@@ -78,7 +78,7 @@ export function CatalogPicker({
                     data-checked={checked}
                     onSelect={() => toggle(code)}
                   >
-                    {isLocked && <Lock className="size-3.5 text-muted-foreground" />}
+                    {isLocked && <Lock className="text-muted-foreground" />}
                     {labelFor(code)}
                   </CommandItem>
                 )
@@ -126,7 +126,7 @@ export function CatalogPicker({
               // Fits inside the 20px badge: smaller hit box, round like the chip
               className="-mr-1 size-4 rounded-full text-muted-foreground hover:text-foreground"
             >
-              <X className="size-3" />
+              <X />
             </Button>
           </Badge>
         )

@@ -238,7 +238,7 @@ function DupFiltersPopover() {
     <Popover>
       <PopoverTrigger asChild>
         <Button variant="outline" size="sm" className="gap-2">
-          <SlidersHorizontal className="size-3.5" />
+          <SlidersHorizontal />
           <span className="hidden sm:inline">Filters</span>
           {dirtyCount > 0 && (
             <span className="ml-0.5 flex size-4 items-center justify-center rounded-full bg-foreground text-2xs font-semibold text-background">
@@ -399,7 +399,7 @@ export function DuplicatesTab({ dateRange, onDateRangeChange }: {
           <Popover open={dupColOpen} onOpenChange={setDupColOpen}>
             <PopoverTrigger asChild>
               <Button variant="outline" size="sm" className="gap-2">
-                <Columns2 className="size-3.5" />
+                <Columns2 />
                 <span className="hidden sm:inline">Columns</span>
               </Button>
             </PopoverTrigger>
@@ -431,7 +431,7 @@ export function DuplicatesTab({ dateRange, onDateRangeChange }: {
           <DateRangeFilter value={dateRange} onChange={onDateRangeChange} mobileLabel="none" />
 
           <Button variant="outline" size="sm" className="gap-2">
-            <Download className="size-3.5" />
+            <Download />
             <span className="hidden sm:inline">Export</span>
           </Button>
         </div>
@@ -605,7 +605,7 @@ export function DuplicatesTab({ dateRange, onDateRangeChange }: {
             </div>
             <DrawerClose asChild>
               <Button variant="ghost" size="icon-sm">
-                <X className="size-4" />
+                <X />
               </Button>
             </DrawerClose>
           </DrawerHeader>
@@ -786,7 +786,7 @@ export function DuplicatesTab({ dateRange, onDateRangeChange }: {
             <div className="shrink-0 border-t border-border bg-muted p-4">
               <Link href={`/player/${selectedDuplicate.id}`}>
                 <Button variant="default" className="w-full gap-2">
-                  <ExternalLink className="size-4" />
+                  <ExternalLink />
                   Open full profile
                 </Button>
               </Link>

@@ -143,7 +143,7 @@ export default function DocEditorPage() {
               onClick={() => isUnlocked ? setIsUnlocked(false) : setShowPassword((v) => !v)}
               aria-label={isUnlocked ? 'Lock' : 'Unlock to edit'}
             >
-              {isUnlocked ? <Unlock className="size-4" /> : <Lock className="size-4" />}
+              {isUnlocked ? <Unlock /> : <Lock />}
             </Button>
           </div>
         </div>

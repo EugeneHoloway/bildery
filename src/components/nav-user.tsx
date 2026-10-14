@@ -63,7 +63,7 @@ export function NavUser() {
                 <span className="truncate font-medium">{email}</span>
                 <span className="truncate text-xs">Free plan</span>
               </div>
-              <ChevronsUpDown className="ml-auto size-4" />
+              <ChevronsUpDown className="ml-auto" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent

@@ -722,7 +722,7 @@ function DomainsFields() {
             <EmptyHeader>
               {/* Project empty-state media: rounded-xl tile, 20px icon */}
               <EmptyMedia variant="icon" className="size-10 rounded-xl">
-                <Globe className="size-5 text-muted-foreground" />
+                <Globe className="text-muted-foreground" />
               </EmptyMedia>
               <EmptyDescription>No domains yet. The storefront has no public address.</EmptyDescription>
             </EmptyHeader>
@@ -805,7 +805,7 @@ function DomainsFields() {
         <div className="flex flex-wrap items-center gap-2">
           {/* Same badge as the brand status in the page header */}
           <Badge variant="success" className="capitalize">
-            <CircleCheck className="size-3.5" />
+            <CircleCheck />
             {IDENTITY.siteStatus.state}
           </Badge>
           <span className="text-sm text-muted-foreground">config v{IDENTITY.siteStatus.configVersion}</span>
@@ -1506,7 +1506,7 @@ function SocialSection() {
               <EmptyHeader>
                 {/* Project empty-state media: rounded-xl tile, 20px icon */}
                 <EmptyMedia variant="icon" className="size-10 rounded-xl">
-                  <Share2 className="size-5 text-muted-foreground" />
+                  <Share2 className="text-muted-foreground" />
                 </EmptyMedia>
                 <EmptyDescription>No social links yet.</EmptyDescription>
               </EmptyHeader>
@@ -2033,7 +2033,7 @@ function BrandSettingsPage() {
                   {BRAND.operatorName}
                 </p>
                 <Badge variant={brandActive ? 'success' : 'secondary'}>
-                  {brandActive ? <CircleCheck className="size-3.5" /> : <CircleOff className="size-3.5" />}
+                  {brandActive ? <CircleCheck /> : <CircleOff />}
                   {brandActive ? 'Active' : 'Inactive'}
                 </Badge>
               </>

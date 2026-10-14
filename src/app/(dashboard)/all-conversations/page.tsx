@@ -906,7 +906,7 @@ function AllConversationsContent() {
                         onClick={() => setListExpanded(true)}
                         title={isWideScreen ? 'Expand list' : 'Unavailable below 1200px'}
                       >
-                        <ChevronRight className="size-4" />
+                        <ChevronRight />
                       </Button>
                     </div>
                     {/* Filter + Search */}
@@ -918,7 +918,7 @@ function AllConversationsContent() {
                           className="size-9 relative"
                           onClick={() => { setCompactFilterOpen(o => !o); setCompactSearchOpen(false) }}
                         >
-                          <SlidersHorizontal className="size-4" />
+                          <SlidersHorizontal />
                           {activeTab !== 'all' && (
                             <span className="absolute top-1.5 right-1.5 size-1.5 rounded-full bg-brand" />
                           )}
@@ -948,7 +948,7 @@ function AllConversationsContent() {
                           className="size-9 relative"
                           onClick={() => { setCompactSearchOpen(o => !o); setCompactFilterOpen(false) }}
                         >
-                          <Search className="size-4" />
+                          <Search />
                           {search && <span className="absolute top-1.5 right-1.5 size-1.5 rounded-full bg-brand" />}
                         </Button>
                         {compactSearchOpen && (
@@ -1023,7 +1023,7 @@ function AllConversationsContent() {
                           onClick={() => setListExpanded(false)}
                           title="Collapse list"
                         >
-                          <ChevronLeft className="size-4" />
+                          <ChevronLeft />
                         </Button>
                       </div>
                       {/* Tabs */}
@@ -1149,7 +1149,7 @@ function AllConversationsContent() {
                   className="size-8 md:hidden mr-1 shrink-0"
                   onClick={() => setSelectedId(null)}
                 >
-                  <ChevronLeft className="size-5" />
+                  <ChevronLeft />
                 </Button>
                 <div className="flex items-center gap-2">
                   <div className="size-8 rounded-full bg-muted-foreground/20 flex items-center justify-center text-sm font-medium text-muted-foreground shrink-0">
@@ -1184,8 +1184,8 @@ function AllConversationsContent() {
                   </div>
                 </div>
                 <div className="flex items-center gap-1 ml-auto">
-                  <Button variant="ghost" size="icon" className="size-8"><BellOff className="size-4" /></Button>
-                  <Button variant="ghost" size="icon" className="size-8"><Share2 className="size-4" /></Button>
+                  <Button variant="ghost" size="icon" className="size-8"><BellOff /></Button>
+                  <Button variant="ghost" size="icon" className="size-8"><Share2 /></Button>
                   <div className="relative">
                     <Button
                       variant="default"
@@ -1194,7 +1194,7 @@ function AllConversationsContent() {
                       onClick={() => setShowStatusMenu(!showStatusMenu)}
                     >
                       {status === 'open' ? 'Open' : status === 'pending' ? 'Pending' : status === 'spam' ? 'Junk' : 'Resolved'}
-                      <ChevronDown className="size-3" />
+                      <ChevronDown />
                     </Button>
                     {showStatusMenu && (
                       <div className="absolute right-0 top-full mt-1 z-50 bg-popover border border-border rounded-lg shadow-md overflow-hidden min-w-[120px]">
@@ -1890,9 +1890,9 @@ function AllConversationsContent() {
                                   <SelectTrigger className="w-full">
                                     <SelectValue>
                                       <span className="flex items-center gap-2">
-                                        {convoPriority === 'normal' && <Minus className="size-4 text-muted-foreground" />}
-                                        {convoPriority === 'high' && <BarChart2 className="size-4 text-warning" />}
-                                        {convoPriority === 'critical' && <AlertTriangle className="size-4 text-destructive" />}
+                                        {convoPriority === 'normal' && <Minus className="text-muted-foreground" />}
+                                        {convoPriority === 'high' && <BarChart2 className="text-warning" />}
+                                        {convoPriority === 'critical' && <AlertTriangle className="text-destructive" />}
                                         {convoPriority === 'normal' ? 'Normal' : convoPriority === 'high' ? 'High' : 'Critical'}
                                       </span>
                                     </SelectValue>
@@ -1900,17 +1900,17 @@ function AllConversationsContent() {
                                   <SelectContent>
                                     <SelectItem value="normal">
                                       <span className="flex items-center gap-2">
-                                        <Minus className="size-4 text-muted-foreground" />Normal
+                                        <Minus className="text-muted-foreground" />Normal
                                       </span>
                                     </SelectItem>
                                     <SelectItem value="high">
                                       <span className="flex items-center gap-2">
-                                        <BarChart2 className="size-4 text-warning" />High
+                                        <BarChart2 className="text-warning" />High
                                       </span>
                                     </SelectItem>
                                     <SelectItem value="critical">
                                       <span className="flex items-center gap-2">
-                                        <AlertTriangle className="size-4 text-destructive" />Critical
+                                        <AlertTriangle className="text-destructive" />Critical
                                       </span>
                                     </SelectItem>
                                   </SelectContent>
@@ -2400,17 +2400,17 @@ function AllConversationsContent() {
                               <SelectTrigger className="w-full">
                                 <SelectValue>
                                   <span className="flex items-center gap-2">
-                                    {convoPriority === 'normal' && <Minus className="size-4 text-muted-foreground" />}
-                                    {convoPriority === 'high' && <BarChart2 className="size-4 text-warning" />}
-                                    {convoPriority === 'critical' && <AlertTriangle className="size-4 text-destructive" />}
+                                    {convoPriority === 'normal' && <Minus className="text-muted-foreground" />}
+                                    {convoPriority === 'high' && <BarChart2 className="text-warning" />}
+                                    {convoPriority === 'critical' && <AlertTriangle className="text-destructive" />}
                                     {convoPriority === 'normal' ? 'Normal' : convoPriority === 'high' ? 'High' : 'Critical'}
                                   </span>
                                 </SelectValue>
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="normal"><span className="flex items-center gap-2"><Minus className="size-4 text-muted-foreground" />Normal</span></SelectItem>
-                                <SelectItem value="high"><span className="flex items-center gap-2"><BarChart2 className="size-4 text-warning" />High</span></SelectItem>
-                                <SelectItem value="critical"><span className="flex items-center gap-2"><AlertTriangle className="size-4 text-destructive" />Critical</span></SelectItem>
+                                <SelectItem value="normal"><span className="flex items-center gap-2"><Minus className="text-muted-foreground" />Normal</span></SelectItem>
+                                <SelectItem value="high"><span className="flex items-center gap-2"><BarChart2 className="text-warning" />High</span></SelectItem>
+                                <SelectItem value="critical"><span className="flex items-center gap-2"><AlertTriangle className="text-destructive" />Critical</span></SelectItem>
                               </SelectContent>
                             </Select>
                           </div>

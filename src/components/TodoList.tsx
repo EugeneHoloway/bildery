@@ -89,7 +89,7 @@ function SortableTodoItem({
           {...attributes}
           {...listeners}
         >
-          <GripVertical className="size-3.5" />
+          <GripVertical />
         </Button>
       )}
 
@@ -154,7 +154,7 @@ function SortableTodoItem({
             onClick={() => onEdit(todo)}
             aria-label="Edit"
           >
-            <Pencil className="size-3.5" />
+            <Pencil />
           </Button>
           <Button
             variant="ghost"
@@ -163,7 +163,7 @@ function SortableTodoItem({
             onClick={() => onDelete(todo.id)}
             aria-label="Delete"
           >
-            <Trash2 className="size-3.5" />
+            <Trash2 />
           </Button>
         </div>
       )}
@@ -178,7 +178,7 @@ function SortableTodoItem({
             onClick={() => onSaveEdit(todo.id)}
             aria-label="Save"
           >
-            <Check className="size-3.5" />
+            <Check />
           </Button>
           <Button
             variant="ghost"
@@ -186,7 +186,7 @@ function SortableTodoItem({
             onClick={onCancelEdit}
             aria-label="Cancel"
           >
-            <X className="size-3.5" />
+            <X />
           </Button>
         </div>
       )}
@@ -330,7 +330,7 @@ export function TodoList() {
           }}
           aria-label={isUnlocked ? 'Lock' : 'Unlock'}
         >
-          {isUnlocked ? <LockOpen className="size-4" /> : <Lock className="size-4" />}
+          {isUnlocked ? <LockOpen /> : <Lock />}
         </Button>
       </div>
 

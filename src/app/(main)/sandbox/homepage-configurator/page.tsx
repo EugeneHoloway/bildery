@@ -94,7 +94,7 @@ function AddSectionDialog({ onAdd }: { onAdd: (label: string) => void }) {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button size="sm" className="w-full">
-          <Plus className="size-3.5" />
+          <Plus />
           Add section
         </Button>
       </DialogTrigger>
@@ -158,7 +158,7 @@ function SortableSectionItem({
           {...attributes}
           {...listeners}
         >
-          <GripVertical className="size-3.5" />
+          <GripVertical />
         </Button>
         <Icon className="size-4 shrink-0 text-muted-foreground" />
         <span className="flex-1 truncate">{section.label}</span>

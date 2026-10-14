@@ -42,7 +42,7 @@ function SortableRow({ item, onToggle }: { item: ToggleItem; onToggle: () => voi
         {...attributes}
         {...listeners}
       >
-        <GripVertical className="size-3.5" />
+        <GripVertical />
       </Button>
       <span className={cn("flex-1 text-sm font-medium", item.enabled ? "text-foreground" : "text-muted-foreground")}>
         {item.label}

@@ -32,7 +32,7 @@ function ThemeToggle() {
       onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
       aria-label="Toggle theme"
     >
-      {resolvedTheme === 'dark' ? <Sun className="size-4" /> : <Moon className="size-4" />}
+      {resolvedTheme === 'dark' ? <Sun /> : <Moon />}
     </Button>
   )
 }
@@ -232,7 +232,7 @@ export default function AccountPage() {
                     className="text-destructive border-destructive/40 hover:bg-destructive/5 hover:text-destructive"
                     onClick={() => setDeactivateOpen(true)}
                   >
-                    <Ban className="size-4" />
+                    <Ban />
                     Deactivate account
                   </Button>
                 </div>

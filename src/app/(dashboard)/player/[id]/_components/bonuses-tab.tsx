@@ -107,7 +107,7 @@ function BonusFiltersPopover() {
     <Popover>
       <PopoverTrigger asChild>
         <Button variant="outline" size="sm" className="gap-2">
-          <SlidersHorizontal className="size-3.5" />
+          <SlidersHorizontal />
           <span className="hidden sm:inline">Filters</span>
           {dirtyCount > 0 && (
             <span className="ml-0.5 flex size-4 items-center justify-center rounded-full bg-foreground text-2xs font-semibold text-background">
@@ -250,7 +250,7 @@ export function BonusesTab({ playerCurrency, fxRate, subtab, onSubtabChange, dat
           <Popover open={bonusColOpen} onOpenChange={setBonusColOpen}>
             <PopoverTrigger asChild>
               <Button variant="outline" size="sm" className="gap-2">
-                <Columns2 className="size-3.5" />
+                <Columns2 />
                 <span className="hidden sm:inline">Columns</span>
               </Button>
             </PopoverTrigger>
@@ -282,7 +282,7 @@ export function BonusesTab({ playerCurrency, fxRate, subtab, onSubtabChange, dat
           <DateRangeFilter value={dateRange} onChange={onDateRangeChange} mobileLabel="none" />
 
           <Button variant="outline" size="sm" className="gap-2">
-            <Download className="size-3.5" />
+            <Download />
             <span className="hidden sm:inline">Export</span>
           </Button>
           </div>
@@ -450,7 +450,7 @@ export function BonusesTab({ playerCurrency, fxRate, subtab, onSubtabChange, dat
             </div>
             <DrawerClose asChild>
               <Button variant="ghost" size="icon-sm">
-                <X className="size-4" />
+                <X />
               </Button>
             </DrawerClose>
           </DrawerHeader>
@@ -602,7 +602,7 @@ export function BonusesTab({ playerCurrency, fxRate, subtab, onSubtabChange, dat
                 className="w-full gap-2 text-destructive hover:text-destructive"
                 onClick={() => setPendingBonusStatus({ id: selectedBonus.id, from: statusOf(selectedBonus), to: 'Cancelled' })}
               >
-                <Ban className="size-4" />
+                <Ban />
                 Cancel bonus
               </Button>
             </div>
